@@ -1,12 +1,336 @@
 {
-  "inertia/app/ssr.tsx": {
-    "file": "ssr.js",
-    "name": "ssr",
-    "src": "inertia/app/ssr.tsx",
+  "_AdminLayout-BZQg86lr.js": {
+    "file": "AdminLayout-BZQg86lr.js",
+    "name": "AdminLayout",
+    "imports": [
+      "inertia/app/app.tsx",
+      "_FlashMessages-l5hkU1wt.js",
+      "_x-DHAZlp0n.js",
+      "_chevron-right-3R6_yXQQ.js",
+      "_menu-C0WtceGK.js",
+      "_user-De936Ysx.js"
+    ]
+  },
+  "_FlashMessages-l5hkU1wt.js": {
+    "file": "FlashMessages-l5hkU1wt.js",
+    "name": "FlashMessages",
+    "imports": [
+      "inertia/app/app.tsx",
+      "_x-DHAZlp0n.js"
+    ]
+  },
+  "_Footer-BdPXeJJh.js": {
+    "file": "Footer-BdPXeJJh.js",
+    "name": "Footer",
+    "imports": [
+      "_x-DHAZlp0n.js",
+      "inertia/app/app.tsx",
+      "_search-spydx536.js",
+      "_file-text-CHnBFBZg.js",
+      "_shield-CWxJHO_2.js",
+      "_menu-C0WtceGK.js",
+      "_mail-Byh4l136.js"
+    ]
+  },
+  "_PublicLayout-B6Sx1jVb.js": {
+    "file": "PublicLayout-B6Sx1jVb.js",
+    "name": "PublicLayout",
+    "imports": [
+      "inertia/app/app.tsx",
+      "_Footer-BdPXeJJh.js"
+    ]
+  },
+  "_arrow-left-BINNXtOf.js": {
+    "file": "arrow-left-BINNXtOf.js",
+    "name": "arrow-left",
+    "imports": [
+      "_x-DHAZlp0n.js"
+    ]
+  },
+  "_arrow-right-8ZNKWu3-.js": {
+    "file": "arrow-right-8ZNKWu3-.js",
+    "name": "arrow-right",
+    "imports": [
+      "_x-DHAZlp0n.js"
+    ]
+  },
+  "_chevron-right-3R6_yXQQ.js": {
+    "file": "chevron-right-3R6_yXQQ.js",
+    "name": "chevron-right",
+    "imports": [
+      "_x-DHAZlp0n.js"
+    ]
+  },
+  "_eye-BhnALPHR.js": {
+    "file": "eye-BhnALPHR.js",
+    "name": "eye",
+    "imports": [
+      "_x-DHAZlp0n.js"
+    ]
+  },
+  "_file-text-CHnBFBZg.js": {
+    "file": "file-text-CHnBFBZg.js",
+    "name": "file-text",
+    "imports": [
+      "_x-DHAZlp0n.js"
+    ]
+  },
+  "_mail-Byh4l136.js": {
+    "file": "mail-Byh4l136.js",
+    "name": "mail",
+    "imports": [
+      "_x-DHAZlp0n.js"
+    ]
+  },
+  "_menu-C0WtceGK.js": {
+    "file": "menu-C0WtceGK.js",
+    "name": "menu",
+    "imports": [
+      "_x-DHAZlp0n.js"
+    ]
+  },
+  "_search-spydx536.js": {
+    "file": "search-spydx536.js",
+    "name": "search",
+    "imports": [
+      "_x-DHAZlp0n.js"
+    ]
+  },
+  "_share-2-CbKbtLVI.js": {
+    "file": "share-2-CbKbtLVI.js",
+    "name": "share-2",
+    "imports": [
+      "_x-DHAZlp0n.js"
+    ]
+  },
+  "_shield-CWxJHO_2.js": {
+    "file": "shield-CWxJHO_2.js",
+    "name": "shield",
+    "imports": [
+      "_x-DHAZlp0n.js"
+    ]
+  },
+  "_upload-OZNAWPUR.js": {
+    "file": "upload-OZNAWPUR.js",
+    "name": "upload",
+    "imports": [
+      "_x-DHAZlp0n.js"
+    ]
+  },
+  "_user-De936Ysx.js": {
+    "file": "user-De936Ysx.js",
+    "name": "user",
+    "imports": [
+      "_x-DHAZlp0n.js"
+    ]
+  },
+  "_users-DVcfigaS.js": {
+    "file": "users-DVcfigaS.js",
+    "name": "users",
+    "imports": [
+      "_x-DHAZlp0n.js"
+    ]
+  },
+  "_x-DHAZlp0n.js": {
+    "file": "x-DHAZlp0n.js",
+    "name": "x",
+    "imports": [
+      "inertia/app/app.tsx"
+    ]
+  },
+  "inertia/app/app.tsx": {
+    "file": "app-CyIHjMYN.js",
+    "name": "app",
+    "src": "inertia/app/app.tsx",
     "isEntry": true,
+    "dynamicImports": [
+      "inertia/pages/admin/dashboard.tsx",
+      "inertia/pages/admin/news/form.tsx",
+      "inertia/pages/admin/news/index.tsx",
+      "inertia/pages/admin/settings/appearance.tsx",
+      "inertia/pages/auth/login.tsx",
+      "inertia/pages/errors/not_found.tsx",
+      "inertia/pages/errors/server_error.tsx",
+      "inertia/pages/home.tsx",
+      "inertia/pages/public/news/index.tsx",
+      "inertia/pages/public/news/show.tsx"
+    ],
+    "css": [
+      "app-D9x7NXYC.css"
+    ]
+  },
+  "inertia/assets/selo-prevencao-corrupcao.png": {
+    "file": "selo-prevencao-corrupcao-on2KwSX7.png",
+    "src": "inertia/assets/selo-prevencao-corrupcao.png"
+  },
+  "inertia/assets/selo-transparencia.png": {
+    "file": "selo-transparencia-CbOChN1d.png",
+    "src": "inertia/assets/selo-transparencia.png"
+  },
+  "inertia/pages/admin/dashboard.tsx": {
+    "file": "dashboard-eiSv4lWX.js",
+    "name": "dashboard",
+    "src": "inertia/pages/admin/dashboard.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "inertia/app/app.tsx",
+      "_AdminLayout-BZQg86lr.js",
+      "_file-text-CHnBFBZg.js",
+      "_eye-BhnALPHR.js",
+      "_users-DVcfigaS.js",
+      "_arrow-right-8ZNKWu3-.js",
+      "_FlashMessages-l5hkU1wt.js",
+      "_x-DHAZlp0n.js",
+      "_chevron-right-3R6_yXQQ.js",
+      "_menu-C0WtceGK.js",
+      "_user-De936Ysx.js"
+    ]
+  },
+  "inertia/pages/admin/news/form.tsx": {
+    "file": "form-CCnbwOKY.js",
+    "name": "form",
+    "src": "inertia/pages/admin/news/form.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "inertia/app/app.tsx",
+      "_AdminLayout-BZQg86lr.js",
+      "_arrow-left-BINNXtOf.js",
+      "_x-DHAZlp0n.js",
+      "_upload-OZNAWPUR.js",
+      "_FlashMessages-l5hkU1wt.js",
+      "_chevron-right-3R6_yXQQ.js",
+      "_menu-C0WtceGK.js",
+      "_user-De936Ysx.js"
+    ]
+  },
+  "inertia/pages/admin/news/index.tsx": {
+    "file": "index-Cph-xXp7.js",
+    "name": "index",
+    "src": "inertia/pages/admin/news/index.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "inertia/app/app.tsx",
+      "_AdminLayout-BZQg86lr.js",
+      "_search-spydx536.js",
+      "_x-DHAZlp0n.js",
+      "_eye-BhnALPHR.js",
+      "_chevron-right-3R6_yXQQ.js",
+      "_FlashMessages-l5hkU1wt.js",
+      "_menu-C0WtceGK.js",
+      "_user-De936Ysx.js"
+    ]
+  },
+  "inertia/pages/admin/settings/appearance.tsx": {
+    "file": "appearance-DT9wLpXS.js",
+    "name": "appearance",
+    "src": "inertia/pages/admin/settings/appearance.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "inertia/app/app.tsx",
+      "_AdminLayout-BZQg86lr.js",
+      "_x-DHAZlp0n.js",
+      "_shield-CWxJHO_2.js",
+      "_share-2-CbKbtLVI.js",
+      "_upload-OZNAWPUR.js",
+      "_FlashMessages-l5hkU1wt.js",
+      "_chevron-right-3R6_yXQQ.js",
+      "_menu-C0WtceGK.js",
+      "_user-De936Ysx.js"
+    ]
+  },
+  "inertia/pages/auth/login.tsx": {
+    "file": "login-CXti0dJf.js",
+    "name": "login",
+    "src": "inertia/pages/auth/login.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "inertia/app/app.tsx",
+      "_FlashMessages-l5hkU1wt.js",
+      "_mail-Byh4l136.js",
+      "_x-DHAZlp0n.js",
+      "_eye-BhnALPHR.js"
+    ]
+  },
+  "inertia/pages/errors/not_found.tsx": {
+    "file": "not_found-BLQ3S_fp.js",
+    "name": "not_found",
+    "src": "inertia/pages/errors/not_found.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "inertia/app/app.tsx"
+    ]
+  },
+  "inertia/pages/errors/server_error.tsx": {
+    "file": "server_error-B2iKnH98.js",
+    "name": "server_error",
+    "src": "inertia/pages/errors/server_error.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "inertia/app/app.tsx"
+    ]
+  },
+  "inertia/pages/home.tsx": {
+    "file": "home-DKuzEjNj.js",
+    "name": "home",
+    "src": "inertia/pages/home.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "inertia/app/app.tsx",
+      "_Footer-BdPXeJJh.js",
+      "_x-DHAZlp0n.js",
+      "_arrow-right-8ZNKWu3-.js",
+      "_users-DVcfigaS.js",
+      "_file-text-CHnBFBZg.js",
+      "_eye-BhnALPHR.js",
+      "_search-spydx536.js",
+      "_shield-CWxJHO_2.js",
+      "_mail-Byh4l136.js",
+      "_chevron-right-3R6_yXQQ.js",
+      "_menu-C0WtceGK.js"
+    ],
     "assets": [
       "selo-transparencia-CbOChN1d.png",
       "selo-prevencao-corrupcao-on2KwSX7.png"
+    ]
+  },
+  "inertia/pages/public/news/index.tsx": {
+    "file": "index-EgT71W38.js",
+    "name": "index",
+    "src": "inertia/pages/public/news/index.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "inertia/app/app.tsx",
+      "_PublicLayout-B6Sx1jVb.js",
+      "_search-spydx536.js",
+      "_Footer-BdPXeJJh.js",
+      "_arrow-right-8ZNKWu3-.js",
+      "_chevron-right-3R6_yXQQ.js",
+      "_x-DHAZlp0n.js",
+      "_file-text-CHnBFBZg.js",
+      "_shield-CWxJHO_2.js",
+      "_menu-C0WtceGK.js",
+      "_mail-Byh4l136.js"
+    ]
+  },
+  "inertia/pages/public/news/show.tsx": {
+    "file": "show-BbDp-jDB.js",
+    "name": "show",
+    "src": "inertia/pages/public/news/show.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "inertia/app/app.tsx",
+      "_PublicLayout-B6Sx1jVb.js",
+      "_arrow-left-BINNXtOf.js",
+      "_Footer-BdPXeJJh.js",
+      "_user-De936Ysx.js",
+      "_eye-BhnALPHR.js",
+      "_share-2-CbKbtLVI.js",
+      "_x-DHAZlp0n.js",
+      "_search-spydx536.js",
+      "_file-text-CHnBFBZg.js",
+      "_shield-CWxJHO_2.js",
+      "_menu-C0WtceGK.js",
+      "_mail-Byh4l136.js"
     ]
   }
 }
