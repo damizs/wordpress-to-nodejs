@@ -5,18 +5,30 @@ const inertiaConfig = defineConfig({
   rootView: 'inertia_layout',
 
   sharedData: {
-    auth: (ctx) => ctx.inertia.always(() => ({
-      user: ctx.auth?.user ? {
-        id: ctx.auth.user.id,
-        fullName: ctx.auth.user.fullName,
-        email: ctx.auth.user.email,
-        role: ctx.auth.user.role,
-      } : null,
-    })),
-    flash: (ctx) => ctx.inertia.always(() => ({
-      success: ctx.session?.flashMessages.get('success') ?? null,
-      error: ctx.session?.flashMessages.get('error') ?? null,
-    })),
+    auth: (ctx) => ctx.inertia.always(() => {
+      try {
+        return {
+          user: ctx.auth?.user ? {
+            id: ctx.auth.user.id,
+            fullName: ctx.auth.user.fullName,
+            email: ctx.auth.user.email,
+            role: ctx.auth.user.role,
+          } : null,
+        }
+      } catch {
+        return { user: null }
+      }
+    }),
+    flash: (ctx) => ctx.inertia.always(() => {
+      try {
+        return {
+          success: ctx.session?.flashMessages?.get('success') ?? null,
+          error: ctx.session?.flashMessages?.get('error') ?? null,
+        }
+      } catch {
+        return { success: null, error: null }
+      }
+    }),
   },
 
   ssr: {
