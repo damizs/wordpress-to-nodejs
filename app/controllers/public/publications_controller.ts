@@ -14,11 +14,12 @@ export default class PublicationsController {
 
     const publications = await query.paginate(page, 20)
     const siteSettings = await SiteSetting.allAsObject()
+    return inertia.render('public/publications/index', { publications: publications.serialize(), filters: { type, search }, siteSettings })
+  }
 
-    return inertia.render('public/publications/index', {
-      publications: publications.serialize(),
-      filters: { type, search },
-      siteSettings,
-    })
+  async show({ params, inertia }: HttpContext) {
+    const publication = await OfficialPublication.query().where('slug', params.slug).firstOrFail()
+    const siteSettings = await SiteSetting.allAsObject()
+    return inertia.render('public/publications/show', { publication: publication.serialize(), siteSettings })
   }
 }

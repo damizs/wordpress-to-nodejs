@@ -1,6 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import OfficialPublication from '#models/official_publication'
 import SystemCategory from '#models/system_category'
+import { generateSlug } from '#helpers/slug'
 import app from '@adonisjs/core/services/app'
 import { cuid } from '@adonisjs/core/helpers'
 import { mkdir } from 'node:fs/promises'
@@ -40,8 +41,10 @@ export default class OfficialPublicationsController {
       fileUrl = `/uploads/publicacoes/${fileName}`
     }
 
+    const slug = generateSlug(`${data.title}${data.number ? '-' + data.number : ''}`)
     await OfficialPublication.create({
       title: data.title,
+      slug,
       type: data.type,
       number: data.number || null,
       publicationDate: data.publication_date,

@@ -4,6 +4,7 @@ import { BaseModel, column } from '@adonisjs/lucid/orm'
 export default class PlenarySession extends BaseModel {
   @column({ isPrimary: true }) declare id: number
   @column() declare title: string
+  @column() declare slug: string | null
   @column() declare type: 'ordinaria' | 'extraordinaria' | 'solene' | 'especial'
   @column() declare sessionDate: string
   @column() declare year: number | null

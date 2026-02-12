@@ -5,6 +5,7 @@ export default class OfficialPublication extends BaseModel {
   static table = 'official_publications'
   @column({ isPrimary: true }) declare id: number
   @column() declare title: string
+  @column() declare slug: string | null
   @column() declare type: string
   @column() declare number: string | null
   @column() declare publicationDate: string

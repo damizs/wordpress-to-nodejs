@@ -25,14 +25,14 @@ export default function ActivitiesIndex({ activities, filters }: Props) {
           </div>
 
           <div className="flex gap-3 mb-6 flex-wrap">
-            <select value={filters.type} onChange={(e) => router.get('/atividades-legislativas', { ...filters, tipo: e.target.value }, { preserveState: true })}
+            <select value={filters.type} onChange={(e) => router.get('/atividades-legislativa', { ...filters, tipo: e.target.value }, { preserveState: true })}
               className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white">
               <option value="">Todos os tipos</option>
               {Object.entries(typeLabels).map(([key, label]) => (
                 <option key={key} value={key}>{label}</option>
               ))}
             </select>
-            <select value={filters.year} onChange={(e) => router.get('/atividades-legislativas', { ...filters, ano: e.target.value }, { preserveState: true })}
+            <select value={filters.year} onChange={(e) => router.get('/atividades-legislativa', { ...filters, ano: e.target.value }, { preserveState: true })}
               className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white">
               <option value="">Todos os anos</option>
               {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map((y) => (
@@ -43,7 +43,7 @@ export default function ActivitiesIndex({ activities, filters }: Props) {
 
           <div className="space-y-3">
             {activities.data?.map((a: any) => (
-              <Link key={a.id} href={`/atividades-legislativas/${a.id}`}
+              <Link key={a.id} href={`/atividades-legislativa/${a.slug || a.id}`}
                 className="block bg-white rounded-xl shadow-sm p-5 hover:shadow-md transition-shadow">
                 <div className="flex items-start gap-4">
                   <div className="w-10 h-10 bg-navy/5 rounded-lg flex items-center justify-center flex-shrink-0">

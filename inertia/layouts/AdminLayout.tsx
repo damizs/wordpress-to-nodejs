@@ -3,7 +3,7 @@ import { FlashMessages } from '~/components/FlashMessages'
 import {
   LayoutDashboard, Newspaper, Palette, ChevronLeft, ChevronRight,
   LogOut, Menu, X, User, Home, Users, FileText, Link2, Shield,
-  ScrollText, Settings, Monitor, HelpCircle, BookOpen, Info, Tags, Calendar, Users2,
+  ScrollText, Settings, Monitor, HelpCircle, BookOpen, Info, Tags, Calendar, Users2, Gavel,
 } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 
@@ -25,6 +25,7 @@ const navItems = [
   { label: 'Publicações', href: '/painel/publicacoes', icon: FileText },
   { label: 'FAQ', href: '/painel/faq', icon: HelpCircle },
   { label: 'Transparência', href: '/painel/transparencia', icon: Shield },
+  { label: 'Licitações', href: '/painel/licitacoes', icon: Gavel },
   { label: 'Acesso à Informação', href: '/painel/acesso-informacao', icon: Info },
   { label: 'Links Rápidos', href: '/painel/links-rapidos', icon: Link2 },
   { label: 'Categorias', href: '/painel/categorias', icon: Tags },

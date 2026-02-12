@@ -9,7 +9,7 @@ export default function PublicationsIndex({ publications, filters }: Props) {
   const [search, setSearch] = useState(filters.search || '')
 
   function applyFilter(key: string, value: string) {
-    router.get('/publicacoes', { ...filters, [key]: value }, { preserveState: true })
+    router.get('/publicacoes-oficiais', { ...filters, [key]: value }, { preserveState: true })
   }
 
   return (

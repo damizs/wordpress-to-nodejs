@@ -1,6 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import PlenarySession from '#models/plenary_session'
 import SystemCategory from '#models/system_category'
+import { sessionSlug } from '#helpers/slug'
 import app from '@adonisjs/core/services/app'
 import { cuid } from '@adonisjs/core/helpers'
 import { mkdir } from 'node:fs/promises'
@@ -47,6 +48,7 @@ export default class PlenarySessionsController {
 
     await PlenarySession.create({
       title: data.title,
+      slug: sessionSlug(data.title, data.session_date),
       type: data.type || 'ordinaria',
       sessionDate: data.session_date,
       year: data.year ? parseInt(data.year) : new Date(data.session_date).getFullYear(),
@@ -86,6 +88,7 @@ export default class PlenarySessionsController {
 
     plenarySession.merge({
       title: data.title,
+      slug: plenarySession.slug || sessionSlug(data.title, data.session_date),
       type: data.type || 'ordinaria',
       sessionDate: data.session_date,
       year: data.year ? parseInt(data.year) : new Date(data.session_date).getFullYear(),

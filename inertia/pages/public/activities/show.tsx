@@ -15,7 +15,7 @@ export default function ActivityShow({ activity }: Props) {
       <Head title={`${typeLabels[activity.type] || activity.type} Nº ${activity.number}/${activity.year} - Câmara de Sumé`} />
       <section className="py-12 bg-gray-50">
         <div className="max-w-4xl mx-auto px-4">
-          <Link href="/atividades-legislativas" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 mb-6">
+          <Link href="/atividades-legislativa" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 mb-6">
             <ArrowLeft className="w-4 h-4" /> Voltar
           </Link>
           <article className="bg-white rounded-2xl shadow-sm p-8">
