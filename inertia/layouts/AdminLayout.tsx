@@ -3,7 +3,7 @@ import { FlashMessages } from '~/components/FlashMessages'
 import {
   LayoutDashboard, Newspaper, Palette, ChevronLeft, ChevronRight,
   LogOut, Menu, X, User, Home, Users, FileText, Link2, Shield,
-  ScrollText, Settings, Monitor,
+  ScrollText, Settings, Monitor, HelpCircle, BookOpen, Info,
 } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 
@@ -16,10 +16,15 @@ const navItems = [
   { label: 'Dashboard', href: '/painel', icon: LayoutDashboard },
   { label: 'Homepage', href: '/painel/homepage', icon: Monitor },
   { label: 'Notícias', href: '/painel/noticias', icon: Newspaper },
+  { label: 'Legislaturas', href: '/painel/legislaturas', icon: Settings },
   { label: 'Vereadores', href: '/painel/vereadores', icon: Users },
   { label: 'Ativ. Legislativas', href: '/painel/atividades', icon: ScrollText },
-  { label: 'Links Rápidos', href: '/painel/links-rapidos', icon: Link2 },
+  { label: 'Sessões / Atas', href: '/painel/sessoes', icon: FileText },
+  { label: 'Publicações', href: '/painel/publicacoes', icon: FileText },
+  { label: 'FAQ', href: '/painel/faq', icon: HelpCircle },
   { label: 'Transparência', href: '/painel/transparencia', icon: Shield },
+  { label: 'Acesso à Informação', href: '/painel/acesso-informacao', icon: Info },
+  { label: 'Links Rápidos', href: '/painel/links-rapidos', icon: Link2 },
   { label: 'Aparência', href: '/painel/aparencia', icon: Palette },
 ]
 

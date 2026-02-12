@@ -12,6 +12,11 @@ const AdminCouncilorsController = () => import('#controllers/admin/councilors_co
 const AdminActivitiesController = () => import('#controllers/admin/legislative_activities_controller')
 const AdminQuickLinksController = () => import('#controllers/admin/quick_links_controller')
 const AdminTransparencyController = () => import('#controllers/admin/transparency_controller')
+const AdminLegislaturesController = () => import('#controllers/admin/legislatures_controller')
+const AdminPlenarySessionsController = () => import('#controllers/admin/plenary_sessions_controller')
+const AdminPublicationsController = () => import('#controllers/admin/official_publications_controller')
+const AdminFaqController = () => import('#controllers/admin/faq_controller')
+const AdminInformationRecordsController = () => import('#controllers/admin/information_records_controller')
 const PublicNewsController = () => import('#controllers/public_news_controller')
 
 // ========= HEALTH CHECK =========
@@ -48,6 +53,14 @@ router.group(() => {
   router.put('/noticias/:id', [AdminNewsController, 'update'])
   router.delete('/noticias/:id', [AdminNewsController, 'destroy'])
 
+  // Legislaturas CRUD
+  router.get('/legislaturas', [AdminLegislaturesController, 'index'])
+  router.get('/legislaturas/criar', [AdminLegislaturesController, 'create'])
+  router.post('/legislaturas', [AdminLegislaturesController, 'store'])
+  router.get('/legislaturas/:id/editar', [AdminLegislaturesController, 'edit'])
+  router.put('/legislaturas/:id', [AdminLegislaturesController, 'update'])
+  router.delete('/legislaturas/:id', [AdminLegislaturesController, 'destroy'])
+
   // Vereadores CRUD
   router.get('/vereadores', [AdminCouncilorsController, 'index'])
   router.get('/vereadores/criar', [AdminCouncilorsController, 'create'])
@@ -63,6 +76,38 @@ router.group(() => {
   router.get('/atividades/:id/editar', [AdminActivitiesController, 'edit'])
   router.put('/atividades/:id', [AdminActivitiesController, 'update'])
   router.delete('/atividades/:id', [AdminActivitiesController, 'destroy'])
+
+  // Sessões Plenárias / Atas CRUD
+  router.get('/sessoes', [AdminPlenarySessionsController, 'index'])
+  router.get('/sessoes/criar', [AdminPlenarySessionsController, 'create'])
+  router.post('/sessoes', [AdminPlenarySessionsController, 'store'])
+  router.get('/sessoes/:id/editar', [AdminPlenarySessionsController, 'edit'])
+  router.put('/sessoes/:id', [AdminPlenarySessionsController, 'update'])
+  router.delete('/sessoes/:id', [AdminPlenarySessionsController, 'destroy'])
+
+  // Publicações Oficiais CRUD
+  router.get('/publicacoes', [AdminPublicationsController, 'index'])
+  router.get('/publicacoes/criar', [AdminPublicationsController, 'create'])
+  router.post('/publicacoes', [AdminPublicationsController, 'store'])
+  router.get('/publicacoes/:id/editar', [AdminPublicationsController, 'edit'])
+  router.put('/publicacoes/:id', [AdminPublicationsController, 'update'])
+  router.delete('/publicacoes/:id', [AdminPublicationsController, 'destroy'])
+
+  // FAQ CRUD
+  router.get('/faq', [AdminFaqController, 'index'])
+  router.get('/faq/criar', [AdminFaqController, 'create'])
+  router.post('/faq', [AdminFaqController, 'store'])
+  router.get('/faq/:id/editar', [AdminFaqController, 'edit'])
+  router.put('/faq/:id', [AdminFaqController, 'update'])
+  router.delete('/faq/:id', [AdminFaqController, 'destroy'])
+
+  // Acesso à Informação CRUD
+  router.get('/acesso-informacao', [AdminInformationRecordsController, 'index'])
+  router.get('/acesso-informacao/criar', [AdminInformationRecordsController, 'create'])
+  router.post('/acesso-informacao', [AdminInformationRecordsController, 'store'])
+  router.get('/acesso-informacao/:id/editar', [AdminInformationRecordsController, 'edit'])
+  router.put('/acesso-informacao/:id', [AdminInformationRecordsController, 'update'])
+  router.delete('/acesso-informacao/:id', [AdminInformationRecordsController, 'destroy'])
 
   // Links Rápidos CRUD
   router.get('/links-rapidos', [AdminQuickLinksController, 'index'])

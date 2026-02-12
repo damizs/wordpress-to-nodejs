@@ -2,6 +2,7 @@ import { DateTime } from 'luxon'
 import { BaseModel, column, hasMany } from '@adonisjs/lucid/orm'
 import type { HasMany } from '@adonisjs/lucid/types/relations'
 import Councilor from './councilor.js'
+import Biennium from './biennium.js'
 
 export default class Legislature extends BaseModel {
   @column({ isPrimary: true }) declare id: number
@@ -12,5 +13,7 @@ export default class Legislature extends BaseModel {
   @column() declare isCurrent: boolean
   @column.dateTime({ autoCreate: true }) declare createdAt: DateTime
   @column.dateTime({ autoCreate: true, autoUpdate: true }) declare updatedAt: DateTime | null
+
   @hasMany(() => Councilor) declare councilors: HasMany<typeof Councilor>
+  @hasMany(() => Biennium) declare biennia: HasMany<typeof Biennium>
 }
