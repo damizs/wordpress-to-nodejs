@@ -1,6 +1,21 @@
 import { Send, Search, Clock, MapPin, Phone, Mail, ArrowRight } from "lucide-react";
 
-export const ESicSection = () => {
+interface ESicSectionProps {
+  settings?: {
+    title?: string | null;
+    subtitle?: string | null;
+    address?: string | null;
+    hours?: string | null;
+    phone?: string | null;
+    email?: string | null;
+    newUrl?: string | null;
+    consultUrl?: string | null;
+  };
+}
+
+export const ESicSection = ({ settings }: ESicSectionProps) => {
+  const s = settings || {};
+
   return (
     <section id="esic" className="py-20 px-4 bg-secondary/50 section-gradient">
       <div className="container mx-auto">
@@ -9,31 +24,32 @@ export const ESicSection = () => {
             Acesso à Informação
           </span>
           <h2 className="text-3xl md:text-5xl font-serif font-bold text-foreground mb-4">
-            E-SIC - Sistema Eletrônico de Informações
+            {s.title || 'E-SIC - Sistema Eletrônico de Informações'}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            Acesse informações públicas e solicite dados da administração municipal de forma transparente
+            {s.subtitle || 'Acesse informações públicas e solicite dados da administração municipal de forma transparente'}
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
           {/* E-SIC Card */}
           <div className="card-modern p-8 animate-fade-in">
-            <h3 className="text-xl font-serif font-bold text-foreground mb-8">
-              Sistema E-SIC
-            </h3>
-            
+            <h3 className="text-xl font-serif font-bold text-foreground mb-8">Sistema E-SIC</h3>
+
             <div className="flex flex-col sm:flex-row gap-4 mb-10">
               <a
-                href="#"
+                href={s.newUrl || '#'}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="btn-modern flex-1 flex items-center justify-center gap-3 bg-gradient-to-r from-primary to-navy-light text-primary-foreground shadow-lg hover:shadow-xl"
               >
                 <Send className="w-5 h-5" />
                 Nova Demanda
-                <ArrowRight className="w-4 h-4 opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all" />
               </a>
               <a
-                href="#"
+                href={s.consultUrl || '#'}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="btn-modern flex-1 flex items-center justify-center gap-3 bg-gradient-gold text-accent-foreground shadow-lg hover:shadow-xl"
               >
                 <Search className="w-5 h-5" />
@@ -67,23 +83,20 @@ export const ESicSection = () => {
 
           {/* Contact Info Card */}
           <div className="relative overflow-hidden rounded-3xl p-8 text-primary-foreground animate-fade-in" style={{ animationDelay: "100ms" }}>
-            {/* Background */}
             <div className="absolute inset-0 bg-gradient-navy" />
             <div className="absolute inset-0 bg-gradient-to-br from-gold/10 via-transparent to-sky/10" />
             <div className="absolute -top-20 -right-20 w-60 h-60 bg-gold/10 rounded-full blur-3xl" />
             <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-sky/10 rounded-full blur-3xl" />
-            
+
             <div className="relative">
-              <h3 className="text-xl font-serif font-bold mb-8">
-                Atendimento Presencial
-              </h3>
+              <h3 className="text-xl font-serif font-bold mb-8">Atendimento Presencial</h3>
 
               <div className="space-y-6">
                 {[
-                  { icon: MapPin, title: "Endereço", content: "Rua Luiz Grande, s/n - Centro\nCEP: 58540-000\nSumé - PB" },
-                  { icon: Clock, title: "Horário de Atendimento", content: "Segunda à Sexta-feira\ndas 8h às 14h" },
-                  { icon: Phone, title: "Telefone", content: "(83) 3353-1191" },
-                  { icon: Mail, title: "E-mail", content: "contato@camaradesume.pb.gov.br" },
+                  { icon: MapPin, title: "Endereço", content: s.address || "Rua Luiz Grande, s/n - Centro\nCEP: 58540-000\nSumé - PB" },
+                  { icon: Clock, title: "Horário de Atendimento", content: s.hours || "Segunda à Sexta-feira\ndas 8h às 14h" },
+                  { icon: Phone, title: "Telefone", content: s.phone || "(83) 3353-1191" },
+                  { icon: Mail, title: "E-mail", content: s.email || "contato@camaradesume.pb.gov.br" },
                 ].map((item, index) => (
                   <div key={index} className="flex items-start gap-4 group">
                     <div className="w-12 h-12 rounded-xl glass flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform duration-300">

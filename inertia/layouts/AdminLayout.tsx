@@ -2,7 +2,8 @@ import { Link, usePage, router } from '@inertiajs/react'
 import { FlashMessages } from '~/components/FlashMessages'
 import {
   LayoutDashboard, Newspaper, Palette, ChevronLeft, ChevronRight,
-  LogOut, Menu, X, User, Home,
+  LogOut, Menu, X, User, Home, Users, FileText, Link2, Shield,
+  ScrollText, Settings, Monitor,
 } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 
@@ -13,7 +14,12 @@ interface AdminLayoutProps {
 
 const navItems = [
   { label: 'Dashboard', href: '/painel', icon: LayoutDashboard },
+  { label: 'Homepage', href: '/painel/homepage', icon: Monitor },
   { label: 'Notícias', href: '/painel/noticias', icon: Newspaper },
+  { label: 'Vereadores', href: '/painel/vereadores', icon: Users },
+  { label: 'Ativ. Legislativas', href: '/painel/atividades', icon: ScrollText },
+  { label: 'Links Rápidos', href: '/painel/links-rapidos', icon: Link2 },
+  { label: 'Transparência', href: '/painel/transparencia', icon: Shield },
   { label: 'Aparência', href: '/painel/aparencia', icon: Palette },
 ]
 

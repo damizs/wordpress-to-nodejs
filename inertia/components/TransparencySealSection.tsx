@@ -2,7 +2,12 @@ import seloTransparencia from "~/assets/selo-transparencia.png";
 import seloCorrupcao from "~/assets/selo-prevencao-corrupcao.png";
 import { ExternalLink } from "lucide-react";
 
-export const TransparencySealSection = () => {
+interface TransparencySealSectionProps {
+  title?: string | null;
+  subtitle?: string | null;
+}
+
+export const TransparencySealSection = ({ title, subtitle }: TransparencySealSectionProps) => {
   return (
     <section className="py-16 px-4 bg-gradient-navy text-primary-foreground">
       <div className="container mx-auto">
@@ -11,11 +16,10 @@ export const TransparencySealSection = () => {
             CERTIFICAÇÕES
           </span>
           <h2 className="text-2xl md:text-3xl font-serif font-bold mb-4">
-            Compromisso com a Transparência
+            {title || 'Compromisso com a Transparência'}
           </h2>
           <p className="text-sm md:text-base opacity-80 max-w-2xl mx-auto">
-            A Câmara Municipal de Sumé é reconhecida por seu compromisso com a transparência pública 
-            e combate à corrupção.
+            {subtitle || 'A Câmara Municipal de Sumé é reconhecida por seu compromisso com a transparência pública e combate à corrupção.'}
           </p>
         </div>
 

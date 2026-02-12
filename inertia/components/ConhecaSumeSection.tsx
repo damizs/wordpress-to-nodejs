@@ -9,7 +9,12 @@ const imagens = [
   { url: "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=600&h=400&fit=crop", alt: "Paisagem regional" },
 ];
 
-export const ConhecaSumeSection = () => {
+interface ConhecaSumeSectionProps {
+  title?: string | null;
+  subtitle?: string | null;
+}
+
+export const ConhecaSumeSection = ({ title, subtitle }: ConhecaSumeSectionProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const handlePrev = () => {
@@ -26,8 +31,9 @@ export const ConhecaSumeSection = () => {
         {/* Header */}
         <div className="text-center mb-10 animate-fade-in">
           <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-4">
-            Conheça Sumé
+            {title || 'Conheça Sumé'}
           </h2>
+          {subtitle && <p className="text-muted-foreground max-w-2xl mx-auto">{subtitle}</p>}
         </div>
 
         {/* Gallery Carousel */}

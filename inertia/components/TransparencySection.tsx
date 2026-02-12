@@ -25,7 +25,13 @@ const transparencyItems = [
   { icon: BarChart3, title: "Relatório de Gestão", color: "from-sky-500 to-blue-600" },
 ];
 
-export const TransparencySection = () => {
+interface TransparencySectionProps {
+  sections?: any[];
+  title?: string | null;
+  subtitle?: string | null;
+}
+
+export const TransparencySection = ({ sections, title, subtitle }: TransparencySectionProps) => {
   return (
     <section id="transparencia" className="py-20 px-4 section-gradient">
       <div className="container mx-auto">
@@ -35,10 +41,10 @@ export const TransparencySection = () => {
             Portal da Transparência
           </span>
           <h2 className="text-3xl md:text-5xl font-serif font-bold text-foreground mb-4">
-            Acesso à Informação
+            {title || 'Acesso à Informação'}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            Acesse todas as informações sobre carta de serviço, obras, estagiários e muito mais
+            {subtitle || 'Acesse todas as informações sobre carta de serviço, obras, estagiários e muito mais'}
           </p>
         </div>
 

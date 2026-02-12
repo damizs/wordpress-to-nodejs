@@ -4,7 +4,13 @@ import { useState } from "react";
 const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
 const diasSemana = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
-export const DiarioOficialSection = () => {
+interface DiarioOficialSectionProps {
+  latestGazette?: any;
+  title?: string | null;
+  subtitle?: string | null;
+}
+
+export const DiarioOficialSection = ({ latestGazette, title, subtitle }: DiarioOficialSectionProps) => {
   const [mesAtual, setMesAtual] = useState(0); // Janeiro
   const [anoAtual, setAnoAtual] = useState(2026);
 
@@ -43,10 +49,10 @@ export const DiarioOficialSection = () => {
         {/* Header */}
         <div className="text-center mb-12 animate-fade-in">
           <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-4">
-            Diário Oficial
+            {title || 'Diário Oficial'}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Fique sempre atualizado com as publicações e informações oficiais do município
+            {subtitle || 'Fique sempre atualizado com as publicações e informações oficiais do município'}
           </p>
         </div>
 
