@@ -1,4 +1,5 @@
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
+import { DateTime } from 'luxon'
 import User from '#models/user'
 import Legislature from '#models/legislature'
 import Councilor from '#models/councilor'
@@ -50,7 +51,7 @@ export default class MainSeeder extends BaseSeeder {
     }
 
     // News categories
-    const cats = ['Legislativo', 'Institucional', 'Comissoes', 'Transparencia', 'Eventos']
+    const cats = ['Legislativo', 'Institucional', 'Comissões', 'Transparência', 'Eventos']
     const slugs = ['legislativo', 'institucional', 'comissoes', 'transparencia', 'eventos']
     const catModels: Record<string, any> = {}
     for (let i = 0; i < cats.length; i++) {
@@ -59,11 +60,11 @@ export default class MainSeeder extends BaseSeeder {
 
     // News
     const newsData = [
-      { title: 'Camara de Sume aprova projeto de modernizacao da administracao publica', excerpt: 'Projeto visa implementar sistema digital para gestao de processos legislativos.', category: 'Legislativo' },
-      { title: 'Sessao solene marca abertura dos trabalhos legislativos de 2025', excerpt: 'Vereadores definem prioridades para o ano legislativo.', category: 'Institucional' },
-      { title: 'Comissao de Financas analisa proposta do orcamento municipal', excerpt: 'Audiencia publica discute destinacao de recursos para saude e educacao.', category: 'Comissoes' },
-      { title: 'Portal da Transparencia recebe atualizacao com novos indicadores', excerpt: 'Dados de receitas e despesas agora disponiveis em tempo real.', category: 'Transparencia' },
-      { title: 'Camara promove evento sobre inclusao digital para idosos', excerpt: 'Projeto capacita moradores da terceira idade no uso de tecnologia.', category: 'Eventos' },
+      { title: 'Câmara de Sumé aprova projeto de modernização da administração pública', excerpt: 'Projeto visa implementar sistema digital para gestão de processos legislativos.', category: 'Legislativo' },
+      { title: 'Sessão solene marca abertura dos trabalhos legislativos de 2025', excerpt: 'Vereadores definem prioridades para o ano legislativo.', category: 'Institucional' },
+      { title: 'Comissão de Finanças analisa proposta do orçamento municipal', excerpt: 'Audiência pública discute destinação de recursos para saúde e educação.', category: 'Comissões' },
+      { title: 'Portal da Transparência recebe atualização com novos indicadores', excerpt: 'Dados de receitas e despesas agora disponíveis em tempo real.', category: 'Transparência' },
+      { title: 'Câmara promove evento sobre inclusão digital para idosos', excerpt: 'Projeto capacita moradores da terceira idade no uso de tecnologia.', category: 'Eventos' },
     ]
     const admin = await User.findBy('email', 'admin@camaradesume.pb.gov.br')
     for (let i = 0; i < newsData.length; i++) {
@@ -71,8 +72,9 @@ export default class MainSeeder extends BaseSeeder {
       await News.updateOrCreate({ title: newsData[i].title }, {
         title: newsData[i].title, slug, excerpt: newsData[i].excerpt,
         content: `<p>${newsData[i].excerpt}</p>`, status: 'published',
-        publishedAt: new Date(2025, 1, 10 - i).toISOString() as any,
+        publishedAt: DateTime.fromJSDate(new Date(2025, 1, 10 - i)),
         categoryId: catModels[newsData[i].category]?.id, authorId: admin?.id,
+        viewsCount: 0,
       })
     }
 
@@ -80,12 +82,12 @@ export default class MainSeeder extends BaseSeeder {
     const qlinks = [
       { title: 'Leis Municipais', url: '/leis', icon: 'Scale', displayOrder: 1 },
       { title: 'Vereadores', url: '/vereadores', icon: 'Users', displayOrder: 2 },
-      { title: 'Sessoes Plenarias', url: '/sessoes', icon: 'Gavel', displayOrder: 3 },
-      { title: 'Diario Oficial', url: '/diario-oficial', icon: 'BookOpen', displayOrder: 4 },
-      { title: 'Transparencia', url: '/transparencia', icon: 'Shield', displayOrder: 5 },
-      { title: 'Licitacoes', url: '/licitacoes', icon: 'FileText', displayOrder: 6 },
+      { title: 'Sessões Plenárias', url: '/sessoes', icon: 'Gavel', displayOrder: 3 },
+      { title: 'Diário Oficial', url: '/diario-oficial', icon: 'BookOpen', displayOrder: 4 },
+      { title: 'Transparência', url: '/transparencia', icon: 'Shield', displayOrder: 5 },
+      { title: 'Licitações', url: '/licitacoes', icon: 'FileText', displayOrder: 6 },
       { title: 'Ouvidoria', url: '/ouvidoria', icon: 'Phone', displayOrder: 7 },
-      { title: 'A Camara', url: '/a-camara', icon: 'Building2', displayOrder: 8 },
+      { title: 'A Câmara', url: '/a-camara', icon: 'Building2', displayOrder: 8 },
     ]
     for (const l of qlinks) {
       await QuickLink.updateOrCreate({ title: l.title }, { ...l, isActive: true })
@@ -94,11 +96,11 @@ export default class MainSeeder extends BaseSeeder {
     // Transparency sections + links
     const transSections = [
       { title: 'Receitas e Despesas', slug: 'receitas-despesas', order: 1, links: ['Receitas', 'Despesas', 'Empenhos'] },
-      { title: 'Licitacoes e Contratos', slug: 'licitacoes-contratos', order: 2, links: ['Licitacoes', 'Contratos', 'Atas'] },
-      { title: 'Pessoal', slug: 'pessoal', order: 3, links: ['Servidores', 'Folha de Pagamento', 'Diarias'] },
-      { title: 'Legislacao', slug: 'legislacao', order: 4, links: ['Leis Ordinarias', 'Decretos', 'Resolucoes'] },
+      { title: 'Licitações e Contratos', slug: 'licitacoes-contratos', order: 2, links: ['Licitações', 'Contratos', 'Atas'] },
+      { title: 'Pessoal', slug: 'pessoal', order: 3, links: ['Servidores', 'Folha de Pagamento', 'Diárias'] },
+      { title: 'Legislação', slug: 'legislacao', order: 4, links: ['Leis Ordinárias', 'Decretos', 'Resoluções'] },
       { title: 'Planejamento', slug: 'planejamento', order: 5, links: ['PPA', 'LDO', 'LOA'] },
-      { title: 'Prestacao de Contas', slug: 'prestacao-contas', order: 6, links: ['Relatorios', 'Pareceres TCE'] },
+      { title: 'Prestação de Contas', slug: 'prestacao-contas', order: 6, links: ['Relatórios', 'Pareceres TCE'] },
     ]
     for (const sec of transSections) {
       const section = await TransparencySection.updateOrCreate({ slug: sec.slug }, {
@@ -117,7 +119,7 @@ export default class MainSeeder extends BaseSeeder {
       const d = new Date(2025, 1, 10 - i * 7)
       await OfficialGazetteEntry.updateOrCreate(
         { editionNumber: `${100 + i}` },
-        { editionNumber: `${100 + i}`, publicationDate: d.toISOString().split('T')[0], description: `Diario Oficial - Edicao ${100 + i}` }
+        { editionNumber: `${100 + i}`, publicationDate: d.toISOString().split('T')[0], description: `Diário Oficial - Edição ${100 + i}` }
       )
     }
 
