@@ -5,10 +5,11 @@ import QuickLink from '#models/quick_link'
 import TransparencySection from '#models/transparency_section'
 import TransparencyLink from '#models/transparency_link'
 import OfficialGazetteEntry from '#models/official_gazette_entry'
+import SiteSetting from '#models/site_setting'
 
 export default class HomeController {
   async index({ inertia }: HttpContext) {
-    const [news, councilors, quickLinks, transparencySections, latestGazette] = await Promise.all([
+    const [news, councilors, quickLinks, transparencySections, latestGazette, siteSettings] = await Promise.all([
       News.query()
         .where('status', 'published')
         .orderBy('published_at', 'desc')
@@ -26,6 +27,7 @@ export default class HomeController {
       OfficialGazetteEntry.query()
         .orderBy('publication_date', 'desc')
         .first(),
+      SiteSetting.allAsObject(),
     ])
 
     // Fetch transparency links for each section
@@ -45,6 +47,7 @@ export default class HomeController {
       quickLinks: quickLinks.map((q) => q.serialize()),
       transparencySections: sectionsWithLinks,
       latestGazette: latestGazette?.serialize() ?? null,
+      siteSettings,
     })
   }
 }

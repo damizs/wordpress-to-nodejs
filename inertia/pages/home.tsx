@@ -1,43 +1,47 @@
 import { Head } from '@inertiajs/react'
-import { TopBar } from '~/components/sections/TopBar'
-import { Header } from '~/components/sections/Header'
-import { NewsSection } from '~/components/sections/NewsSection'
-import { QuickAccessSection } from '~/components/sections/QuickAccessSection'
-import { ESicSection } from '~/components/sections/ESicSection'
-import { TransparencySection } from '~/components/sections/TransparencySection'
-import { VereadoresSection } from '~/components/sections/VereadoresSection'
-import { DiarioOficialSection } from '~/components/sections/DiarioOficialSection'
-import { InstagramFeedSection } from '~/components/sections/InstagramFeedSection'
-import { ConhecaSumeSection } from '~/components/sections/ConhecaSumeSection'
-import { TransparencySealSection } from '~/components/sections/TransparencySealSection'
-import { SatisfactionSurvey } from '~/components/sections/SatisfactionSurvey'
-import { Footer } from '~/components/sections/Footer'
+import { TopBar } from '~/components/TopBar'
+import { Header } from '~/components/Header'
+import { NewsSection } from '~/components/NewsSection'
+import { QuickAccessSection } from '~/components/QuickAccessSection'
+import { ESicSection } from '~/components/ESicSection'
+import { TransparencySection } from '~/components/TransparencySection'
+import { TransparencySealSection } from '~/components/TransparencySealSection'
+import { VereadoresSection } from '~/components/VereadoresSection'
+import { DiarioOficialSection } from '~/components/DiarioOficialSection'
+import { InstagramFeedSection } from '~/components/InstagramFeedSection'
+import { ConhecaSumeSection } from '~/components/ConhecaSumeSection'
+import { SatisfactionSurvey } from '~/components/SatisfactionSurvey'
+import { Footer } from '~/components/Footer'
 
 interface HomeProps {
-  news: any[]
-  councilors: any[]
-  quickLinks: any[]
-  transparencySections: any[]
-  latestGazette: any | null
+  news?: any[];
+  councilors?: any[];
+  quickLinks?: any[];
+  transparencySections?: any[];
+  latestGazette?: any;
 }
 
-export default function HomePage({ news, councilors, quickLinks, transparencySections, latestGazette }: HomeProps) {
+export default function Home({ news }: HomeProps) {
   return (
     <>
       <Head title="Câmara Municipal de Sumé - Portal Oficial" />
-      <TopBar />
-      <Header />
-      <NewsSection news={news} />
-      <QuickAccessSection quickLinks={quickLinks} />
-      <ESicSection />
-      <TransparencySection sections={transparencySections} />
-      <VereadoresSection councilors={councilors} />
-      <DiarioOficialSection latestGazette={latestGazette} />
-      <InstagramFeedSection />
-      <ConhecaSumeSection />
-      <TransparencySealSection />
-      <SatisfactionSurvey />
-      <Footer />
+      <div className="min-h-screen bg-background">
+        <TopBar />
+        <Header />
+        <main>
+          <NewsSection news={news} />
+          <QuickAccessSection />
+          <ESicSection />
+          <TransparencySection />
+          <VereadoresSection />
+          <DiarioOficialSection />
+          <InstagramFeedSection />
+          <ConhecaSumeSection />
+          <TransparencySealSection />
+          <SatisfactionSurvey />
+        </main>
+        <Footer />
+      </div>
     </>
   )
 }

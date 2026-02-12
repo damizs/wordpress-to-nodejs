@@ -1,0 +1,12 @@
+{
+  "inertia/app/ssr.tsx": {
+    "file": "ssr.js",
+    "name": "ssr",
+    "src": "inertia/app/ssr.tsx",
+    "isEntry": true,
+    "assets": [
+      "selo-transparencia-CbOChN1d.png",
+      "selo-prevencao-corrupcao-on2KwSX7.png"
+    ]
+  }
+}
