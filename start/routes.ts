@@ -16,6 +16,7 @@ const PublicActivitiesController = () => import('#controllers/public/activities_
 const PublicCommitteesController = () => import('#controllers/public/committees_controller')
 const PublicLicitacoesController = () => import('#controllers/public/licitacoes_controller')
 const PublicMesaDiretoraController = () => import('#controllers/public/mesa_diretora_controller')
+const PublicSatisfactionSurveyController = () => import('#controllers/public/satisfaction_survey_controller')
 
 // Lazy imports - Admin
 const DashboardController = () => import('#controllers/admin/dashboard_controller')
@@ -35,6 +36,7 @@ const AdminFaqController = () => import('#controllers/admin/faq_controller')
 const AdminInformationRecordsController = () => import('#controllers/admin/information_records_controller')
 const AdminCategoriesController = () => import('#controllers/admin/system_categories_controller')
 const AdminLicitacoesController = () => import('#controllers/admin/licitacoes_controller')
+const AdminSatisfactionSurveyController = () => import('#controllers/admin/satisfaction_survey_controller')
 
 // ========= HEALTH CHECK =========
 router.get('/health', async () => ({ status: 'ok', timestamp: new Date().toISOString() }))
@@ -64,8 +66,10 @@ router.get('/publicacoes-oficiais/:slug', [PublicPublicationsController, 'show']
 router.get('/licitacoes', [PublicLicitacoesController, 'index'])
 router.get('/licitacoes/:slug', [PublicLicitacoesController, 'show'])
 router.get('/perguntas-frequentes', [PublicFaqController, 'index'])
+router.get('/pesquisa-de-satisfacao', [PublicSatisfactionSurveyController, 'index'])
+router.post('/pesquisa-de-satisfacao', [PublicSatisfactionSurveyController, 'store'])
 // Dynamic info pages: /estagiarios, /terceirizados, /verbas, etc.
-router.get('/:slug', [PublicDynamicInfoController, 'show']).where('slug', /^(?!login|painel|api|health|noticias|vereadores|transparencia|mesa-diretora|comissoes|atas|pautas|atividades-legislativa|publicacoes-oficiais|licitacoes|perguntas-frequentes).*$/)
+router.get('/:slug', [PublicDynamicInfoController, 'show']).where('slug', /^(?!login|painel|api|health|noticias|vereadores|transparencia|mesa-diretora|comissoes|atas|pautas|atividades-legislativa|publicacoes-oficiais|licitacoes|perguntas-frequentes|pesquisa-de-satisfacao).*$/)
 
 // ========= API =========
 router.get('/api/categorias/:type', [AdminCategoriesController, 'byType'])
@@ -195,6 +199,11 @@ router.group(() => {
   router.get('/licitacoes/:id/editar', [AdminLicitacoesController, 'edit'])
   router.put('/licitacoes/:id', [AdminLicitacoesController, 'update'])
   router.delete('/licitacoes/:id', [AdminLicitacoesController, 'destroy'])
+
+  // Pesquisa de Satisfação
+  router.get('/pesquisa-satisfacao', [AdminSatisfactionSurveyController, 'index'])
+  router.get('/pesquisa-satisfacao/:id', [AdminSatisfactionSurveyController, 'show'])
+  router.delete('/pesquisa-satisfacao/:id', [AdminSatisfactionSurveyController, 'destroy'])
 })
   .prefix('/painel')
   .use(middleware.auth())
