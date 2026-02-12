@@ -7,12 +7,13 @@ const inertiaConfig = defineConfig({
   sharedData: {
     auth: (ctx) => ctx.inertia.always(() => {
       try {
+        const user = ctx.auth?.user
         return {
-          user: ctx.auth?.user ? {
-            id: ctx.auth.user.id,
-            fullName: ctx.auth.user.fullName,
-            email: ctx.auth.user.email,
-            role: ctx.auth.user.role,
+          user: user ? {
+            id: user.id,
+            fullName: user.fullName,
+            email: user.email,
+            role: user.role,
           } : null,
         }
       } catch {
@@ -21,9 +22,13 @@ const inertiaConfig = defineConfig({
     }),
     flash: (ctx) => ctx.inertia.always(() => {
       try {
+        const session = ctx.session
+        if (!session || typeof session.flashMessages?.get !== 'function') {
+          return { success: null, error: null }
+        }
         return {
-          success: ctx.session?.flashMessages?.get('success') ?? null,
-          error: ctx.session?.flashMessages?.get('error') ?? null,
+          success: session.flashMessages.get('success') ?? null,
+          error: session.flashMessages.get('error') ?? null,
         }
       } catch {
         return { success: null, error: null }
@@ -32,8 +37,7 @@ const inertiaConfig = defineConfig({
   },
 
   ssr: {
-    enabled: true,
-    entrypoint: 'inertia/app/ssr.tsx'
+    enabled: false,
   }
 })
 
