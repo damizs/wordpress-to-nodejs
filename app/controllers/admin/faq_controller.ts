@@ -1,5 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import FaqItem from '#models/faq_item'
+import SystemCategory from '#models/system_category'
 
 export default class FaqController {
   async index({ inertia }: HttpContext) {
@@ -10,7 +11,8 @@ export default class FaqController {
   }
 
   async create({ inertia }: HttpContext) {
-    return inertia.render('admin/faq/form', { item: null })
+    const categories = await SystemCategory.byType('faq')
+    return inertia.render('admin/faq/form', { item: null, categories: categories.map((c) => c.serialize()) })
   }
 
   async store({ request, response, session }: HttpContext) {
@@ -30,7 +32,8 @@ export default class FaqController {
 
   async edit({ params, inertia }: HttpContext) {
     const item = await FaqItem.findOrFail(params.id)
-    return inertia.render('admin/faq/form', { item: item.serialize() })
+    const categories = await SystemCategory.byType('faq')
+    return inertia.render('admin/faq/form', { item: item.serialize(), categories: categories.map((c) => c.serialize()) })
   }
 
   async update({ params, request, response, session }: HttpContext) {

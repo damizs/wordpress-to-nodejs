@@ -1,5 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import InformationRecord from '#models/information_record'
+import SystemCategory from '#models/system_category'
 import app from '@adonisjs/core/services/app'
 import { cuid } from '@adonisjs/core/helpers'
 import { mkdir } from 'node:fs/promises'
@@ -24,7 +25,8 @@ export default class InformationRecordsController {
   }
 
   async create({ inertia }: HttpContext) {
-    return inertia.render('admin/information-records/form', { record: null })
+    const categories = await SystemCategory.byType('information_record')
+    return inertia.render('admin/information-records/form', { record: null, categories: categories.map((c) => c.serialize()) })
   }
 
   async store({ request, response, session }: HttpContext) {
@@ -56,7 +58,8 @@ export default class InformationRecordsController {
 
   async edit({ params, inertia }: HttpContext) {
     const record = await InformationRecord.findOrFail(params.id)
-    return inertia.render('admin/information-records/form', { record: record.serialize() })
+    const categories = await SystemCategory.byType('information_record')
+    return inertia.render('admin/information-records/form', { record: record.serialize(), categories: categories.map((c) => c.serialize()) })
   }
 
   async update({ params, request, response, session }: HttpContext) {

@@ -1,195 +1,247 @@
 {
-  "_AdminLayout-C02ceaED.js": {
-    "file": "AdminLayout-C02ceaED.js",
+  "_AdminLayout-CJnipjsr.js": {
+    "file": "AdminLayout-CJnipjsr.js",
     "name": "AdminLayout",
     "imports": [
       "inertia/app/app.tsx",
-      "_FlashMessages-BtxISz72.js",
-      "_x-cj2cKHYB.js",
-      "_users-BDSNZ1Kw.js",
-      "_shield-BvbbEtHg.js",
-      "_chevron-right-C2cJtKLa.js",
-      "_user-BiaJFRrl.js"
+      "_FlashMessages-BxWmg3Z4.js",
+      "_x-D2oGdncw.js",
+      "_calendar-SybEyHdh.js",
+      "_users-HHoPZjb5.js",
+      "_users-round-DB0gxkbu.js",
+      "_scroll-text-DA07wk8a.js",
+      "_shield-BgocapGO.js",
+      "_info-dMwZm8jV.js",
+      "_chevron-right-D7oAM4sf.js",
+      "_user-D0L09kRw.js"
     ]
   },
-  "_FlashMessages-BtxISz72.js": {
-    "file": "FlashMessages-BtxISz72.js",
+  "_FlashMessages-BxWmg3Z4.js": {
+    "file": "FlashMessages-BxWmg3Z4.js",
     "name": "FlashMessages",
     "imports": [
       "inertia/app/app.tsx",
-      "_x-cj2cKHYB.js"
+      "_x-D2oGdncw.js"
     ]
   },
-  "_Footer-TfI5vJK0.js": {
-    "file": "Footer-TfI5vJK0.js",
+  "_Footer-BKpU6cEt.js": {
+    "file": "Footer-BKpU6cEt.js",
     "name": "Footer",
     "imports": [
-      "_x-cj2cKHYB.js",
       "inertia/app/app.tsx",
-      "_search-C4LTWLaO.js",
-      "_shield-BvbbEtHg.js",
-      "_chevron-down-lJEoTV4l.js",
-      "_map-pin-DdOkpgJF.js",
-      "_mail-r7fWKjak.js",
-      "_clock-CCiUc26b.js"
+      "_search-CidmpGsr.js",
+      "_shield-BgocapGO.js",
+      "_x-D2oGdncw.js",
+      "_chevron-down-9kCYl-m7.js",
+      "_map-pin-8ewGne0R.js",
+      "_mail-CywxnIMz.js",
+      "_clock-BJhFnqHs.js"
     ]
   },
-  "_PublicLayout-CUzlp7er.js": {
-    "file": "PublicLayout-CUzlp7er.js",
+  "_PublicLayout-Dd9IH4eg.js": {
+    "file": "PublicLayout-Dd9IH4eg.js",
     "name": "PublicLayout",
     "imports": [
       "inertia/app/app.tsx",
-      "_Footer-TfI5vJK0.js"
+      "_Footer-BKpU6cEt.js"
     ]
   },
-  "_arrow-left-Dm9Q64tN.js": {
-    "file": "arrow-left-Dm9Q64tN.js",
+  "_arrow-left-CsnF9rHl.js": {
+    "file": "arrow-left-CsnF9rHl.js",
     "name": "arrow-left",
     "imports": [
-      "_x-cj2cKHYB.js"
+      "_x-D2oGdncw.js"
     ]
   },
-  "_arrow-right-B1m3PPM8.js": {
-    "file": "arrow-right-B1m3PPM8.js",
+  "_arrow-right-DEw03jG3.js": {
+    "file": "arrow-right-DEw03jG3.js",
     "name": "arrow-right",
     "imports": [
-      "_x-cj2cKHYB.js"
+      "_x-D2oGdncw.js"
     ]
   },
-  "_chevron-down-lJEoTV4l.js": {
-    "file": "chevron-down-lJEoTV4l.js",
+  "_calendar-SybEyHdh.js": {
+    "file": "calendar-SybEyHdh.js",
+    "name": "calendar",
+    "imports": [
+      "_x-D2oGdncw.js"
+    ]
+  },
+  "_chevron-down-9kCYl-m7.js": {
+    "file": "chevron-down-9kCYl-m7.js",
     "name": "chevron-down",
     "imports": [
-      "_x-cj2cKHYB.js"
+      "_x-D2oGdncw.js"
     ]
   },
-  "_chevron-right-C2cJtKLa.js": {
-    "file": "chevron-right-C2cJtKLa.js",
+  "_chevron-right-D7oAM4sf.js": {
+    "file": "chevron-right-D7oAM4sf.js",
     "name": "chevron-right",
     "imports": [
-      "_x-cj2cKHYB.js"
+      "_x-D2oGdncw.js"
     ]
   },
-  "_clock-CCiUc26b.js": {
-    "file": "clock-CCiUc26b.js",
+  "_clock-BJhFnqHs.js": {
+    "file": "clock-BJhFnqHs.js",
     "name": "clock",
     "imports": [
-      "_x-cj2cKHYB.js"
+      "_x-D2oGdncw.js"
     ]
   },
-  "_external-link-lagKnVHe.js": {
-    "file": "external-link-lagKnVHe.js",
+  "_download-wUtlI6Wz.js": {
+    "file": "download-wUtlI6Wz.js",
+    "name": "download",
+    "imports": [
+      "_x-D2oGdncw.js"
+    ]
+  },
+  "_external-link-BI-Bp5hf.js": {
+    "file": "external-link-BI-Bp5hf.js",
     "name": "external-link",
     "imports": [
-      "_x-cj2cKHYB.js"
+      "_x-D2oGdncw.js"
     ]
   },
-  "_eye-BQjCp9tX.js": {
-    "file": "eye-BQjCp9tX.js",
+  "_eye-CxL633bq.js": {
+    "file": "eye-CxL633bq.js",
     "name": "eye",
     "imports": [
-      "_x-cj2cKHYB.js"
+      "_x-D2oGdncw.js"
     ]
   },
-  "_globe-CmsdcH7V.js": {
-    "file": "globe-CmsdcH7V.js",
+  "_globe-CoNW9-Zc.js": {
+    "file": "globe-CoNW9-Zc.js",
     "name": "globe",
     "imports": [
-      "_x-cj2cKHYB.js"
+      "_x-D2oGdncw.js"
     ]
   },
-  "_mail-r7fWKjak.js": {
-    "file": "mail-r7fWKjak.js",
+  "_info-dMwZm8jV.js": {
+    "file": "info-dMwZm8jV.js",
+    "name": "info",
+    "imports": [
+      "_x-D2oGdncw.js"
+    ]
+  },
+  "_mail-CywxnIMz.js": {
+    "file": "mail-CywxnIMz.js",
     "name": "mail",
     "imports": [
-      "_x-cj2cKHYB.js"
+      "_x-D2oGdncw.js"
     ]
   },
-  "_map-pin-DdOkpgJF.js": {
-    "file": "map-pin-DdOkpgJF.js",
+  "_map-pin-8ewGne0R.js": {
+    "file": "map-pin-8ewGne0R.js",
     "name": "map-pin",
     "imports": [
-      "_x-cj2cKHYB.js"
+      "_x-D2oGdncw.js"
     ]
   },
-  "_pencil-C-JjBA_E.js": {
-    "file": "pencil-C-JjBA_E.js",
+  "_pencil-DNUOYAxt.js": {
+    "file": "pencil-DNUOYAxt.js",
     "name": "pencil",
     "imports": [
-      "_x-cj2cKHYB.js"
+      "_x-D2oGdncw.js"
     ]
   },
-  "_save-DWG-2itt.js": {
-    "file": "save-DWG-2itt.js",
+  "_plus-C3yzEQe5.js": {
+    "file": "plus-C3yzEQe5.js",
+    "name": "plus",
+    "imports": [
+      "_x-D2oGdncw.js"
+    ]
+  },
+  "_save-BQeidp6k.js": {
+    "file": "save-BQeidp6k.js",
     "name": "save",
     "imports": [
-      "_x-cj2cKHYB.js"
+      "_x-D2oGdncw.js"
     ]
   },
-  "_search-C4LTWLaO.js": {
-    "file": "search-C4LTWLaO.js",
+  "_scroll-text-DA07wk8a.js": {
+    "file": "scroll-text-DA07wk8a.js",
+    "name": "scroll-text",
+    "imports": [
+      "_x-D2oGdncw.js"
+    ]
+  },
+  "_search-CidmpGsr.js": {
+    "file": "search-CidmpGsr.js",
     "name": "search",
     "imports": [
-      "_x-cj2cKHYB.js"
+      "_x-D2oGdncw.js"
     ]
   },
-  "_share-2-CvUUCCLX.js": {
-    "file": "share-2-CvUUCCLX.js",
+  "_share-2-nm1Ta5OI.js": {
+    "file": "share-2-nm1Ta5OI.js",
     "name": "share-2",
     "imports": [
-      "_x-cj2cKHYB.js"
+      "_x-D2oGdncw.js"
     ]
   },
-  "_shield-BvbbEtHg.js": {
-    "file": "shield-BvbbEtHg.js",
+  "_shield-BgocapGO.js": {
+    "file": "shield-BgocapGO.js",
     "name": "shield",
     "imports": [
-      "_x-cj2cKHYB.js"
+      "_x-D2oGdncw.js"
     ]
   },
-  "_trash-2-CyCDU1Qw.js": {
-    "file": "trash-2-CyCDU1Qw.js",
+  "_trash-2-CXwfnZKK.js": {
+    "file": "trash-2-CXwfnZKK.js",
     "name": "trash-2",
     "imports": [
-      "_x-cj2cKHYB.js"
+      "_x-D2oGdncw.js"
     ]
   },
-  "_upload-CpRSR0UT.js": {
-    "file": "upload-CpRSR0UT.js",
+  "_upload-DFWjciSY.js": {
+    "file": "upload-DFWjciSY.js",
     "name": "upload",
     "imports": [
-      "_x-cj2cKHYB.js"
+      "_x-D2oGdncw.js"
     ]
   },
-  "_user-BiaJFRrl.js": {
-    "file": "user-BiaJFRrl.js",
+  "_user-D0L09kRw.js": {
+    "file": "user-D0L09kRw.js",
     "name": "user",
     "imports": [
-      "_x-cj2cKHYB.js"
+      "_x-D2oGdncw.js"
     ]
   },
-  "_users-BDSNZ1Kw.js": {
-    "file": "users-BDSNZ1Kw.js",
+  "_users-HHoPZjb5.js": {
+    "file": "users-HHoPZjb5.js",
     "name": "users",
     "imports": [
-      "_x-cj2cKHYB.js"
+      "_x-D2oGdncw.js"
     ]
   },
-  "_x-cj2cKHYB.js": {
-    "file": "x-cj2cKHYB.js",
+  "_users-round-DB0gxkbu.js": {
+    "file": "users-round-DB0gxkbu.js",
+    "name": "users-round",
+    "imports": [
+      "_x-D2oGdncw.js"
+    ]
+  },
+  "_x-D2oGdncw.js": {
+    "file": "x-D2oGdncw.js",
     "name": "x",
     "imports": [
       "inertia/app/app.tsx"
     ]
   },
   "inertia/app/app.tsx": {
-    "file": "app-BxBQHpfw.js",
+    "file": "app-Bz1UglbT.js",
     "name": "app",
     "src": "inertia/app/app.tsx",
     "isEntry": true,
     "dynamicImports": [
       "inertia/pages/admin/activities/form.tsx",
       "inertia/pages/admin/activities/index.tsx",
+      "inertia/pages/admin/biennia/form.tsx",
+      "inertia/pages/admin/biennia/index.tsx",
+      "inertia/pages/admin/categories/form.tsx",
+      "inertia/pages/admin/categories/index.tsx",
+      "inertia/pages/admin/committees/form.tsx",
+      "inertia/pages/admin/committees/index.tsx",
       "inertia/pages/admin/councilors/form.tsx",
       "inertia/pages/admin/councilors/index.tsx",
       "inertia/pages/admin/dashboard.tsx",
@@ -216,11 +268,22 @@
       "inertia/pages/errors/not_found.tsx",
       "inertia/pages/errors/server_error.tsx",
       "inertia/pages/home.tsx",
+      "inertia/pages/public/activities/index.tsx",
+      "inertia/pages/public/activities/show.tsx",
+      "inertia/pages/public/committees/index.tsx",
+      "inertia/pages/public/councilors/index.tsx",
+      "inertia/pages/public/councilors/show.tsx",
+      "inertia/pages/public/faq/index.tsx",
+      "inertia/pages/public/information/category.tsx",
+      "inertia/pages/public/information/index.tsx",
       "inertia/pages/public/news/index.tsx",
-      "inertia/pages/public/news/show.tsx"
+      "inertia/pages/public/news/show.tsx",
+      "inertia/pages/public/publications/index.tsx",
+      "inertia/pages/public/sessions/index.tsx",
+      "inertia/pages/public/transparency/index.tsx"
     ],
     "css": [
-      "app-DWKR7nm3.css"
+      "app-bymp2W75.css"
     ]
   },
   "inertia/assets/selo-prevencao-corrupcao.png": {
@@ -232,468 +295,710 @@
     "src": "inertia/assets/selo-transparencia.png"
   },
   "inertia/pages/admin/activities/form.tsx": {
-    "file": "form-Cb72RQUG.js",
+    "file": "form-DXRFGHJn.js",
     "name": "form",
     "src": "inertia/pages/admin/activities/form.tsx",
     "isDynamicEntry": true,
     "imports": [
       "inertia/app/app.tsx",
-      "_AdminLayout-C02ceaED.js",
-      "_arrow-left-Dm9Q64tN.js",
-      "_save-DWG-2itt.js",
-      "_FlashMessages-BtxISz72.js",
-      "_x-cj2cKHYB.js",
-      "_users-BDSNZ1Kw.js",
-      "_shield-BvbbEtHg.js",
-      "_chevron-right-C2cJtKLa.js",
-      "_user-BiaJFRrl.js"
+      "_AdminLayout-CJnipjsr.js",
+      "_arrow-left-CsnF9rHl.js",
+      "_save-BQeidp6k.js",
+      "_FlashMessages-BxWmg3Z4.js",
+      "_x-D2oGdncw.js",
+      "_calendar-SybEyHdh.js",
+      "_users-HHoPZjb5.js",
+      "_users-round-DB0gxkbu.js",
+      "_scroll-text-DA07wk8a.js",
+      "_shield-BgocapGO.js",
+      "_info-dMwZm8jV.js",
+      "_chevron-right-D7oAM4sf.js",
+      "_user-D0L09kRw.js"
     ]
   },
   "inertia/pages/admin/activities/index.tsx": {
-    "file": "index-C6x5mIWq.js",
+    "file": "index-DjqTTKfj.js",
     "name": "index",
     "src": "inertia/pages/admin/activities/index.tsx",
     "isDynamicEntry": true,
     "imports": [
       "inertia/app/app.tsx",
-      "_AdminLayout-C02ceaED.js",
-      "_trash-2-CyCDU1Qw.js",
-      "_search-C4LTWLaO.js",
-      "_users-BDSNZ1Kw.js",
-      "_pencil-C-JjBA_E.js",
-      "_FlashMessages-BtxISz72.js",
-      "_x-cj2cKHYB.js",
-      "_shield-BvbbEtHg.js",
-      "_chevron-right-C2cJtKLa.js",
-      "_user-BiaJFRrl.js"
+      "_AdminLayout-CJnipjsr.js",
+      "_plus-C3yzEQe5.js",
+      "_search-CidmpGsr.js",
+      "_scroll-text-DA07wk8a.js",
+      "_pencil-DNUOYAxt.js",
+      "_trash-2-CXwfnZKK.js",
+      "_FlashMessages-BxWmg3Z4.js",
+      "_x-D2oGdncw.js",
+      "_calendar-SybEyHdh.js",
+      "_users-HHoPZjb5.js",
+      "_users-round-DB0gxkbu.js",
+      "_shield-BgocapGO.js",
+      "_info-dMwZm8jV.js",
+      "_chevron-right-D7oAM4sf.js",
+      "_user-D0L09kRw.js"
+    ]
+  },
+  "inertia/pages/admin/biennia/form.tsx": {
+    "file": "form-BVYA1_eL.js",
+    "name": "form",
+    "src": "inertia/pages/admin/biennia/form.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "inertia/app/app.tsx",
+      "_AdminLayout-CJnipjsr.js",
+      "_arrow-left-CsnF9rHl.js",
+      "_save-BQeidp6k.js",
+      "_FlashMessages-BxWmg3Z4.js",
+      "_x-D2oGdncw.js",
+      "_calendar-SybEyHdh.js",
+      "_users-HHoPZjb5.js",
+      "_users-round-DB0gxkbu.js",
+      "_scroll-text-DA07wk8a.js",
+      "_shield-BgocapGO.js",
+      "_info-dMwZm8jV.js",
+      "_chevron-right-D7oAM4sf.js",
+      "_user-D0L09kRw.js"
+    ]
+  },
+  "inertia/pages/admin/biennia/index.tsx": {
+    "file": "index-DK7dVXtA.js",
+    "name": "index",
+    "src": "inertia/pages/admin/biennia/index.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "inertia/app/app.tsx",
+      "_AdminLayout-CJnipjsr.js",
+      "_plus-C3yzEQe5.js",
+      "_pencil-DNUOYAxt.js",
+      "_trash-2-CXwfnZKK.js",
+      "_FlashMessages-BxWmg3Z4.js",
+      "_x-D2oGdncw.js",
+      "_calendar-SybEyHdh.js",
+      "_users-HHoPZjb5.js",
+      "_users-round-DB0gxkbu.js",
+      "_scroll-text-DA07wk8a.js",
+      "_shield-BgocapGO.js",
+      "_info-dMwZm8jV.js",
+      "_chevron-right-D7oAM4sf.js",
+      "_user-D0L09kRw.js"
+    ]
+  },
+  "inertia/pages/admin/categories/form.tsx": {
+    "file": "form-Bav1XqBz.js",
+    "name": "form",
+    "src": "inertia/pages/admin/categories/form.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "inertia/app/app.tsx",
+      "_AdminLayout-CJnipjsr.js",
+      "_arrow-left-CsnF9rHl.js",
+      "_save-BQeidp6k.js",
+      "_FlashMessages-BxWmg3Z4.js",
+      "_x-D2oGdncw.js",
+      "_calendar-SybEyHdh.js",
+      "_users-HHoPZjb5.js",
+      "_users-round-DB0gxkbu.js",
+      "_scroll-text-DA07wk8a.js",
+      "_shield-BgocapGO.js",
+      "_info-dMwZm8jV.js",
+      "_chevron-right-D7oAM4sf.js",
+      "_user-D0L09kRw.js"
+    ]
+  },
+  "inertia/pages/admin/categories/index.tsx": {
+    "file": "index-BWJdu70n.js",
+    "name": "index",
+    "src": "inertia/pages/admin/categories/index.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "inertia/app/app.tsx",
+      "_AdminLayout-CJnipjsr.js",
+      "_plus-C3yzEQe5.js",
+      "_pencil-DNUOYAxt.js",
+      "_trash-2-CXwfnZKK.js",
+      "_FlashMessages-BxWmg3Z4.js",
+      "_x-D2oGdncw.js",
+      "_calendar-SybEyHdh.js",
+      "_users-HHoPZjb5.js",
+      "_users-round-DB0gxkbu.js",
+      "_scroll-text-DA07wk8a.js",
+      "_shield-BgocapGO.js",
+      "_info-dMwZm8jV.js",
+      "_chevron-right-D7oAM4sf.js",
+      "_user-D0L09kRw.js"
+    ]
+  },
+  "inertia/pages/admin/committees/form.tsx": {
+    "file": "form-CojdGAJ2.js",
+    "name": "form",
+    "src": "inertia/pages/admin/committees/form.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "inertia/app/app.tsx",
+      "_AdminLayout-CJnipjsr.js",
+      "_arrow-left-CsnF9rHl.js",
+      "_plus-C3yzEQe5.js",
+      "_x-D2oGdncw.js",
+      "_save-BQeidp6k.js",
+      "_FlashMessages-BxWmg3Z4.js",
+      "_calendar-SybEyHdh.js",
+      "_users-HHoPZjb5.js",
+      "_users-round-DB0gxkbu.js",
+      "_scroll-text-DA07wk8a.js",
+      "_shield-BgocapGO.js",
+      "_info-dMwZm8jV.js",
+      "_chevron-right-D7oAM4sf.js",
+      "_user-D0L09kRw.js"
+    ]
+  },
+  "inertia/pages/admin/committees/index.tsx": {
+    "file": "index-YBNlxPuH.js",
+    "name": "index",
+    "src": "inertia/pages/admin/committees/index.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "inertia/app/app.tsx",
+      "_AdminLayout-CJnipjsr.js",
+      "_plus-C3yzEQe5.js",
+      "_pencil-DNUOYAxt.js",
+      "_trash-2-CXwfnZKK.js",
+      "_FlashMessages-BxWmg3Z4.js",
+      "_x-D2oGdncw.js",
+      "_calendar-SybEyHdh.js",
+      "_users-HHoPZjb5.js",
+      "_users-round-DB0gxkbu.js",
+      "_scroll-text-DA07wk8a.js",
+      "_shield-BgocapGO.js",
+      "_info-dMwZm8jV.js",
+      "_chevron-right-D7oAM4sf.js",
+      "_user-D0L09kRw.js"
     ]
   },
   "inertia/pages/admin/councilors/form.tsx": {
-    "file": "form-CCQo1seM.js",
+    "file": "form-CMuxG6op.js",
     "name": "form",
     "src": "inertia/pages/admin/councilors/form.tsx",
     "isDynamicEntry": true,
     "imports": [
       "inertia/app/app.tsx",
-      "_AdminLayout-C02ceaED.js",
-      "_arrow-left-Dm9Q64tN.js",
-      "_upload-CpRSR0UT.js",
-      "_save-DWG-2itt.js",
-      "_FlashMessages-BtxISz72.js",
-      "_x-cj2cKHYB.js",
-      "_users-BDSNZ1Kw.js",
-      "_shield-BvbbEtHg.js",
-      "_chevron-right-C2cJtKLa.js",
-      "_user-BiaJFRrl.js"
+      "_AdminLayout-CJnipjsr.js",
+      "_arrow-left-CsnF9rHl.js",
+      "_upload-DFWjciSY.js",
+      "_save-BQeidp6k.js",
+      "_FlashMessages-BxWmg3Z4.js",
+      "_x-D2oGdncw.js",
+      "_calendar-SybEyHdh.js",
+      "_users-HHoPZjb5.js",
+      "_users-round-DB0gxkbu.js",
+      "_scroll-text-DA07wk8a.js",
+      "_shield-BgocapGO.js",
+      "_info-dMwZm8jV.js",
+      "_chevron-right-D7oAM4sf.js",
+      "_user-D0L09kRw.js"
     ]
   },
   "inertia/pages/admin/councilors/index.tsx": {
-    "file": "index-B9W2a-0s.js",
+    "file": "index-C4AmeQvR.js",
     "name": "index",
     "src": "inertia/pages/admin/councilors/index.tsx",
     "isDynamicEntry": true,
     "imports": [
       "inertia/app/app.tsx",
-      "_AdminLayout-C02ceaED.js",
-      "_trash-2-CyCDU1Qw.js",
-      "_users-BDSNZ1Kw.js",
-      "_pencil-C-JjBA_E.js",
-      "_FlashMessages-BtxISz72.js",
-      "_x-cj2cKHYB.js",
-      "_shield-BvbbEtHg.js",
-      "_chevron-right-C2cJtKLa.js",
-      "_user-BiaJFRrl.js"
+      "_AdminLayout-CJnipjsr.js",
+      "_plus-C3yzEQe5.js",
+      "_users-HHoPZjb5.js",
+      "_pencil-DNUOYAxt.js",
+      "_trash-2-CXwfnZKK.js",
+      "_FlashMessages-BxWmg3Z4.js",
+      "_x-D2oGdncw.js",
+      "_calendar-SybEyHdh.js",
+      "_users-round-DB0gxkbu.js",
+      "_scroll-text-DA07wk8a.js",
+      "_shield-BgocapGO.js",
+      "_info-dMwZm8jV.js",
+      "_chevron-right-D7oAM4sf.js",
+      "_user-D0L09kRw.js"
     ]
   },
   "inertia/pages/admin/dashboard.tsx": {
-    "file": "dashboard-CPw_U1Zq.js",
+    "file": "dashboard-P9kZaLeg.js",
     "name": "dashboard",
     "src": "inertia/pages/admin/dashboard.tsx",
     "isDynamicEntry": true,
     "imports": [
       "inertia/app/app.tsx",
-      "_AdminLayout-C02ceaED.js",
-      "_shield-BvbbEtHg.js",
-      "_eye-BQjCp9tX.js",
-      "_users-BDSNZ1Kw.js",
-      "_arrow-right-B1m3PPM8.js",
-      "_clock-CCiUc26b.js",
-      "_FlashMessages-BtxISz72.js",
-      "_x-cj2cKHYB.js",
-      "_chevron-right-C2cJtKLa.js",
-      "_user-BiaJFRrl.js"
+      "_AdminLayout-CJnipjsr.js",
+      "_shield-BgocapGO.js",
+      "_eye-CxL633bq.js",
+      "_users-HHoPZjb5.js",
+      "_arrow-right-DEw03jG3.js",
+      "_clock-BJhFnqHs.js",
+      "_FlashMessages-BxWmg3Z4.js",
+      "_x-D2oGdncw.js",
+      "_calendar-SybEyHdh.js",
+      "_users-round-DB0gxkbu.js",
+      "_scroll-text-DA07wk8a.js",
+      "_info-dMwZm8jV.js",
+      "_chevron-right-D7oAM4sf.js",
+      "_user-D0L09kRw.js"
     ]
   },
   "inertia/pages/admin/faq/form.tsx": {
-    "file": "form-CNhAv6y-.js",
+    "file": "form-DXJoXkOf.js",
     "name": "form",
     "src": "inertia/pages/admin/faq/form.tsx",
     "isDynamicEntry": true,
     "imports": [
       "inertia/app/app.tsx",
-      "_AdminLayout-C02ceaED.js",
-      "_arrow-left-Dm9Q64tN.js",
-      "_save-DWG-2itt.js",
-      "_FlashMessages-BtxISz72.js",
-      "_x-cj2cKHYB.js",
-      "_users-BDSNZ1Kw.js",
-      "_shield-BvbbEtHg.js",
-      "_chevron-right-C2cJtKLa.js",
-      "_user-BiaJFRrl.js"
+      "_AdminLayout-CJnipjsr.js",
+      "_arrow-left-CsnF9rHl.js",
+      "_save-BQeidp6k.js",
+      "_FlashMessages-BxWmg3Z4.js",
+      "_x-D2oGdncw.js",
+      "_calendar-SybEyHdh.js",
+      "_users-HHoPZjb5.js",
+      "_users-round-DB0gxkbu.js",
+      "_scroll-text-DA07wk8a.js",
+      "_shield-BgocapGO.js",
+      "_info-dMwZm8jV.js",
+      "_chevron-right-D7oAM4sf.js",
+      "_user-D0L09kRw.js"
     ]
   },
   "inertia/pages/admin/faq/index.tsx": {
-    "file": "index-ZRZU3_zI.js",
+    "file": "index-Dx_CfH7j.js",
     "name": "index",
     "src": "inertia/pages/admin/faq/index.tsx",
     "isDynamicEntry": true,
     "imports": [
       "inertia/app/app.tsx",
-      "_AdminLayout-C02ceaED.js",
-      "_trash-2-CyCDU1Qw.js",
-      "_shield-BvbbEtHg.js",
-      "_pencil-C-JjBA_E.js",
-      "_FlashMessages-BtxISz72.js",
-      "_x-cj2cKHYB.js",
-      "_users-BDSNZ1Kw.js",
-      "_chevron-right-C2cJtKLa.js",
-      "_user-BiaJFRrl.js"
+      "_AdminLayout-CJnipjsr.js",
+      "_plus-C3yzEQe5.js",
+      "_shield-BgocapGO.js",
+      "_pencil-DNUOYAxt.js",
+      "_trash-2-CXwfnZKK.js",
+      "_FlashMessages-BxWmg3Z4.js",
+      "_x-D2oGdncw.js",
+      "_calendar-SybEyHdh.js",
+      "_users-HHoPZjb5.js",
+      "_users-round-DB0gxkbu.js",
+      "_scroll-text-DA07wk8a.js",
+      "_info-dMwZm8jV.js",
+      "_chevron-right-D7oAM4sf.js",
+      "_user-D0L09kRw.js"
     ]
   },
   "inertia/pages/admin/homepage/index.tsx": {
-    "file": "index-CNWT2UHS.js",
+    "file": "index-BYwF45Tp.js",
     "name": "index",
     "src": "inertia/pages/admin/homepage/index.tsx",
     "isDynamicEntry": true,
     "imports": [
       "inertia/app/app.tsx",
-      "_AdminLayout-C02ceaED.js",
-      "_eye-BQjCp9tX.js",
-      "_globe-CmsdcH7V.js",
-      "_shield-BvbbEtHg.js",
-      "_users-BDSNZ1Kw.js",
-      "_save-DWG-2itt.js",
-      "_FlashMessages-BtxISz72.js",
-      "_x-cj2cKHYB.js",
-      "_chevron-right-C2cJtKLa.js",
-      "_user-BiaJFRrl.js"
+      "_AdminLayout-CJnipjsr.js",
+      "_eye-CxL633bq.js",
+      "_globe-CoNW9-Zc.js",
+      "_shield-BgocapGO.js",
+      "_users-HHoPZjb5.js",
+      "_save-BQeidp6k.js",
+      "_FlashMessages-BxWmg3Z4.js",
+      "_x-D2oGdncw.js",
+      "_calendar-SybEyHdh.js",
+      "_users-round-DB0gxkbu.js",
+      "_scroll-text-DA07wk8a.js",
+      "_info-dMwZm8jV.js",
+      "_chevron-right-D7oAM4sf.js",
+      "_user-D0L09kRw.js"
     ]
   },
   "inertia/pages/admin/information-records/form.tsx": {
-    "file": "form-CmJkrMNq.js",
+    "file": "form-zBKUOlyV.js",
     "name": "form",
     "src": "inertia/pages/admin/information-records/form.tsx",
     "isDynamicEntry": true,
     "imports": [
       "inertia/app/app.tsx",
-      "_AdminLayout-C02ceaED.js",
-      "_arrow-left-Dm9Q64tN.js",
-      "_upload-CpRSR0UT.js",
-      "_save-DWG-2itt.js",
-      "_FlashMessages-BtxISz72.js",
-      "_x-cj2cKHYB.js",
-      "_users-BDSNZ1Kw.js",
-      "_shield-BvbbEtHg.js",
-      "_chevron-right-C2cJtKLa.js",
-      "_user-BiaJFRrl.js"
+      "_AdminLayout-CJnipjsr.js",
+      "_arrow-left-CsnF9rHl.js",
+      "_upload-DFWjciSY.js",
+      "_save-BQeidp6k.js",
+      "_FlashMessages-BxWmg3Z4.js",
+      "_x-D2oGdncw.js",
+      "_calendar-SybEyHdh.js",
+      "_users-HHoPZjb5.js",
+      "_users-round-DB0gxkbu.js",
+      "_scroll-text-DA07wk8a.js",
+      "_shield-BgocapGO.js",
+      "_info-dMwZm8jV.js",
+      "_chevron-right-D7oAM4sf.js",
+      "_user-D0L09kRw.js"
     ]
   },
   "inertia/pages/admin/information-records/index.tsx": {
-    "file": "index-EBcfoCvK.js",
+    "file": "index-DRkeaJxq.js",
     "name": "index",
     "src": "inertia/pages/admin/information-records/index.tsx",
     "isDynamicEntry": true,
     "imports": [
       "inertia/app/app.tsx",
-      "_AdminLayout-C02ceaED.js",
-      "_trash-2-CyCDU1Qw.js",
-      "_external-link-lagKnVHe.js",
-      "_pencil-C-JjBA_E.js",
-      "_FlashMessages-BtxISz72.js",
-      "_x-cj2cKHYB.js",
-      "_users-BDSNZ1Kw.js",
-      "_shield-BvbbEtHg.js",
-      "_chevron-right-C2cJtKLa.js",
-      "_user-BiaJFRrl.js"
+      "_AdminLayout-CJnipjsr.js",
+      "_plus-C3yzEQe5.js",
+      "_info-dMwZm8jV.js",
+      "_external-link-BI-Bp5hf.js",
+      "_pencil-DNUOYAxt.js",
+      "_trash-2-CXwfnZKK.js",
+      "_FlashMessages-BxWmg3Z4.js",
+      "_x-D2oGdncw.js",
+      "_calendar-SybEyHdh.js",
+      "_users-HHoPZjb5.js",
+      "_users-round-DB0gxkbu.js",
+      "_scroll-text-DA07wk8a.js",
+      "_shield-BgocapGO.js",
+      "_chevron-right-D7oAM4sf.js",
+      "_user-D0L09kRw.js"
     ]
   },
   "inertia/pages/admin/legislatures/form.tsx": {
-    "file": "form-PYnFFBA6.js",
+    "file": "form-BP-SWE5z.js",
     "name": "form",
     "src": "inertia/pages/admin/legislatures/form.tsx",
     "isDynamicEntry": true,
     "imports": [
       "inertia/app/app.tsx",
-      "_AdminLayout-C02ceaED.js",
-      "_arrow-left-Dm9Q64tN.js",
-      "_save-DWG-2itt.js",
-      "_FlashMessages-BtxISz72.js",
-      "_x-cj2cKHYB.js",
-      "_users-BDSNZ1Kw.js",
-      "_shield-BvbbEtHg.js",
-      "_chevron-right-C2cJtKLa.js",
-      "_user-BiaJFRrl.js"
+      "_AdminLayout-CJnipjsr.js",
+      "_arrow-left-CsnF9rHl.js",
+      "_save-BQeidp6k.js",
+      "_FlashMessages-BxWmg3Z4.js",
+      "_x-D2oGdncw.js",
+      "_calendar-SybEyHdh.js",
+      "_users-HHoPZjb5.js",
+      "_users-round-DB0gxkbu.js",
+      "_scroll-text-DA07wk8a.js",
+      "_shield-BgocapGO.js",
+      "_info-dMwZm8jV.js",
+      "_chevron-right-D7oAM4sf.js",
+      "_user-D0L09kRw.js"
     ]
   },
   "inertia/pages/admin/legislatures/index.tsx": {
-    "file": "index-gKsxp8C2.js",
+    "file": "index-CRDF0N-R.js",
     "name": "index",
     "src": "inertia/pages/admin/legislatures/index.tsx",
     "isDynamicEntry": true,
     "imports": [
       "inertia/app/app.tsx",
-      "_AdminLayout-C02ceaED.js",
-      "_trash-2-CyCDU1Qw.js",
-      "_pencil-C-JjBA_E.js",
-      "_FlashMessages-BtxISz72.js",
-      "_x-cj2cKHYB.js",
-      "_users-BDSNZ1Kw.js",
-      "_shield-BvbbEtHg.js",
-      "_chevron-right-C2cJtKLa.js",
-      "_user-BiaJFRrl.js"
+      "_AdminLayout-CJnipjsr.js",
+      "_plus-C3yzEQe5.js",
+      "_pencil-DNUOYAxt.js",
+      "_trash-2-CXwfnZKK.js",
+      "_FlashMessages-BxWmg3Z4.js",
+      "_x-D2oGdncw.js",
+      "_calendar-SybEyHdh.js",
+      "_users-HHoPZjb5.js",
+      "_users-round-DB0gxkbu.js",
+      "_scroll-text-DA07wk8a.js",
+      "_shield-BgocapGO.js",
+      "_info-dMwZm8jV.js",
+      "_chevron-right-D7oAM4sf.js",
+      "_user-D0L09kRw.js"
     ]
   },
   "inertia/pages/admin/news/form.tsx": {
-    "file": "form-DW5bDJ9g.js",
+    "file": "form-C6B7RKsE.js",
     "name": "form",
     "src": "inertia/pages/admin/news/form.tsx",
     "isDynamicEntry": true,
     "imports": [
       "inertia/app/app.tsx",
-      "_AdminLayout-C02ceaED.js",
-      "_arrow-left-Dm9Q64tN.js",
-      "_x-cj2cKHYB.js",
-      "_upload-CpRSR0UT.js",
-      "_save-DWG-2itt.js",
-      "_FlashMessages-BtxISz72.js",
-      "_users-BDSNZ1Kw.js",
-      "_shield-BvbbEtHg.js",
-      "_chevron-right-C2cJtKLa.js",
-      "_user-BiaJFRrl.js"
+      "_AdminLayout-CJnipjsr.js",
+      "_arrow-left-CsnF9rHl.js",
+      "_x-D2oGdncw.js",
+      "_upload-DFWjciSY.js",
+      "_save-BQeidp6k.js",
+      "_FlashMessages-BxWmg3Z4.js",
+      "_calendar-SybEyHdh.js",
+      "_users-HHoPZjb5.js",
+      "_users-round-DB0gxkbu.js",
+      "_scroll-text-DA07wk8a.js",
+      "_shield-BgocapGO.js",
+      "_info-dMwZm8jV.js",
+      "_chevron-right-D7oAM4sf.js",
+      "_user-D0L09kRw.js"
     ]
   },
   "inertia/pages/admin/news/index.tsx": {
-    "file": "index-CIou7OXW.js",
+    "file": "index-CAn37-u8.js",
     "name": "index",
     "src": "inertia/pages/admin/news/index.tsx",
     "isDynamicEntry": true,
     "imports": [
       "inertia/app/app.tsx",
-      "_AdminLayout-C02ceaED.js",
-      "_search-C4LTWLaO.js",
-      "_trash-2-CyCDU1Qw.js",
-      "_eye-BQjCp9tX.js",
-      "_x-cj2cKHYB.js",
-      "_chevron-right-C2cJtKLa.js",
-      "_FlashMessages-BtxISz72.js",
-      "_users-BDSNZ1Kw.js",
-      "_shield-BvbbEtHg.js",
-      "_user-BiaJFRrl.js"
+      "_AdminLayout-CJnipjsr.js",
+      "_search-CidmpGsr.js",
+      "_plus-C3yzEQe5.js",
+      "_eye-CxL633bq.js",
+      "_x-D2oGdncw.js",
+      "_trash-2-CXwfnZKK.js",
+      "_chevron-right-D7oAM4sf.js",
+      "_FlashMessages-BxWmg3Z4.js",
+      "_calendar-SybEyHdh.js",
+      "_users-HHoPZjb5.js",
+      "_users-round-DB0gxkbu.js",
+      "_scroll-text-DA07wk8a.js",
+      "_shield-BgocapGO.js",
+      "_info-dMwZm8jV.js",
+      "_user-D0L09kRw.js"
     ]
   },
   "inertia/pages/admin/plenary-sessions/form.tsx": {
-    "file": "form-Bd3A2CYk.js",
+    "file": "form-S2XPm1iv.js",
     "name": "form",
     "src": "inertia/pages/admin/plenary-sessions/form.tsx",
     "isDynamicEntry": true,
     "imports": [
       "inertia/app/app.tsx",
-      "_AdminLayout-C02ceaED.js",
-      "_arrow-left-Dm9Q64tN.js",
-      "_upload-CpRSR0UT.js",
-      "_save-DWG-2itt.js",
-      "_FlashMessages-BtxISz72.js",
-      "_x-cj2cKHYB.js",
-      "_users-BDSNZ1Kw.js",
-      "_shield-BvbbEtHg.js",
-      "_chevron-right-C2cJtKLa.js",
-      "_user-BiaJFRrl.js"
+      "_AdminLayout-CJnipjsr.js",
+      "_arrow-left-CsnF9rHl.js",
+      "_upload-DFWjciSY.js",
+      "_save-BQeidp6k.js",
+      "_FlashMessages-BxWmg3Z4.js",
+      "_x-D2oGdncw.js",
+      "_calendar-SybEyHdh.js",
+      "_users-HHoPZjb5.js",
+      "_users-round-DB0gxkbu.js",
+      "_scroll-text-DA07wk8a.js",
+      "_shield-BgocapGO.js",
+      "_info-dMwZm8jV.js",
+      "_chevron-right-D7oAM4sf.js",
+      "_user-D0L09kRw.js"
     ]
   },
   "inertia/pages/admin/plenary-sessions/index.tsx": {
-    "file": "index-Bm8krDLi.js",
+    "file": "index-DvxRaCMn.js",
     "name": "index",
     "src": "inertia/pages/admin/plenary-sessions/index.tsx",
     "isDynamicEntry": true,
     "imports": [
       "inertia/app/app.tsx",
-      "_AdminLayout-C02ceaED.js",
-      "_trash-2-CyCDU1Qw.js",
-      "_shield-BvbbEtHg.js",
-      "_external-link-lagKnVHe.js",
-      "_pencil-C-JjBA_E.js",
-      "_FlashMessages-BtxISz72.js",
-      "_x-cj2cKHYB.js",
-      "_users-BDSNZ1Kw.js",
-      "_chevron-right-C2cJtKLa.js",
-      "_user-BiaJFRrl.js"
+      "_AdminLayout-CJnipjsr.js",
+      "_plus-C3yzEQe5.js",
+      "_shield-BgocapGO.js",
+      "_external-link-BI-Bp5hf.js",
+      "_pencil-DNUOYAxt.js",
+      "_trash-2-CXwfnZKK.js",
+      "_FlashMessages-BxWmg3Z4.js",
+      "_x-D2oGdncw.js",
+      "_calendar-SybEyHdh.js",
+      "_users-HHoPZjb5.js",
+      "_users-round-DB0gxkbu.js",
+      "_scroll-text-DA07wk8a.js",
+      "_info-dMwZm8jV.js",
+      "_chevron-right-D7oAM4sf.js",
+      "_user-D0L09kRw.js"
     ]
   },
   "inertia/pages/admin/publications/form.tsx": {
-    "file": "form-RgYgYeLN.js",
+    "file": "form-BWAThNKp.js",
     "name": "form",
     "src": "inertia/pages/admin/publications/form.tsx",
     "isDynamicEntry": true,
     "imports": [
       "inertia/app/app.tsx",
-      "_AdminLayout-C02ceaED.js",
-      "_arrow-left-Dm9Q64tN.js",
-      "_upload-CpRSR0UT.js",
-      "_save-DWG-2itt.js",
-      "_FlashMessages-BtxISz72.js",
-      "_x-cj2cKHYB.js",
-      "_users-BDSNZ1Kw.js",
-      "_shield-BvbbEtHg.js",
-      "_chevron-right-C2cJtKLa.js",
-      "_user-BiaJFRrl.js"
+      "_AdminLayout-CJnipjsr.js",
+      "_arrow-left-CsnF9rHl.js",
+      "_upload-DFWjciSY.js",
+      "_save-BQeidp6k.js",
+      "_FlashMessages-BxWmg3Z4.js",
+      "_x-D2oGdncw.js",
+      "_calendar-SybEyHdh.js",
+      "_users-HHoPZjb5.js",
+      "_users-round-DB0gxkbu.js",
+      "_scroll-text-DA07wk8a.js",
+      "_shield-BgocapGO.js",
+      "_info-dMwZm8jV.js",
+      "_chevron-right-D7oAM4sf.js",
+      "_user-D0L09kRw.js"
     ]
   },
   "inertia/pages/admin/publications/index.tsx": {
-    "file": "index-B6aIbADd.js",
+    "file": "index-DHOnpHMK.js",
     "name": "index",
     "src": "inertia/pages/admin/publications/index.tsx",
     "isDynamicEntry": true,
     "imports": [
       "inertia/app/app.tsx",
-      "_AdminLayout-C02ceaED.js",
-      "_trash-2-CyCDU1Qw.js",
-      "_shield-BvbbEtHg.js",
-      "_external-link-lagKnVHe.js",
-      "_pencil-C-JjBA_E.js",
-      "_FlashMessages-BtxISz72.js",
-      "_x-cj2cKHYB.js",
-      "_users-BDSNZ1Kw.js",
-      "_chevron-right-C2cJtKLa.js",
-      "_user-BiaJFRrl.js"
+      "_AdminLayout-CJnipjsr.js",
+      "_plus-C3yzEQe5.js",
+      "_shield-BgocapGO.js",
+      "_external-link-BI-Bp5hf.js",
+      "_pencil-DNUOYAxt.js",
+      "_trash-2-CXwfnZKK.js",
+      "_FlashMessages-BxWmg3Z4.js",
+      "_x-D2oGdncw.js",
+      "_calendar-SybEyHdh.js",
+      "_users-HHoPZjb5.js",
+      "_users-round-DB0gxkbu.js",
+      "_scroll-text-DA07wk8a.js",
+      "_info-dMwZm8jV.js",
+      "_chevron-right-D7oAM4sf.js",
+      "_user-D0L09kRw.js"
     ]
   },
   "inertia/pages/admin/quick-links/form.tsx": {
-    "file": "form-05S7wldh.js",
+    "file": "form-DWhFD9ak.js",
     "name": "form",
     "src": "inertia/pages/admin/quick-links/form.tsx",
     "isDynamicEntry": true,
     "imports": [
       "inertia/app/app.tsx",
-      "_AdminLayout-C02ceaED.js",
-      "_arrow-left-Dm9Q64tN.js",
-      "_save-DWG-2itt.js",
-      "_FlashMessages-BtxISz72.js",
-      "_x-cj2cKHYB.js",
-      "_users-BDSNZ1Kw.js",
-      "_shield-BvbbEtHg.js",
-      "_chevron-right-C2cJtKLa.js",
-      "_user-BiaJFRrl.js"
+      "_AdminLayout-CJnipjsr.js",
+      "_arrow-left-CsnF9rHl.js",
+      "_save-BQeidp6k.js",
+      "_FlashMessages-BxWmg3Z4.js",
+      "_x-D2oGdncw.js",
+      "_calendar-SybEyHdh.js",
+      "_users-HHoPZjb5.js",
+      "_users-round-DB0gxkbu.js",
+      "_scroll-text-DA07wk8a.js",
+      "_shield-BgocapGO.js",
+      "_info-dMwZm8jV.js",
+      "_chevron-right-D7oAM4sf.js",
+      "_user-D0L09kRw.js"
     ]
   },
   "inertia/pages/admin/quick-links/index.tsx": {
-    "file": "index-BdDfgmNQ.js",
+    "file": "index-DPx-yx1j.js",
     "name": "index",
     "src": "inertia/pages/admin/quick-links/index.tsx",
     "isDynamicEntry": true,
     "imports": [
       "inertia/app/app.tsx",
-      "_AdminLayout-C02ceaED.js",
-      "_trash-2-CyCDU1Qw.js",
-      "_users-BDSNZ1Kw.js",
-      "_pencil-C-JjBA_E.js",
-      "_FlashMessages-BtxISz72.js",
-      "_x-cj2cKHYB.js",
-      "_shield-BvbbEtHg.js",
-      "_chevron-right-C2cJtKLa.js",
-      "_user-BiaJFRrl.js"
+      "_AdminLayout-CJnipjsr.js",
+      "_plus-C3yzEQe5.js",
+      "_users-HHoPZjb5.js",
+      "_pencil-DNUOYAxt.js",
+      "_trash-2-CXwfnZKK.js",
+      "_FlashMessages-BxWmg3Z4.js",
+      "_x-D2oGdncw.js",
+      "_calendar-SybEyHdh.js",
+      "_users-round-DB0gxkbu.js",
+      "_scroll-text-DA07wk8a.js",
+      "_shield-BgocapGO.js",
+      "_info-dMwZm8jV.js",
+      "_chevron-right-D7oAM4sf.js",
+      "_user-D0L09kRw.js"
     ]
   },
   "inertia/pages/admin/settings/appearance.tsx": {
-    "file": "appearance-DR8CbytF.js",
+    "file": "appearance-0YO_H90X.js",
     "name": "appearance",
     "src": "inertia/pages/admin/settings/appearance.tsx",
     "isDynamicEntry": true,
     "imports": [
       "inertia/app/app.tsx",
-      "_AdminLayout-C02ceaED.js",
-      "_x-cj2cKHYB.js",
-      "_map-pin-DdOkpgJF.js",
-      "_share-2-CvUUCCLX.js",
-      "_shield-BvbbEtHg.js",
-      "_save-DWG-2itt.js",
-      "_upload-CpRSR0UT.js",
-      "_FlashMessages-BtxISz72.js",
-      "_users-BDSNZ1Kw.js",
-      "_chevron-right-C2cJtKLa.js",
-      "_user-BiaJFRrl.js"
+      "_AdminLayout-CJnipjsr.js",
+      "_x-D2oGdncw.js",
+      "_map-pin-8ewGne0R.js",
+      "_share-2-nm1Ta5OI.js",
+      "_shield-BgocapGO.js",
+      "_save-BQeidp6k.js",
+      "_upload-DFWjciSY.js",
+      "_FlashMessages-BxWmg3Z4.js",
+      "_calendar-SybEyHdh.js",
+      "_users-HHoPZjb5.js",
+      "_users-round-DB0gxkbu.js",
+      "_scroll-text-DA07wk8a.js",
+      "_info-dMwZm8jV.js",
+      "_chevron-right-D7oAM4sf.js",
+      "_user-D0L09kRw.js"
     ]
   },
   "inertia/pages/admin/transparency/index.tsx": {
-    "file": "index-0ROi2mY2.js",
+    "file": "index-Dtq-Q5y3.js",
     "name": "index",
     "src": "inertia/pages/admin/transparency/index.tsx",
     "isDynamicEntry": true,
     "imports": [
       "inertia/app/app.tsx",
-      "_AdminLayout-C02ceaED.js",
-      "_trash-2-CyCDU1Qw.js",
-      "_shield-BvbbEtHg.js",
-      "_x-cj2cKHYB.js",
-      "_chevron-down-lJEoTV4l.js",
-      "_pencil-C-JjBA_E.js",
-      "_external-link-lagKnVHe.js",
-      "_FlashMessages-BtxISz72.js",
-      "_users-BDSNZ1Kw.js",
-      "_chevron-right-C2cJtKLa.js",
-      "_user-BiaJFRrl.js"
+      "_AdminLayout-CJnipjsr.js",
+      "_plus-C3yzEQe5.js",
+      "_shield-BgocapGO.js",
+      "_x-D2oGdncw.js",
+      "_chevron-down-9kCYl-m7.js",
+      "_pencil-DNUOYAxt.js",
+      "_trash-2-CXwfnZKK.js",
+      "_external-link-BI-Bp5hf.js",
+      "_FlashMessages-BxWmg3Z4.js",
+      "_calendar-SybEyHdh.js",
+      "_users-HHoPZjb5.js",
+      "_users-round-DB0gxkbu.js",
+      "_scroll-text-DA07wk8a.js",
+      "_info-dMwZm8jV.js",
+      "_chevron-right-D7oAM4sf.js",
+      "_user-D0L09kRw.js"
     ]
   },
   "inertia/pages/admin/transparency/link-form.tsx": {
-    "file": "link-form-Cj_R91NW.js",
+    "file": "link-form-CkK4etwE.js",
     "name": "link-form",
     "src": "inertia/pages/admin/transparency/link-form.tsx",
     "isDynamicEntry": true,
     "imports": [
       "inertia/app/app.tsx",
-      "_AdminLayout-C02ceaED.js",
-      "_arrow-left-Dm9Q64tN.js",
-      "_save-DWG-2itt.js",
-      "_FlashMessages-BtxISz72.js",
-      "_x-cj2cKHYB.js",
-      "_users-BDSNZ1Kw.js",
-      "_shield-BvbbEtHg.js",
-      "_chevron-right-C2cJtKLa.js",
-      "_user-BiaJFRrl.js"
+      "_AdminLayout-CJnipjsr.js",
+      "_arrow-left-CsnF9rHl.js",
+      "_save-BQeidp6k.js",
+      "_FlashMessages-BxWmg3Z4.js",
+      "_x-D2oGdncw.js",
+      "_calendar-SybEyHdh.js",
+      "_users-HHoPZjb5.js",
+      "_users-round-DB0gxkbu.js",
+      "_scroll-text-DA07wk8a.js",
+      "_shield-BgocapGO.js",
+      "_info-dMwZm8jV.js",
+      "_chevron-right-D7oAM4sf.js",
+      "_user-D0L09kRw.js"
     ]
   },
   "inertia/pages/admin/transparency/section-form.tsx": {
-    "file": "section-form-BmlaGf-K.js",
+    "file": "section-form-SYonvIGx.js",
     "name": "section-form",
     "src": "inertia/pages/admin/transparency/section-form.tsx",
     "isDynamicEntry": true,
     "imports": [
       "inertia/app/app.tsx",
-      "_AdminLayout-C02ceaED.js",
-      "_arrow-left-Dm9Q64tN.js",
-      "_save-DWG-2itt.js",
-      "_FlashMessages-BtxISz72.js",
-      "_x-cj2cKHYB.js",
-      "_users-BDSNZ1Kw.js",
-      "_shield-BvbbEtHg.js",
-      "_chevron-right-C2cJtKLa.js",
-      "_user-BiaJFRrl.js"
+      "_AdminLayout-CJnipjsr.js",
+      "_arrow-left-CsnF9rHl.js",
+      "_save-BQeidp6k.js",
+      "_FlashMessages-BxWmg3Z4.js",
+      "_x-D2oGdncw.js",
+      "_calendar-SybEyHdh.js",
+      "_users-HHoPZjb5.js",
+      "_users-round-DB0gxkbu.js",
+      "_scroll-text-DA07wk8a.js",
+      "_shield-BgocapGO.js",
+      "_info-dMwZm8jV.js",
+      "_chevron-right-D7oAM4sf.js",
+      "_user-D0L09kRw.js"
     ]
   },
   "inertia/pages/auth/login.tsx": {
-    "file": "login-7XOlkgAS.js",
+    "file": "login-3XkM5Zm7.js",
     "name": "login",
     "src": "inertia/pages/auth/login.tsx",
     "isDynamicEntry": true,
     "imports": [
       "inertia/app/app.tsx",
-      "_FlashMessages-BtxISz72.js",
-      "_mail-r7fWKjak.js",
-      "_x-cj2cKHYB.js",
-      "_eye-BQjCp9tX.js"
+      "_FlashMessages-BxWmg3Z4.js",
+      "_mail-CywxnIMz.js",
+      "_x-D2oGdncw.js",
+      "_eye-CxL633bq.js"
     ]
   },
   "inertia/pages/errors/not_found.tsx": {
-    "file": "not_found-DQ2bOiBK.js",
+    "file": "not_found-DeR2SvRE.js",
     "name": "not_found",
     "src": "inertia/pages/errors/not_found.tsx",
     "isDynamicEntry": true,
@@ -702,7 +1007,7 @@
     ]
   },
   "inertia/pages/errors/server_error.tsx": {
-    "file": "server_error-DfaysoUW.js",
+    "file": "server_error-Bx9c5joq.js",
     "name": "server_error",
     "src": "inertia/pages/errors/server_error.tsx",
     "isDynamicEntry": true,
@@ -711,72 +1016,287 @@
     ]
   },
   "inertia/pages/home.tsx": {
-    "file": "home-CXAZeBQC.js",
+    "file": "home-Dq2yVgCl.js",
     "name": "home",
     "src": "inertia/pages/home.tsx",
     "isDynamicEntry": true,
     "imports": [
       "inertia/app/app.tsx",
-      "_Footer-TfI5vJK0.js",
-      "_x-cj2cKHYB.js",
-      "_arrow-right-B1m3PPM8.js",
-      "_users-BDSNZ1Kw.js",
-      "_map-pin-DdOkpgJF.js",
-      "_mail-r7fWKjak.js",
-      "_globe-CmsdcH7V.js",
-      "_external-link-lagKnVHe.js",
-      "_search-C4LTWLaO.js",
-      "_shield-BvbbEtHg.js",
-      "_eye-BQjCp9tX.js",
-      "_clock-CCiUc26b.js",
-      "_chevron-right-C2cJtKLa.js",
-      "_chevron-down-lJEoTV4l.js"
+      "_Footer-BKpU6cEt.js",
+      "_x-D2oGdncw.js",
+      "_calendar-SybEyHdh.js",
+      "_arrow-right-DEw03jG3.js",
+      "_users-HHoPZjb5.js",
+      "_map-pin-8ewGne0R.js",
+      "_mail-CywxnIMz.js",
+      "_globe-CoNW9-Zc.js",
+      "_external-link-BI-Bp5hf.js",
+      "_download-wUtlI6Wz.js",
+      "_search-CidmpGsr.js",
+      "_shield-BgocapGO.js",
+      "_eye-CxL633bq.js",
+      "_scroll-text-DA07wk8a.js",
+      "_clock-BJhFnqHs.js",
+      "_users-round-DB0gxkbu.js",
+      "_chevron-right-D7oAM4sf.js",
+      "_chevron-down-9kCYl-m7.js"
     ],
     "assets": [
       "selo-transparencia-CbOChN1d.png",
       "selo-prevencao-corrupcao-on2KwSX7.png"
     ]
   },
+  "inertia/pages/public/activities/index.tsx": {
+    "file": "index-Q7yA-5ZC.js",
+    "name": "index",
+    "src": "inertia/pages/public/activities/index.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "inertia/app/app.tsx",
+      "_PublicLayout-Dd9IH4eg.js",
+      "_scroll-text-DA07wk8a.js",
+      "_Footer-BKpU6cEt.js",
+      "_search-CidmpGsr.js",
+      "_x-D2oGdncw.js",
+      "_shield-BgocapGO.js",
+      "_chevron-down-9kCYl-m7.js",
+      "_map-pin-8ewGne0R.js",
+      "_mail-CywxnIMz.js",
+      "_clock-BJhFnqHs.js"
+    ]
+  },
+  "inertia/pages/public/activities/show.tsx": {
+    "file": "show-DF1QrO-D.js",
+    "name": "show",
+    "src": "inertia/pages/public/activities/show.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "inertia/app/app.tsx",
+      "_PublicLayout-Dd9IH4eg.js",
+      "_arrow-left-CsnF9rHl.js",
+      "_download-wUtlI6Wz.js",
+      "_Footer-BKpU6cEt.js",
+      "_search-CidmpGsr.js",
+      "_x-D2oGdncw.js",
+      "_shield-BgocapGO.js",
+      "_chevron-down-9kCYl-m7.js",
+      "_map-pin-8ewGne0R.js",
+      "_mail-CywxnIMz.js",
+      "_clock-BJhFnqHs.js"
+    ]
+  },
+  "inertia/pages/public/committees/index.tsx": {
+    "file": "index-8L7h2TOv.js",
+    "name": "index",
+    "src": "inertia/pages/public/committees/index.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "inertia/app/app.tsx",
+      "_PublicLayout-Dd9IH4eg.js",
+      "_users-round-DB0gxkbu.js",
+      "_Footer-BKpU6cEt.js",
+      "_search-CidmpGsr.js",
+      "_x-D2oGdncw.js",
+      "_shield-BgocapGO.js",
+      "_chevron-down-9kCYl-m7.js",
+      "_map-pin-8ewGne0R.js",
+      "_mail-CywxnIMz.js",
+      "_clock-BJhFnqHs.js"
+    ]
+  },
+  "inertia/pages/public/councilors/index.tsx": {
+    "file": "index-IJd8AdHQ.js",
+    "name": "index",
+    "src": "inertia/pages/public/councilors/index.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "inertia/app/app.tsx",
+      "_PublicLayout-Dd9IH4eg.js",
+      "_Footer-BKpU6cEt.js",
+      "_search-CidmpGsr.js",
+      "_x-D2oGdncw.js",
+      "_shield-BgocapGO.js",
+      "_chevron-down-9kCYl-m7.js",
+      "_map-pin-8ewGne0R.js",
+      "_mail-CywxnIMz.js",
+      "_clock-BJhFnqHs.js"
+    ]
+  },
+  "inertia/pages/public/councilors/show.tsx": {
+    "file": "show-CoAgHntE.js",
+    "name": "show",
+    "src": "inertia/pages/public/councilors/show.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "inertia/app/app.tsx",
+      "_PublicLayout-Dd9IH4eg.js",
+      "_arrow-left-CsnF9rHl.js",
+      "_mail-CywxnIMz.js",
+      "_Footer-BKpU6cEt.js",
+      "_x-D2oGdncw.js",
+      "_search-CidmpGsr.js",
+      "_shield-BgocapGO.js",
+      "_chevron-down-9kCYl-m7.js",
+      "_map-pin-8ewGne0R.js",
+      "_clock-BJhFnqHs.js"
+    ]
+  },
+  "inertia/pages/public/faq/index.tsx": {
+    "file": "index-gzmisLsh.js",
+    "name": "index",
+    "src": "inertia/pages/public/faq/index.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "inertia/app/app.tsx",
+      "_PublicLayout-Dd9IH4eg.js",
+      "_shield-BgocapGO.js",
+      "_chevron-down-9kCYl-m7.js",
+      "_Footer-BKpU6cEt.js",
+      "_search-CidmpGsr.js",
+      "_x-D2oGdncw.js",
+      "_map-pin-8ewGne0R.js",
+      "_mail-CywxnIMz.js",
+      "_clock-BJhFnqHs.js"
+    ]
+  },
+  "inertia/pages/public/information/category.tsx": {
+    "file": "category-CkO5JLOy.js",
+    "name": "category",
+    "src": "inertia/pages/public/information/category.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "inertia/app/app.tsx",
+      "_PublicLayout-Dd9IH4eg.js",
+      "_arrow-left-CsnF9rHl.js",
+      "_shield-BgocapGO.js",
+      "_download-wUtlI6Wz.js",
+      "_Footer-BKpU6cEt.js",
+      "_search-CidmpGsr.js",
+      "_x-D2oGdncw.js",
+      "_chevron-down-9kCYl-m7.js",
+      "_map-pin-8ewGne0R.js",
+      "_mail-CywxnIMz.js",
+      "_clock-BJhFnqHs.js"
+    ]
+  },
+  "inertia/pages/public/information/index.tsx": {
+    "file": "index-O3xb0izM.js",
+    "name": "index",
+    "src": "inertia/pages/public/information/index.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "inertia/app/app.tsx",
+      "_PublicLayout-Dd9IH4eg.js",
+      "_info-dMwZm8jV.js",
+      "_x-D2oGdncw.js",
+      "_Footer-BKpU6cEt.js",
+      "_search-CidmpGsr.js",
+      "_shield-BgocapGO.js",
+      "_chevron-down-9kCYl-m7.js",
+      "_map-pin-8ewGne0R.js",
+      "_mail-CywxnIMz.js",
+      "_clock-BJhFnqHs.js"
+    ]
+  },
   "inertia/pages/public/news/index.tsx": {
-    "file": "index-BOfTqwg6.js",
+    "file": "index-CZzfwVlE.js",
     "name": "index",
     "src": "inertia/pages/public/news/index.tsx",
     "isDynamicEntry": true,
     "imports": [
       "inertia/app/app.tsx",
-      "_PublicLayout-CUzlp7er.js",
-      "_search-C4LTWLaO.js",
-      "_Footer-TfI5vJK0.js",
-      "_arrow-right-B1m3PPM8.js",
-      "_chevron-right-C2cJtKLa.js",
-      "_x-cj2cKHYB.js",
-      "_shield-BvbbEtHg.js",
-      "_chevron-down-lJEoTV4l.js",
-      "_map-pin-DdOkpgJF.js",
-      "_mail-r7fWKjak.js",
-      "_clock-CCiUc26b.js"
+      "_PublicLayout-Dd9IH4eg.js",
+      "_search-CidmpGsr.js",
+      "_calendar-SybEyHdh.js",
+      "_arrow-right-DEw03jG3.js",
+      "_chevron-right-D7oAM4sf.js",
+      "_Footer-BKpU6cEt.js",
+      "_shield-BgocapGO.js",
+      "_x-D2oGdncw.js",
+      "_chevron-down-9kCYl-m7.js",
+      "_map-pin-8ewGne0R.js",
+      "_mail-CywxnIMz.js",
+      "_clock-BJhFnqHs.js"
     ]
   },
   "inertia/pages/public/news/show.tsx": {
-    "file": "show-BP-6N-nZ.js",
+    "file": "show-0bc1g9GT.js",
     "name": "show",
     "src": "inertia/pages/public/news/show.tsx",
     "isDynamicEntry": true,
     "imports": [
       "inertia/app/app.tsx",
-      "_PublicLayout-CUzlp7er.js",
-      "_arrow-left-Dm9Q64tN.js",
-      "_Footer-TfI5vJK0.js",
-      "_user-BiaJFRrl.js",
-      "_eye-BQjCp9tX.js",
-      "_share-2-CvUUCCLX.js",
-      "_x-cj2cKHYB.js",
-      "_search-C4LTWLaO.js",
-      "_shield-BvbbEtHg.js",
-      "_chevron-down-lJEoTV4l.js",
-      "_map-pin-DdOkpgJF.js",
-      "_mail-r7fWKjak.js",
-      "_clock-CCiUc26b.js"
+      "_PublicLayout-Dd9IH4eg.js",
+      "_arrow-left-CsnF9rHl.js",
+      "_calendar-SybEyHdh.js",
+      "_user-D0L09kRw.js",
+      "_eye-CxL633bq.js",
+      "_share-2-nm1Ta5OI.js",
+      "_Footer-BKpU6cEt.js",
+      "_search-CidmpGsr.js",
+      "_x-D2oGdncw.js",
+      "_shield-BgocapGO.js",
+      "_chevron-down-9kCYl-m7.js",
+      "_map-pin-8ewGne0R.js",
+      "_mail-CywxnIMz.js",
+      "_clock-BJhFnqHs.js"
+    ]
+  },
+  "inertia/pages/public/publications/index.tsx": {
+    "file": "index-D0HT4ngl.js",
+    "name": "index",
+    "src": "inertia/pages/public/publications/index.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "inertia/app/app.tsx",
+      "_PublicLayout-Dd9IH4eg.js",
+      "_search-CidmpGsr.js",
+      "_shield-BgocapGO.js",
+      "_download-wUtlI6Wz.js",
+      "_Footer-BKpU6cEt.js",
+      "_x-D2oGdncw.js",
+      "_chevron-down-9kCYl-m7.js",
+      "_map-pin-8ewGne0R.js",
+      "_mail-CywxnIMz.js",
+      "_clock-BJhFnqHs.js"
+    ]
+  },
+  "inertia/pages/public/sessions/index.tsx": {
+    "file": "index-BOntNERo.js",
+    "name": "index",
+    "src": "inertia/pages/public/sessions/index.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "inertia/app/app.tsx",
+      "_PublicLayout-Dd9IH4eg.js",
+      "_shield-BgocapGO.js",
+      "_x-D2oGdncw.js",
+      "_download-wUtlI6Wz.js",
+      "_Footer-BKpU6cEt.js",
+      "_search-CidmpGsr.js",
+      "_chevron-down-9kCYl-m7.js",
+      "_map-pin-8ewGne0R.js",
+      "_mail-CywxnIMz.js",
+      "_clock-BJhFnqHs.js"
+    ]
+  },
+  "inertia/pages/public/transparency/index.tsx": {
+    "file": "index-q9Qro5Wt.js",
+    "name": "index",
+    "src": "inertia/pages/public/transparency/index.tsx",
+    "isDynamicEntry": true,
+    "imports": [
+      "inertia/app/app.tsx",
+      "_PublicLayout-Dd9IH4eg.js",
+      "_shield-BgocapGO.js",
+      "_external-link-BI-Bp5hf.js",
+      "_Footer-BKpU6cEt.js",
+      "_search-CidmpGsr.js",
+      "_x-D2oGdncw.js",
+      "_chevron-down-9kCYl-m7.js",
+      "_map-pin-8ewGne0R.js",
+      "_mail-CywxnIMz.js",
+      "_clock-BJhFnqHs.js"
     ]
   }
 }

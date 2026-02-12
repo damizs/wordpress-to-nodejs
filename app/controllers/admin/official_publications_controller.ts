@@ -1,5 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import OfficialPublication from '#models/official_publication'
+import SystemCategory from '#models/system_category'
 import app from '@adonisjs/core/services/app'
 import { cuid } from '@adonisjs/core/helpers'
 import { mkdir } from 'node:fs/promises'
@@ -22,7 +23,8 @@ export default class OfficialPublicationsController {
   }
 
   async create({ inertia }: HttpContext) {
-    return inertia.render('admin/publications/form', { publication: null })
+    const types = await SystemCategory.byType('publication')
+    return inertia.render('admin/publications/form', { publication: null, types: types.map((t) => t.serialize()) })
   }
 
   async store({ request, response, session }: HttpContext) {
@@ -53,7 +55,8 @@ export default class OfficialPublicationsController {
 
   async edit({ params, inertia }: HttpContext) {
     const publication = await OfficialPublication.findOrFail(params.id)
-    return inertia.render('admin/publications/form', { publication: publication.serialize() })
+    const types = await SystemCategory.byType('publication')
+    return inertia.render('admin/publications/form', { publication: publication.serialize(), types: types.map((t) => t.serialize()) })
   }
 
   async update({ params, request, response, session }: HttpContext) {

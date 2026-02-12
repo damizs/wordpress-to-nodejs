@@ -1,5 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import PlenarySession from '#models/plenary_session'
+import SystemCategory from '#models/system_category'
 import app from '@adonisjs/core/services/app'
 import { cuid } from '@adonisjs/core/helpers'
 import { mkdir } from 'node:fs/promises'
@@ -24,7 +25,8 @@ export default class PlenarySessionsController {
   }
 
   async create({ inertia }: HttpContext) {
-    return inertia.render('admin/plenary-sessions/form', { session: null })
+    const sessionTypes = await SystemCategory.byType('session_type')
+    return inertia.render('admin/plenary-sessions/form', { session: null, sessionTypes: sessionTypes.map((t) => t.serialize()) })
   }
 
   async store({ request, response, session }: HttpContext) {
@@ -62,7 +64,8 @@ export default class PlenarySessionsController {
 
   async edit({ params, inertia }: HttpContext) {
     const plenarySession = await PlenarySession.findOrFail(params.id)
-    return inertia.render('admin/plenary-sessions/form', { session: plenarySession.serialize() })
+    const sessionTypes = await SystemCategory.byType('session_type')
+    return inertia.render('admin/plenary-sessions/form', { session: plenarySession.serialize(), sessionTypes: sessionTypes.map((t) => t.serialize()) })
   }
 
   async update({ params, request, response, session }: HttpContext) {

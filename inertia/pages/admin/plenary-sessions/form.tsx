@@ -5,9 +5,10 @@ import { useRef } from 'react'
 
 interface Props {
   session: any | null
+  sessionTypes: any[]
 }
 
-export default function PlenarySessionForm({ session }: Props) {
+export default function PlenarySessionForm({ session, sessionTypes = [] }: Props) {
   const isEditing = !!session
   const { data, setData, post, processing } = useForm({
     title: session?.title || '',
@@ -56,10 +57,13 @@ export default function PlenarySessionForm({ session }: Props) {
               <label className="block text-sm font-medium text-gray-600 mb-1">Tipo</label>
               <select value={data.type} onChange={(e) => setData('type', e.target.value)}
                 className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none">
-                <option value="ordinaria">Ordinária</option>
-                <option value="extraordinaria">Extraordinária</option>
-                <option value="solene">Solene</option>
-                <option value="especial">Especial</option>
+                {sessionTypes.map((t: any) => <option key={t.slug} value={t.slug}>{t.name}</option>)}
+                {sessionTypes.length === 0 && <>
+                  <option value="ordinaria">Ordinária</option>
+                  <option value="extraordinaria">Extraordinária</option>
+                  <option value="solene">Solene</option>
+                  <option value="especial">Especial</option>
+                </>}
               </select>
             </div>
             <div>
