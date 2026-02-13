@@ -1,15 +1,126 @@
-import { useState } from "react";
-import { Menu, X, Search } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Menu, X, ChevronDown, ChevronUp } from "lucide-react";
 import { useSiteSettings } from "~/hooks/use_site_settings";
 
-const navItems = [
+interface NavItem {
+  label: string;
+  href?: string;
+  children?: { label: string; href: string }[];
+}
+
+const navItems: NavItem[] = [
   { label: "Início", href: "/" },
-  { label: "Notícias", href: "/noticias" },
-  { label: "Vereadores", href: "/vereadores" },
+  {
+    label: "A Câmara",
+    children: [
+      { label: "História da Câmara", href: "/sobre" },
+      { label: "Vereadores", href: "/vereadores" },
+      { label: "Mesa Diretora", href: "/mesa-diretora" },
+      { label: "Comissões", href: "/comissoes" },
+      { label: "Atividades Legislativas", href: "/atividades-legislativa" },
+      { label: "Atas das Sessões", href: "/atas" },
+      { label: "Pautas", href: "/pautas" },
+      { label: "Publicações Oficiais", href: "/publicacoes-oficiais" },
+    ],
+  },
   { label: "Transparência", href: "/transparencia" },
-  { label: "Legislativo", href: "/atividades-legislativa" },
   { label: "Licitações", href: "/licitacoes" },
+  { label: "Notícias", href: "/noticias" },
+  {
+    label: "Cidadão",
+    children: [
+      { label: "Perguntas Frequentes", href: "/perguntas-frequentes" },
+      { label: "Pesquisa de Satisfação", href: "/pesquisa-de-satisfacao" },
+      { label: "Política de Privacidade", href: "/politica-de-privacidade" },
+    ],
+  },
 ];
+
+function DropdownItem({ item }: { item: NavItem }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLLIElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  if (!item.children) {
+    return (
+      <li>
+        <a href={item.href} className="relative flex items-center px-4 py-2.5 text-sm font-medium tracking-wide rounded-xl hover:bg-primary-foreground/10 transition-all duration-300 group">
+          {item.label}
+          <span className="absolute bottom-1 left-4 right-4 h-0.5 bg-gold scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left rounded-full" />
+        </a>
+      </li>
+    );
+  }
+
+  return (
+    <li ref={ref} className="relative">
+      <button
+        onClick={() => setOpen(!open)}
+        className={`flex items-center gap-1 px-4 py-2.5 text-sm font-medium tracking-wide rounded-xl hover:bg-primary-foreground/10 transition-all duration-300 ${open ? 'bg-primary-foreground/10' : ''}`}
+      >
+        {item.label}
+        <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (
+        <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 py-2 z-50 animate-fade-in">
+          {item.children.map((child, i) => (
+            <a
+              key={i}
+              href={child.href}
+              className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 hover:text-navy transition-colors"
+            >
+              {child.label}
+            </a>
+          ))}
+        </div>
+      )}
+    </li>
+  );
+}
+
+function MobileNavItem({ item, onNavigate }: { item: NavItem; onNavigate: () => void }) {
+  const [open, setOpen] = useState(false);
+
+  if (!item.children) {
+    return (
+      <li>
+        <a href={item.href} onClick={onNavigate} className="flex items-center py-3 px-4 text-sm font-medium hover:bg-primary-foreground/10 rounded-xl transition-all duration-300">
+          {item.label}
+        </a>
+      </li>
+    );
+  }
+
+  return (
+    <li>
+      <button
+        onClick={() => setOpen(!open)}
+        className="w-full flex items-center justify-between py-3 px-4 text-sm font-medium hover:bg-primary-foreground/10 rounded-xl transition-all duration-300"
+      >
+        {item.label}
+        {open ? <ChevronUp className="w-4 h-4 opacity-60" /> : <ChevronDown className="w-4 h-4 opacity-60" />}
+      </button>
+      {open && (
+        <ul className="ml-4 mt-1 space-y-0.5 border-l border-primary-foreground/20 pl-3">
+          {item.children.map((child, i) => (
+            <li key={i}>
+              <a href={child.href} onClick={onNavigate} className="block py-2 px-3 text-sm opacity-80 hover:opacity-100 hover:bg-primary-foreground/10 rounded-lg transition-all">
+                {child.label}
+              </a>
+            </li>
+          ))}
+        </ul>
+      )}
+    </li>
+  );
+}
 
 export const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -24,7 +135,7 @@ export const Header = () => {
     : { top: title, bottom: '' };
 
   return (
-    <header className="relative bg-gradient-hero text-primary-foreground overflow-hidden">
+    <header className="relative bg-gradient-hero text-primary-foreground overflow-visible">
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-1/2 -right-1/4 w-96 h-96 bg-gold/5 rounded-full blur-3xl" />
         <div className="absolute -bottom-1/2 -left-1/4 w-96 h-96 bg-sky/5 rounded-full blur-3xl" />
@@ -50,34 +161,30 @@ export const Header = () => {
           </div>
         </a>
 
-        <nav className="hidden md:block">
-          <div className="glass rounded-2xl px-6 py-3 mx-auto max-w-3xl">
+        {/* Desktop Navigation */}
+        <nav className="hidden md:block relative z-50">
+          <div className="glass rounded-2xl px-6 py-3 mx-auto max-w-4xl">
             <ul className="flex items-center justify-center gap-1">
               {navItems.map((item, i) => (
-                <li key={i}>
-                  <a href={item.href} className="relative flex items-center gap-1 px-4 py-2.5 text-sm font-medium tracking-wide rounded-xl hover:bg-primary-foreground/10 transition-all duration-300 group">
-                    {item.label}
-                    <span className="absolute bottom-1 left-4 right-4 h-0.5 bg-gold scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left rounded-full" />
-                  </a>
-                </li>
+                <DropdownItem key={i} item={item} />
               ))}
             </ul>
           </div>
         </nav>
 
+        {/* Mobile Menu Button */}
         <div className="md:hidden flex justify-center">
           <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-3 glass rounded-xl hover:bg-primary-foreground/10 transition-all duration-300">
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
 
+        {/* Mobile Navigation */}
         {mobileMenuOpen && (
-          <nav className="md:hidden mt-6 glass rounded-2xl p-4 animate-fade-in">
+          <nav className="md:hidden mt-6 glass rounded-2xl p-4 animate-fade-in relative z-50">
             <ul className="flex flex-col gap-1">
               {navItems.map((item, i) => (
-                <li key={i}>
-                  <a href={item.href} className="flex items-center justify-between py-3 px-4 text-sm font-medium hover:bg-primary-foreground/10 rounded-xl transition-all duration-300">{item.label}</a>
-                </li>
+                <MobileNavItem key={i} item={item} onNavigate={() => setMobileMenuOpen(false)} />
               ))}
             </ul>
           </nav>
