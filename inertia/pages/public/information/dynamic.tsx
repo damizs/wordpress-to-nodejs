@@ -208,7 +208,7 @@ export default function DynamicInfoPage({ records, category, allCategories, filt
                 {/* Info box */}
                 <div className="px-5 py-4 border-t">
                   <div className="bg-blue-50 rounded-lg p-3 text-xs text-blue-700">
-                    <p className="font-semibold mb-1">📋 Lei de Acesso à Informação</p>
+                    <p className="font-semibold mb-1 flex items-center gap-1"><FileText className="w-3.5 h-3.5" /> Lei de Acesso à Informação</p>
                     <p>
                       A LAI (Lei nº 12.527/2011) regulamenta o direito constitucional de
                       acesso às informações públicas.

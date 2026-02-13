@@ -11,21 +11,21 @@ const posts = [
   },
   { 
     imagem: "https://images.unsplash.com/photo-1464983953574-0892a716854b?w=400&h=400&fit=crop",
-    titulo: "FELIZ 2026, SUMÉ! 💚✨",
+    titulo: "FELIZ 2026, SUMÉ!",
     descricao: "Vereadoras e...",
     likes: 20,
     comments: 3
   },
   { 
     imagem: "https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=400&h=400&fit=crop",
-    titulo: "SESSÃO EXTRAORDINÁRIA! ✅",
+    titulo: "SESSÃO EXTRAORDINÁRIA!",
     descricao: "Vereadores e...",
     likes: 49,
     comments: 2
   },
   { 
     imagem: "https://images.unsplash.com/photo-1560439514-4e9645039924?w=400&h=400&fit=crop",
-    titulo: "DÁ PRA GANHAR O CONCURSO? ✨🎖️",
+    titulo: "DÁ PRA GANHAR O CONCURSO?",
     descricao: "Brincadeira!...",
     likes: 28,
     comments: 3

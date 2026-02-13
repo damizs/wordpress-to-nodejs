@@ -1,6 +1,6 @@
 import { Head, useForm, usePage } from '@inertiajs/react'
 import PublicLayout from '~/layouts/PublicLayout'
-import { Send, BarChart3, FileText, X, Download, Info, ChevronRight } from 'lucide-react'
+import { Send, BarChart3, FileText, X, Download, Info, ChevronRight, Angry, Frown, Meh, Smile, Laugh, ClipboardCheck } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
 interface MonthStat {
@@ -17,12 +17,12 @@ interface Props {
   totals: { total: number; average: number }
 }
 
-const emojis = [
-  { value: 1, icon: '😠', label: 'Muito Insatisfeito', color: '#e74c3c' },
-  { value: 2, icon: '😟', label: 'Insatisfeito', color: '#e67e22' },
-  { value: 3, icon: '😐', label: 'Neutro', color: '#95a5a6' },
-  { value: 4, icon: '😊', label: 'Satisfeito', color: '#27ae60' },
-  { value: 5, icon: '😄', label: 'Muito Satisfeito', color: '#2ecc71' },
+const ratingIcons = [
+  { value: 1, Icon: Angry, label: 'Muito Insatisfeito', color: '#e74c3c' },
+  { value: 2, Icon: Frown, label: 'Insatisfeito', color: '#e67e22' },
+  { value: 3, Icon: Meh, label: 'Neutro', color: '#95a5a6' },
+  { value: 4, Icon: Smile, label: 'Satisfeito', color: '#27ae60' },
+  { value: 5, Icon: Laugh, label: 'Muito Satisfeito', color: '#2ecc71' },
 ]
 
 const questions = [
@@ -36,15 +36,15 @@ const questions = [
 function EmojiRating({ value, onChange }: { value: number; onChange: (v: number) => void }) {
   return (
     <div className="flex gap-2">
-      {emojis.map((e) => (
+      {ratingIcons.map((e) => (
         <button key={e.value} type="button" onClick={() => onChange(e.value)}
-          className={`w-10 h-10 text-2xl rounded-full transition-all duration-200 flex items-center justify-center
-            ${value === e.value ? 'scale-125 ring-2 ring-offset-2' : 'grayscale opacity-50 hover:opacity-80 hover:grayscale-0'}
+          className={`w-10 h-10 rounded-full transition-all duration-200 flex items-center justify-center
+            ${value === e.value ? 'scale-125 ring-2 ring-offset-2' : 'opacity-40 hover:opacity-80'}
           `}
-          style={value === e.value ? { ringColor: e.color } : {}}
+          style={value === e.value ? { color: e.color, ringColor: e.color } : { color: '#999' }}
           title={e.label}
         >
-          {e.icon}
+          <e.Icon className="w-7 h-7" />
         </button>
       ))}
     </div>
@@ -96,7 +96,7 @@ function ReportModal({ year, onClose }: { year: number; onClose: () => void }) {
             {/* Monthly table */}
             <div>
               <h3 className="font-semibold text-gray-700 flex items-center gap-2 mb-3">
-                📊 Respostas por Mês
+                <BarChart3 className="w-5 h-5" /> Respostas por Mês
               </h3>
               <table className="w-full text-sm">
                 <thead>
@@ -159,7 +159,7 @@ function ReportModal({ year, onClose }: { year: number; onClose: () => void }) {
                   📄 Baixar PDF
                 </button>
                 <button className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-green-500 text-green-700 rounded-lg hover:bg-green-50 font-medium text-sm">
-                  📊 Baixar CSV
+                  <BarChart3 className="w-4 h-4" /> Baixar CSV
                 </button>
               </div>
             </div>
@@ -225,7 +225,7 @@ export default function PesquisaSatisfacaoIndex({ years, currentYear, monthlySta
       {/* Hero banner */}
       <div className="bg-gradient-hero text-white py-16 text-center">
         <div className="flex items-center justify-center gap-3 mb-3">
-          <span className="text-3xl">✅</span>
+          <ClipboardCheck className="w-8 h-8" />
           <h1 className="text-3xl md:text-4xl font-bold">Pesquisa de Satisfação</h1>
         </div>
         <p className="text-white/80">Avaliação Contínua dos Serviços Prestados pela Câmara Municipal</p>
@@ -282,9 +282,9 @@ export default function PesquisaSatisfacaoIndex({ years, currentYear, monthlySta
                 {/* Rating legend */}
                 <div className="bg-white rounded-lg border p-4 mb-6">
                   <div className="flex items-center justify-center gap-6 flex-wrap">
-                    {emojis.map((e) => (
+                    {ratingIcons.map((e) => (
                       <div key={e.value} className="flex items-center gap-2 text-sm text-gray-600">
-                        <span className="text-xl">{e.icon}</span>
+                        <e.Icon className="w-5 h-5" style={{ color: e.color }} />
                         <span>{e.label}</span>
                       </div>
                     ))}
@@ -366,7 +366,7 @@ export default function PesquisaSatisfacaoIndex({ years, currentYear, monthlySta
                           onClick={() => setReportYear(y)}
                           className="w-full px-4 py-2.5 border-2 border-red-400 text-red-600 rounded-lg hover:bg-red-50 transition-colors font-medium flex items-center justify-center gap-2 text-sm"
                         >
-                          📊 Relatório ano {y}
+                          <BarChart3 className="w-4 h-4" /> Relatório ano {y}
                         </button>
                       ))}
                     </div>

@@ -1,7 +1,7 @@
 import { Head } from '@inertiajs/react'
 import PublicLayout from '~/layouts/PublicLayout'
 import { PageHero } from '~/components/PageHero'
-import { HelpCircle, ChevronDown, ChevronRight, MessageCircle } from 'lucide-react'
+import { HelpCircle, ChevronDown, ChevronRight, MessageCircle, FileText } from 'lucide-react'
 import { useState } from 'react'
 
 interface Props { items: any[]; categories: any[] }
@@ -98,7 +98,7 @@ export default function FaqIndex({ items, categories }: Props) {
                 {/* Info box */}
                 <div className="px-5 py-4 border-t">
                   <div className="bg-blue-50 rounded-lg p-3 text-xs text-blue-700">
-                    <p className="font-semibold mb-1">📋 Lei de Acesso à Informação</p>
+                    <p className="font-semibold mb-1 flex items-center gap-1"><FileText className="w-3.5 h-3.5" /> Lei de Acesso à Informação</p>
                     <p>Conforme a LAI (Lei nº 12.527/2011), todo cidadão tem direito ao acesso à informação pública.</p>
                   </div>
                 </div>
