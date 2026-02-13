@@ -17,8 +17,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['DM Sans', 'sans-serif'],
-        serif: ['Playfair Display', 'serif'],
+        sans: ['Verdana', 'Geneva', 'Tahoma', 'sans-serif'],
+        serif: ['Verdana', 'Geneva', 'Tahoma', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",

@@ -1,74 +1,64 @@
 import { Head, router } from '@inertiajs/react'
 import PublicLayout from '~/layouts/PublicLayout'
-import { FileText, Download, Search } from 'lucide-react'
+import { PageHero } from '~/components/PageHero'
+import { FileText, Download, Filter, Search } from 'lucide-react'
 import { useState } from 'react'
 
-interface Props { publications: any; filters: { type: string; search: string } }
+interface Props { publications: any; filters: { type: string; year: string } }
+
+const typeLabels: Record<string, string> = { portaria: 'Portaria', decreto: 'Decreto Legislativo', resolucao: 'Resolução', outros: 'Outros' }
 
 export default function PublicationsIndex({ publications, filters }: Props) {
-  const [search, setSearch] = useState(filters.search || '')
-
-  function applyFilter(key: string, value: string) {
-    router.get('/publicacoes-oficiais', { ...filters, [key]: value }, { preserveState: true })
-  }
+  const [search, setSearch] = useState('')
+  const filtered = publications.data?.filter((p: any) => !search || p.title?.toLowerCase().includes(search.toLowerCase())) || []
 
   return (
     <PublicLayout>
       <Head title="Publicações Oficiais - Câmara de Sumé" />
-      <section className="py-12 bg-gray-50">
+      <PageHero title="Publicações Oficiais" subtitle="Portarias, decretos legislativos e resoluções da Câmara Municipal" icon={<FileText className="w-8 h-8" />}
+        breadcrumbs={[{ label: 'Publicações Oficiais' }]} />
+      <section className="py-10 bg-gray-50">
         <div className="max-w-5xl mx-auto px-4">
-          <div className="text-center mb-10">
-            <h1 className="text-3xl font-bold text-gray-900">Publicações Oficiais</h1>
-            <p className="text-gray-500 mt-2">Portarias, Decretos, Leis, Resoluções e demais atos oficiais</p>
+          <div className="bg-white rounded-lg border p-4 mb-6 flex flex-col sm:flex-row gap-3">
+            <div className="flex-1 relative">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar publicações..."
+                className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg text-sm focus:border-navy outline-none" />
+            </div>
+            <div className="flex gap-2 items-center">
+              <Filter className="w-4 h-4 text-gray-400" />
+              <select value={filters.type} onChange={(e) => router.get('/publicacoes-oficiais', { ...filters, tipo: e.target.value }, { preserveState: true })}
+                className="px-3 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:border-navy outline-none">
+                <option value="">Todos os tipos</option>
+                {Object.entries(typeLabels).map(([k, v]) => (<option key={k} value={k}>{v}</option>))}
+              </select>
+              <select value={filters.year} onChange={(e) => router.get('/publicacoes-oficiais', { ...filters, ano: e.target.value }, { preserveState: true })}
+                className="px-3 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:border-navy outline-none">
+                <option value="">Todos os anos</option>
+                {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i).map((y) => (<option key={y} value={y}>{y}</option>))}
+              </select>
+            </div>
           </div>
-
-          <div className="flex gap-3 mb-6 flex-wrap">
-            <select value={filters.type} onChange={(e) => applyFilter('tipo', e.target.value)}
-              className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white">
-              <option value="">Todos os tipos</option>
-              <option value="portarias">Portarias</option>
-              <option value="decretos">Decretos</option>
-              <option value="resolucoes">Resoluções</option>
-              <option value="leis">Leis</option>
-              <option value="atos">Atos</option>
-              <option value="contratos">Contratos</option>
-              <option value="editais">Editais</option>
-            </select>
-            <form onSubmit={(e) => { e.preventDefault(); applyFilter('busca', search) }}
-              className="flex items-center gap-2">
-              <input type="text" value={search} onChange={(e) => setSearch(e.target.value)}
-                placeholder="Buscar por título..."
-                className="px-3 py-2 border border-gray-200 rounded-lg text-sm w-64" />
-              <button type="submit" className="p-2 text-gray-400 hover:text-navy"><Search className="w-4 h-4" /></button>
-            </form>
-          </div>
-
           <div className="space-y-3">
-            {publications.data?.map((p: any) => (
-              <div key={p.id} className="bg-white rounded-xl shadow-sm p-5 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 bg-red-50 rounded-lg flex items-center justify-center">
-                    <FileText className="w-5 h-5 text-red-500" />
-                  </div>
-                  <div>
-                    <h3 className="font-medium text-gray-800 text-sm">{p.title}</h3>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-xs text-gray-400">{p.publication_date}</span>
-                      <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full capitalize">{p.type}</span>
-                      {p.number && <span className="text-xs text-gray-400">Nº {p.number}</span>}
-                    </div>
+            {filtered.map((p: any) => (
+              <div key={p.id} className="bg-white rounded-lg border hover:border-navy/30 transition-colors p-4 flex items-center gap-4">
+                <div className="w-12 h-12 bg-red-50 rounded-lg flex items-center justify-center flex-shrink-0"><FileText className="w-6 h-6 text-red-500" /></div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-gray-800 text-sm">{p.title}</h3>
+                  <div className="flex gap-2 mt-1 text-xs text-gray-400">
+                    <span>{typeLabels[p.type] || p.type}</span>
+                    {p.publication_date && <span>• {new Date(p.publication_date).toLocaleDateString('pt-BR')}</span>}
                   </div>
                 </div>
                 {p.file_url && (
-                  <a href={p.file_url} target="_blank" rel="noopener"
-                    className="flex items-center gap-1 px-3 py-1.5 text-sm text-navy border border-navy/20 rounded-lg hover:bg-navy/5">
-                    <Download className="w-3.5 h-3.5" /> PDF
+                  <a href={p.file_url} target="_blank" rel="noopener" className="flex items-center gap-2 px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium flex-shrink-0">
+                    <Download className="w-4 h-4" /> PDF
                   </a>
                 )}
               </div>
             ))}
-            {(!publications.data || publications.data.length === 0) && (
-              <p className="text-center text-gray-400 py-12">Nenhuma publicação encontrada.</p>
+            {filtered.length === 0 && (
+              <div className="bg-white rounded-lg border p-12 text-center"><FileText className="w-12 h-12 text-gray-300 mx-auto mb-3" /><p className="text-gray-500">Nenhuma publicação encontrada.</p></div>
             )}
           </div>
         </div>

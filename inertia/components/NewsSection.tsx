@@ -62,15 +62,19 @@ export const NewsSection = ({ news }: NewsSectionProps) => {
       </div>
 
       <div className="relative container mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
           {/* Featured News */}
           {featuredNews && (
-            <a href={`/noticias/${featuredNews.slug || featuredNews.id}`} className="relative group cursor-pointer lg:row-span-2 animate-fade-in block">
-              <div className="relative h-full min-h-[450px] lg:min-h-[550px] rounded-3xl overflow-hidden shadow-2xl">
+            <a href={`/noticias/${featuredNews.slug || featuredNews.id}`} className="relative group cursor-pointer animate-fade-in block">
+              <div className="relative h-full min-h-[450px] lg:min-h-[550px] rounded-3xl overflow-hidden shadow-2xl bg-navy-dark/50">
                 <img
                   src={featuredNews.cover_image_url || placeholders[0]}
                   alt={featuredNews.title}
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  loading="eager"
+                  decoding="async"
+                  className="absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
+                  onLoad={(e) => e.currentTarget.classList.add('opacity-100')}
+                  style={{ opacity: 1 }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-navy-dark via-navy-dark/70 to-transparent" />
                 
@@ -98,7 +102,7 @@ export const NewsSection = ({ news }: NewsSectionProps) => {
           )}
 
           {/* Other News Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 auto-rows-fr">
             {otherNews.map((news, index) => (
               <a
                 key={news.id}
@@ -106,11 +110,13 @@ export const NewsSection = ({ news }: NewsSectionProps) => {
                 className="relative group cursor-pointer animate-fade-in block"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className="relative h-56 rounded-2xl overflow-hidden shadow-lg">
+                <div className="relative h-full min-h-[200px] rounded-2xl overflow-hidden shadow-lg bg-navy-dark/40">
                   <img
                     src={news.cover_image_url || placeholders[index + 1]}
                     alt={news.title}
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    loading="lazy"
+                    decoding="async"
+                    className="absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-navy-dark via-navy-dark/60 to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-5">

@@ -17,6 +17,7 @@ const PublicCommitteesController = () => import('#controllers/public/committees_
 const PublicLicitacoesController = () => import('#controllers/public/licitacoes_controller')
 const PublicMesaDiretoraController = () => import('#controllers/public/mesa_diretora_controller')
 const PublicSatisfactionSurveyController = () => import('#controllers/public/satisfaction_survey_controller')
+const PublicPrivacyPolicyController = () => import('#controllers/public/privacy_policy_controller')
 
 // Lazy imports - Admin
 const DashboardController = () => import('#controllers/admin/dashboard_controller')
@@ -68,8 +69,10 @@ router.get('/licitacoes/:slug', [PublicLicitacoesController, 'show'])
 router.get('/perguntas-frequentes', [PublicFaqController, 'index'])
 router.get('/pesquisa-de-satisfacao', [PublicSatisfactionSurveyController, 'index'])
 router.post('/pesquisa-de-satisfacao', [PublicSatisfactionSurveyController, 'store'])
+router.get('/pesquisa-de-satisfacao/relatorio', [PublicSatisfactionSurveyController, 'report'])
+router.get('/politica-de-privacidade', [PublicPrivacyPolicyController, 'index'])
 // Dynamic info pages: /estagiarios, /terceirizados, /verbas, etc.
-router.get('/:slug', [PublicDynamicInfoController, 'show']).where('slug', /^(?!login|painel|api|health|noticias|vereadores|transparencia|mesa-diretora|comissoes|atas|pautas|atividades-legislativa|publicacoes-oficiais|licitacoes|perguntas-frequentes|pesquisa-de-satisfacao).*$/)
+router.get('/:slug', [PublicDynamicInfoController, 'show']).where('slug', /^(?!login|painel|api|health|noticias|vereadores|transparencia|mesa-diretora|comissoes|atas|pautas|atividades-legislativa|publicacoes-oficiais|licitacoes|perguntas-frequentes|pesquisa-de-satisfacao|politica-de-privacidade).*$/)
 
 // ========= API =========
 router.get('/api/categorias/:type', [AdminCategoriesController, 'byType'])

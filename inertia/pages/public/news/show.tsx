@@ -1,6 +1,6 @@
 import { Head, Link } from '@inertiajs/react'
 import PublicLayout from '~/layouts/PublicLayout'
-import { Calendar, User, Eye, ArrowLeft, ArrowRight, Share2, Tag } from 'lucide-react'
+import { Calendar, User, Eye, ChevronRight, ArrowRight, Share2, Tag } from 'lucide-react'
 
 interface NewsItem {
   id: number
@@ -41,8 +41,19 @@ export default function NewsShow({ news, related }: Props) {
     <PublicLayout>
       <Head title={`${news.title} - Câmara Municipal de Sumé`} />
 
+      {/* Breadcrumb */}
+      <div className="bg-gray-100 py-3 border-b">
+        <div className="max-w-4xl mx-auto px-4 text-sm text-gray-500 flex items-center gap-2">
+          <a href="/" className="hover:text-navy">Início</a>
+          <ChevronRight className="w-3 h-3" />
+          <a href="/noticias" className="hover:text-navy">Notícias</a>
+          <ChevronRight className="w-3 h-3" />
+          <span className="text-gray-700 line-clamp-1">{news.title}</span>
+        </div>
+      </div>
+
       {/* Hero with cover image */}
-      <section className="relative h-64 lg:h-80 overflow-hidden">
+      <section className="relative h-72 lg:h-96 overflow-hidden">
         <img
           src={news.cover_image_url || `https://images.unsplash.com/photo-1577962917302-cd874c4e31d2?w=1200&h=600&fit=crop`}
           alt={news.title}
@@ -52,12 +63,8 @@ export default function NewsShow({ news, related }: Props) {
 
         <div className="absolute bottom-0 left-0 right-0 p-6 lg:p-10">
           <div className="container mx-auto max-w-4xl">
-            <Link href="/noticias" className="inline-flex items-center gap-2 text-white/60 text-sm mb-4 hover:text-white transition-colors">
-              <ArrowLeft className="w-4 h-4" /> Voltar para notícias
-            </Link>
-
             {news.category && (
-              <span className="inline-block bg-gold text-navy-dark text-xs font-medium px-3 py-1 rounded-full mb-3">
+              <span className="inline-block bg-gold text-navy-dark text-xs font-semibold px-3 py-1 rounded-full mb-4">
                 {news.category.name}
               </span>
             )}

@@ -1,76 +1,48 @@
 import { Head } from '@inertiajs/react'
 import PublicLayout from '~/layouts/PublicLayout'
-import { Users2 } from 'lucide-react'
+import { PageHero } from '~/components/PageHero'
+import { Users2, User } from 'lucide-react'
 
 interface Props { committees: any[] }
-
-const typeBadge: Record<string, string> = {
-  permanente: 'bg-blue-100 text-blue-700',
-  temporaria: 'bg-amber-100 text-amber-700',
-  especial: 'bg-purple-100 text-purple-700',
-}
 
 export default function CommitteesIndex({ committees }: Props) {
   return (
     <PublicLayout>
       <Head title="Comissões - Câmara de Sumé" />
-      <section className="py-12 bg-gray-50">
+      <PageHero title="Comissões" subtitle="Comissões permanentes e temporárias da Câmara Municipal" icon={<Users2 className="w-8 h-8" />}
+        breadcrumbs={[{ label: 'Comissões' }]} />
+      <section className="py-10 bg-gray-50">
         <div className="max-w-5xl mx-auto px-4">
-          <div className="text-center mb-10">
-            <Users2 className="w-12 h-12 mx-auto text-navy mb-3" />
-            <h1 className="text-3xl font-bold text-gray-900">Comissões Parlamentares</h1>
-            <p className="text-gray-500 mt-2">Conheça as comissões e seus membros</p>
-          </div>
-
-          <div className="space-y-6">
-            {committees.map((c: any) => (
-              <div key={c.id} className="bg-white rounded-xl shadow-sm overflow-hidden">
-                <div className="p-6">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h2 className="text-lg font-semibold text-gray-800">{c.name}</h2>
-                      <div className="flex items-center gap-2 mt-1">
-                        <span className={`text-xs px-2 py-0.5 rounded-full capitalize ${typeBadge[c.type] || 'bg-gray-100 text-gray-600'}`}>
-                          {c.type}
-                        </span>
-                        {c.legislature_name && <span className="text-xs text-gray-400">{c.legislature_name}</span>}
-                      </div>
-                    </div>
+          {committees.length > 0 ? (
+            <div className="space-y-6">
+              {committees.map((c: any) => (
+                <div key={c.id} className="bg-white rounded-lg border overflow-hidden">
+                  <div className="bg-navy/5 px-6 py-4 border-b">
+                    <h2 className="font-bold text-gray-800 text-lg">{c.name}</h2>
+                    {c.description && <p className="text-sm text-gray-500 mt-1">{c.description}</p>}
+                    <span className={`inline-block mt-2 text-xs px-2 py-0.5 rounded-full ${c.type === 'permanente' ? 'bg-navy/10 text-navy' : 'bg-amber-100 text-amber-700'}`}>{c.type}</span>
                   </div>
-                  {c.description && <p className="text-sm text-gray-600 mt-3">{c.description}</p>}
-
-                  {c.members && c.members.length > 0 && (
-                    <div className="mt-4 pt-4 border-t border-gray-50">
-                      <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Composição</h3>
-                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                        {c.members.map((m: any) => (
-                          <div key={m.id} className="flex items-center gap-3">
-                            <div className="w-9 h-9 bg-gray-100 rounded-full overflow-hidden flex-shrink-0">
-                              {m.councilor_photo ? (
-                                <img src={m.councilor_photo} alt="" className="w-full h-full object-cover" />
-                              ) : (
-                                <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs font-bold">
-                                  {m.councilor_name?.charAt(0)}
-                                </div>
-                              )}
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium text-gray-800 leading-tight">{m.councilor_name}</p>
-                              <p className="text-xs text-gray-400">{m.role} {m.councilor_party ? `• ${m.councilor_party}` : ''}</p>
-                            </div>
+                  {c.members?.length > 0 && (
+                    <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {c.members.map((m: any) => (
+                        <div key={m.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                          <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                            {m.councilor?.photo_url ? <img src={m.councilor.photo_url} alt="" className="w-full h-full object-cover" /> : <User className="w-5 h-5 text-gray-400" />}
                           </div>
-                        ))}
-                      </div>
+                          <div>
+                            <p className="text-sm font-medium text-gray-800">{m.councilor?.parliamentary_name || m.councilor?.name || 'Vago'}</p>
+                            <p className="text-xs text-gold font-medium">{m.role}</p>
+                          </div>
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>
-              </div>
-            ))}
-
-            {committees.length === 0 && (
-              <p className="text-center text-gray-400 py-12">Nenhuma comissão cadastrada.</p>
-            )}
-          </div>
+              ))}
+            </div>
+          ) : (
+            <div className="bg-white rounded-lg border p-12 text-center"><Users2 className="w-12 h-12 text-gray-300 mx-auto mb-3" /><p className="text-gray-500">Nenhuma comissão cadastrada.</p></div>
+          )}
         </div>
       </section>
     </PublicLayout>

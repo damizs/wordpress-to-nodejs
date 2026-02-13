@@ -47,6 +47,15 @@ export default function NewsIndex({ news, categories, filters }: Props) {
     <PublicLayout>
       <Head title="Notícias - Câmara Municipal de Sumé" />
 
+      {/* Breadcrumb */}
+      <div className="bg-gray-100 py-3 border-b">
+        <div className="max-w-6xl mx-auto px-4 text-sm text-gray-500 flex items-center gap-2">
+          <a href="/" className="hover:text-navy">Início</a>
+          <ChevronRight className="w-3 h-3" />
+          <span className="text-gray-700">Notícias</span>
+        </div>
+      </div>
+
       {/* Hero Banner */}
       <section className="relative py-16 px-4 overflow-hidden" style={{ background: 'var(--gradient-hero)' }}>
         <div className="relative container mx-auto text-center">

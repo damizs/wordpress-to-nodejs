@@ -8,6 +8,7 @@ export default class SatisfactionSurvey extends BaseModel {
   @column() declare name: string | null
   @column() declare email: string | null
   @column() declare phone: string | null
+  @column() declare cpf: string | null
   @column() declare ratingAtendimento: number | null
   @column() declare ratingTransparencia: number | null
   @column() declare ratingLegislativo: number | null

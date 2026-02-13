@@ -63,7 +63,7 @@ export default defineConfig({
   | List of modules to import before starting the application.
   |
   */
-  preloads: [() => import('#start/routes'), () => import('#start/kernel')],
+  preloads: [() => import('#start/routes'), () => import('#start/kernel'), () => import('#start/orm')],
 
   /*
   |--------------------------------------------------------------------------
@@ -106,6 +106,14 @@ export default defineConfig({
     },
     {
       pattern: 'public/**',
+      reloadServer: false,
+    },
+    {
+      pattern: 'database/*.sql',
+      reloadServer: false,
+    },
+    {
+      pattern: 'database/*.json',
       reloadServer: false,
     },
   ],

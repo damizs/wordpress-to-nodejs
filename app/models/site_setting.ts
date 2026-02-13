@@ -39,15 +39,31 @@ export default class SiteSetting extends BaseModel {
     return row?.value ?? null
   }
 
-  /** Set a single setting value */
-  static async setValue(key: string, value: string | null): Promise<void> {
-    await this.query().where('key', key).update({ value, updated_at: new Date() })
+  /** Set a single setting value (upsert) */
+  static async setValue(key: string, value: string | null, group: string = 'general', type: 'text' | 'json' | 'image' | 'color' | 'boolean' | 'number' = 'text'): Promise<void> {
+    const existing = await this.findBy('key', key)
+    if (existing) {
+      existing.value = value
+      existing.updatedAt = DateTime.now()
+      await existing.save()
+    } else {
+      await this.create({ key, value, group, type })
+    }
   }
 
-  /** Bulk update settings */
+  /** Bulk update settings (with upsert) */
   static async bulkUpdate(settings: Record<string, string | null>): Promise<void> {
+    // Map keys to their expected groups
+    const groupMap: Record<string, string> = {
+      color_navy: 'appearance', color_gold: 'appearance', color_sky: 'appearance',
+      header_title: 'appearance', header_subtitle: 'appearance',
+      logo_url: 'appearance', favicon_url: 'appearance',
+      footer_address: 'footer', footer_phone: 'footer', footer_email: 'footer', footer_hours: 'footer',
+      social_facebook: 'social', social_instagram: 'social', social_youtube: 'social',
+      esic_new_url: 'esic', esic_consult_url: 'esic', esic_phone: 'esic', esic_email: 'esic',
+    }
     for (const [key, value] of Object.entries(settings)) {
-      await this.setValue(key, value)
+      await this.setValue(key, value, groupMap[key] || 'general')
     }
   }
 }

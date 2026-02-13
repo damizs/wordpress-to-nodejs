@@ -1,71 +1,64 @@
 import { Head, Link, router } from '@inertiajs/react'
 import PublicLayout from '~/layouts/PublicLayout'
-import { Gavel, Download } from 'lucide-react'
+import { PageHero } from '~/components/PageHero'
+import { Gavel, Download, Filter, Calendar } from 'lucide-react'
 
 interface Props { licitacoes: any; filters: { status: string; modality: string } }
 
-const modalityLabels: Record<string, string> = {
-  pregao: 'Pregão', tomada_precos: 'Tomada de Preços', concorrencia: 'Concorrência',
-  convite: 'Convite', dispensa: 'Dispensa', inexigibilidade: 'Inexigibilidade',
-}
-const statusBadge: Record<string, string> = {
-  aberta: 'bg-green-100 text-green-700', em_andamento: 'bg-blue-100 text-blue-700',
-  encerrada: 'bg-gray-200 text-gray-600', deserta: 'bg-amber-100 text-amber-700',
-  revogada: 'bg-red-100 text-red-600', suspensa: 'bg-yellow-100 text-yellow-700',
-}
+const statusLabels: Record<string, string> = { aberta: 'Aberta', encerrada: 'Encerrada', em_andamento: 'Em andamento', suspensa: 'Suspensa', cancelada: 'Cancelada', deserta: 'Deserta' }
+const modalityLabels: Record<string, string> = { pregao: 'Pregão', tomada_precos: 'Tomada de Preços', concorrencia: 'Concorrência', convite: 'Convite', dispensa: 'Dispensa', inexigibilidade: 'Inexigibilidade' }
 
 export default function LicitacoesIndex({ licitacoes, filters }: Props) {
   return (
     <PublicLayout>
       <Head title="Licitações - Câmara de Sumé" />
-      <section className="py-12 bg-gray-50">
+      <PageHero title="Licitações e Contratos" subtitle="Processos licitatórios e contratos da Câmara Municipal" icon={<Gavel className="w-8 h-8" />}
+        breadcrumbs={[{ label: 'Licitações' }]} />
+      <section className="py-10 bg-gray-50">
         <div className="max-w-5xl mx-auto px-4">
-          <div className="text-center mb-10">
-            <Gavel className="w-12 h-12 mx-auto text-navy mb-3" />
-            <h1 className="text-3xl font-bold text-gray-900">Licitações</h1>
-            <p className="text-gray-500 mt-2">Processos licitatórios da Câmara Municipal de Sumé</p>
-          </div>
-          <div className="flex gap-3 mb-6 flex-wrap">
+          <div className="bg-white rounded-lg border p-4 mb-6 flex gap-3 flex-wrap items-center">
+            <Filter className="w-4 h-4 text-gray-400" />
             <select value={filters.status} onChange={(e) => router.get('/licitacoes', { ...filters, status: e.target.value }, { preserveState: true })}
-              className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white">
+              className="px-3 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:border-navy outline-none">
               <option value="">Todos os status</option>
-              <option value="aberta">Aberta</option>
-              <option value="em_andamento">Em andamento</option>
-              <option value="encerrada">Encerrada</option>
-              <option value="deserta">Deserta</option>
-              <option value="revogada">Revogada</option>
-              <option value="suspensa">Suspensa</option>
+              {Object.entries(statusLabels).map(([k, v]) => (<option key={k} value={k}>{v}</option>))}
             </select>
             <select value={filters.modality} onChange={(e) => router.get('/licitacoes', { ...filters, modalidade: e.target.value }, { preserveState: true })}
-              className="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white">
+              className="px-3 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:border-navy outline-none">
               <option value="">Todas as modalidades</option>
-              {Object.entries(modalityLabels).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+              {Object.entries(modalityLabels).map(([k, v]) => (<option key={k} value={k}>{v}</option>))}
             </select>
           </div>
           <div className="space-y-3">
             {licitacoes.data?.map((l: any) => (
-              <Link key={l.id} href={`/licitacoes/${l.slug}`}
-                className="block bg-white rounded-xl shadow-sm p-5 hover:shadow-md transition-shadow">
+              <div key={l.id} className="bg-white rounded-lg border hover:border-navy/30 transition-colors p-4">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-navy/5 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Gavel className="w-5 h-5 text-navy" />
-                  </div>
+                  <div className="w-12 h-12 bg-amber-50 rounded-lg flex items-center justify-center flex-shrink-0"><Gavel className="w-6 h-6 text-amber-600" /></div>
                   <div className="flex-1">
-                    <h3 className="font-medium text-gray-800">{l.title}</h3>
+                    <h3 className="font-semibold text-gray-800 text-sm">{l.title}</h3>
                     <div className="flex items-center gap-2 mt-1 flex-wrap">
-                      {l.number && <span className="text-xs text-gray-400">Nº {l.number}</span>}
-                      {l.modality && <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">{modalityLabels[l.modality] || l.modality}</span>}
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${statusBadge[l.status] || 'bg-gray-100 text-gray-600'}`}>
-                        {l.status?.replace('_', ' ')}
-                      </span>
-                      {l.opening_date && <span className="text-xs text-gray-400">Abertura: {l.opening_date}</span>}
+                      <span className="text-xs text-gray-400">{modalityLabels[l.modality] || l.modality}</span>
+                      <span className="text-xs text-gray-400 flex items-center gap-1"><Calendar className="w-3 h-3" />{l.opening_date}</span>
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${
+                        l.status === 'aberta' ? 'bg-green-100 text-green-700' :
+                        l.status === 'encerrada' ? 'bg-gray-200 text-gray-600' :
+                        l.status === 'cancelada' ? 'bg-red-100 text-red-600' :
+                        'bg-amber-100 text-amber-700'
+                      }`}>{statusLabels[l.status] || l.status}</span>
                     </div>
-                    {l.object && <p className="text-sm text-gray-500 mt-2 line-clamp-2">{l.object}</p>}
+                    {l.description && <p className="text-sm text-gray-500 mt-2 line-clamp-2">{l.description}</p>}
                   </div>
+                  {l.file_url && (
+                    <a href={l.file_url} target="_blank" rel="noopener" className="flex items-center gap-2 px-4 py-2.5 bg-red-600 text-white rounded-lg hover:bg-red-700 text-sm font-medium flex-shrink-0">
+                      <Download className="w-4 h-4" /> PDF
+                    </a>
+                  )}
                 </div>
-              </Link>
+              </div>
             ))}
-            {(!licitacoes.data || licitacoes.data.length === 0) && <p className="text-center text-gray-400 py-12">Nenhuma licitação encontrada.</p>}
+            {(!licitacoes.data || licitacoes.data.length === 0) && (
+              <div className="bg-white rounded-lg border p-12 text-center"><Gavel className="w-12 h-12 text-gray-300 mx-auto mb-3" /><p className="text-gray-500">Nenhuma licitação encontrada.</p></div>
+            )}
           </div>
         </div>
       </section>

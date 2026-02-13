@@ -24,9 +24,19 @@ RUN npm ci --omit=dev
 
 COPY --from=builder /app/build ./
 
+# Install curl for asset downloads, ImageMagick for resizing, jpegoptim/optipng for compression
+RUN apk add --no-cache curl imagemagick jpegoptim optipng
+
+# Ensure uploads directory exists for volume mount
+RUN mkdir -p /app/public/uploads
+
+# Copy startup script
+COPY startup.sh /app/startup.sh
+RUN chmod +x /app/startup.sh
+
 EXPOSE 3333
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=5 \
   CMD node -e "fetch('http://localhost:3333/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
 
-CMD ["sh", "-c", "node ace migration:run --force && node ace db:seed && node bin/server.js"]
+CMD ["/app/startup.sh"]

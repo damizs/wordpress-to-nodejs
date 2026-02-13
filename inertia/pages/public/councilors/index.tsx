@@ -1,42 +1,42 @@
 import { Head, Link } from '@inertiajs/react'
 import PublicLayout from '~/layouts/PublicLayout'
+import { PageHero } from '~/components/PageHero'
+import { Users } from 'lucide-react'
 
 interface Props { councilors: any[]; legislature: any | null }
 
 export default function CouncilorsIndex({ councilors, legislature }: Props) {
   return (
     <PublicLayout>
-      <Head title="Vereadores - Câmara Municipal de Sumé" />
-      <section className="py-12 bg-gray-50">
+      <Head title="Vereadores - Câmara de Sumé" />
+      <PageHero title="Vereadores" subtitle={legislature ? `Legislatura ${legislature.name}` : 'Conheça os vereadores da Câmara Municipal de Sumé'}
+        icon={<Users className="w-8 h-8" />} breadcrumbs={[{ label: 'Vereadores' }]} />
+      <section className="py-10 bg-gray-50">
         <div className="max-w-6xl mx-auto px-4">
-          <div className="text-center mb-10">
-            <h1 className="text-3xl font-bold text-gray-900">Vereadores</h1>
-            {legislature && <p className="text-gray-500 mt-2">{legislature.name} ({legislature.number}ª Legislatura)</p>}
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {councilors.map((c: any) => (
-              <Link key={c.id} href={`/vereadores/${c.slug}`}
-                className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow overflow-hidden group">
-                <div className="aspect-[3/4] bg-gray-100 overflow-hidden">
+              <Link key={c.id} href={`/vereadores/${c.slug || c.id}`}
+                className="bg-white rounded-lg border hover:border-navy/30 hover:shadow-md transition-all overflow-hidden group">
+                <div className="aspect-[4/3] bg-gray-100 overflow-hidden">
                   {c.photo_url ? (
-                    <img src={c.photo_url} alt={c.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
+                    <img src={c.photo_url} alt={c.parliamentary_name || c.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-300 text-5xl font-bold">
-                      {c.name?.charAt(0)}
+                    <div className="w-full h-full flex items-center justify-center bg-navy/5">
+                      <Users className="w-12 h-12 text-gray-300" />
                     </div>
                   )}
                 </div>
-                <div className="p-3 text-center">
-                  <h3 className="font-semibold text-sm text-gray-800 leading-tight">{c.parliamentary_name || c.name}</h3>
-                  {c.party && <p className="text-xs text-gray-500 mt-1">{c.party}</p>}
-                  {c.position && c.position !== 'Vereador' && (
-                    <span className="inline-block mt-1 text-xs bg-navy/10 text-navy px-2 py-0.5 rounded-full">{c.position}</span>
-                  )}
+                <div className="p-4 text-center">
+                  <h3 className="font-bold text-gray-800">{c.parliamentary_name || c.name}</h3>
+                  {c.party && <p className="text-sm text-gray-500 mt-1">{c.party}</p>}
+                  {c.position && <p className="text-xs text-gold font-medium mt-1">{c.position}</p>}
                 </div>
               </Link>
             ))}
           </div>
-          {councilors.length === 0 && <p className="text-center text-gray-400 py-12">Nenhum vereador cadastrado.</p>}
+          {councilors.length === 0 && (
+            <div className="bg-white rounded-lg border p-12 text-center"><Users className="w-12 h-12 text-gray-300 mx-auto mb-3" /><p className="text-gray-500">Nenhum vereador cadastrado.</p></div>
+          )}
         </div>
       </section>
     </PublicLayout>

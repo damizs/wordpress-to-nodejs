@@ -4,6 +4,14 @@ export default class extends BaseSchema {
   protected tableName = 'site_settings'
 
   async up() {
+    // Ensure label column exists (may be missing from earlier deploy)
+    const hasLabel = await this.db.rawQuery(
+      `SELECT column_name FROM information_schema.columns WHERE table_name = 'site_settings' AND column_name = 'label'`
+    )
+    if (hasLabel.rows.length === 0) {
+      await this.db.rawQuery(`ALTER TABLE site_settings ADD COLUMN label VARCHAR(200)`)
+    }
+
     // Homepage section settings - to control texts and visibility of each section
     const settings = [
       // Hero section
