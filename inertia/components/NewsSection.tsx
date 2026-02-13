@@ -55,18 +55,25 @@ export const NewsSection = ({ news }: NewsSectionProps) => {
           {featuredNews && (
             <a href={`/noticias/${featuredNews.slug || featuredNews.id}`} className="relative group cursor-pointer animate-fade-in block">
               <div className="relative h-full min-h-[450px] lg:min-h-[550px] rounded-3xl overflow-hidden shadow-2xl bg-navy-dark/50">
-                <img
-                  src={featuredNews.cover_image_url || placeholder}
-                  alt={featuredNews.title}
-                  loading="eager"
-                  decoding="async"
-                  fetchPriority="high"
-                  width={800}
-                  height={600}
-                  className="absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
-                  onLoad={(e) => e.currentTarget.classList.add('opacity-100')}
-                  style={{ opacity: 1 }}
-                />
+                <picture>
+                  {featuredNews.cover_image_url?.startsWith('/uploads/') && (
+                    <source
+                      srcSet={featuredNews.cover_image_url.replace(/\.(jpe?g|png)$/i, '.webp')}
+                      type="image/webp"
+                    />
+                  )}
+                  <img
+                    src={featuredNews.cover_image_url || placeholder}
+                    alt={featuredNews.title}
+                    loading="eager"
+                    decoding="sync"
+                    fetchPriority="high"
+                    width={800}
+                    height={600}
+                    className="absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
+                    style={{ opacity: 1 }}
+                  />
+                </picture>
                 <div className="absolute inset-0 bg-gradient-to-t from-navy-dark via-navy-dark/70 to-transparent" />
                 
                 {/* Play button overlay */}
@@ -102,13 +109,23 @@ export const NewsSection = ({ news }: NewsSectionProps) => {
                 style={{ animationDelay: `${index * 100}ms` }}
               >
                 <div className="relative h-full min-h-[200px] rounded-2xl overflow-hidden shadow-lg bg-navy-dark/40">
-                  <img
-                    src={news.cover_image_url || placeholder}
-                    alt={news.title}
-                    loading="lazy"
-                    decoding="async"
-                    className="absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
-                  />
+                  <picture>
+                    {news.cover_image_url?.startsWith('/uploads/') && (
+                      <source
+                        srcSet={news.cover_image_url.replace(/\.(jpe?g|png)$/i, '.webp')}
+                        type="image/webp"
+                      />
+                    )}
+                    <img
+                      src={news.cover_image_url || placeholder}
+                      alt={news.title}
+                      loading="lazy"
+                      decoding="async"
+                      width={400}
+                      height={300}
+                      className="absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
+                    />
+                  </picture>
                   <div className="absolute inset-0 bg-gradient-to-t from-navy-dark via-navy-dark/60 to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-5">
                     <span className="inline-block text-gold/80 text-xs mb-2">{formatDate(news.published_at)}</span>

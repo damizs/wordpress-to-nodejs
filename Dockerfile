@@ -24,8 +24,8 @@ RUN npm ci --omit=dev
 
 COPY --from=builder /app/build ./
 
-# Install curl for asset downloads, ImageMagick for resizing, jpegoptim/optipng for compression
-RUN apk add --no-cache curl imagemagick jpegoptim optipng
+# Install curl for asset downloads, ImageMagick for resizing, jpegoptim/optipng for compression, libwebp for WebP
+RUN apk add --no-cache curl imagemagick jpegoptim optipng libwebp-tools
 
 # Ensure uploads directory exists for volume mount
 RUN mkdir -p /app/public/uploads

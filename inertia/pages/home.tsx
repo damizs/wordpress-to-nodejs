@@ -3,10 +3,10 @@ import SeoHead from '~/components/SeoHead'
 import { TopBar } from '~/components/TopBar'
 import { Header } from '~/components/Header'
 import { NewsSection } from '~/components/NewsSection'
-import { QuickAccessSection } from '~/components/QuickAccessSection'
 import { Footer } from '~/components/Footer'
 
-// Lazy load below-fold sections
+// Lazy load all below-fold sections
+const QuickAccessSection = lazy(() => import('~/components/QuickAccessSection').then(m => ({ default: m.QuickAccessSection })))
 const ESicSection = lazy(() => import('~/components/ESicSection').then(m => ({ default: m.ESicSection })))
 const TransparencySection = lazy(() => import('~/components/TransparencySection').then(m => ({ default: m.TransparencySection })))
 const TransparencySealSection = lazy(() => import('~/components/TransparencySealSection').then(m => ({ default: m.TransparencySealSection })))
@@ -44,6 +44,7 @@ export default function Home({ news, councilors, quickLinks, transparencySection
         <Header />
         <main id="main-content" role="main">
           {isVisible('section_news_visible') && <NewsSection news={news} />}
+          <Suspense fallback={null}>
           {isVisible('section_quickaccess_visible') && (
             <QuickAccessSection
               quickLinks={quickLinks}
@@ -52,7 +53,6 @@ export default function Home({ news, councilors, quickLinks, transparencySection
               badge={s.homepage_quickaccess_badge}
             />
           )}
-          <Suspense fallback={null}>
           {isVisible('section_esic_visible') && (
             <ESicSection
               settings={{
