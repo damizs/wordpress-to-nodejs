@@ -1,18 +1,16 @@
 import { Head } from '@inertiajs/react'
 import PublicLayout from '~/layouts/PublicLayout'
+import { PageHero } from '~/components/PageHero'
 import { Shield, Mail, MapPin, Phone } from 'lucide-react'
 
 export default function PrivacyPolicyIndex() {
   return (
     <PublicLayout>
       <Head title="Política de Privacidade - Câmara de Sumé" />
-      <section className="py-12 bg-gray-50">
+      <PageHero title="Política de Privacidade" subtitle="Lei Geral de Proteção de Dados Pessoais (LGPD)" icon={<Shield className="w-8 h-8" />}
+        breadcrumbs={[{ label: 'Política de Privacidade' }]} />
+      <section className="py-10 bg-gray-50">
         <div className="max-w-4xl mx-auto px-4">
-          <div className="text-center mb-10">
-            <Shield className="w-12 h-12 mx-auto text-navy mb-3" />
-            <h1 className="text-3xl font-bold text-gray-900">Política de Privacidade</h1>
-            <p className="text-gray-500 mt-2">Lei Geral de Proteção de Dados Pessoais (LGPD)</p>
-          </div>
 
           <div className="bg-white rounded-xl shadow-sm p-8 prose prose-lg max-w-none">
             <h2 className="text-xl font-bold text-navy">1. Apresentação</h2>
