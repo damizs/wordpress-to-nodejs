@@ -34,6 +34,14 @@ const inertiaConfig = defineConfig({
         return { success: null, error: null }
       }
     }),
+    siteSettings: async () => {
+      try {
+        const { default: SiteSetting } = await import('#models/site_setting')
+        return await SiteSetting.allAsObject()
+      } catch {
+        return {}
+      }
+    },
   },
 
   ssr: {
