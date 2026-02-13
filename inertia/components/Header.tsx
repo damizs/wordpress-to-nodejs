@@ -144,21 +144,23 @@ export const Header = () => {
 
       <div className="relative container mx-auto px-4 py-8">
         <a href="/" className="flex items-center justify-center gap-5 mb-8 animate-fade-in no-underline text-inherit">
-          <div className="relative group">
-            <div className="absolute inset-0 rounded-2xl bg-gold/20 blur-xl group-hover:bg-gold/30 transition-all duration-500" />
-            {logoUrl ? (
-              <img src={logoUrl} alt={title} className="relative w-24 h-24 md:w-28 md:h-28 object-contain drop-shadow-lg" />
-            ) : (
-              <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-full glass flex items-center justify-center border-2 border-primary-foreground/20 group-hover:border-gold/50 transition-all duration-500 group-hover:scale-105">
-                <div className="text-3xl md:text-4xl font-serif font-bold text-gradient-gold">C</div>
+          {logoUrl ? (
+            <img src={logoUrl} alt={title} className="h-24 md:h-32 object-contain drop-shadow-lg" />
+          ) : (
+            <>
+              <div className="relative group">
+                <div className="absolute inset-0 rounded-2xl bg-gold/20 blur-xl group-hover:bg-gold/30 transition-all duration-500" />
+                <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-full glass flex items-center justify-center border-2 border-primary-foreground/20 group-hover:border-gold/50 transition-all duration-500 group-hover:scale-105">
+                  <div className="text-3xl md:text-4xl font-serif font-bold text-gradient-gold">C</div>
+                </div>
               </div>
-            )}
-          </div>
-          <div className="text-center md:text-left">
-            <h1 className="text-3xl md:text-5xl font-serif font-bold tracking-tight">{titleParts.top}</h1>
-            {titleParts.bottom && <p className="text-2xl md:text-4xl font-serif text-gradient-gold">{titleParts.bottom}</p>}
-            <p className="text-xs md:text-sm opacity-60 mt-2 tracking-wider uppercase">{subtitle}</p>
-          </div>
+              <div className="text-center md:text-left">
+                <h1 className="text-3xl md:text-5xl font-serif font-bold tracking-tight">{titleParts.top}</h1>
+                {titleParts.bottom && <p className="text-2xl md:text-4xl font-serif text-gradient-gold">{titleParts.bottom}</p>}
+                <p className="text-xs md:text-sm opacity-60 mt-2 tracking-wider uppercase">{subtitle}</p>
+              </div>
+            </>
+          )}
         </a>
 
         {/* Desktop Navigation */}
