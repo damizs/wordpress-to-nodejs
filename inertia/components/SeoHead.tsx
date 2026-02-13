@@ -13,7 +13,7 @@ interface SeoHeadProps {
 const SITE_NAME = 'Câmara Municipal de Sumé'
 const BASE_URL = 'https://node.camaradesume.pb.gov.br'
 const DEFAULT_DESC = 'Portal oficial da Câmara Municipal de Sumé - PB. Transparência, notícias, atividades legislativas e serviços ao cidadão.'
-const DEFAULT_IMAGE = `${BASE_URL}/uploads/og-image.jpg`
+const DEFAULT_IMAGE = `${BASE_URL}/og-image.jpg`
 
 export default function SeoHead({
   title,
