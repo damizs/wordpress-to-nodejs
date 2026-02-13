@@ -40,7 +40,7 @@ export default class SettingsController {
       if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true })
       const fileName = `logo-${cuid()}.${logo.extname}`
       await logo.move(uploadDir, { name: fileName })
-      await SiteSetting.setValue('logo_url', `/uploads/${fileName}`)
+      await SiteSetting.setValue('logo_url', `/uploads/${fileName}`, 'appearance', 'image')
     }
 
     const favicon = request.file('favicon_url', { size: '500kb', extnames: ['png', 'ico', 'svg'] })
@@ -49,7 +49,7 @@ export default class SettingsController {
       if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true })
       const fileName = `favicon-${cuid()}.${favicon.extname}`
       await favicon.move(uploadDir, { name: fileName })
-      await SiteSetting.setValue('favicon_url', `/uploads/${fileName}`)
+      await SiteSetting.setValue('favicon_url', `/uploads/${fileName}`, 'appearance', 'image')
     }
 
     session.flash('success', 'Configurações salvas com sucesso!')
