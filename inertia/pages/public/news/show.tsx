@@ -63,9 +63,12 @@ export default function NewsShow({ news, related }: Props) {
       {/* Hero with cover image */}
       <section className="relative h-72 lg:h-96 overflow-hidden">
         <img
-          src={news.cover_image_url || `https://images.unsplash.com/photo-1577962917302-cd874c4e31d2?w=1200&h=600&fit=crop`}
+          src={news.cover_image_url || `/placeholder-news.svg`}
           alt={news.title}
           className="w-full h-full object-cover"
+          fetchPriority="high"
+          width={1200}
+          height={600}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-navy-dark via-navy-dark/60 to-transparent" />
 
@@ -141,7 +144,7 @@ export default function NewsShow({ news, related }: Props) {
                 >
                   <div className="h-32 overflow-hidden">
                     <img
-                      src={item.cover_image_url || 'https://images.unsplash.com/photo-1577962917302-cd874c4e31d2?w=400&h=250&fit=crop'}
+                      src={item.cover_image_url || '/placeholder-news.svg'}
                       alt={item.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />

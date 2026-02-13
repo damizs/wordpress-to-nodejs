@@ -14,4 +14,16 @@ export default defineConfig({
       '~/': `${getDirname(import.meta.url)}/inertia/`,
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom'],
+          'vendor-inertia': ['@inertiajs/react'],
+          'vendor-icons': ['lucide-react'],
+        },
+      },
+    },
+    cssCodeSplit: true,
+  },
 })

@@ -2,11 +2,11 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 
 const imagens = [
-  { url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=400&fit=crop", alt: "Vista panorâmica de Sumé" },
-  { url: "https://images.unsplash.com/photo-1518998053901-5348d3961a04?w=600&h=400&fit=crop", alt: "Igreja histórica" },
-  { url: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=600&h=400&fit=crop", alt: "Serra de Sumé" },
-  { url: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=600&h=400&fit=crop", alt: "Natureza local" },
-  { url: "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=600&h=400&fit=crop", alt: "Paisagem regional" },
+  { url: "/placeholder-news.svg", alt: "Vista panorâmica de Sumé" },
+  { url: "/placeholder-news.svg", alt: "Igreja histórica" },
+  { url: "/placeholder-news.svg", alt: "Serra de Sumé" },
+  { url: "/placeholder-news.svg", alt: "Natureza local" },
+  { url: "/placeholder-news.svg", alt: "Paisagem regional" },
 ];
 
 interface ConhecaSumeSectionProps {

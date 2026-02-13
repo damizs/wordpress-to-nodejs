@@ -3,28 +3,28 @@ import { useState } from "react";
 
 const posts = [
   { 
-    imagem: "https://images.unsplash.com/photo-1577962917302-cd874c4e31d2?w=400&h=400&fit=crop",
+    imagem: "/placeholder-news.svg",
     titulo: "PARABÉNS, VEREADORA MARCELA! 🎉",
     descricao: "Hoje é um dia especial...",
     likes: 17,
     comments: 6
   },
   { 
-    imagem: "https://images.unsplash.com/photo-1464983953574-0892a716854b?w=400&h=400&fit=crop",
+    imagem: "/placeholder-news.svg",
     titulo: "FELIZ 2026, SUMÉ!",
     descricao: "Vereadoras e...",
     likes: 20,
     comments: 3
   },
   { 
-    imagem: "https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=400&h=400&fit=crop",
+    imagem: "/placeholder-news.svg",
     titulo: "SESSÃO EXTRAORDINÁRIA!",
     descricao: "Vereadores e...",
     likes: 49,
     comments: 2
   },
   { 
-    imagem: "https://images.unsplash.com/photo-1560439514-4e9645039924?w=400&h=400&fit=crop",
+    imagem: "/placeholder-news.svg",
     titulo: "DÁ PRA GANHAR O CONCURSO?",
     descricao: "Brincadeira!...",
     likes: 28,

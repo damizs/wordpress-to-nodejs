@@ -134,8 +134,12 @@ export default function NewsIndex({ news, categories, filters }: Props) {
                 >
                   <div className="relative h-48 overflow-hidden">
                     <img
-                      src={item.cover_image_url || `https://images.unsplash.com/photo-1577962917302-cd874c4e31d2?w=600&h=400&fit=crop`}
+                      src={item.cover_image_url || `/placeholder-news.svg`}
                       alt={item.title}
+                      loading="lazy"
+                      decoding="async"
+                      width={600}
+                      height={400}
                       className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     />
                     {item.category && (

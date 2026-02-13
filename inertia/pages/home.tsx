@@ -1,17 +1,20 @@
+import { lazy, Suspense } from 'react'
 import SeoHead from '~/components/SeoHead'
 import { TopBar } from '~/components/TopBar'
 import { Header } from '~/components/Header'
 import { NewsSection } from '~/components/NewsSection'
 import { QuickAccessSection } from '~/components/QuickAccessSection'
-import { ESicSection } from '~/components/ESicSection'
-import { TransparencySection } from '~/components/TransparencySection'
-import { TransparencySealSection } from '~/components/TransparencySealSection'
-import { VereadoresSection } from '~/components/VereadoresSection'
-import { DiarioOficialSection } from '~/components/DiarioOficialSection'
-import { InstagramFeedSection } from '~/components/InstagramFeedSection'
-import { ConhecaSumeSection } from '~/components/ConhecaSumeSection'
-import { SatisfactionSurvey } from '~/components/SatisfactionSurvey'
 import { Footer } from '~/components/Footer'
+
+// Lazy load below-fold sections
+const ESicSection = lazy(() => import('~/components/ESicSection').then(m => ({ default: m.ESicSection })))
+const TransparencySection = lazy(() => import('~/components/TransparencySection').then(m => ({ default: m.TransparencySection })))
+const TransparencySealSection = lazy(() => import('~/components/TransparencySealSection').then(m => ({ default: m.TransparencySealSection })))
+const VereadoresSection = lazy(() => import('~/components/VereadoresSection').then(m => ({ default: m.VereadoresSection })))
+const DiarioOficialSection = lazy(() => import('~/components/DiarioOficialSection').then(m => ({ default: m.DiarioOficialSection })))
+const InstagramFeedSection = lazy(() => import('~/components/InstagramFeedSection').then(m => ({ default: m.InstagramFeedSection })))
+const ConhecaSumeSection = lazy(() => import('~/components/ConhecaSumeSection').then(m => ({ default: m.ConhecaSumeSection })))
+const SatisfactionSurvey = lazy(() => import('~/components/SatisfactionSurvey').then(m => ({ default: m.SatisfactionSurvey })))
 
 interface HomeProps {
   news?: any[]
@@ -49,6 +52,7 @@ export default function Home({ news, councilors, quickLinks, transparencySection
               badge={s.homepage_quickaccess_badge}
             />
           )}
+          <Suspense fallback={null}>
           {isVisible('section_esic_visible') && (
             <ESicSection
               settings={{
@@ -99,6 +103,7 @@ export default function Home({ news, councilors, quickLinks, transparencySection
             />
           )}
           {isVisible('section_survey_visible') && <SatisfactionSurvey />}
+          </Suspense>
         </main>
         <Footer />
       </div>
