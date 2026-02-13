@@ -1,4 +1,5 @@
 import { Head, Link } from '@inertiajs/react'
+import SeoHead from '~/components/SeoHead'
 import PublicLayout from '~/layouts/PublicLayout'
 import { Calendar, User, Eye, ChevronRight, ArrowRight, Share2, Tag } from 'lucide-react'
 
@@ -39,7 +40,14 @@ export default function NewsShow({ news, related }: Props) {
 
   return (
     <PublicLayout>
-      <Head title={`${news.title} - Câmara Municipal de Sumé`} />
+      <SeoHead
+        title={news.title}
+        description={news.excerpt || news.title}
+        image={news.cover_image_url}
+        url={`/noticias/${news.slug}`}
+        type="article"
+        publishedAt={news.published_at}
+      />
 
       {/* Breadcrumb */}
       <div className="bg-gray-100 py-3 border-b">

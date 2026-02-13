@@ -1,12 +1,101 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" dir="ltr">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Câmara Municipal de Sumé - Portal Oficial">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+  {{-- SEO Base --}}
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+  <meta name="googlebot" content="index, follow">
+  <meta name="description" content="Portal oficial da Câmara Municipal de Sumé - PB. Transparência, notícias, atividades legislativas, vereadores e serviços ao cidadão.">
+  <meta name="keywords" content="Câmara Municipal, Sumé, Paraíba, vereadores, legislativo, transparência, licitações, atas, sessões plenárias">
+  <meta name="author" content="Câmara Municipal de Sumé">
+
+  {{-- Open Graph --}}
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="pt_BR">
+  <meta property="og:site_name" content="Câmara Municipal de Sumé">
+  <meta property="og:title" content="Câmara Municipal de Sumé - Portal Oficial">
+  <meta property="og:description" content="Portal oficial da Câmara Municipal de Sumé - PB. Transparência, notícias, atividades legislativas e serviços ao cidadão.">
+  <meta property="og:url" content="https://node.camaradesume.pb.gov.br">
+  <meta property="og:image" content="https://node.camaradesume.pb.gov.br/uploads/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  {{-- Twitter Card --}}
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Câmara Municipal de Sumé - Portal Oficial">
+  <meta name="twitter:description" content="Portal oficial da Câmara Municipal de Sumé - PB. Transparência, notícias e serviços ao cidadão.">
+  <meta name="twitter:image" content="https://node.camaradesume.pb.gov.br/uploads/og-image.jpg">
+
+  {{-- Canonical --}}
+  <link rel="canonical" href="https://node.camaradesume.pb.gov.br{{ request.url() }}">
+
+  {{-- Favicon --}}
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/manifest.json">
+
+  {{-- Theme --}}
+  <meta name="theme-color" content="#1a2332">
+  <meta name="msapplication-TileColor" content="#1a2332">
+
+  {{-- Preload critical fonts --}}
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet"></noscript>
+
+  {{-- Preconnect to image CDN if applicable --}}
+  <link rel="dns-prefetch" href="https://images.unsplash.com">
+
+  {{-- Structured Data: Organization --}}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "GovernmentOrganization",
+    "name": "Câmara Municipal de Sumé",
+    "alternateName": "Câmara de Vereadores de Sumé",
+    "url": "https://node.camaradesume.pb.gov.br",
+    "logo": "https://node.camaradesume.pb.gov.br/uploads/logo-camara-sume.png",
+    "description": "Câmara Municipal de Sumé, Paraíba. Casa Vereador Cícero Soares. Poder Legislativo Municipal.",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Centro",
+      "addressLocality": "Sumé",
+      "addressRegion": "PB",
+      "postalCode": "58540-000",
+      "addressCountry": "BR"
+    },
+    "areaServed": {
+      "@type": "City",
+      "name": "Sumé",
+      "containedInPlace": {
+        "@type": "State",
+        "name": "Paraíba"
+      }
+    },
+    "sameAs": []
+  }
+  </script>
+
+  {{-- Structured Data: WebSite with SearchAction --}}
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Câmara Municipal de Sumé",
+    "url": "https://node.camaradesume.pb.gov.br",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://node.camaradesume.pb.gov.br/noticias?busca={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+
   @inertiaHead()
   @vite(['inertia/app/app.tsx'])
 </head>

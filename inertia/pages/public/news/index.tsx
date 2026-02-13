@@ -1,4 +1,5 @@
 import { Head, Link, router } from '@inertiajs/react'
+import SeoHead from '~/components/SeoHead'
 import PublicLayout from '~/layouts/PublicLayout'
 import { Calendar, Search, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react'
 import { useState } from 'react'
@@ -45,7 +46,11 @@ export default function NewsIndex({ news, categories, filters }: Props) {
 
   return (
     <PublicLayout>
-      <Head title="Notícias - Câmara Municipal de Sumé" />
+      <SeoHead
+        title="Notícias"
+        description="Últimas notícias e atividades da Câmara Municipal de Sumé. Acompanhe sessões, projetos de lei e ações legislativas."
+        url="/noticias"
+      />
 
       {/* Breadcrumb */}
       <div className="bg-gray-100 py-3 border-b">

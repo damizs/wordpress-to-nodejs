@@ -18,6 +18,7 @@ const PublicLicitacoesController = () => import('#controllers/public/licitacoes_
 const PublicMesaDiretoraController = () => import('#controllers/public/mesa_diretora_controller')
 const PublicSatisfactionSurveyController = () => import('#controllers/public/satisfaction_survey_controller')
 const PublicPrivacyPolicyController = () => import('#controllers/public/privacy_policy_controller')
+const SeoController = () => import('#controllers/seo_controller')
 
 // Lazy imports - Admin
 const DashboardController = () => import('#controllers/admin/dashboard_controller')
@@ -41,6 +42,10 @@ const AdminSatisfactionSurveyController = () => import('#controllers/admin/satis
 
 // ========= HEALTH CHECK =========
 router.get('/health', async () => ({ status: 'ok', timestamp: new Date().toISOString() }))
+
+// ========= SEO =========
+router.get('/sitemap.xml', [SeoController, 'sitemap'])
+router.get('/robots.txt', [SeoController, 'robots'])
 
 // ========= AUTH =========
 router.get('/login', [AuthController, 'showLogin']).use(middleware.guest())

@@ -173,9 +173,9 @@ export const Header = () => {
         </a>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:block relative z-50">
+        <nav className="hidden md:block relative z-50" aria-label="Menu principal">
           <div className="glass rounded-2xl px-6 py-3 mx-auto max-w-4xl">
-            <ul className="flex items-center justify-center gap-1">
+            <ul className="flex items-center justify-center gap-1" role="menubar">
               {navItems.map((item, i) => (
                 <DropdownItem key={i} item={item} />
               ))}
