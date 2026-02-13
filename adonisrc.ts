@@ -108,6 +108,10 @@ export default defineConfig({
       pattern: 'public/**',
       reloadServer: false,
     },
+    {
+      pattern: 'database/*.sql',
+      reloadServer: false,
+    },
   ],
 
   assetsBundler: false,
