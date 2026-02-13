@@ -24,6 +24,9 @@ RUN npm ci --omit=dev
 
 COPY --from=builder /app/build ./
 
+# Ensure uploads directory exists for volume mount
+RUN mkdir -p /app/public/uploads
+
 EXPOSE 3333
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
