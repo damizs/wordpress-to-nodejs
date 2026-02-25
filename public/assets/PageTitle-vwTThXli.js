@@ -1,0 +1,1 @@
+import{j as e}from"./app-DmjLJeaM.js";const s=({title:t})=>e.jsx("section",{className:"bg-gradient-hero py-6",children:e.jsx("h1",{className:"text-2xl md:text-4xl font-bold text-primary-foreground text-center tracking-wide",children:t})});export{s as P};
