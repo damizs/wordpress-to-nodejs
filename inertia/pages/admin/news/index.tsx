@@ -1,6 +1,6 @@
 import { Head, Link, router } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Plus, Search, Edit, Trash2, Eye, ChevronLeft, ChevronRight, AlertTriangle, X } from 'lucide-react'
+import { Plus, Search, Edit, Trash2, Eye, ChevronLeft, ChevronRight, AlertTriangle, X, Loader2 } from 'lucide-react'
 import { useState } from 'react'
 
 interface NewsItem {
@@ -33,6 +33,7 @@ interface Props {
 export default function NewsIndex({ news, categories, filters }: Props) {
   const [search, setSearch] = useState(filters.search)
   const [deleteModal, setDeleteModal] = useState<{ id: number; title: string } | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   function applyFilters(overrides: Record<string, string> = {}) {
     const params: Record<string, string> = {
@@ -55,8 +56,19 @@ export default function NewsIndex({ news, categories, filters }: Props) {
 
   function confirmDelete() {
     if (deleteModal) {
-      router.delete(`/painel/noticias/${deleteModal.id}`)
-      setDeleteModal(null)
+      setDeleting(true)
+      router.delete(`/painel/noticias/${deleteModal.id}`, {
+        preserveScroll: true,
+        onSuccess: () => {
+          setDeleteModal(null)
+          setDeleting(false)
+        },
+        onError: () => {
+          alert('Erro ao excluir notícia')
+          setDeleteModal(null)
+          setDeleting(false)
+        }
+      })
     }
   }
 
@@ -257,15 +269,24 @@ export default function NewsIndex({ news, categories, filters }: Props) {
             <div className="flex gap-3 p-4 bg-gray-50 rounded-b-xl border-t">
               <button
                 onClick={() => setDeleteModal(null)}
-                className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                disabled={deleting}
+                className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
               >
                 Cancelar
               </button>
               <button
                 onClick={confirmDelete}
-                className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
+                disabled={deleting}
+                className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
               >
-                Excluir
+                {deleting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Excluindo...
+                  </>
+                ) : (
+                  'Excluir'
+                )}
               </button>
             </div>
           </div>
