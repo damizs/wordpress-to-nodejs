@@ -40,6 +40,7 @@ const AdminInformationRecordsController = () => import('#controllers/admin/infor
 const AdminCategoriesController = () => import('#controllers/admin/system_categories_controller')
 const AdminLicitacoesController = () => import('#controllers/admin/licitacoes_controller')
 const AdminSatisfactionSurveyController = () => import('#controllers/admin/satisfaction_survey_controller')
+const AdminInstagramController = () => import('#controllers/admin/instagram_controller')
 
 // ========= HEALTH CHECK =========
 router.get('/health', async () => ({ status: 'ok', timestamp: new Date().toISOString() }))
@@ -127,6 +128,19 @@ router.group(() => {
   router.get('/noticias/:id/editar', [AdminNewsController, 'edit'])
   router.put('/noticias/:id', [AdminNewsController, 'update'])
   router.delete('/noticias/:id', [AdminNewsController, 'destroy'])
+
+  // Instagram Auto Import
+  router.get('/instagram', [AdminInstagramController, 'index'])
+  router.get('/instagram/configuracoes', [AdminInstagramController, 'settings'])
+  router.post('/instagram/configuracoes', [AdminInstagramController, 'saveSettings'])
+  router.get('/instagram/historico', [AdminInstagramController, 'history'])
+  router.delete('/instagram/:id', [AdminInstagramController, 'deleteImport'])
+  // Instagram AJAX
+  router.post('/instagram/fetch-posts', [AdminInstagramController, 'fetchPosts'])
+  router.post('/instagram/process-caption', [AdminInstagramController, 'processCaption'])
+  router.post('/instagram/test-ai', [AdminInstagramController, 'testAiConnection'])
+  router.post('/instagram/publish', [AdminInstagramController, 'publishPost'])
+  router.post('/instagram/auto-import', [AdminInstagramController, 'runAutoImport'])
 
   // Legislaturas
   router.get('/legislaturas', [AdminLegislaturesController, 'index'])
