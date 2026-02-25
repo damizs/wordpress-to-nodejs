@@ -109,6 +109,45 @@ export default function Appearance({ settings }: Props) {
               onChange={(f) => handleFileChange('favicon_url', f)}
             />
           </div>
+          
+          {/* News Background */}
+          <div className="mt-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">Imagem de Fundo - Seção Notícias</label>
+            <p className="text-xs text-gray-500 mb-3">Imagem que aparece atrás dos cards de notícias na página inicial</p>
+            <div className="flex items-start gap-4">
+              {newsBackgroundPreview ? (
+                <div className="relative w-64 h-36 rounded-lg overflow-hidden border border-gray-200">
+                  <img src={newsBackgroundPreview} alt="Background" className="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setNewsBackgroundPreview(null)
+                      setData('news_background_image', null)
+                    }}
+                    className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ) : (
+                <div 
+                  onClick={() => newsBackgroundRef.current?.click()}
+                  className="w-64 h-36 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-navy/50 transition-colors"
+                >
+                  <Upload className="w-8 h-8 text-gray-400 mb-2" />
+                  <span className="text-sm text-gray-500">Clique para enviar</span>
+                  <span className="text-xs text-gray-400">JPG, PNG ou WebP</span>
+                </div>
+              )}
+              <input
+                ref={newsBackgroundRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                onChange={(e) => handleFileChange('news_background_image', e.target.files?.[0] || null)}
+              />
+            </div>
+          </div>
         </Section>
 
         {/* Footer */}

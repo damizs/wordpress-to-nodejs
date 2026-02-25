@@ -15,6 +15,7 @@ const APPEARANCE_KEYS: Record<string, { group: string; defaultValue: string; typ
   header_subtitle: { group: 'appearance', defaultValue: 'Estado da Paraíba', type: 'text', label: 'Subtítulo do Header' },
   logo_url: { group: 'appearance', defaultValue: '', type: 'image', label: 'Logo (PNG)' },
   favicon_url: { group: 'appearance', defaultValue: '', type: 'image', label: 'Favicon' },
+  news_background_image: { group: 'appearance', defaultValue: '', type: 'image', label: 'Imagem de Fundo - Notícias' },
   footer_address: { group: 'footer', defaultValue: 'Rua Antônio Vieira Lima, S/N, Centro, Sumé - PB', type: 'text', label: 'Endereço' },
   footer_phone: { group: 'footer', defaultValue: '(83) 3353-1175', type: 'text', label: 'Telefone' },
   footer_email: { group: 'footer', defaultValue: 'contato@camaradesume.pb.gov.br', type: 'text', label: 'Email' },
@@ -28,8 +29,8 @@ const APPEARANCE_KEYS: Record<string, { group: string; defaultValue: string; typ
   esic_email: { group: 'esic', defaultValue: '', type: 'text', label: 'Email E-SIC' },
 }
 
-/** Text field keys (everything except logo/favicon which are file uploads) */
-const TEXT_KEYS = Object.keys(APPEARANCE_KEYS).filter((k) => k !== 'logo_url' && k !== 'favicon_url')
+/** Text field keys (everything except image uploads) */
+const TEXT_KEYS = Object.keys(APPEARANCE_KEYS).filter((k) => !['logo_url', 'favicon_url', 'news_background_image'].includes(k))
 
 export default class SettingsController {
   /** Ensure all settings exist in DB, creating missing ones with defaults */
@@ -100,6 +101,18 @@ export default class SettingsController {
         await favicon.move(uploadDir, { name: fileName })
         if (favicon.state === 'moved') {
           await SiteSetting.setValue('favicon_url', `/uploads/${fileName}`, 'appearance', 'image')
+        }
+      }
+
+      // Handle news background image upload
+      const newsBackground = request.file('news_background_image', { size: '5mb', extnames: ['png', 'jpg', 'jpeg', 'webp'] })
+      if (newsBackground) {
+        const uploadDir = join(app.publicPath(), 'uploads')
+        if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true })
+        const fileName = `news-bg-${cuid()}.${newsBackground.extname}`
+        await newsBackground.move(uploadDir, { name: fileName })
+        if (newsBackground.state === 'moved') {
+          await SiteSetting.setValue('news_background_image', `/uploads/${fileName}`, 'appearance', 'image')
         }
       }
 
