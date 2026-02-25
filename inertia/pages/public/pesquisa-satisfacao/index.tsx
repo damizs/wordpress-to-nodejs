@@ -1,5 +1,10 @@
-import { Head, useForm, usePage } from '@inertiajs/react'
-import PublicLayout from '~/layouts/PublicLayout'
+import { useForm, usePage } from '@inertiajs/react'
+import { TopBar } from '~/components/TopBar'
+import { Header } from '~/components/Header'
+import { Footer } from '~/components/Footer'
+import { Breadcrumb } from '~/components/Breadcrumb'
+import { PageTitle } from '~/components/PageTitle'
+import SeoHead from '~/components/SeoHead'
 import { Send, BarChart3, FileText, X, Download, Info, ChevronRight, Angry, Frown, Meh, Smile, Laugh, ClipboardCheck } from 'lucide-react'
 import { useState, useEffect } from 'react'
 
@@ -210,7 +215,18 @@ export default function PesquisaSatisfacaoIndex({ years, currentYear, monthlySta
     data.rating_legislativo > 0 && data.rating_infraestrutura > 0 && data.rating_geral > 0
 
   return (
-    <PublicLayout>
+    <>
+      <SeoHead
+        title="Pesquisa de Satisfação - Câmara Municipal de Sumé"
+        description="Avalie os serviços da Câmara Municipal de Sumé. Sua opinião é fundamental para melhorarmos."
+        url="/pesquisa-de-satisfacao"
+      />
+      <div className="min-h-screen bg-background">
+        <TopBar />
+        <Header />
+        <main>
+          <Breadcrumb items={[{ label: "Pesquisa de Satisfação" }]} />
+          <PageTitle title="PESQUISA DE SATISFAÇÃO" />
       <Head title="Pesquisa de Satisfação - Câmara de Sumé" />
 
       {/* Breadcrumb */}
@@ -416,6 +432,9 @@ export default function PesquisaSatisfacaoIndex({ years, currentYear, monthlySta
 
       {/* Report modal */}
       {reportYear && <ReportModal year={reportYear} onClose={() => setReportYear(null)} />}
-    </PublicLayout>
+            </main>
+        <Footer />
+      </div>
+    </>
   )
 }
