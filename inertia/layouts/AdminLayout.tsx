@@ -49,7 +49,7 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50" style={{ fontFamily: "'Verdana', Geneva, Tahoma, sans-serif" }}>
       <FlashMessages />
 
       {/* Mobile overlay */}

@@ -42,14 +42,14 @@ export default function QuickLinksIndex({ links }: { links: any[] }) {
             <tbody>
               {links.map((l: any) => (
                 <tr key={l.id} className="border-b border-gray-50 hover:bg-gray-50/50">
-                  <td className="px-4 py-3 text-sm text-gray-400">{l.display_order}</td>
+                  <td className="px-4 py-3 text-sm text-gray-400">{l.displayOrder}</td>
                   <td className="px-4 py-3 text-sm font-medium text-gray-800">{l.title}</td>
                   <td className="px-4 py-3 text-sm text-blue-600 truncate max-w-xs">{l.url}</td>
                   <td className="px-4 py-3 text-sm text-gray-500 font-mono">{l.icon || '—'}</td>
                   <td className="px-4 py-3">
                     <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                      l.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
-                    }`}>{l.is_active ? 'Ativo' : 'Inativo'}</span>
+                      l.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+                    }`}>{l.isActive ? 'Ativo' : 'Inativo'}</span>
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex items-center justify-end gap-1">
