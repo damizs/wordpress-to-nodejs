@@ -2,13 +2,12 @@ import { DateTime } from 'luxon'
 import { BaseModel, column, belongsTo } from '@adonisjs/lucid/orm'
 import type { BelongsTo } from '@adonisjs/lucid/types/relations'
 import News from './news.js'
-import User from './user.js'
 
 export default class InstagramImport extends BaseModel {
   @column({ isPrimary: true })
   declare id: number
 
-  // Dados do Instagram
+  // Instagram data
   @column()
   declare instagramId: string
 
@@ -24,16 +23,14 @@ export default class InstagramImport extends BaseModel {
   @column.dateTime()
   declare instagramPostDate: DateTime | null
 
-  @column()
-  declare instagramShortcode: string | null
-
-  // Dados gerados pela IA
+  // Generated content
   @column()
   declare generatedTitle: string | null
 
   @column()
   declare generatedContent: string | null
 
+  // AI info
   @column()
   declare aiProvider: string | null
 
@@ -43,14 +40,23 @@ export default class InstagramImport extends BaseModel {
   @column()
   declare aiTokensUsed: number
 
-  // Relação com notícias
+  // News reference
   @column()
   declare newsId: number | null
 
   @column()
-  declare importStatus: string
+  declare newsStatus: string | null
 
-  // Metadados
+  @column()
+  declare categoryId: number | null
+
+  @column()
+  declare imageId: number | null
+
+  // Import info
+  @column.dateTime()
+  declare importedAt: DateTime
+
   @column()
   declare importedBy: number | null
 
@@ -60,16 +66,15 @@ export default class InstagramImport extends BaseModel {
   @column()
   declare errorMessage: string | null
 
+  @column()
+  declare isAutoImport: boolean
+
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
 
-  // Relacionamentos
   @belongsTo(() => News)
   declare news: BelongsTo<typeof News>
-
-  @belongsTo(() => User, { foreignKey: 'importedBy' })
-  declare user: BelongsTo<typeof User>
 }

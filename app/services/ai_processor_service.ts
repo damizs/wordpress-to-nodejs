@@ -1,17 +1,12 @@
-interface AiResult {
+import InstagramSettings from '#models/instagram_settings'
+
+export interface ProcessedContent {
   title: string
   content: string
   tokensUsed: number
 }
 
-interface AiConfig {
-  provider: 'openai' | 'claude' | 'gemini'
-  apiKey: string
-  model: string
-  prompt?: string
-}
-
-interface OpenAiResponse {
+interface OpenAIResponse {
   choices: Array<{ message: { content: string } }>
   usage?: { total_tokens: number }
   error?: { message: string }
@@ -28,10 +23,10 @@ interface GeminiResponse {
   error?: { message: string }
 }
 
-export default class AiProcessorService {
-  private config: AiConfig
+export default class AIProcessorService {
+  private settings: InstagramSettings | null = null
 
-  static readonly DEFAULT_PROMPT = `Você é um redator profissional de portais institucionais governamentais (câmaras e prefeituras).
+  static DEFAULT_PROMPT = `Você é um redator profissional de portais institucionais governamentais (câmaras e prefeituras).
 Com base na legenda do Instagram abaixo, gere:
 1. Um título jornalístico chamativo e informativo (máximo 80 caracteres, SEM truncar com reticências)
 2. Um conteúdo de notícia em tom formal e institucional (2 a 3 parágrafos)
@@ -53,20 +48,18 @@ Responda APENAS em formato JSON válido:
   "conteudo": "..."
 }`
 
-  constructor(config: AiConfig) {
-    this.config = config
-  }
+  async processCaption(caption: string): Promise<ProcessedContent> {
+    this.settings = await InstagramSettings.getSettings()
 
-  async processCaption(caption: string): Promise<AiResult> {
-    if (!this.config.apiKey) {
+    if (!this.settings.aiApiKey) {
       throw new Error('API Key não configurada.')
     }
 
     const prompt = this.buildPrompt(caption)
 
-    switch (this.config.provider) {
+    switch (this.settings.aiProvider) {
       case 'openai':
-        return this.callOpenAi(prompt)
+        return this.callOpenAI(prompt)
       case 'claude':
         return this.callClaude(prompt)
       case 'gemini':
@@ -77,68 +70,64 @@ Responda APENAS em formato JSON válido:
   }
 
   private buildPrompt(caption: string): string {
-    const template = this.config.prompt || AiProcessorService.DEFAULT_PROMPT
-    return template.replace('{CAPTION}', caption)
+    const customPrompt = this.settings?.aiPrompt || AIProcessorService.DEFAULT_PROMPT
+    return customPrompt.replace('{CAPTION}', caption)
   }
 
-  private async callOpenAi(prompt: string): Promise<AiResult> {
+  private async callOpenAI(prompt: string): Promise<ProcessedContent> {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${this.config.apiKey}`,
-        'Content-Type': 'application/json'
+        Authorization: `Bearer ${this.settings!.aiApiKey}`,
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: this.config.model || 'gpt-4o-mini',
+        model: this.settings!.aiModel || 'gpt-4o-mini',
         messages: [
           { role: 'system', content: 'You are a helpful assistant that outputs JSON.' },
-          { role: 'user', content: prompt }
+          { role: 'user', content: prompt },
         ],
-        response_format: { type: 'json_object' }
-      })
+        response_format: { type: 'json_object' },
+      }),
     })
 
-    const data = await response.json() as OpenAiResponse
-
-    if (!response.ok || data.error) {
-      throw new Error(data.error?.message || 'Erro na API OpenAI')
+    if (!response.ok) {
+      const errorData = await response.json() as { error?: { message: string } }
+      throw new Error(errorData.error?.message || 'Erro na API OpenAI')
     }
 
+    const data = await response.json() as OpenAIResponse
     const content = data.choices[0].message.content
-    const usage = data.usage?.total_tokens || 0
-
     const result = JSON.parse(content)
 
     return {
       title: result.titulo || result.title || '',
       content: result.conteudo || result.content || '',
-      tokensUsed: usage
+      tokensUsed: data.usage?.total_tokens || 0,
     }
   }
 
-  private async callClaude(prompt: string): Promise<AiResult> {
+  private async callClaude(prompt: string): Promise<ProcessedContent> {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
-        'x-api-key': this.config.apiKey,
+        'x-api-key': this.settings!.aiApiKey!,
         'anthropic-version': '2023-06-01',
-        'content-type': 'application/json'
+        'content-type': 'application/json',
       },
       body: JSON.stringify({
-        model: this.config.model || 'claude-3-haiku-20240307',
+        model: this.settings!.aiModel || 'claude-sonnet-4-20250514',
         max_tokens: 1024,
-        messages: [
-          { role: 'user', content: prompt }
-        ]
-      })
+        messages: [{ role: 'user', content: prompt }],
+      }),
     })
 
-    const data = await response.json() as ClaudeResponse
-
-    if (!response.ok || data.error) {
-      throw new Error(data.error?.message || 'Erro na API Claude')
+    if (!response.ok) {
+      const errorData = await response.json() as { error?: { message: string } }
+      throw new Error(errorData.error?.message || 'Erro na API Claude')
     }
 
+    const data = await response.json() as ClaudeResponse
     let content = data.content[0].text
 
     // Extrair JSON
@@ -148,54 +137,47 @@ Responda APENAS em formato JSON válido:
       content = jsonMatch[0]
     }
 
-    const usage = (data.usage?.input_tokens || 0) + (data.usage?.output_tokens || 0)
     const result = JSON.parse(content)
 
     return {
       title: result.titulo || result.title || '',
       content: result.conteudo || result.content || '',
-      tokensUsed: usage
+      tokensUsed: (data.usage?.input_tokens || 0) + (data.usage?.output_tokens || 0),
     }
   }
 
-  private async callGemini(prompt: string): Promise<AiResult> {
-    const model = this.config.model || 'gemini-2.0-flash'
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${this.config.apiKey}`
+  private async callGemini(prompt: string): Promise<ProcessedContent> {
+    const model = this.settings!.aiModel || 'gemini-2.0-flash'
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${this.settings!.aiApiKey}`
 
-    console.log(`[Gemini] Chamando API com modelo ${model}`)
+    console.log(`[AIProcessor] Chamando Gemini com modelo ${model}`)
 
     const response = await fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [
           {
-            parts: [
-              { text: prompt }
-            ]
-          }
-        ]
-      })
+            parts: [{ text: prompt }],
+          },
+        ],
+      }),
     })
+
+    if (!response.ok) {
+      const errorData = await response.json() as { error?: { message: string } }
+      throw new Error(errorData.error?.message || 'Erro na API Gemini')
+    }
 
     const data = await response.json() as GeminiResponse
 
-    if (!response.ok || data.error) {
-      console.error('[Gemini] Error:', data.error)
-      throw new Error(data.error?.message || 'Erro na API Gemini')
-    }
-
     if (!data.candidates?.[0]?.content?.parts?.[0]?.text) {
-      console.error('[Gemini] Resposta inesperada:', data)
       throw new Error('Resposta inesperada da API Gemini')
     }
 
     let content = data.candidates[0].content.parts[0].text
-    console.log(`[Gemini] Resposta bruta: ${content.substring(0, 200)}...`)
 
-    // Extrair JSON
+    // Extrair JSON (remover markdown)
     content = content.replace(/^```json\s*/, '').replace(/\s*```$/, '')
     const jsonMatch = content.match(/\{.*\}/s)
     if (jsonMatch) {
@@ -204,22 +186,22 @@ Responda APENAS em formato JSON válido:
 
     const result = JSON.parse(content)
 
+    console.log(`[AIProcessor] Título gerado: ${result.titulo || result.title}`)
+
     return {
       title: result.titulo || result.title || '',
       content: result.conteudo || result.content || '',
-      tokensUsed: 0
+      tokensUsed: 0,
     }
   }
 
-  async testConnection(): Promise<boolean | string> {
+  async testConnection(): Promise<{ success: boolean; error?: string }> {
     try {
-      await this.processCaption('Teste de conexão.')
-      return true
+      await this.processCaption('Teste de conexão com a IA.')
+      return { success: true }
     } catch (error) {
-      if (error instanceof Error) {
-        return error.message
-      }
-      return 'Erro desconhecido'
+      const err = error as Error
+      return { success: false, error: err.message }
     }
   }
 }
