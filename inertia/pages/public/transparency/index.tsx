@@ -16,7 +16,7 @@ export default function TransparencyIndex({ sections }: Props) {
         description="Acesse informações sobre a gestão pública municipal conforme a Lei de Acesso à Informação."
         url="/transparencia"
       />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background" style={{ fontFamily: "Verdana, Geneva, Tahoma, sans-serif" }}>
         <TopBar />
         <Header />
 

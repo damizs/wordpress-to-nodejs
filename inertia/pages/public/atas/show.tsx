@@ -16,7 +16,7 @@ export default function AtaShow({ ata }: Props) {
         description={ata.description || ata.title}
         url={`/atas/${ata.id}`}
       />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background" style={{ fontFamily: "Verdana, Geneva, Tahoma, sans-serif" }}>
         <TopBar />
         <Header />
         <main>

@@ -16,7 +16,7 @@ export default function PublicationShow({ publication }: Props) {
         description={publication.description || publication.title}
         url={`/publicacoes-oficiais/${publication.id}`}
       />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background" style={{ fontFamily: "Verdana, Geneva, Tahoma, sans-serif" }}>
         <TopBar />
         <Header />
         <main>

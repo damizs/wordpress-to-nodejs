@@ -30,7 +30,7 @@ export default function MesaDiretoraIndex({ biennium, legislature_name, position
         description="Conheça a composição da Mesa Diretora da Câmara Municipal de Sumé."
         url="/mesa-diretora"
       />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background" style={{ fontFamily: "Verdana, Geneva, Tahoma, sans-serif" }}>
         <TopBar />
         <Header />
 

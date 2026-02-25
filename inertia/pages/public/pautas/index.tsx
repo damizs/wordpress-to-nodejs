@@ -29,7 +29,7 @@ export default function PautasIndex({ sessions, filters }: Props) {
         description="Confira as pautas das sessões plenárias da Câmara Municipal de Sumé."
         url="/pautas"
       />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background" style={{ fontFamily: "Verdana, Geneva, Tahoma, sans-serif" }}>
         <TopBar />
         <Header />
 

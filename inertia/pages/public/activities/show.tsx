@@ -23,7 +23,7 @@ export default function ActivityShow({ activity }: Props) {
         description={activity.summary}
         url={`/atividades-legislativas/${activity.id}`}
       />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background" style={{ fontFamily: "Verdana, Geneva, Tahoma, sans-serif" }}>
         <TopBar />
         <Header />
         <main>

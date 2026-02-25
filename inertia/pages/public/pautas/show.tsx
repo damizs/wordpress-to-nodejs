@@ -16,7 +16,7 @@ export default function PautaShow({ pauta }: Props) {
         description={pauta.description || pauta.title}
         url={`/pautas/${pauta.id}`}
       />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background" style={{ fontFamily: "Verdana, Geneva, Tahoma, sans-serif" }}>
         <TopBar />
         <Header />
         <main>

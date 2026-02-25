@@ -55,7 +55,7 @@ export default function NewsIndex({ news, categories, filters }: Props) {
         description="Últimas notícias e atividades da Câmara Municipal de Sumé. Acompanhe sessões, projetos de lei e ações legislativas."
         url="/noticias"
       />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background" style={{ fontFamily: "Verdana, Geneva, Tahoma, sans-serif" }}>
         <TopBar />
         <Header />
 

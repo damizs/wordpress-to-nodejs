@@ -36,7 +36,7 @@ export default function Home({ news, councilors, quickLinks, transparencySection
         description="Portal oficial da Câmara Municipal de Sumé - PB. Acompanhe notícias, atividades legislativas, transparência pública, vereadores e serviços ao cidadão."
         url="/"
       />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background" style={{ fontFamily: "Verdana, Geneva, Tahoma, sans-serif" }}>
         <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[9999] focus:bg-gold focus:text-navy-dark focus:px-4 focus:py-2 focus:rounded-lg focus:font-medium">
           Pular para o conteúdo principal
         </a>

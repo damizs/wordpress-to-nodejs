@@ -28,7 +28,7 @@ export default function FaqIndex({ items, categories }: Props) {
         description="Tire suas dúvidas sobre a Câmara Municipal de Sumé. Perguntas frequentes sobre legislação, transparência e serviços."
         url="/faq"
       />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background" style={{ fontFamily: "Verdana, Geneva, Tahoma, sans-serif" }}>
         <TopBar />
         <Header />
 

@@ -34,7 +34,7 @@ export default function AtasIndex({ sessions, filters }: Props) {
         description="Consulte as atas das sessões plenárias da Câmara Municipal de Sumé."
         url="/atas"
       />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background" style={{ fontFamily: "Verdana, Geneva, Tahoma, sans-serif" }}>
         <TopBar />
         <Header />
 

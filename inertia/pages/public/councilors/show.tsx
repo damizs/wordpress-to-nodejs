@@ -56,7 +56,7 @@ export default function CouncilorShow({ councilor }: Props) {
         description={`Perfil do vereador ${displayName} da Câmara Municipal de Sumé. Conheça sua biografia e atividades legislativas.`}
         url={`/vereador/${councilor.id}`}
       />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background" style={{ fontFamily: "Verdana, Geneva, Tahoma, sans-serif" }}>
         <TopBar />
         <Header />
 

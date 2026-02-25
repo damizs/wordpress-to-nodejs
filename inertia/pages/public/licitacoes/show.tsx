@@ -19,7 +19,7 @@ export default function LicitacaoShow({ licitacao }: Props) {
         description={licitacao.description || licitacao.title}
         url={`/licitacoes/${licitacao.id}`}
       />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background" style={{ fontFamily: "Verdana, Geneva, Tahoma, sans-serif" }}>
         <TopBar />
         <Header />
         <main>

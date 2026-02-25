@@ -221,7 +221,7 @@ export default function PesquisaSatisfacaoIndex({ years, currentYear, monthlySta
         description="Avalie os serviços da Câmara Municipal de Sumé. Sua opinião é fundamental para melhorarmos."
         url="/pesquisa-de-satisfacao"
       />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background" style={{ fontFamily: "Verdana, Geneva, Tahoma, sans-serif" }}>
         <TopBar />
         <Header />
         <main>

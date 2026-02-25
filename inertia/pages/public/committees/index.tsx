@@ -16,7 +16,7 @@ export default function CommitteesIndex({ committees }: Props) {
         description="Conheça as comissões permanentes da Câmara Municipal de Sumé e seus membros."
         url="/comissoes"
       />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background" style={{ fontFamily: "Verdana, Geneva, Tahoma, sans-serif" }}>
         <TopBar />
         <Header />
 

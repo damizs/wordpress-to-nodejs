@@ -51,7 +51,7 @@ export default function NewsShow({ news, related }: Props) {
         type="article"
         publishedAt={news.published_at}
       />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background" style={{ fontFamily: "Verdana, Geneva, Tahoma, sans-serif" }}>
         <TopBar />
         <Header />
 

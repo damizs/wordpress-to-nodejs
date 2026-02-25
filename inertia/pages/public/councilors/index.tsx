@@ -16,7 +16,7 @@ export default function CouncilorsIndex({ councilors, legislature }: Props) {
         description="Conheça os vereadores da Câmara Municipal de Sumé. Veja a composição da legislatura atual."
         url="/vereadores"
       />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background" style={{ fontFamily: "Verdana, Geneva, Tahoma, sans-serif" }}>
         <TopBar />
         <Header />
 

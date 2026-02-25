@@ -14,7 +14,7 @@ export default function Sobre() {
         description="Conheça a Câmara Municipal de Sumé, sua missão, visão e estrutura organizacional."
         url="/sobre"
       />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background" style={{ fontFamily: "Verdana, Geneva, Tahoma, sans-serif" }}>
         <TopBar />
         <Header />
 

@@ -14,7 +14,7 @@ export default function PrivacyPolicyIndex() {
         description="Política de Privacidade da Câmara Municipal de Sumé em conformidade com a Lei Geral de Proteção de Dados (LGPD)."
         url="/politica-de-privacidade"
       />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background" style={{ fontFamily: "Verdana, Geneva, Tahoma, sans-serif" }}>
         <TopBar />
         <Header />
 

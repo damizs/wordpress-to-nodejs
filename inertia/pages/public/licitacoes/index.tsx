@@ -32,7 +32,7 @@ export default function LicitacoesIndex({ licitacoes, filters }: Props) {
         description="Processos licitatórios e contratos da Câmara Municipal de Sumé. Transparência nas contratações públicas."
         url="/licitacoes"
       />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background" style={{ fontFamily: "Verdana, Geneva, Tahoma, sans-serif" }}>
         <TopBar />
         <Header />
 

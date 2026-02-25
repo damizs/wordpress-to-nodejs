@@ -69,7 +69,7 @@ export default function HistoriaDaCamara({ timeline, introTitle, introText, site
         description="Conheça a história da Câmara Municipal de Sumé, desde sua fundação até os dias atuais."
         url="/historia-da-camara"
       />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background" style={{ fontFamily: "Verdana, Geneva, Tahoma, sans-serif" }}>
         <TopBar />
         <Header />
 

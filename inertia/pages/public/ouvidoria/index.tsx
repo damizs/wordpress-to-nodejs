@@ -44,7 +44,7 @@ export default function Ouvidoria() {
         description="Entre em contato com a Ouvidoria da Câmara Municipal de Sumé. Registre sugestões, reclamações, denúncias ou elogios."
         url="/ouvidoria"
       />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background" style={{ fontFamily: "Verdana, Geneva, Tahoma, sans-serif" }}>
         <TopBar />
         <Header />
 

@@ -36,7 +36,7 @@ export default function PublicationsIndex({ publications, filters }: Props) {
         description="Portarias, decretos legislativos e resoluções da Câmara Municipal de Sumé."
         url="/publicacoes-oficiais"
       />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background" style={{ fontFamily: "Verdana, Geneva, Tahoma, sans-serif" }}>
         <TopBar />
         <Header />
 

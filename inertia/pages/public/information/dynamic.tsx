@@ -29,7 +29,7 @@ export default function DynamicInfoPage({ records, category, allCategories, filt
         description={`Informações sobre ${category.name} da Câmara Municipal de Sumé`}
         url={`/${category.slug}`}
       />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background" style={{ fontFamily: "Verdana, Geneva, Tahoma, sans-serif" }}>
         <TopBar />
         <Header />
         <main>
