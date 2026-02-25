@@ -17,30 +17,38 @@ export function PageHero({ title, subtitle, icon, breadcrumbs }: PageHeroProps) 
   return (
     <>
       {/* Breadcrumb */}
-      <div className="bg-gray-100 py-3 border-b">
-        <div className="max-w-6xl mx-auto px-4 text-sm text-gray-500 flex items-center gap-2 flex-wrap">
-          <a href="/" className="hover:text-navy">Início</a>
+      <div className="container mx-auto px-4 py-3 border-b border-border">
+        <nav className="flex items-center gap-2 text-sm flex-wrap">
+          <a href="/" className="text-primary hover:underline">Página Inicial</a>
           {breadcrumbs.map((b, i) => (
             <span key={i} className="flex items-center gap-2">
-              <ChevronRight className="w-3 h-3" />
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
               {b.href ? (
-                <a href={b.href} className="hover:text-navy">{b.label}</a>
+                <a href={b.href} className="text-primary hover:underline">{b.label}</a>
               ) : (
-                <span className="text-gray-700">{b.label}</span>
+                <span className="text-foreground font-medium">{b.label}</span>
               )}
             </span>
           ))}
-        </div>
+        </nav>
       </div>
 
       {/* Hero banner */}
-      <div className="bg-gradient-hero text-white py-14 text-center">
-        <div className="flex items-center justify-center gap-3 mb-3">
-          {icon}
-          <h1 className="text-3xl md:text-4xl font-bold">{title}</h1>
+      <section className="bg-gradient-hero py-6">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-center gap-3">
+            {icon && <span className="text-primary-foreground">{icon}</span>}
+            <h1 className="text-2xl md:text-4xl font-serif font-bold text-primary-foreground text-center tracking-wide">
+              {title.toUpperCase()}
+            </h1>
+          </div>
+          {subtitle && (
+            <p className="text-primary-foreground/80 max-w-2xl mx-auto text-center mt-2">
+              {subtitle}
+            </p>
+          )}
         </div>
-        {subtitle && <p className="text-white/80 max-w-2xl mx-auto">{subtitle}</p>}
-      </div>
+      </section>
     </>
   )
 }

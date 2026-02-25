@@ -13,7 +13,8 @@ const navItems: NavItem[] = [
   {
     label: "A Câmara",
     children: [
-      { label: "História da Câmara", href: "/sobre" },
+      { label: "Sobre a Câmara", href: "/sobre" },
+      { label: "História da Câmara", href: "/historia-da-camara" },
       { label: "Vereadores", href: "/vereadores" },
       { label: "Mesa Diretora", href: "/mesa-diretora" },
       { label: "Comissões", href: "/comissoes" },
@@ -29,6 +30,7 @@ const navItems: NavItem[] = [
   {
     label: "Cidadão",
     children: [
+      { label: "Ouvidoria", href: "/ouvidoria" },
       { label: "Perguntas Frequentes", href: "/perguntas-frequentes" },
       { label: "Pesquisa de Satisfação", href: "/pesquisa-de-satisfacao" },
       { label: "Política de Privacidade", href: "/politica-de-privacidade" },

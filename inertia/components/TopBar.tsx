@@ -8,9 +8,9 @@ export const TopBar = () => {
   const topLinks = [
     { icon: Search, label: "Portal da Transparência", href: "/transparencia" },
     { icon: FileText, label: "E-SIC", href: esicUrl },
-    { icon: MessageSquare, label: "Ouvidoria", href: "#" },
+    { icon: MessageSquare, label: "Ouvidoria", href: "/ouvidoria" },
     { icon: HelpCircle, label: "Perguntas Frequentes", href: "/perguntas-frequentes" },
-    { icon: Map, label: "Mapa do Site", href: "#" },
+    { icon: Map, label: "Mapa do Site", href: "/mapa-do-site" },
     { icon: Shield, label: "Política de Privacidade", href: "/politica-de-privacidade" },
   ];
 
