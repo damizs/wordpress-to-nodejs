@@ -88,6 +88,30 @@ router.get('/:slug', [PublicDynamicInfoController, 'show']).where('slug', /^(?!l
 // ========= API =========
 router.get('/api/categorias/:type', [AdminCategoriesController, 'byType'])
 
+// Rota temporária para reset de links rápidos (protegida)
+router.get('/api/reset-quick-links', async ({ response, auth }) => {
+  try {
+    await auth.authenticate()
+  } catch {
+    return response.unauthorized({ error: 'Não autorizado' })
+  }
+  
+  const QuickLink = (await import('#models/quick_link')).default
+  await QuickLink.query().delete()
+  
+  const links = [
+    { title: 'Sessões Plenárias', url: 'https://www.youtube.com/@camaramunicipaldeSume', icon: 'Youtube', color: 'red', displayOrder: 1, isActive: true },
+    { title: 'Leis Municipais', url: '/leis', icon: 'Scale', color: 'navy', displayOrder: 2, isActive: true },
+    { title: 'Portal da Transparência', url: '/transparencia', icon: 'Shield', color: 'sky', displayOrder: 3, isActive: true },
+    { title: 'Diário Oficial', url: '/diario-oficial', icon: 'FileText', color: 'gold', displayOrder: 4, isActive: true },
+    { title: 'Vereadores', url: '/vereadores', icon: 'Users', color: 'emerald', displayOrder: 5, isActive: true },
+    { title: 'Ouvidoria', url: '/ouvidoria', icon: 'MessageSquare', color: 'purple', displayOrder: 6, isActive: true },
+  ]
+  
+  await QuickLink.createMany(links)
+  return response.json({ success: true, message: `${links.length} links rápidos criados` })
+})
+
 // ========= ADMIN PANEL =========
 router.group(() => {
   router.get('/', [DashboardController, 'index'])
