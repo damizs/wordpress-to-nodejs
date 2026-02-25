@@ -43,8 +43,8 @@ export default function NewsIndex({ news, categories = [] }: Props) {
   } : null;
   
   // Helper para pegar a imagem (aceita ambos os formatos)
-  const getImage = (item: NewsItem) => getImage(item) || item.cover_image_url;
-  const getDate = (item: NewsItem) => getDate(item) || item.published_at || new Date().toISOString();
+  const getImage = (item: NewsItem) => item.coverImageUrl || item.cover_image_url;
+  const getDate = (item: NewsItem) => item.publishedAt || item.published_at || new Date().toISOString();
 
   return (
     <>
