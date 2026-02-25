@@ -59,6 +59,7 @@ export default class HomeController {
       transparencySections: sectionsWithLinks,
       latestGazette: latestGazette?.serialize() ?? null,
       siteSettings,
+      newsBackgroundImage: siteSettings.news_background_image || null,
     })
   }
 }

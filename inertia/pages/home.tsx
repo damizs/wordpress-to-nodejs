@@ -47,13 +47,15 @@ interface HomeProps {
   vereadores?: Vereador[];
   publicacoes?: Publicacao[];
   legislatura?: string;
+  newsBackgroundImage?: string | null;
 }
 
 export default function Home({ 
   news = [], 
   vereadores = [], 
   publicacoes = [],
-  legislatura = "2025-2028"
+  legislatura = "2025-2028",
+  newsBackgroundImage = null
 }: HomeProps) {
   return (
     <>
@@ -67,7 +69,7 @@ export default function Home({
         <Header />
         
         <main>
-          <NewsSection news={news} />
+          <NewsSection news={news} backgroundImage={newsBackgroundImage} />
           <QuickAccessSection />
           <ESicSection />
           <TransparencySection />
