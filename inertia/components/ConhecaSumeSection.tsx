@@ -29,11 +29,14 @@ export const ConhecaSumeSection = ({ title, subtitle }: ConhecaSumeSectionProps)
     <section className="py-16 px-4 bg-muted/30">
       <div className="container mx-auto">
         {/* Header */}
-        <div className="text-center mb-10 animate-fade-in">
+        <div className="text-center mb-12 animate-fade-in">
+          <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
+            Nossa Cidade
+          </span>
           <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-4">
             {title || 'Conheça Sumé'}
           </h2>
-          {subtitle && <p className="text-muted-foreground max-w-2xl mx-auto">{subtitle}</p>}
+          {subtitle && <p className="text-muted-foreground max-w-2xl mx-auto text-lg">{subtitle}</p>}
         </div>
 
         {/* Gallery Carousel */}

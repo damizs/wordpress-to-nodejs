@@ -37,7 +37,7 @@ export const NewsSection = ({ news }: NewsSectionProps) => {
   const otherNews = items.slice(1, 5);
 
   return (
-    <section className="relative py-20 px-4 overflow-hidden">
+    <section className="relative py-16 px-4 overflow-hidden">
       {/* Background with gradient */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-gradient-hero" />

@@ -2,7 +2,7 @@ import { MessageSquareHeart, ExternalLink } from "lucide-react";
 
 export const SatisfactionSurvey = () => {
   return (
-    <section className="py-12 px-4 bg-muted/50">
+    <section className="py-16 px-4 section-gradient">
       <div className="container mx-auto">
         <div className="bg-card rounded-2xl border border-border shadow-md p-6 md:p-8 animate-fade-in">
           <div className="flex flex-col md:flex-row items-center gap-6">

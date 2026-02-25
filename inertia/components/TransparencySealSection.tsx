@@ -12,19 +12,19 @@ export const TransparencySealSection = ({ title, subtitle }: TransparencySealSec
     <section className="py-16 px-4 bg-gradient-navy text-primary-foreground">
       <div className="container mx-auto">
         <div className="text-center mb-12 animate-fade-in">
-          <span className="inline-block px-3 py-1 bg-gold/20 text-gold rounded-full text-xs font-semibold mb-4">
+          <span className="inline-block px-4 py-1.5 bg-gold/20 text-gold rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
             CERTIFICAÇÕES
           </span>
-          <h2 className="text-2xl md:text-3xl font-serif font-bold mb-4">
+          <h2 className="text-3xl md:text-4xl font-serif font-bold mb-4">
             {title || 'Compromisso com a Transparência'}
           </h2>
-          <p className="text-sm md:text-base opacity-80 max-w-2xl mx-auto">
+          <p className="text-base opacity-80 max-w-2xl mx-auto">
             {subtitle || 'A Câmara Municipal de Sumé é reconhecida por seu compromisso com a transparência pública e combate à corrupção.'}
           </p>
         </div>
 
         {/* Seals Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
           {/* Selo Transparência Ouro */}
           <div className="bg-primary-foreground/5 rounded-2xl p-6 flex flex-col items-center text-center animate-fade-in hover:bg-primary-foreground/10 transition-colors">
             <div className="w-36 h-36 md:w-44 md:h-44 mb-4">

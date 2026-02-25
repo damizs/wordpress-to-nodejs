@@ -18,13 +18,13 @@ export const VereadoresSection = ({ councilors, title, subtitle, badge }: Veread
   if (vereadores.length === 0) return null;
 
   return (
-    <section className="py-20 px-4 section-gradient">
+    <section className="py-16 px-4 bg-muted/30">
       <div className="container mx-auto">
-        <div className="text-center mb-14 animate-fade-in">
+        <div className="text-center mb-12 animate-fade-in">
           <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
             {badge || 'Legislatura 2025-2028'}
           </span>
-          <h2 className="text-3xl md:text-5xl font-serif font-bold text-foreground mb-4">
+          <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-4">
             {title || 'Mesa Diretora e Vereadores'}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">

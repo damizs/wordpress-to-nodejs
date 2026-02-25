@@ -33,14 +33,14 @@ interface TransparencySectionProps {
 
 export const TransparencySection = ({ sections, title, subtitle }: TransparencySectionProps) => {
   return (
-    <section id="transparencia" className="py-20 px-4 section-gradient">
+    <section id="transparencia" className="py-16 px-4 section-gradient">
       <div className="container mx-auto">
         {/* Header */}
-        <div className="text-center mb-14 animate-fade-in">
+        <div className="text-center mb-12 animate-fade-in">
           <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
             Portal da Transparência
           </span>
-          <h2 className="text-3xl md:text-5xl font-serif font-bold text-foreground mb-4">
+          <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-4">
             {title || 'Acesso à Informação'}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">

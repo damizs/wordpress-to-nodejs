@@ -17,13 +17,13 @@ export const ESicSection = ({ settings }: ESicSectionProps) => {
   const s = settings || {};
 
   return (
-    <section id="esic" className="py-20 px-4 bg-secondary/50 section-gradient">
+    <section id="esic" className="py-16 px-4 bg-muted/30">
       <div className="container mx-auto">
-        <div className="text-center mb-14 animate-fade-in">
+        <div className="text-center mb-12 animate-fade-in">
           <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
             Acesso à Informação
           </span>
-          <h2 className="text-3xl md:text-5xl font-serif font-bold text-foreground mb-4">
+          <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-4">
             {s.title || 'E-SIC - Sistema Eletrônico de Informações'}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
