@@ -25,7 +25,7 @@ export const NewsSection = ({ news = [], backgroundImage }: NewsSectionProps) =>
   }
 
   return (
-    <section className="relative bg-gradient-hero py-20 pb-28 px-4 overflow-hidden">
+    <section className="relative bg-gradient-hero overflow-hidden">
       {/* Background Image */}
       {backgroundImage && (
         <div className="absolute inset-0">
@@ -46,7 +46,8 @@ export const NewsSection = ({ news = [], backgroundImage }: NewsSectionProps) =>
         </div>
       )}
 
-      <div className="relative container mx-auto">
+      {/* Main Content */}
+      <div className="relative container mx-auto px-4 py-16 lg:py-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
           {/* Featured News */}
           {featuredNews && (
@@ -104,18 +105,18 @@ export const NewsSection = ({ news = [], backgroundImage }: NewsSectionProps) =>
             ))}
           </div>
         </div>
+      </div>
 
-        {/* View More Bar */}
-        <div className="absolute bottom-0 left-0 right-0 bg-navy-dark/80 backdrop-blur-sm py-4">
-          <div className="container mx-auto px-4 flex justify-end">
-            <Link
-              href="/noticias"
-              className="group inline-flex items-center gap-3 px-6 py-2.5 bg-white/10 hover:bg-white/20 rounded-full text-white font-medium no-underline transition-all duration-300"
-            >
-              Ver mais notícias
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </div>
+      {/* View More Bar - Full Width */}
+      <div className="relative bg-navy-dark/90 backdrop-blur-sm border-t border-white/10">
+        <div className="container mx-auto px-4 py-4 flex justify-end">
+          <Link
+            href="/noticias"
+            className="group inline-flex items-center gap-3 px-6 py-2.5 bg-white/10 hover:bg-gold hover:text-navy-dark rounded-full text-white font-medium no-underline transition-all duration-300"
+          >
+            Ver mais notícias
+            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+          </Link>
         </div>
       </div>
     </section>
