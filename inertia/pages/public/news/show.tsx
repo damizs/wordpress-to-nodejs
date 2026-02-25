@@ -4,8 +4,8 @@ import { TopBar } from "~/components/TopBar";
 import { Header } from "~/components/Header";
 import { Breadcrumb } from "~/components/Breadcrumb";
 import { Footer } from "~/components/Footer";
-import { Calendar, User, Tag, ArrowLeft, Facebook, ChevronLeft, ChevronRight, Link2, Check } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { Calendar, User, Tag, ArrowLeft, Facebook, Link2, Check } from "lucide-react";
+import { useState } from "react";
 
 interface Props {
   news: {
@@ -30,8 +30,6 @@ export default function NewsShow({ news, related = [] }: Props) {
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://node.camaradesume.pb.gov.br';
   const fullUrl = `${baseUrl}${url}`;
   const [copied, setCopied] = useState(false);
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const carouselRef = useRef<HTMLDivElement>(null);
   
   // Helpers para campos que podem vir em camelCase ou snake_case
   const featuredImage = news.featured_image || news.coverImageUrl || news.cover_image_url;
@@ -43,18 +41,6 @@ export default function NewsShow({ news, related = [] }: Props) {
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
-
-  // Carousel auto-play
-  useEffect(() => {
-    if (related.length <= 1) return;
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % related.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [related.length]);
-
-  const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % related.length);
-  const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + related.length) % related.length);
 
   return (
     <>
@@ -186,74 +172,43 @@ export default function NewsShow({ news, related = [] }: Props) {
                 </div>
               </article>
 
-              {/* Related News Carousel */}
+              {/* Related News Grid */}
               {related.length > 0 && (
                 <div className="mt-12">
-                  <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-2xl font-bold text-foreground">Notícias Relacionadas</h2>
-                    {related.length > 1 && (
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={prevSlide}
-                          className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
-                        >
-                          <ChevronLeft className="w-5 h-5" />
-                        </button>
-                        <button
-                          onClick={nextSlide}
-                          className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
-                        >
-                          <ChevronRight className="w-5 h-5" />
-                        </button>
-                      </div>
-                    )}
-                  </div>
+                  <h2 className="text-2xl font-bold text-foreground mb-6">Notícias Relacionadas</h2>
 
-                  <div className="relative overflow-hidden rounded-2xl" ref={carouselRef}>
-                    <div
-                      className="flex transition-transform duration-500 ease-in-out"
-                      style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-                    >
-                      {related.map((item: any) => (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {related.slice(0, 6).map((item: any) => {
+                      const image = item.cover_image_url || item.coverImageUrl || item.featured_image;
+                      return (
                         <Link
                           key={item.id}
                           href={`/noticias/${item.slug}`}
-                          className="w-full flex-shrink-0 no-underline"
+                          className="group no-underline"
                         >
-                          <div className="relative h-64 md:h-80 rounded-2xl overflow-hidden group">
-                            <img
-                              src={item.featured_image || item.coverImageUrl || '/images/placeholder-news.jpg'}
-                              alt={item.title}
-                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-navy-dark via-navy-dark/60 to-transparent" />
-                            <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
-                              <span className="inline-block text-gold text-sm mb-2">
-                                {new Date(item.published_at || item.publishedAt).toLocaleDateString('pt-BR')}
-                              </span>
-                              <h3 className="text-xl md:text-2xl font-bold text-white group-hover:text-gold transition-colors">
-                                {item.title}
-                              </h3>
-                            </div>
+                          <div className="relative h-48 rounded-xl overflow-hidden mb-3">
+                            {image ? (
+                              <img
+                                src={image}
+                                alt={item.title}
+                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                              />
+                            ) : (
+                              <div className="w-full h-full bg-gradient-to-br from-navy to-navy-dark flex items-center justify-center">
+                                <span className="text-gold text-4xl font-bold">C</span>
+                              </div>
+                            )}
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                           </div>
+                          <span className="text-sm text-muted-foreground">
+                            {new Date(item.published_at || item.publishedAt || new Date()).toLocaleDateString('pt-BR')}
+                          </span>
+                          <h3 className="text-base font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mt-1">
+                            {item.title}
+                          </h3>
                         </Link>
-                      ))}
-                    </div>
-
-                    {/* Dots indicator */}
-                    {related.length > 1 && (
-                      <div className="flex justify-center gap-2 mt-4">
-                        {related.map((_, index) => (
-                          <button
-                            key={index}
-                            onClick={() => setCurrentSlide(index)}
-                            className={`w-2 h-2 rounded-full transition-colors ${
-                              index === currentSlide ? 'bg-primary w-6' : 'bg-gray-300'
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    )}
+                      );
+                    })}
                   </div>
                 </div>
               )}
