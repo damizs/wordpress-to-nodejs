@@ -4,9 +4,6 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 ENV NODE_ENV=development
 
-# Copy VERSION file first to invalidate cache when code changes
-COPY VERSION ./
-
 COPY package.json package-lock.json ./
 RUN npm ci
 
