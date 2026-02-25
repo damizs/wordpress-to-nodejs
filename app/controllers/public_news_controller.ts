@@ -8,6 +8,7 @@ export default class PublicNewsController {
   async index({ inertia, request }: HttpContext) {
     const page = request.input('page', 1)
     const category = request.input('categoria', '')
+    const year = request.input('ano', '')
     const search = request.input('busca', '')
 
     let query = News.query()
@@ -16,7 +17,10 @@ export default class PublicNewsController {
       .orderBy('published_at', 'desc')
 
     if (category) {
-      query = query.whereHas('category', (q) => q.where('slug', category))
+      query = query.where('category_id', category)
+    }
+    if (year) {
+      query = query.whereRaw('EXTRACT(YEAR FROM published_at) = ?', [year])
     }
     if (search) {
       query = query.where((q) => {
@@ -31,7 +35,7 @@ export default class PublicNewsController {
     return inertia.render('public/news/index', {
       news: news.serialize(),
       categories: categories.map((c) => c.serialize()),
-      filters: { category, search },
+      filters: { category, year, search },
       siteSettings,
     })
   }
