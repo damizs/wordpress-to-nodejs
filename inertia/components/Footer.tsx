@@ -71,11 +71,11 @@ export const Footer = () => {
           <div>
             <h4 className="font-serif font-bold text-lg mb-4 text-gold">Institucional</h4>
             <ul className="space-y-2 text-sm">
+              <li><a href="/historia-da-camara" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors">História da Câmara</a></li>
               <li><a href="/mesa-diretora" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors">Mesa Diretora</a></li>
               <li><a href="/comissoes" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors">Comissões</a></li>
-              <li><a href="/atividades-legislativa" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors">Atividades Legislativas</a></li>
-              <li><a href="/estrutura-organizacional" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors">Estrutura Organizacional</a></li>
-              <li><a href="/carta-servicos" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors">Carta de Serviços</a></li>
+              <li><a href="/atividades-legislativas" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors">Atividades Legislativas</a></li>
+              <li><a href="/ouvidoria" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors">Ouvidoria</a></li>
               <li><a href="/politica-de-privacidade" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors">Política de Privacidade</a></li>
             </ul>
           </div>

@@ -1,42 +1,89 @@
-import { Head } from '@inertiajs/react'
-import PublicLayout from '~/layouts/PublicLayout'
-import { PageHero } from '~/components/PageHero'
-import { ExternalLink, Shield, FolderOpen } from 'lucide-react'
+import { TopBar } from '~/components/TopBar'
+import { Header } from '~/components/Header'
+import { Footer } from '~/components/Footer'
+import { Breadcrumb } from '~/components/Breadcrumb'
+import { PageTitle } from '~/components/PageTitle'
+import SeoHead from '~/components/SeoHead'
+import { ExternalLink, Shield, FolderOpen, ArrowRight } from 'lucide-react'
 
 interface Props { sections: any[] }
 
 export default function TransparencyIndex({ sections }: Props) {
   return (
-    <PublicLayout>
-      <Head title="Portal da Transparência - Câmara de Sumé" />
-      <PageHero title="Portal da Transparência" subtitle="Acesse informações sobre a gestão pública municipal conforme a Lei de Acesso à Informação"
-        icon={<Shield className="w-8 h-8" />} breadcrumbs={[{ label: 'Transparência' }]} />
-      <section className="py-10 bg-gray-50">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {sections.map((s: any) => (
-              <div key={s.id} className="bg-white rounded-lg border hover:border-navy/30 hover:shadow-md transition-all overflow-hidden">
-                <div className="bg-navy/5 px-5 py-4 border-b">
-                  <h3 className="font-bold text-gray-800 flex items-center gap-2">
-                    <FolderOpen className="w-5 h-5 text-navy" /> {s.title}
-                  </h3>
+    <>
+      <SeoHead
+        title="Portal da Transparência - Câmara Municipal de Sumé"
+        description="Acesse informações sobre a gestão pública municipal conforme a Lei de Acesso à Informação."
+        url="/transparencia"
+      />
+      <div className="min-h-screen bg-background">
+        <TopBar />
+        <Header />
+
+        <main>
+          <Breadcrumb items={[{ label: 'Transparência' }]} />
+          <PageTitle title="PORTAL DA TRANSPARÊNCIA" />
+
+          <section className="py-12 section-gradient">
+            <div className="container mx-auto px-4">
+              {/* Intro */}
+              <div className="card-modern p-6 md:p-8 mb-8 max-w-4xl mx-auto">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                    <Shield className="w-6 h-6 text-primary" />
+                  </div>
+                  <h2 className="text-xl font-serif font-bold text-foreground">Acesso à Informação</h2>
                 </div>
-                <div className="p-4">
-                  {s.links?.map((l: any) => (
-                    <a key={l.id} href={l.url} target={l.url?.startsWith('http') ? '_blank' : '_self'} rel="noopener"
-                      className="flex items-center gap-2 px-3 py-2.5 text-sm text-gray-600 hover:text-navy hover:bg-gray-50 rounded-lg transition-colors">
-                      <ExternalLink className="w-3.5 h-3.5 flex-shrink-0" /> {l.title}
-                    </a>
-                  ))}
-                </div>
+                <p className="text-muted-foreground leading-relaxed">
+                  O Portal da Transparência da Câmara Municipal de Sumé disponibiliza informações sobre a gestão pública 
+                  em cumprimento à Lei de Acesso à Informação (Lei nº 12.527/2011). Aqui você encontra dados sobre 
+                  receitas, despesas, contratos, licitações e outras informações de interesse público.
+                </p>
               </div>
-            ))}
-          </div>
-          {sections.length === 0 && (
-            <div className="bg-white rounded-lg border p-12 text-center"><Shield className="w-12 h-12 text-gray-300 mx-auto mb-3" /><p className="text-gray-500">Seções de transparência em construção.</p></div>
-          )}
-        </div>
-      </section>
-    </PublicLayout>
+
+              {/* Sections Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {sections.map((s: any) => (
+                  <div key={s.id} className="card-modern overflow-hidden">
+                    <div className="bg-gradient-hero px-5 py-4">
+                      <h3 className="font-bold text-primary-foreground flex items-center gap-2">
+                        <FolderOpen className="w-5 h-5" /> {s.title}
+                      </h3>
+                    </div>
+                    <div className="p-4 space-y-1">
+                      {s.links?.map((l: any) => (
+                        <a
+                          key={l.id}
+                          href={l.url}
+                          target={l.url?.startsWith('http') ? '_blank' : '_self'}
+                          rel="noopener"
+                          className="group flex items-center gap-2 px-3 py-2.5 text-sm text-muted-foreground hover:text-primary hover:bg-primary/5 rounded-lg transition-colors"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5 flex-shrink-0" />
+                          <span className="flex-1">{l.title}</span>
+                          <ArrowRight className="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+                        </a>
+                      ))}
+                      {(!s.links || s.links.length === 0) && (
+                        <p className="text-sm text-muted-foreground italic px-3 py-2">Nenhum link cadastrado.</p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {sections.length === 0 && (
+                <div className="card-modern p-12 text-center max-w-xl mx-auto">
+                  <Shield className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
+                  <p className="text-muted-foreground">Seções de transparência em construção.</p>
+                </div>
+              )}
+            </div>
+          </section>
+        </main>
+
+        <Footer />
+      </div>
+    </>
   )
 }

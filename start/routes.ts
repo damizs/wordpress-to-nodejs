@@ -68,6 +68,8 @@ router.get('/pautas', [PublicPautasController, 'index'])
 router.get('/pautas/:slug', [PublicPautasController, 'show'])
 router.get('/atividades-legislativa', [PublicActivitiesController, 'index'])
 router.get('/atividades-legislativa/:slug', [PublicActivitiesController, 'show'])
+router.get('/atividades-legislativas', [PublicActivitiesController, 'index'])
+router.get('/atividades-legislativas/:slug', [PublicActivitiesController, 'show'])
 router.get('/publicacoes-oficiais', [PublicPublicationsController, 'index'])
 router.get('/publicacoes-oficiais/:slug', [PublicPublicationsController, 'show'])
 router.get('/licitacoes', [PublicLicitacoesController, 'index'])
@@ -81,7 +83,7 @@ router.get('/historia-da-camara', [StaticPagesController, 'historia'])
 router.get('/sobre', [StaticPagesController, 'sobre'])
 router.get('/ouvidoria', [StaticPagesController, 'ouvidoria'])
 // Dynamic info pages: /estagiarios, /terceirizados, /verbas, etc.
-router.get('/:slug', [PublicDynamicInfoController, 'show']).where('slug', /^(?!login|painel|api|health|noticias|vereadores|transparencia|mesa-diretora|comissoes|atas|pautas|atividades-legislativa|publicacoes-oficiais|licitacoes|perguntas-frequentes|pesquisa-de-satisfacao|politica-de-privacidade|historia-da-camara|sobre|ouvidoria).*$/)
+router.get('/:slug', [PublicDynamicInfoController, 'show']).where('slug', /^(?!login|painel|api|health|noticias|vereadores|transparencia|mesa-diretora|comissoes|atas|pautas|atividades-legislativa|atividades-legislativas|publicacoes-oficiais|licitacoes|perguntas-frequentes|pesquisa-de-satisfacao|politica-de-privacidade|historia-da-camara|sobre|ouvidoria).*$/)
 
 // ========= API =========
 router.get('/api/categorias/:type', [AdminCategoriesController, 'byType'])

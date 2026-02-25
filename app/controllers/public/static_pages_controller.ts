@@ -13,7 +13,7 @@ export default class StaticPagesController {
 
   async historia({ inertia }: HttpContext) {
     const siteSettings = await this.getSettings()
-    return inertia.render('public/historia/index', { siteSettings })
+    return inertia.render('public/historia-da-camara/index', { siteSettings })
   }
 
   async ouvidoria({ inertia }: HttpContext) {

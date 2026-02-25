@@ -1,82 +1,205 @@
-import { Head, Link, router } from '@inertiajs/react'
-import PublicLayout from '~/layouts/PublicLayout'
-import { PageHero } from '~/components/PageHero'
-import { ScrollText, Filter, Calendar } from 'lucide-react'
+import { router } from '@inertiajs/react'
+import { TopBar } from '~/components/TopBar'
+import { Header } from '~/components/Header'
+import { Footer } from '~/components/Footer'
+import { Breadcrumb } from '~/components/Breadcrumb'
+import { PageTitle } from '~/components/PageTitle'
+import SeoHead from '~/components/SeoHead'
+import { CheckCircle2, Search, Clock } from 'lucide-react'
+import { useState } from 'react'
 
-interface Props { activities: any; filters: { type: string; year: string } }
+interface Activity {
+  id: number
+  type: string
+  number: string
+  year: number
+  summary: string
+  author: string
+  status: string
+  slug?: string
+  created_at: string
+}
+
+interface Props {
+  activities: { data: Activity[] }
+  filters: { type: string; year: string }
+  councilors?: { id: number; name: string }[]
+}
 
 const typeLabels: Record<string, string> = {
-  projeto_lei: 'Projeto de Lei', requerimento: 'Requerimento', mocao: 'Moção',
-  indicacao: 'Indicação', resolucao: 'Resolução', emenda: 'Emenda',
+  projeto_lei: 'Projeto de Lei',
+  projeto_resolucao: 'Projeto de Resolução',
+  requerimento: 'Requerimento',
+  mocao: 'Moção',
+  indicacao: 'Indicação',
+  resolucao: 'Resolução',
+  emenda: 'Emenda',
 }
 
-export default function ActivitiesIndex({ activities, filters }: Props) {
-  return (
-    <PublicLayout>
-      <Head title="Atividades Legislativas - Câmara de Sumé" />
-      <PageHero
-        title="Atividades Legislativas"
-        subtitle="Projetos de lei, requerimentos, moções e demais atos legislativos"
-        icon={<ScrollText className="w-8 h-8" />}
-        breadcrumbs={[{ label: 'Atividades Legislativas' }]}
-      />
-      <section className="py-10 bg-gray-50">
-        <div className="max-w-5xl mx-auto px-4">
-          <div className="bg-white rounded-lg border p-4 mb-6 flex gap-3 flex-wrap items-center">
-            <Filter className="w-4 h-4 text-gray-400" />
-            <select value={filters.type} onChange={(e) => router.get('/atividades-legislativa', { ...filters, tipo: e.target.value }, { preserveState: true })}
-              className="px-3 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:border-navy outline-none">
-              <option value="">Todos os tipos</option>
-              {Object.entries(typeLabels).map(([key, label]) => (
-                <option key={key} value={key}>{label}</option>
-              ))}
-            </select>
-            <select value={filters.year} onChange={(e) => router.get('/atividades-legislativa', { ...filters, ano: e.target.value }, { preserveState: true })}
-              className="px-3 py-2.5 border border-gray-200 rounded-lg text-sm bg-white focus:border-navy outline-none">
-              <option value="">Todos os anos</option>
-              {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i).map((y) => (
-                <option key={y} value={y}>{y}</option>
-              ))}
-            </select>
-          </div>
+const statusLabels: Record<string, { label: string; color: string }> = {
+  aprovado: { label: 'Aprovada', color: 'bg-green-100 text-green-700' },
+  aprovada: { label: 'Aprovada', color: 'bg-green-100 text-green-700' },
+  rejeitado: { label: 'Rejeitada', color: 'bg-red-100 text-red-600' },
+  rejeitada: { label: 'Rejeitada', color: 'bg-red-100 text-red-600' },
+  arquivado: { label: 'Arquivada', color: 'bg-gray-200 text-gray-600' },
+  arquivada: { label: 'Arquivada', color: 'bg-gray-200 text-gray-600' },
+  em_tramitacao: { label: 'Em Tramitação', color: 'bg-amber-100 text-amber-700' },
+  tramitacao: { label: 'Em Tramitação', color: 'bg-amber-100 text-amber-700' },
+}
 
-          <div className="space-y-3">
-            {activities.data?.map((a: any) => (
-              <Link key={a.id} href={`/atividades-legislativa/${a.slug || a.id}`}
-                className="block bg-white rounded-lg border hover:border-navy/30 transition-colors p-5">
-                <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 bg-navy/5 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <ScrollText className="w-6 h-6 text-navy" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-gray-800">
-                      {typeLabels[a.type] || a.type} Nº {a.number}/{a.year}
-                    </h3>
-                    <div className="flex items-center gap-2 mt-1 flex-wrap">
-                      {a.author && <span className="text-xs text-gray-400">Autor: {a.author}</span>}
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${
-                        a.status === 'aprovado' ? 'bg-green-100 text-green-700' :
-                        a.status === 'rejeitado' ? 'bg-red-100 text-red-600' :
-                        a.status === 'arquivado' ? 'bg-gray-200 text-gray-600' :
-                        'bg-amber-100 text-amber-700'
-                      }`}>
-                        {a.status}
-                      </span>
-                    </div>
-                    <p className="text-sm text-gray-500 mt-2 line-clamp-2">{a.summary}</p>
+export default function ActivitiesIndex({ activities, filters, councilors }: Props) {
+  const [busca, setBusca] = useState('')
+  const [ordenar, setOrdenar] = useState('recente')
+
+  const handleFilterChange = (key: string, value: string) => {
+    router.get('/atividades-legislativas', { ...filters, [key]: value }, { preserveState: true })
+  }
+
+  const filteredActivities = activities.data?.filter((a) => {
+    if (!busca) return true
+    const searchLower = busca.toLowerCase()
+    return (
+      a.summary?.toLowerCase().includes(searchLower) ||
+      a.author?.toLowerCase().includes(searchLower) ||
+      `${a.number}/${a.year}`.includes(searchLower)
+    )
+  }).sort((a, b) => {
+    if (ordenar === 'recente') {
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    }
+    return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+  }) || []
+
+  return (
+    <>
+      <SeoHead
+        title="Atividades Legislativas - Câmara Municipal de Sumé"
+        description="Acompanhe projetos de lei, requerimentos, moções, indicações e demais atos legislativos da Câmara Municipal de Sumé."
+        url="/atividades-legislativas"
+      />
+      <div className="min-h-screen bg-background">
+        <TopBar />
+        <Header />
+
+        <main>
+          <Breadcrumb items={[{ label: 'Atividades Legislativas' }]} />
+          <PageTitle title="ATIVIDADES LEGISLATIVAS" />
+
+          <section className="py-12">
+            <div className="container mx-auto px-4">
+              {/* Filtros */}
+              <div className="bg-gradient-hero rounded-2xl p-6 mb-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="text-primary-foreground text-sm font-semibold mb-1 block">
+                    Filtrar por Tipo
+                  </label>
+                  <select
+                    value={filters.type || ''}
+                    onChange={(e) => handleFilterChange('tipo', e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-lg bg-primary text-primary-foreground border border-primary-foreground/20 text-sm"
+                  >
+                    <option value="">Todas as atividades</option>
+                    {Object.entries(typeLabels).map(([key, label]) => (
+                      <option key={key} value={key}>{label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-primary-foreground text-sm font-semibold mb-1 block">
+                    Filtrar por Ano
+                  </label>
+                  <select
+                    value={filters.year || ''}
+                    onChange={(e) => handleFilterChange('ano', e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-lg bg-primary text-primary-foreground border border-primary-foreground/20 text-sm"
+                  >
+                    <option value="">Todos os anos</option>
+                    {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i).map((y) => (
+                      <option key={y} value={y}>{y}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-primary-foreground text-sm font-semibold mb-1 block">
+                    Busca
+                  </label>
+                  <div className="relative">
+                    <input
+                      value={busca}
+                      onChange={(e) => setBusca(e.target.value)}
+                      placeholder="Digite sua busca..."
+                      className="w-full px-4 py-2.5 rounded-lg bg-background text-foreground border border-border text-sm"
+                    />
+                    <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   </div>
                 </div>
-              </Link>
-            ))}
-            {(!activities.data || activities.data.length === 0) && (
-              <div className="bg-white rounded-lg border p-12 text-center">
-                <ScrollText className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-gray-500">Nenhuma atividade encontrada.</p>
               </div>
-            )}
-          </div>
-        </div>
-      </section>
-    </PublicLayout>
+
+              {/* Ordenação */}
+              <div className="flex justify-between items-center mb-6">
+                <p className="text-sm text-muted-foreground">
+                  {filteredActivities.length} atividades encontradas
+                </p>
+                <select
+                  value={ordenar}
+                  onChange={(e) => setOrdenar(e.target.value)}
+                  className="px-4 py-2 rounded-lg border border-border text-sm text-foreground bg-background"
+                >
+                  <option value="recente">Mais recente</option>
+                  <option value="antigo">Mais antigo</option>
+                </select>
+              </div>
+
+              {/* Lista */}
+              <div className="space-y-4">
+                {filteredActivities.map((a) => {
+                  const statusInfo = statusLabels[a.status] || { label: a.status, color: 'bg-gray-100 text-gray-600' }
+                  return (
+                    <a
+                      key={a.id}
+                      href={`/atividades-legislativas/${a.slug || a.id}`}
+                      className="block card-modern p-6 hover:shadow-lg transition-shadow"
+                    >
+                      <span className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-full mb-3 ${statusInfo.color}`}>
+                        {a.status === 'aprovado' || a.status === 'aprovada' ? (
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                        ) : (
+                          <Clock className="w-3.5 h-3.5" />
+                        )}
+                        {statusInfo.label}
+                      </span>
+                      <h3 className="font-bold text-foreground mb-1">
+                        {typeLabels[a.type] || a.type} Nº {a.number}/{a.year}
+                      </h3>
+                      <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                        {a.summary}
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        <span className="px-3 py-1 bg-muted text-muted-foreground text-xs rounded-full">
+                          {typeLabels[a.type] || a.type}
+                        </span>
+                        {a.author && (
+                          <span className="px-3 py-1 bg-muted text-muted-foreground text-xs rounded-full">
+                            {a.author}
+                          </span>
+                        )}
+                      </div>
+                    </a>
+                  )
+                })}
+                {filteredActivities.length === 0 && (
+                  <div className="card-modern p-12 text-center">
+                    <p className="text-muted-foreground">Nenhuma atividade encontrada.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </section>
+        </main>
+
+        <Footer />
+      </div>
+    </>
   )
 }
+

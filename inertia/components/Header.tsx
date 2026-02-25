@@ -13,12 +13,11 @@ const navItems: NavItem[] = [
   {
     label: "A Câmara",
     children: [
-      { label: "Sobre a Câmara", href: "/sobre" },
       { label: "História da Câmara", href: "/historia-da-camara" },
       { label: "Vereadores", href: "/vereadores" },
       { label: "Mesa Diretora", href: "/mesa-diretora" },
-      { label: "Comissões", href: "/comissoes" },
-      { label: "Atividades Legislativas", href: "/atividades-legislativa" },
+      { label: "Comissões Permanentes", href: "/comissoes" },
+      { label: "Atividades Legislativas", href: "/atividades-legislativas" },
       { label: "Atas das Sessões", href: "/atas" },
       { label: "Pautas", href: "/pautas" },
       { label: "Publicações Oficiais", href: "/publicacoes-oficiais" },
@@ -176,7 +175,7 @@ export const Header = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:block relative z-50" aria-label="Menu principal">
-          <div className="glass rounded-2xl px-6 py-3 mx-auto max-w-4xl">
+          <div className="glass rounded-2xl px-6 py-3 mx-auto max-w-3xl">
             <ul className="flex items-center justify-center gap-1" role="menubar">
               {navItems.map((item, i) => (
                 <DropdownItem key={i} item={item} />
