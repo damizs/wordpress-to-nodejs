@@ -1,4 +1,4 @@
-import InstagramSettings from '#models/instagram_settings'
+import InstagramImportSetting from '#models/instagram_import_setting'
 
 export interface InstagramPost {
   id: string
@@ -10,144 +10,194 @@ export interface InstagramPost {
   isVideo: boolean
 }
 
-interface RapidAPIResponse {
-  data?: { items?: RapidAPIItem[] }
-  items?: RapidAPIItem[]
-}
-
-interface RapidAPIItem {
-  id?: string
-  pk?: string
-  code?: string
-  caption?: { text?: string } | string
-  display_uri?: string
-  image_versions2?: { candidates?: Array<{ url: string }> }
-  thumbnail_url?: string
-  carousel_media?: Array<{ image_versions2?: { candidates?: Array<{ url: string }> } }>
-  media_type?: number
-  taken_at?: number
-}
-
-interface InstagramProfileResponse {
-  data?: {
-    user?: {
-      edge_owner_to_timeline_media?: {
-        edges?: Array<{
-          node: {
-            id: string
-            shortcode: string
-            thumbnail_src?: string
-            display_url: string
-            is_video: boolean
-            taken_at_timestamp: number
-            edge_media_to_caption?: { edges?: Array<{ node: { text: string } }> }
-          }
-        }>
-      }
-    }
-  }
-}
-
 export default class InstagramScraperService {
-  private settings: InstagramSettings | null = null
   private lastError: string = ''
 
   private userAgents = [
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Safari/605.1.15',
+    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
   ]
 
+  getLastError(): string {
+    return this.lastError
+  }
+
   async getPostsFromProfile(profileUrl: string): Promise<InstagramPost[]> {
-    this.settings = await InstagramSettings.getSettings()
-    if (!this.validateProfileUrl(profileUrl)) throw new Error('URL do perfil inválida.')
+    if (!this.validateProfileUrl(profileUrl)) {
+      throw new Error('URL do perfil inválida')
+    }
 
     const username = this.extractUsername(profileUrl)
-    let posts: InstagramPost[] = []
     this.lastError = ''
 
-    if (this.settings.rapidapiKey) {
+    console.log(`[Instagram Scraper] Buscando posts de @${username}`)
+
+    // 1. Prioridade: RapidAPI
+    const rapidApiKey = await InstagramImportSetting.get('rapidapi_key')
+    if (rapidApiKey) {
       try {
-        posts = await this.scrapeWithRapidApi(username, this.settings.rapidapiKey)
-        if (posts.length > 0) return posts
-      } catch (e) {
-        this.lastError = `RapidAPI: ${(e as Error).message}`
+        const posts = await this.scrapeWithRapidApi(username, rapidApiKey)
+        if (posts.length > 0) {
+          console.log(`[Instagram Scraper] Sucesso via RapidAPI - ${posts.length} posts`)
+          return posts
+        }
+      } catch (error: any) {
+        this.lastError = `RapidAPI: ${error.message}`
+        console.error(`[Instagram Scraper] RapidAPI Error: ${error.message}`)
       }
     }
 
-    if (this.settings.instagramSessionid) {
+    // 2. Fallback: Cookie de sessão
+    const sessionId = await InstagramImportSetting.get('instagram_sessionid')
+    if (sessionId) {
       try {
-        posts = await this.scrapeWithCookie(username, this.settings.instagramSessionid)
-        if (posts.length > 0) return posts
-      } catch (e) {
-        this.lastError += ` | Cookie: ${(e as Error).message}`
+        const posts = await this.scrapeWithCookie(username, sessionId)
+        if (posts.length > 0) {
+          console.log(`[Instagram Scraper] Sucesso via Cookie - ${posts.length} posts`)
+          return posts
+        }
+      } catch (error: any) {
+        this.lastError += ` | Cookie: ${error.message}`
+        console.error(`[Instagram Scraper] Cookie Error: ${error.message}`)
       }
     }
 
+    // 3. Fallback: Mirrors públicos
     try {
-      posts = await this.scrapeViaMirrors(username)
-      if (posts.length > 0) return posts
-    } catch (e) {
-      this.lastError += ` | Mirror: ${(e as Error).message}`
+      const posts = await this.scrapeViaMirrors(username)
+      if (posts.length > 0) {
+        console.log(`[Instagram Scraper] Sucesso via Mirror - ${posts.length} posts`)
+        return posts
+      }
+    } catch (error: any) {
+      this.lastError += ` | Mirror: ${error.message}`
+      console.error(`[Instagram Scraper] Mirror Error: ${error.message}`)
     }
 
+    console.error(`[Instagram Scraper] Todos os métodos falharam: ${this.lastError}`)
     return []
   }
 
-  getLastError(): string { return this.lastError }
-
   private async scrapeWithRapidApi(username: string, apiKey: string): Promise<InstagramPost[]> {
     const url = `https://instagram-public-bulk-scraper.p.rapidapi.com/v2/user_posts?username_or_id=${encodeURIComponent(username)}&count=12`
+
     const response = await fetch(url, {
-      headers: { 'X-RapidAPI-Key': apiKey, 'X-RapidAPI-Host': 'instagram-public-bulk-scraper.p.rapidapi.com' },
-    })
-
-    if (response.status === 401 || response.status === 403) throw new Error('API Key inválida')
-    if (response.status === 429) throw new Error('Limite atingido')
-    if (!response.ok) throw new Error(`Código ${response.status}`)
-
-    const data = await response.json() as RapidAPIResponse
-    const items = data.data?.items || data.items || []
-
-    return items.slice(0, 12).map((item) => {
-      let caption = typeof item.caption === 'object' ? item.caption?.text || '' : item.caption || ''
-      let imageUrl = item.display_uri || item.image_versions2?.candidates?.[0]?.url || item.thumbnail_url || ''
-      if (!imageUrl && item.carousel_media?.[0]) {
-        imageUrl = item.carousel_media[0].image_versions2?.candidates?.[0]?.url || ''
-      }
-      return {
-        id: item.id || item.pk || this.generateId(imageUrl),
-        shortcode: item.code || '',
-        thumbnailSrc: imageUrl,
-        displayUrl: imageUrl,
-        caption,
-        takenAtTimestamp: item.taken_at || Date.now() / 1000,
-        isVideo: item.media_type === 2,
-      }
-    }).filter(p => p.displayUrl)
-  }
-
-  private async scrapeWithCookie(username: string, sessionid: string): Promise<InstagramPost[]> {
-    const url = `https://www.instagram.com/api/v1/users/web_profile_info/?username=${encodeURIComponent(username)}`
-    const response = await fetch(url, {
+      method: 'GET',
       headers: {
-        Cookie: `sessionid=${sessionid}`,
-        'User-Agent': this.settings?.instagramUseragent || this.userAgents[0],
-        'X-IG-App-ID': '936619743392459',
+        'X-RapidAPI-Key': apiKey,
+        'X-RapidAPI-Host': 'instagram-public-bulk-scraper.p.rapidapi.com',
       },
     })
-    if (!response.ok) throw new Error(`Código ${response.status}`)
 
-    const data = await response.json() as InstagramProfileResponse
-    const edges = data.data?.user?.edge_owner_to_timeline_media?.edges || []
+    if (response.status === 401 || response.status === 403) {
+      throw new Error('API Key inválida ou sem créditos')
+    }
 
-    return edges.slice(0, 12).map((edge) => {
+    if (response.status === 429) {
+      throw new Error('Limite de requisições atingido')
+    }
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`)
+    }
+
+    const data = await response.json() as {
+      data?: { items?: any[] }
+      items?: any[]
+    }
+
+    // Extrair items
+    let items: any[] = []
+    if (data?.data?.items && Array.isArray(data.data.items)) {
+      items = data.data.items
+    } else if (data?.items && Array.isArray(data.items)) {
+      items = data.items
+    }
+
+    return items.slice(0, 12).map((item: any) => this.parseRapidApiItem(item)).filter(Boolean) as InstagramPost[]
+  }
+
+  private parseRapidApiItem(item: any): InstagramPost | null {
+    // Extrair caption
+    let caption = ''
+    if (item.caption?.text) {
+      caption = item.caption.text
+    } else if (typeof item.caption === 'string') {
+      caption = item.caption
+    }
+
+    // Extrair imagem
+    let imageUrl = ''
+    if (item.display_uri) {
+      imageUrl = item.display_uri
+    } else if (item.image_versions2?.candidates?.[0]?.url) {
+      imageUrl = item.image_versions2.candidates[0].url
+    } else if (item.thumbnail_url) {
+      imageUrl = item.thumbnail_url
+    }
+
+    // Para carrosséis
+    if (!imageUrl && item.carousel_media?.[0]?.image_versions2?.candidates?.[0]?.url) {
+      imageUrl = item.carousel_media[0].image_versions2.candidates[0].url
+    }
+
+    if (!imageUrl) return null
+
+    return {
+      id: item.id || item.pk || this.hashString(imageUrl),
+      shortcode: item.code || '',
+      thumbnailSrc: imageUrl,
+      displayUrl: imageUrl,
+      caption,
+      takenAtTimestamp: item.taken_at || Math.floor(Date.now() / 1000),
+      isVideo: item.media_type === 2,
+    }
+  }
+
+  private async scrapeWithCookie(username: string, sessionId: string): Promise<InstagramPost[]> {
+    const url = `https://www.instagram.com/api/v1/users/web_profile_info/?username=${encodeURIComponent(username)}`
+    
+    const userAgent = await InstagramImportSetting.get('instagram_useragent') ||
+      'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36'
+
+    const response = await fetch(url, {
+      headers: {
+        'Cookie': `sessionid=${sessionId}`,
+        'User-Agent': userAgent,
+        'X-IG-App-ID': '936619743392459',
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`)
+    }
+
+    const data = await response.json() as {
+      data?: {
+        user?: {
+          edge_owner_to_timeline_media?: {
+            edges?: any[]
+          }
+        }
+      }
+    }
+    const edges = data?.data?.user?.edge_owner_to_timeline_media?.edges || []
+
+    return edges.slice(0, 12).map((edge: any) => {
       const node = edge.node
+      let caption = ''
+      if (node.edge_media_to_caption?.edges?.[0]?.node?.text) {
+        caption = node.edge_media_to_caption.edges[0].node.text
+      }
+
       return {
         id: node.id,
         shortcode: node.shortcode,
         thumbnailSrc: node.thumbnail_src || node.display_url,
         displayUrl: node.display_url,
-        caption: node.edge_media_to_caption?.edges?.[0]?.node?.text || '',
+        caption,
         takenAtTimestamp: node.taken_at_timestamp,
         isVideo: node.is_video,
       }
@@ -155,42 +205,87 @@ export default class InstagramScraperService {
   }
 
   private async scrapeViaMirrors(username: string): Promise<InstagramPost[]> {
-    const mirrors = [`https://imginn.com/${username}/`, `https://www.picuki.com/profile/${username}`]
-    for (const mirrorUrl of mirrors) {
+    const mirrors = [
+      { name: 'imginn', url: `https://imginn.com/${username}/` },
+      { name: 'picuki', url: `https://www.picuki.com/profile/${username}` },
+    ]
+
+    for (const mirror of mirrors) {
       try {
-        const response = await fetch(mirrorUrl, { headers: { 'User-Agent': this.userAgents[0] } })
+        const response = await fetch(mirror.url, {
+          headers: { 'User-Agent': this.getRandomUserAgent() },
+        })
+
         if (!response.ok) continue
+
         const html = await response.text()
-        const posts = this.parseGenericHtml(html)
-        if (posts.length > 0) return posts
-      } catch { continue }
+        const posts = this.parseHtmlForImages(html)
+
+        if (posts.length > 0) {
+          return posts
+        }
+      } catch (error) {
+        continue
+      }
     }
+
     return []
   }
 
-  private parseGenericHtml(html: string): InstagramPost[] {
+  private parseHtmlForImages(html: string): InstagramPost[] {
     const posts: InstagramPost[] = []
-    const imgRegex = /<img[^>]+src=["']([^"']+)["'][^>]*alt=["']([^"']*)["']/gi
+    
+    // Regex simples para encontrar URLs de imagens do Instagram
+    const imgRegex = /<img[^>]+src=["']([^"']+instagram[^"']+|[^"']+cdninstagram[^"']+)["'][^>]*>/gi
     let match
+
     while ((match = imgRegex.exec(html)) !== null && posts.length < 12) {
-      const src = match[1], alt = match[2]
-      if (src.includes('profile') || src.includes('logo') || src.length < 50) continue
-      posts.push({ id: this.generateId(src), shortcode: '', thumbnailSrc: src, displayUrl: src, caption: alt, takenAtTimestamp: Date.now() / 1000, isVideo: false })
+      const src = match[1]
+      if (src.includes('profile') || src.includes('logo') || src.includes('icon')) continue
+
+      posts.push({
+        id: this.hashString(src),
+        shortcode: '',
+        thumbnailSrc: src,
+        displayUrl: src,
+        caption: '',
+        takenAtTimestamp: Math.floor(Date.now() / 1000),
+        isVideo: false,
+      })
     }
+
     return posts
   }
 
   private validateProfileUrl(url: string): boolean {
-    try { return new URL(url).hostname.includes('instagram.com') } catch { return false }
+    try {
+      const parsed = new URL(url)
+      return parsed.hostname.includes('instagram.com')
+    } catch {
+      return false
+    }
   }
 
   private extractUsername(url: string): string {
-    try { return new URL(url).pathname.replace(/^\/|\/$/g, '') } catch { return url }
+    try {
+      const parsed = new URL(url)
+      return parsed.pathname.replace(/\//g, '')
+    } catch {
+      return url
+    }
   }
 
-  private generateId(str: string): string {
+  private getRandomUserAgent(): string {
+    return this.userAgents[Math.floor(Math.random() * this.userAgents.length)]
+  }
+
+  private hashString(str: string): string {
     let hash = 0
-    for (let i = 0; i < str.length; i++) hash = ((hash << 5) - hash + str.charCodeAt(i)) & 0xffffffff
-    return `gen_${Math.abs(hash)}`
+    for (let i = 0; i < str.length; i++) {
+      const char = str.charCodeAt(i)
+      hash = ((hash << 5) - hash) + char
+      hash = hash & hash
+    }
+    return Math.abs(hash).toString(16)
   }
 }
