@@ -1,4 +1,4 @@
-import { Link } from "@inertiajs/react";
+import { Link, usePage } from "@inertiajs/react";
 import { SeoHead } from "~/components/SeoHead";
 import { TopBar } from "~/components/TopBar";
 import { Header } from "~/components/Header";
@@ -14,7 +14,10 @@ interface Props {
     content: string;
     excerpt?: string;
     featured_image?: string;
-    published_at: string;
+    coverImageUrl?: string;
+    cover_image_url?: string;
+    published_at?: string;
+    publishedAt?: string;
     author?: { name: string };
     category?: { name: string };
   };
@@ -22,13 +25,20 @@ interface Props {
 }
 
 export default function NewsShow({ news, related = [] }: Props) {
+  const { url } = usePage();
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://node.camaradesume.pb.gov.br';
+  const fullUrl = `${baseUrl}${url}`;
+  
+  // Helpers para campos que podem vir em camelCase ou snake_case
+  const featuredImage = news.featured_image || news.coverImageUrl || news.cover_image_url;
+  const publishedAt = news.published_at || news.publishedAt || new Date().toISOString();
   return (
     <>
       <SeoHead
         title={`${news.title} - Câmara Municipal de Sumé`}
         description={news.excerpt || news.title}
         url={`/noticias/${news.slug}`}
-        image={news.featured_image}
+        image={featuredImage}
       />
       <div className="min-h-screen bg-background">
         <TopBar />
@@ -50,10 +60,10 @@ export default function NewsShow({ news, related = [] }: Props) {
               {/* Article */}
               <article className="card-modern overflow-hidden">
                 {/* Featured Image */}
-                {news.featured_image && (
+                {featuredImage && (
                   <div className="relative h-64 md:h-96 overflow-hidden">
                     <img
-                      src={news.featured_image}
+                      src={featuredImage}
                       alt={news.title}
                       className="w-full h-full object-cover"
                     />
@@ -66,7 +76,7 @@ export default function NewsShow({ news, related = [] }: Props) {
                   <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-4">
                     <span className="flex items-center gap-1.5">
                       <Calendar className="w-4 h-4" />
-                      {new Date(news.published_at).toLocaleDateString('pt-BR', {
+                      {new Date(publishedAt).toLocaleDateString('pt-BR', {
                         day: 'numeric',
                         month: 'long',
                         year: 'numeric'
@@ -103,7 +113,7 @@ export default function NewsShow({ news, related = [] }: Props) {
                       <span className="text-sm font-medium text-foreground">Compartilhar:</span>
                       <div className="flex items-center gap-2">
                         <a
-                          href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`}
+                          href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(fullUrl)}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition-colors no-underline"
@@ -111,7 +121,7 @@ export default function NewsShow({ news, related = [] }: Props) {
                           <Facebook className="w-5 h-5" />
                         </a>
                         <a
-                          href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(news.title)}`}
+                          href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(fullUrl)}&text=${encodeURIComponent(news.title)}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="w-10 h-10 rounded-xl bg-sky-500 text-white flex items-center justify-center hover:bg-sky-600 transition-colors no-underline"
