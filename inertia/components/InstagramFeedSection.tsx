@@ -3,29 +3,29 @@ import { useState } from "react";
 
 const posts = [
   { 
-    imagem: "/placeholder-news.svg",
+    imagem: "https://images.unsplash.com/photo-1577962917302-cd874c4e31d2?w=400&h=400&fit=crop",
     titulo: "PARABÉNS, VEREADORA MARCELA! 🎉",
     descricao: "Hoje é um dia especial...",
     likes: 17,
     comments: 6
   },
   { 
-    imagem: "/placeholder-news.svg",
-    titulo: "FELIZ 2026, SUMÉ!",
+    imagem: "https://images.unsplash.com/photo-1464983953574-0892a716854b?w=400&h=400&fit=crop",
+    titulo: "FELIZ 2026, SUMÉ! 💚✨",
     descricao: "Vereadoras e...",
     likes: 20,
     comments: 3
   },
   { 
-    imagem: "/placeholder-news.svg",
-    titulo: "SESSÃO EXTRAORDINÁRIA!",
+    imagem: "https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=400&h=400&fit=crop",
+    titulo: "SESSÃO EXTRAORDINÁRIA! ✅",
     descricao: "Vereadores e...",
     likes: 49,
     comments: 2
   },
   { 
-    imagem: "/placeholder-news.svg",
-    titulo: "DÁ PRA GANHAR O CONCURSO?",
+    imagem: "https://images.unsplash.com/photo-1560439514-4e9645039924?w=400&h=400&fit=crop",
+    titulo: "DÁ PRA GANHAR O CONCURSO? ✨🎖️",
     descricao: "Brincadeira!...",
     likes: 28,
     comments: 3
@@ -55,7 +55,7 @@ export const InstagramFeedSection = () => {
               </div>
             </div>
             <div>
-              <h3 className="font-bold text-foreground text-lg">camaradesume</h3>
+              <h3 className="font-bold text-foreground text-lg">camaradecuite</h3>
               <p className="text-muted-foreground text-sm flex items-center gap-1">
                 <Instagram className="w-4 h-4" />
                 205 publicações

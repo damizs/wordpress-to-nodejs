@@ -2,19 +2,14 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 
 const imagens = [
-  { url: "/placeholder-news.svg", alt: "Vista panorâmica de Sumé" },
-  { url: "/placeholder-news.svg", alt: "Igreja histórica" },
-  { url: "/placeholder-news.svg", alt: "Serra de Sumé" },
-  { url: "/placeholder-news.svg", alt: "Natureza local" },
-  { url: "/placeholder-news.svg", alt: "Paisagem regional" },
+  { url: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&h=400&fit=crop", alt: "Vista panorâmica de Sumé" },
+  { url: "https://images.unsplash.com/photo-1518998053901-5348d3961a04?w=600&h=400&fit=crop", alt: "Igreja histórica" },
+  { url: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=600&h=400&fit=crop", alt: "Serra de Sumé" },
+  { url: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=600&h=400&fit=crop", alt: "Natureza local" },
+  { url: "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=600&h=400&fit=crop", alt: "Paisagem regional" },
 ];
 
-interface ConhecaSumeSectionProps {
-  title?: string | null;
-  subtitle?: string | null;
-}
-
-export const ConhecaSumeSection = ({ title, subtitle }: ConhecaSumeSectionProps) => {
+export const ConhecaSumeSection = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const handlePrev = () => {
@@ -29,14 +24,10 @@ export const ConhecaSumeSection = ({ title, subtitle }: ConhecaSumeSectionProps)
     <section className="py-16 px-4 bg-muted/30">
       <div className="container mx-auto">
         {/* Header */}
-        <div className="text-center mb-12 animate-fade-in">
-          <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
-            Nossa Cidade
-          </span>
+        <div className="text-center mb-10 animate-fade-in">
           <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-4">
-            {title || 'Conheça Sumé'}
+            Conheça Sumé
           </h2>
-          {subtitle && <p className="text-muted-foreground max-w-2xl mx-auto text-lg">{subtitle}</p>}
         </div>
 
         {/* Gallery Carousel */}

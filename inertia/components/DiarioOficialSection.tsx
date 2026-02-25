@@ -4,13 +4,7 @@ import { useState } from "react";
 const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
 const diasSemana = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
 
-interface DiarioOficialSectionProps {
-  latestGazette?: any;
-  title?: string | null;
-  subtitle?: string | null;
-}
-
-export const DiarioOficialSection = ({ latestGazette, title, subtitle }: DiarioOficialSectionProps) => {
+export const DiarioOficialSection = () => {
   const [mesAtual, setMesAtual] = useState(0); // Janeiro
   const [anoAtual, setAnoAtual] = useState(2026);
 
@@ -44,23 +38,20 @@ export const DiarioOficialSection = ({ latestGazette, title, subtitle }: DiarioO
   };
 
   return (
-    <section className="py-16 px-4 section-gradient">
+    <section className="py-16 px-4 bg-muted/30">
       <div className="container mx-auto">
         {/* Header */}
         <div className="text-center mb-12 animate-fade-in">
-          <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
-            Publicações Oficiais
-          </span>
           <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-4">
-            {title || 'Diário Oficial'}
+            Diário Oficial
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            {subtitle || 'Fique sempre atualizado com as publicações e informações oficiais do município'}
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            Fique sempre atualizado com as publicações e informações oficiais do município
           </p>
         </div>
 
         {/* Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
           {/* Última Edição */}
           <div className="bg-card rounded-xl border border-border p-6 animate-fade-in">
             <div className="flex items-start gap-4 mb-6">

@@ -1,19 +1,16 @@
 import { Search, HelpCircle, FileText, MessageSquare, Map, Shield } from "lucide-react";
-import { useSiteSettings } from "~/hooks/use_site_settings";
+
+const topLinks = [
+  { icon: Search, label: "Portal da Transparência", href: "#transparencia" },
+  { icon: FileText, label: "E-Sic", href: "#esic" },
+  { icon: MessageSquare, label: "Ouvidoria", href: "#ouvidoria" },
+  { icon: HelpCircle, label: "Glossário", href: "#" },
+  { icon: HelpCircle, label: "Perguntas Frequentes", href: "#" },
+  { icon: Map, label: "Mapa do Site", href: "#" },
+  { icon: Shield, label: "Política de Privacidade", href: "#" },
+];
 
 export const TopBar = () => {
-  const { get } = useSiteSettings();
-  const esicUrl = get('esic_new_url', '#');
-
-  const topLinks = [
-    { icon: Search, label: "Portal da Transparência", href: "/transparencia" },
-    { icon: FileText, label: "E-SIC", href: esicUrl },
-    { icon: MessageSquare, label: "Ouvidoria", href: "/ouvidoria" },
-    { icon: HelpCircle, label: "Perguntas Frequentes", href: "/perguntas-frequentes" },
-    { icon: Map, label: "Mapa do Site", href: "/mapa-do-site" },
-    { icon: Shield, label: "Política de Privacidade", href: "/politica-de-privacidade" },
-  ];
-
   return (
     <div className="bg-navy-dark text-primary-foreground py-2">
       <div className="container mx-auto px-4">
