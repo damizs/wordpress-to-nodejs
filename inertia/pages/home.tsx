@@ -12,6 +12,7 @@ import { InstagramFeedSection } from "~/components/InstagramFeedSection";
 import { ConhecaSumeSection } from "~/components/ConhecaSumeSection";
 import { TransparencySealSection } from "~/components/TransparencySealSection";
 import { SatisfactionSurvey } from "~/components/SatisfactionSurvey";
+import { AssistenteVirtual } from "~/components/AssistenteVirtual";
 
 interface NewsItem {
   id: number;
@@ -79,6 +80,7 @@ export default function Home({
         </main>
         
         <Footer />
+        <AssistenteVirtual />
       </div>
     </>
   );
