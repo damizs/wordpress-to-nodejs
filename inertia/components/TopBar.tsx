@@ -1,38 +1,31 @@
-import { Phone, Mail, Clock, Accessibility } from "lucide-react";
+import { Link } from "@inertiajs/react";
+import { Search, HelpCircle, FileText, MessageSquare, Map, Shield } from "lucide-react";
+
+const topLinks = [
+  { icon: Search, label: "Portal da Transparência", href: "/transparencia" },
+  { icon: FileText, label: "E-Sic", href: "/e-sic" },
+  { icon: MessageSquare, label: "Ouvidoria", href: "/ouvidoria" },
+  { icon: HelpCircle, label: "Perguntas Frequentes", href: "/perguntas-frequentes" },
+  { icon: Map, label: "Mapa do Site", href: "/mapa-do-site" },
+  { icon: Shield, label: "Política de Privacidade", href: "/politica-de-privacidade" },
+];
 
 export const TopBar = () => {
   return (
-    <div className="bg-primary text-primary-foreground text-xs py-2">
+    <div className="bg-navy-dark text-primary-foreground py-2">
       <div className="container mx-auto px-4">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          {/* Contact info */}
-          <div className="flex flex-wrap items-center gap-4">
-            <a href="tel:+558333531185" className="flex items-center gap-1.5 hover:text-gold transition-colors no-underline text-primary-foreground">
-              <Phone className="w-3 h-3" />
-              <span className="hidden sm:inline">(83) 3353-1185</span>
-            </a>
-            <a href="mailto:camaradesume@gmail.com" className="flex items-center gap-1.5 hover:text-gold transition-colors no-underline text-primary-foreground">
-              <Mail className="w-3 h-3" />
-              <span className="hidden sm:inline">camaradesume@gmail.com</span>
-            </a>
-            <span className="flex items-center gap-1.5 opacity-80">
-              <Clock className="w-3 h-3" />
-              <span className="hidden sm:inline">Seg-Sex: 08h-14h</span>
-            </span>
-          </div>
-
-          {/* Accessibility */}
-          <div className="flex items-center gap-3">
-            <button 
-              className="flex items-center gap-1.5 hover:text-gold transition-colors"
-              title="Acessibilidade"
-              aria-label="Opções de acessibilidade"
+        <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1 text-xs md:text-sm">
+          {topLinks.map((link, index) => (
+            <Link
+              key={index}
+              href={link.href}
+              className="flex items-center gap-1.5 opacity-80 hover:opacity-100 transition-opacity duration-200 no-underline"
             >
-              <Accessibility className="w-3 h-3" />
-              <span className="hidden sm:inline">Acessibilidade</span>
-            </button>
-          </div>
-        </div>
+              <link.icon className="w-3 h-3" />
+              <span>{link.label}</span>
+            </Link>
+          ))}
+        </nav>
       </div>
     </div>
   );

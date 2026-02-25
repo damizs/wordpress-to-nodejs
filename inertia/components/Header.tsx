@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "@inertiajs/react";
+import { Link, router } from "@inertiajs/react";
 import { Menu, X, ChevronDown } from "lucide-react";
 
 const camaraSubItems = [
@@ -32,6 +32,12 @@ const navItems = [
 export const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileExpandedItem, setMobileExpandedItem] = useState<string | null>(null);
+
+  const handleLinkClick = (href: string) => {
+    setMobileMenuOpen(false);
+    setMobileExpandedItem(null);
+    router.visit(href);
+  };
 
   return (
     <header className="relative z-50 bg-gradient-hero text-primary-foreground overflow-visible">
@@ -70,7 +76,7 @@ export const Header = () => {
                 <li key={index} className="relative group">
                   <Link
                     href={item.href}
-                    className="relative flex items-center gap-1 px-4 py-2.5 text-sm font-medium tracking-wide rounded-xl hover:bg-primary-foreground/10 transition-all duration-300 text-primary-foreground no-underline"
+                    className="relative flex items-center gap-1 px-4 py-2.5 text-sm font-medium tracking-wide rounded-xl hover:bg-primary-foreground/10 transition-all duration-300 no-underline text-primary-foreground"
                   >
                     {item.label}
                     {item.hasDropdown && (
@@ -85,7 +91,7 @@ export const Header = () => {
                         <Link
                           key={subIndex}
                           href={sub.href}
-                          className="block w-full text-left px-4 py-2.5 text-sm hover:bg-accent hover:text-accent-foreground transition-colors duration-200 no-underline text-foreground"
+                          className="block w-full text-left px-4 py-2.5 text-sm hover:bg-accent hover:text-accent-foreground transition-colors duration-200 no-underline"
                         >
                           {sub.label}
                         </Link>
@@ -114,39 +120,34 @@ export const Header = () => {
             <ul className="flex flex-col gap-1">
               {navItems.map((item, index) => (
                 <li key={index}>
-                  {item.hasDropdown ? (
-                    <>
-                      <button
-                        onClick={() => setMobileExpandedItem(mobileExpandedItem === item.label ? null : item.label)}
-                        className="flex items-center justify-between w-full py-3 px-4 text-sm font-medium hover:bg-primary-foreground/10 rounded-xl transition-all duration-300"
-                      >
-                        {item.label}
-                        <ChevronDown className={`w-4 h-4 opacity-60 transition-transform duration-300 ${mobileExpandedItem === item.label ? "rotate-180" : ""}`} />
-                      </button>
-                      {item.subItems && mobileExpandedItem === item.label && (
-                        <ul className="ml-4 border-l border-primary-foreground/20 pl-4 py-1">
-                          {item.subItems.map((sub, subIndex) => (
-                            <li key={subIndex}>
-                              <Link
-                                href={sub.href}
-                                onClick={() => setMobileMenuOpen(false)}
-                                className="block w-full text-left py-2 px-3 text-sm opacity-80 hover:opacity-100 hover:bg-primary-foreground/10 rounded-lg transition-all duration-200 no-underline text-primary-foreground"
-                              >
-                                {sub.label}
-                              </Link>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </>
-                  ) : (
-                    <Link
-                      href={item.href}
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="flex items-center w-full py-3 px-4 text-sm font-medium hover:bg-primary-foreground/10 rounded-xl transition-all duration-300 no-underline text-primary-foreground"
-                    >
-                      {item.label}
-                    </Link>
+                  <button
+                    onClick={() => {
+                      if (item.hasDropdown) {
+                        setMobileExpandedItem(mobileExpandedItem === item.label ? null : item.label);
+                      } else {
+                        handleLinkClick(item.href);
+                      }
+                    }}
+                    className="flex items-center justify-between w-full py-3 px-4 text-sm font-medium hover:bg-primary-foreground/10 rounded-xl transition-all duration-300"
+                  >
+                    {item.label}
+                    {item.hasDropdown && (
+                      <ChevronDown className={`w-4 h-4 opacity-60 transition-transform duration-300 ${mobileExpandedItem === item.label ? "rotate-180" : ""}`} />
+                    )}
+                  </button>
+                  {item.hasDropdown && item.subItems && mobileExpandedItem === item.label && (
+                    <ul className="ml-4 border-l border-primary-foreground/20 pl-4 py-1">
+                      {item.subItems.map((sub, subIndex) => (
+                        <li key={subIndex}>
+                          <button
+                            onClick={() => handleLinkClick(sub.href)}
+                            className="block w-full text-left py-2 px-3 text-sm opacity-80 hover:opacity-100 hover:bg-primary-foreground/10 rounded-lg transition-all duration-200"
+                          >
+                            {sub.label}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
                   )}
                 </li>
               ))}

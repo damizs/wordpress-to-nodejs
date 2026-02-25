@@ -1,215 +1,125 @@
-import SeoHead from '~/components/SeoHead'
-import { TopBar } from '~/components/TopBar'
-import { Header } from '~/components/Header'
-import { Footer } from '~/components/Footer'
-import { Breadcrumb } from '~/components/Breadcrumb'
-import { PageTitle } from '~/components/PageTitle'
-import { MessageSquare, Phone, Mail, MapPin, Clock } from 'lucide-react'
-import { useState } from 'react'
-import { useSiteSettings } from '~/hooks/use_site_settings'
+import { SeoHead } from "~/components/SeoHead";
+import { TopBar } from "~/components/TopBar";
+import { Header } from "~/components/Header";
+import { Breadcrumb } from "~/components/Breadcrumb";
+import { Footer } from "~/components/Footer";
+import { MessageSquare, Phone, Mail, Clock, MapPin, Send, FileText, AlertCircle, ThumbsUp, HelpCircle } from "lucide-react";
 
-export default function Ouvidoria() {
-  const { get } = useSiteSettings()
-  const [formData, setFormData] = useState({
-    nome: '',
-    email: '',
-    tipo: '',
-    assunto: '',
-    mensagem: '',
-  })
-  const [enviando, setEnviando] = useState(false)
-  const [mensagemSucesso, setMensagemSucesso] = useState('')
+const channels = [
+  { icon: MessageSquare, title: "Denúncias", description: "Relate irregularidades de forma sigilosa", color: "bg-red-100 text-red-600" },
+  { icon: HelpCircle, title: "Solicitações", description: "Solicite informações ou serviços", color: "bg-blue-100 text-blue-600" },
+  { icon: AlertCircle, title: "Reclamações", description: "Registre sua insatisfação", color: "bg-amber-100 text-amber-600" },
+  { icon: ThumbsUp, title: "Elogios", description: "Reconheça o bom atendimento", color: "bg-emerald-100 text-emerald-600" },
+];
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setEnviando(true)
-    
-    // Aqui você pode implementar o envio real do formulário
-    // Por enquanto, apenas simula um envio
-    setTimeout(() => {
-      setEnviando(false)
-      setMensagemSucesso('Sua manifestação foi registrada com sucesso! Em breve entraremos em contato.')
-      setFormData({ nome: '', email: '', tipo: '', assunto: '', mensagem: '' })
-    }, 1500)
-  }
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
-  }
-
+export default function OuvidoriaIndex() {
   return (
     <>
-      <SeoHead
-        title="Ouvidoria | Câmara Municipal de Sumé"
-        description="Entre em contato com a Ouvidoria da Câmara Municipal de Sumé. Registre sugestões, reclamações, denúncias ou elogios."
-        url="/ouvidoria"
-      />
-      <div className="min-h-screen bg-background" style={{ fontFamily: "Verdana, Geneva, Tahoma, sans-serif" }}>
-        <TopBar />
-        <Header />
-
-        <main>
-          <Breadcrumb items={[{ label: "Ouvidoria" }]} />
-          <PageTitle title="OUVIDORIA" />
-
-          <section className="py-12">
-            <div className="container mx-auto px-4 max-w-4xl">
-              {/* O que é a Ouvidoria */}
-              <div className="card-modern p-6 md:p-8 mb-8">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <MessageSquare className="w-6 h-6 text-primary" />
-                  </div>
-                  <h2 className="text-xl font-bold text-foreground">O que é a Ouvidoria?</h2>
-                </div>
-                <p className="text-muted-foreground leading-relaxed">
-                  A Ouvidoria da Câmara Municipal de Sumé é o canal de comunicação direta entre o cidadão 
-                  e o Poder Legislativo. Através dela, você pode registrar sugestões, reclamações, denúncias, 
-                  elogios e solicitações de informações relacionadas às atividades da Câmara.
-                </p>
+      <SeoHead title="Ouvidoria - Câmara Municipal de Sumé" description="Entre em contato com a Ouvidoria da Câmara Municipal de Sumé. Faça denúncias, reclamações, sugestões ou elogios." url="/ouvidoria" />
+      <div className="min-h-screen bg-background">
+        <TopBar /><Header /><Breadcrumb items={[{ label: "Ouvidoria" }]} />
+        <main className="py-12">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto">
+              <div className="text-center mb-12">
+                <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase mb-3">Cidadão</span>
+                <h1 className="text-3xl md:text-4xl font-bold text-foreground">Ouvidoria</h1>
+                <p className="mt-2 text-muted-foreground max-w-xl mx-auto">Canal de comunicação direta entre o cidadão e a Câmara Municipal</p>
               </div>
 
-              {/* Contatos */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div className="card-modern p-6 flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <Phone className="w-5 h-5 text-primary" />
+              {/* Channels */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+                {channels.map((channel, index) => (
+                  <div key={index} className="card-modern p-5 text-center">
+                    <div className={`w-12 h-12 mx-auto rounded-xl ${channel.color} flex items-center justify-center mb-3`}>
+                      <channel.icon className="w-6 h-6" />
+                    </div>
+                    <h3 className="font-semibold text-foreground text-sm">{channel.title}</h3>
+                    <p className="text-xs text-muted-foreground mt-1">{channel.description}</p>
                   </div>
-                  <div>
-                    <h3 className="font-semibold text-foreground mb-1">Telefone</h3>
-                    <p className="text-muted-foreground text-sm">
-                      {get('footer_phone', '(83) 3353-2095')}
-                    </p>
-                  </div>
-                </div>
-                <div className="card-modern p-6 flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <Mail className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-foreground mb-1">E-mail</h3>
-                    <p className="text-muted-foreground text-sm">
-                      {get('footer_email', 'ouvidoria@camaradesume.pb.gov.br')}
-                    </p>
-                  </div>
-                </div>
-                <div className="card-modern p-6 flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <MapPin className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-foreground mb-1">Endereço</h3>
-                    <p className="text-muted-foreground text-sm">
-                      {get('footer_address', 'Rua Alice Japiassú de Queiróz, Nº 52 - Centro, Sumé - PB')}
-                    </p>
-                  </div>
-                </div>
-                <div className="card-modern p-6 flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                    <Clock className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-foreground mb-1">Horário de Atendimento</h3>
-                    <p className="text-muted-foreground text-sm">
-                      {get('footer_hours', 'Segunda a Sexta, 08h às 14h')}
-                    </p>
-                  </div>
-                </div>
+                ))}
               </div>
 
-              {/* Formulário */}
-              <div className="card-modern p-6 md:p-8">
-                <h2 className="text-xl font-bold text-foreground mb-6">Registrar Manifestação</h2>
-                
-                {mensagemSucesso && (
-                  <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
-                    {mensagemSucesso}
-                  </div>
-                )}
+              <div className="grid md:grid-cols-2 gap-8">
+                {/* Contact Form */}
+                <div className="card-modern p-6">
+                  <h2 className="font-bold text-foreground mb-4 flex items-center gap-2">
+                    <Send className="w-5 h-5 text-primary" />Entre em Contato
+                  </h2>
+                  <form className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">Nome</label>
+                      <input type="text" className="w-full px-4 py-2 rounded-xl border border-border bg-card focus:outline-none focus:ring-2 focus:ring-primary/20" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">E-mail</label>
+                      <input type="email" className="w-full px-4 py-2 rounded-xl border border-border bg-card focus:outline-none focus:ring-2 focus:ring-primary/20" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">Tipo</label>
+                      <select className="w-full px-4 py-2 rounded-xl border border-border bg-card focus:outline-none focus:ring-2 focus:ring-primary/20">
+                        <option>Denúncia</option>
+                        <option>Reclamação</option>
+                        <option>Solicitação</option>
+                        <option>Sugestão</option>
+                        <option>Elogio</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-1">Mensagem</label>
+                      <textarea rows={4} className="w-full px-4 py-2 rounded-xl border border-border bg-card focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none"></textarea>
+                    </div>
+                    <button type="submit" className="w-full btn-modern bg-primary text-primary-foreground">Enviar</button>
+                  </form>
+                </div>
 
-                <form className="space-y-4" onSubmit={handleSubmit}>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="text-sm font-medium text-foreground mb-1 block">Nome</label>
-                      <input 
-                        type="text" 
-                        name="nome"
-                        value={formData.nome}
-                        onChange={handleChange}
-                        placeholder="Seu nome completo" 
-                        required
-                        className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" 
-                      />
-                    </div>
-                    <div>
-                      <label className="text-sm font-medium text-foreground mb-1 block">E-mail</label>
-                      <input 
-                        type="email" 
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        placeholder="seu@email.com" 
-                        required
-                        className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" 
-                      />
-                    </div>
+                {/* Contact Info */}
+                <div className="space-y-6">
+                  <div className="card-modern p-6">
+                    <h2 className="font-bold text-foreground mb-4">Informações de Contato</h2>
+                    <ul className="space-y-4">
+                      <li className="flex items-start gap-3">
+                        <Phone className="w-5 h-5 text-primary flex-shrink-0" />
+                        <div>
+                          <p className="font-medium text-foreground">(83) 3353-1185</p>
+                          <p className="text-sm text-muted-foreground">Telefone</p>
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <Mail className="w-5 h-5 text-primary flex-shrink-0" />
+                        <div>
+                          <p className="font-medium text-foreground">ouvidoria@camaradesume.pb.gov.br</p>
+                          <p className="text-sm text-muted-foreground">E-mail</p>
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <Clock className="w-5 h-5 text-primary flex-shrink-0" />
+                        <div>
+                          <p className="font-medium text-foreground">Segunda a Sexta: 08h às 14h</p>
+                          <p className="text-sm text-muted-foreground">Horário de Atendimento</p>
+                        </div>
+                      </li>
+                      <li className="flex items-start gap-3">
+                        <MapPin className="w-5 h-5 text-primary flex-shrink-0" />
+                        <div>
+                          <p className="font-medium text-foreground">Praça Luiz Gaudêncio, S/N - Centro</p>
+                          <p className="text-sm text-muted-foreground">Sumé - PB, CEP: 58540-000</p>
+                        </div>
+                      </li>
+                    </ul>
                   </div>
-                  <div>
-                    <label className="text-sm font-medium text-foreground mb-1 block">Tipo de Manifestação</label>
-                    <select 
-                      name="tipo"
-                      value={formData.tipo}
-                      onChange={handleChange}
-                      required
-                      className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-                    >
-                      <option value="">Selecione o tipo</option>
-                      <option value="sugestao">Sugestão</option>
-                      <option value="reclamacao">Reclamação</option>
-                      <option value="denuncia">Denúncia</option>
-                      <option value="elogio">Elogio</option>
-                      <option value="informacao">Solicitação de Informação</option>
-                    </select>
+
+                  <div className="card-modern p-6 bg-primary/5">
+                    <h3 className="font-semibold text-foreground mb-2">Prazo de Resposta</h3>
+                    <p className="text-sm text-muted-foreground">A Ouvidoria tem prazo de até 20 dias para responder às manifestações, podendo ser prorrogado por mais 10 dias mediante justificativa.</p>
                   </div>
-                  <div>
-                    <label className="text-sm font-medium text-foreground mb-1 block">Assunto</label>
-                    <input 
-                      type="text" 
-                      name="assunto"
-                      value={formData.assunto}
-                      onChange={handleChange}
-                      placeholder="Assunto da manifestação" 
-                      required
-                      className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" 
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium text-foreground mb-1 block">Mensagem</label>
-                    <textarea 
-                      name="mensagem"
-                      value={formData.mensagem}
-                      onChange={handleChange}
-                      rows={5} 
-                      placeholder="Descreva sua manifestação detalhadamente..." 
-                      required
-                      className="w-full px-4 py-2.5 rounded-lg border border-border bg-background text-foreground text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary" 
-                    />
-                  </div>
-                  <button 
-                    type="submit" 
-                    disabled={enviando}
-                    className="px-6 py-2.5 bg-primary text-primary-foreground rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {enviando ? 'Enviando...' : 'Enviar Manifestação'}
-                  </button>
-                </form>
+                </div>
               </div>
             </div>
-          </section>
+          </div>
         </main>
-
         <Footer />
       </div>
     </>
-  )
+  );
 }

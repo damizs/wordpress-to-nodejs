@@ -1,66 +1,36 @@
-import { Link } from '@inertiajs/react'
-import { TopBar } from '~/components/TopBar'
-import { Header } from '~/components/Header'
-import { Footer } from '~/components/Footer'
-import { Breadcrumb } from '~/components/Breadcrumb'
-import SeoHead from '~/components/SeoHead'
-import { ArrowLeft, Download, FileText } from 'lucide-react'
+import { Link } from "@inertiajs/react";
+import { SeoHead } from "~/components/SeoHead";
+import { TopBar } from "~/components/TopBar";
+import { Header } from "~/components/Header";
+import { Breadcrumb } from "~/components/Breadcrumb";
+import { Footer } from "~/components/Footer";
+import { Calendar, ArrowLeft, Download } from "lucide-react";
 
-interface Props { publication: any }
+interface Props { publication: { id: number; title: string; slug: string; date: string; content?: string; file_url?: string; }; }
 
 export default function PublicationShow({ publication }: Props) {
   return (
     <>
-      <SeoHead
-        title={`${publication.title} - Publicações Oficiais - Câmara Municipal de Sumé`}
-        description={publication.description || publication.title}
-        url={`/publicacoes-oficiais/${publication.id}`}
-      />
-      <div className="min-h-screen bg-background" style={{ fontFamily: "Verdana, Geneva, Tahoma, sans-serif" }}>
-        <TopBar />
-        <Header />
-        <main>
-          <Breadcrumb items={[
-            { label: 'Publicações Oficiais', href: '/publicacoes-oficiais' },
-            { label: publication.title }
-          ]} />
-          
-          <section className="py-12">
-            <div className="container mx-auto px-4 max-w-4xl">
-              <Link href="/publicacoes-oficiais" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-6">
-                <ArrowLeft className="w-4 h-4" /> Voltar
-              </Link>
-              <article className="card-modern p-8">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center">
-                    <FileText className="w-5 h-5 text-red-500" />
-                  </div>
-                  <div>
-                    <h1 className="text-2xl font-bold text-foreground">{publication.title}</h1>
-                    {publication.number && <p className="text-sm text-muted-foreground">Nº {publication.number}</p>}
-                  </div>
-                </div>
-                <div className="flex flex-wrap gap-2 mb-6">
-                  <span className="text-sm bg-muted text-muted-foreground px-3 py-1 rounded-full capitalize">{publication.type}</span>
-                  <span className="text-sm bg-muted text-muted-foreground px-3 py-1 rounded-full">{publication.publication_date}</span>
-                </div>
-                {publication.description && (
-                  <div className="mb-6">
-                    <p className="text-muted-foreground leading-relaxed">{publication.description}</p>
-                  </div>
-                )}
+      <SeoHead title={`${publication.title} - Câmara Municipal de Sumé`} url={`/publicacoes-oficiais/${publication.slug}`} />
+      <div className="min-h-screen bg-background">
+        <TopBar /><Header /><Breadcrumb items={[{ label: "Publicações Oficiais", href: "/publicacoes-oficiais" }, { label: publication.title }]} />
+        <main className="py-12">
+          <div className="container mx-auto px-4">
+            <div className="max-w-3xl mx-auto">
+              <Link href="/publicacoes-oficiais" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-6 no-underline"><ArrowLeft className="w-4 h-4" />Voltar</Link>
+              <article className="card-modern p-6 md:p-10">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4"><Calendar className="w-4 h-4" />{new Date(publication.date).toLocaleDateString('pt-BR')}</div>
+                <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-6">{publication.title}</h1>
                 {publication.file_url && (
-                  <a href={publication.file_url} target="_blank" rel="noopener"
-                    className="inline-flex items-center gap-2 px-5 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium">
-                    <Download className="w-4 h-4" /> Baixar documento (PDF)
-                  </a>
+                  <a href={publication.file_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 btn-modern bg-primary text-primary-foreground mb-6 no-underline"><Download className="w-5 h-5" />Baixar</a>
                 )}
+                {publication.content && <div className="prose max-w-none" dangerouslySetInnerHTML={{ __html: publication.content }} />}
               </article>
             </div>
-          </section>
+          </div>
         </main>
         <Footer />
       </div>
     </>
-  )
+  );
 }

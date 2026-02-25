@@ -1,93 +1,39 @@
-import seloTransparencia from "~/assets/selo-transparencia.png";
-import seloCorrupcao from "~/assets/selo-prevencao-corrupcao.png";
-import { ExternalLink } from "lucide-react";
-import { Link } from "@inertiajs/react";
+import { Award, Shield, CheckCircle } from "lucide-react";
 
-interface TransparencySealSectionProps {
-  title?: string | null;
-  subtitle?: string | null;
-}
-
-export const TransparencySealSection = ({ title, subtitle }: TransparencySealSectionProps) => {
+export const TransparencySealSection = () => {
   return (
-    <section className="py-16 px-4 bg-gradient-navy text-primary-foreground">
+    <section className="py-16 px-4 bg-gradient-to-r from-primary/5 via-gold/5 to-sky/5">
       <div className="container mx-auto">
-        <div className="text-center mb-12 animate-fade-in">
-          <span className="inline-block px-4 py-1.5 bg-gold/20 text-gold rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
-            CERTIFICAÇÕES
-          </span>
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            {title || 'Compromisso com a Transparência'}
-          </h2>
-          <p className="text-base opacity-80 max-w-2xl mx-auto">
-            {subtitle || 'A Câmara Municipal de Sumé é reconhecida por seu compromisso com a transparência pública e combate à corrupção.'}
-          </p>
-        </div>
-
-        {/* Seals Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
-          {/* Selo Transparência Ouro */}
-          <div className="bg-primary-foreground/5 rounded-2xl p-6 flex flex-col items-center text-center animate-fade-in hover:bg-primary-foreground/10 transition-colors">
-            <div className="w-36 h-36 md:w-44 md:h-44 mb-4">
-              <img 
-                src={seloTransparencia} 
-                alt="Selo Qualidade em Transparência Ouro 2025" 
-                className="w-full h-full object-contain drop-shadow-lg"
-              />
+        <div className="flex flex-col md:flex-row items-center justify-center gap-8">
+          {/* Selo */}
+          <div className="flex items-center gap-4 animate-fade-in">
+            <div className="relative">
+              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-gold to-gold-light flex items-center justify-center shadow-glow">
+                <Award className="w-12 h-12 text-navy-dark" />
+              </div>
+              <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-green-500 flex items-center justify-center border-4 border-background">
+                <CheckCircle className="w-4 h-4 text-white" />
+              </div>
             </div>
-            <h3 className="text-lg font-bold mb-2">
-              Qualidade em Transparência
-            </h3>
-            <p className="text-sm opacity-70 mb-4">
-              Selo Ouro concedido pelo Tribunal de Contas do Estado da Paraíba.
-            </p>
-            <a
-              href="https://tce.pb.gov.br/transparencia"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-gold text-navy-dark rounded-lg text-sm font-medium hover:bg-gold-light transition-all hover:scale-[1.02] active:scale-[0.98] no-underline"
-            >
-              Saiba Mais
-              <ExternalLink className="w-4 h-4" />
-            </a>
+            <div>
+              <h3 className="font-bold text-foreground text-lg">Selo de Transparência</h3>
+              <p className="text-sm text-muted-foreground">Compromisso com a gestão pública</p>
+            </div>
           </div>
 
-          {/* Selo Prevenção à Corrupção */}
-          <div className="bg-primary-foreground/5 rounded-2xl p-6 flex flex-col items-center text-center animate-fade-in hover:bg-primary-foreground/10 transition-colors">
-            <div className="w-36 h-36 md:w-44 md:h-44 mb-4">
-              <img 
-                src={seloCorrupcao} 
-                alt="Selo Programa Nacional de Prevenção à Corrupção - Participante" 
-                className="w-full h-full object-contain drop-shadow-lg"
-              />
-            </div>
-            <h3 className="text-lg font-bold mb-2">
-              Prevenção à Corrupção
-            </h3>
-            <p className="text-sm opacity-70 mb-4">
-              Participante do Programa Nacional de Prevenção à Corrupção.
-            </p>
-            <a
-              href="https://www.cnmp.mp.br/pnpc"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2 bg-primary-foreground/10 text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary-foreground/20 transition-all hover:scale-[1.02] active:scale-[0.98] no-underline"
-            >
-              Conhecer Programa
-              <ExternalLink className="w-4 h-4" />
-            </a>
-          </div>
-        </div>
+          {/* Divider */}
+          <div className="hidden md:block w-px h-16 bg-border" />
 
-        {/* Portal Link */}
-        <div className="text-center mt-10 animate-fade-in">
-          <Link
-            href="/transparencia"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-gold text-navy-dark rounded-lg font-medium hover:bg-gold-light transition-all hover:scale-[1.02] active:scale-[0.98] no-underline"
-          >
-            Acessar Portal da Transparência
-            <ExternalLink className="w-4 h-4" />
-          </Link>
+          {/* Info */}
+          <div className="flex items-center gap-4 animate-fade-in" style={{ animationDelay: "200ms" }}>
+            <div className="w-16 h-16 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Shield className="w-8 h-8 text-primary" />
+            </div>
+            <div>
+              <p className="font-bold text-foreground">Lei de Acesso à Informação</p>
+              <p className="text-sm text-muted-foreground">Lei nº 12.527/2011</p>
+            </div>
+          </div>
         </div>
       </div>
     </section>

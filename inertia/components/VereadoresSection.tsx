@@ -1,87 +1,125 @@
-import { ArrowRight, Users } from "lucide-react";
 import { Link } from "@inertiajs/react";
+import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
+import { useState } from "react";
 
-interface Councilor {
+interface Vereador {
   id: number;
-  name: string;
+  nome: string;
+  apelido: string;
+  cargo: string;
+  foto: string | null;
   slug: string;
-  party?: string;
-  photo_url?: string;
-  position?: string;
+  ativo: boolean;
 }
 
 interface VereadoresSectionProps {
-  councilors?: Councilor[];
-  title?: string | null;
-  subtitle?: string | null;
-  badge?: string | null;
+  vereadores?: Vereador[];
+  legislatura?: string;
 }
 
-const defaultPhoto = "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=300&fit=crop&crop=face";
+export const VereadoresSection = ({ vereadores = [], legislatura = "2025-2028" }: VereadoresSectionProps) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const itemsPerPage = 4;
+  const maxIndex = Math.max(0, vereadores.length - itemsPerPage);
 
-export const VereadoresSection = ({ 
-  councilors = [], 
-  title, 
-  subtitle, 
-  badge 
-}: VereadoresSectionProps) => {
-  if (councilors.length === 0) return null;
-  
-  // Show max 8 councilors on homepage
-  const displayedCouncilors = councilors.slice(0, 8);
+  const handlePrev = () => {
+    setCurrentIndex((prev) => Math.max(0, prev - 1));
+  };
+
+  const handleNext = () => {
+    setCurrentIndex((prev) => Math.min(maxIndex, prev + 1));
+  };
+
+  if (vereadores.length === 0) {
+    return null;
+  }
 
   return (
-    <section className="py-16 px-4 section-gradient">
+    <section className="py-20 px-4 section-gradient">
       <div className="container mx-auto">
-        <div className="text-center mb-12 animate-fade-in">
+        {/* Header */}
+        <div className="text-center mb-14 animate-fade-in">
           <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
-            {badge || 'Poder Legislativo'}
+            Legislatura {legislatura}
           </span>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            {title || 'Nossos Vereadores'}
+          <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
+            Mesa Diretora e Vereadores
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            {subtitle || 'Conheça os representantes eleitos pela população para defender os interesses da comunidade sumeense'}
+            Composição da Mesa Diretora e parlamentares da Legislatura {legislatura}
           </p>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-          {displayedCouncilors.map((councilor, index) => (
-            <Link
-              key={councilor.id}
-              href={`/vereadores/${councilor.slug}`}
-              className="group card-modern p-5 text-center animate-fade-in no-underline"
-              style={{ animationDelay: `${index * 50}ms` }}
+        {/* Carousel */}
+        <div className="relative px-8">
+          <div className="overflow-hidden rounded-2xl">
+            <div 
+              className="flex transition-transform duration-700 ease-out gap-6"
+              style={{ transform: `translateX(-${currentIndex * (100 / itemsPerPage + 2)}%)` }}
             >
-              <div className="relative mx-auto w-24 h-24 md:w-28 md:h-28 mb-4">
-                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary to-navy-light opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-md" />
-                <img
-                  src={councilor.photo_url || defaultPhoto}
-                  alt={councilor.name}
-                  className="relative w-full h-full rounded-full object-cover border-4 border-card group-hover:border-gold transition-all duration-500 group-hover:scale-105"
-                />
-              </div>
-              <h3 className="font-bold text-foreground text-sm md:text-base group-hover:text-primary transition-colors duration-300 mb-1">
-                {councilor.name}
-              </h3>
-              <p className="text-xs text-muted-foreground uppercase tracking-wide">
-                {councilor.party || 'Vereador(a)'}
-              </p>
-              {councilor.position && (
-                <span className="inline-block mt-2 px-2 py-0.5 bg-gold/20 text-gold text-xs rounded-full">
-                  {councilor.position}
-                </span>
-              )}
-            </Link>
-          ))}
+              {vereadores.map((vereador, index) => (
+                <div 
+                  key={vereador.id} 
+                  className="min-w-[calc(25%-18px)] sm:min-w-[calc(50%-12px)] lg:min-w-[calc(25%-18px)] animate-fade-in"
+                >
+                  <Link href={`/vereadores/${vereador.slug}`} className="no-underline">
+                    <div className="card-modern overflow-hidden group">
+                      <div className="relative aspect-[3/4] overflow-hidden">
+                        {vereador.ativo && (
+                          <span className="absolute top-4 left-4 z-10 px-3 py-1.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-xs font-bold rounded-full shadow-lg">
+                            EM EXERCÍCIO
+                          </span>
+                        )}
+                        <img 
+                          src={vereador.foto || "/images/placeholder-vereador.jpg"} 
+                          alt={vereador.nome}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      </div>
+                      <div className="p-5">
+                        <h3 className="font-bold text-foreground text-sm leading-tight mb-2 line-clamp-2">
+                          {vereador.nome.toUpperCase()}
+                        </h3>
+                        <p className="text-muted-foreground text-sm mb-3">{vereador.apelido}</p>
+                        <span className="inline-block px-3 py-1.5 bg-gradient-to-r from-primary/10 to-primary/5 text-primary text-xs font-semibold rounded-full">
+                          {vereador.cargo}
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Navigation Buttons */}
+          {vereadores.length > itemsPerPage && (
+            <>
+              <button 
+                onClick={handlePrev}
+                disabled={currentIndex === 0}
+                className="absolute left-0 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-card shadow-xl border border-border/50 flex items-center justify-center hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+              <button 
+                onClick={handleNext}
+                disabled={currentIndex >= maxIndex}
+                className="absolute right-0 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-card shadow-xl border border-border/50 flex items-center justify-center hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed"
+              >
+                <ChevronRight className="w-6 h-6" />
+              </button>
+            </>
+          )}
         </div>
 
-        <div className="text-center mt-10">
+        {/* View More Link */}
+        <div className="text-center mt-12">
           <Link
             href="/vereadores"
             className="btn-modern inline-flex items-center gap-3 bg-gradient-to-r from-primary to-navy-light text-primary-foreground shadow-lg hover:shadow-xl hover:gap-4 no-underline"
           >
-            <Users className="w-5 h-5" />
             Ver todos os vereadores
             <ArrowRight className="w-5 h-5" />
           </Link>

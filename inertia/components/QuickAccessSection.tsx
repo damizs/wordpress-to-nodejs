@@ -1,98 +1,92 @@
 import { Link } from "@inertiajs/react";
-import {
-  Play, Users, FileText, BookOpen, UserCheck, ScrollText, MessageCircle,
-  Scale, Eye, Calendar, ArrowRight, Shield, Phone, Building2, Search,
-  Download, ExternalLink, Globe, Mail, MapPin, Gavel, Link2,
+import { 
+  Play, 
+  Users, 
+  FileText, 
+  BookOpen, 
+  UserCheck, 
+  ScrollText, 
+  MessageCircle, 
+  Scale, 
+  Eye, 
+  Calendar,
+  ArrowRight,
+  type LucideIcon
 } from "lucide-react";
 
-const iconMap: Record<string, any> = {
-  Play, Users, FileText, BookOpen, UserCheck, ScrollText, MessageCircle,
-  Scale, Eye, Calendar, Shield, Phone, Building2, Search, Download,
-  ExternalLink, Globe, Mail, MapPin, Gavel, Link2, ArrowRight,
-};
-
-const defaultColors = [
-  "from-red-500 to-rose-600", "from-blue-500 to-indigo-600", "from-green-500 to-emerald-600",
-  "from-amber-500 to-orange-600", "from-teal-500 to-cyan-600", "from-purple-500 to-violet-600",
-  "from-pink-500 to-rose-600", "from-sky-500 to-blue-600", "from-emerald-500 to-green-600",
-  "from-indigo-500 to-purple-600",
-];
-
-interface QuickLink {
-  id: number;
+interface QuickAccessItem {
+  icon: string;
   title: string;
-  url: string;
-  icon?: string;
-  color?: string;
+  description: string;
+  color: string;
+  href: string;
 }
 
 interface QuickAccessSectionProps {
-  quickLinks?: QuickLink[];
-  title?: string | null;
-  subtitle?: string | null;
-  badge?: string | null;
+  items?: QuickAccessItem[];
 }
 
-export const QuickAccessSection = ({ quickLinks, title, subtitle, badge }: QuickAccessSectionProps) => {
-  const links = quickLinks && quickLinks.length > 0 ? quickLinks : [];
+const iconMap: Record<string, LucideIcon> = {
+  Play,
+  Users,
+  FileText,
+  BookOpen,
+  UserCheck,
+  ScrollText,
+  MessageCircle,
+  Scale,
+  Eye,
+  Calendar,
+};
 
-  if (links.length === 0) return null;
+const defaultItems: QuickAccessItem[] = [
+  { icon: "Play", title: "Sessões Plenárias", description: "Acompanhe as sessões ordinárias e extraordinárias", color: "from-red-500 to-rose-600", href: "/atas" },
+  { icon: "Users", title: "Mesa Diretora", description: "Presidente, vice e demais membros da Mesa", color: "from-blue-500 to-indigo-600", href: "/mesa-diretora" },
+  { icon: "FileText", title: "Comissões", description: "Comissões técnicas e suas atribuições", color: "from-green-500 to-emerald-600", href: "/comissoes" },
+  { icon: "BookOpen", title: "Regimento Interno", description: "Normas de funcionamento da Casa Legislativa", color: "from-amber-500 to-orange-600", href: "/publicacoes-oficiais" },
+  { icon: "UserCheck", title: "Vereadores", description: "Integrantes do Poder Legislativo Municipal", color: "from-teal-500 to-cyan-600", href: "/vereadores" },
+  { icon: "ScrollText", title: "Atas e Resumos", description: "Documentos oficiais das sessões realizadas", color: "from-purple-500 to-violet-600", href: "/atas" },
+  { icon: "MessageCircle", title: "Ouvidoria", description: "Atendimento de demandas do público", color: "from-pink-500 to-rose-600", href: "/ouvidoria" },
+  { icon: "Scale", title: "Leis Municipais", description: "Normas e regulamentos da cidade", color: "from-sky-500 to-blue-600", href: "/publicacoes-oficiais" },
+  { icon: "Eye", title: "Transparência", description: "Portal de acesso a informações públicas", color: "from-emerald-500 to-green-600", href: "/transparencia" },
+  { icon: "Calendar", title: "Pautas", description: "Pauta das próximas sessões parlamentares", color: "from-indigo-500 to-purple-600", href: "/pautas" },
+];
 
+export const QuickAccessSection = ({ items = defaultItems }: QuickAccessSectionProps) => {
   return (
-    <section className="py-16 px-4 section-gradient">
+    <section className="py-20 px-4 section-gradient">
       <div className="container mx-auto">
-        <div className="text-center mb-12 animate-fade-in">
+        <div className="text-center mb-14 animate-fade-in">
           <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
-            {badge || 'Navegação Rápida'}
+            Navegação Rápida
           </span>
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-            {title || 'Acesso Rápido'}
+          <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
+            Acesso Rápido
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            {subtitle || 'Acompanhe as funções legislativa, fiscalizadora e deliberativa da Casa do Povo.'}
+            Acompanhe as funções legislativa, fiscalizadora e deliberativa da Casa do Povo.
           </p>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
-          {links.map((item, index) => {
-            const IconComponent = iconMap[item.icon || ''] || Globe;
-            const color = item.color || defaultColors[index % defaultColors.length];
-            const isExternal = item.url?.startsWith('http');
-
-            const CardContent = (
-              <>
-                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center mb-5 shadow-lg group-hover:scale-110 group-hover:shadow-xl transition-all duration-500`}>
+          {items.map((item, index) => {
+            const IconComponent = iconMap[item.icon] || FileText;
+            return (
+              <Link
+                key={index}
+                href={item.href}
+                className="group card-modern p-6 animate-fade-in no-underline"
+                style={{ animationDelay: `${index * 50}ms` }}
+              >
+                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center mb-5 shadow-lg group-hover:scale-110 group-hover:shadow-xl transition-all duration-500`}>
                   <IconComponent className="w-7 h-7 text-white" />
                 </div>
                 <h3 className="font-bold text-foreground text-sm mb-2 group-hover:text-primary transition-colors duration-300">
                   {item.title}
                 </h3>
-              </>
-            );
-
-            if (isExternal) {
-              return (
-                <a
-                  key={item.id || index}
-                  href={item.url}
-                  className="group card-modern p-6 animate-fade-in no-underline"
-                  style={{ animationDelay: `${index * 50}ms` }}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {CardContent}
-                </a>
-              );
-            }
-
-            return (
-              <Link
-                key={item.id || index}
-                href={item.url || '#'}
-                className="group card-modern p-6 animate-fade-in no-underline"
-                style={{ animationDelay: `${index * 50}ms` }}
-              >
-                {CardContent}
+                <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                  {item.description}
+                </p>
               </Link>
             );
           })}

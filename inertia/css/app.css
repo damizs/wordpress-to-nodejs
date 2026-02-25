@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Câmara de Sumé Design System - Verdana Edition */
+/* Câmara Municipal de Sumé - Design System */
 
 @layer base {
   :root {
@@ -79,45 +79,6 @@
     --sidebar-border: 207 65% 35%;
     --sidebar-ring: 45 93% 47%;
   }
-
-  .dark {
-    --background: 207 85% 8%;
-    --foreground: 210 40% 98%;
-
-    --card: 207 75% 12%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 207 75% 12%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 45 93% 50%;
-    --primary-foreground: 207 85% 12%;
-
-    --secondary: 207 50% 18%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 207 50% 18%;
-    --muted-foreground: 210 20% 65%;
-
-    --accent: 45 93% 50%;
-    --accent-foreground: 207 85% 12%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 207 50% 22%;
-    --input: 207 50% 22%;
-    --ring: 45 93% 50%;
-
-    --sidebar-background: 207 85% 6%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 45 93% 50%;
-    --sidebar-primary-foreground: 207 85% 12%;
-    --sidebar-accent: 207 50% 15%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 207 50% 18%;
-    --sidebar-ring: 45 93% 50%;
-  }
 }
 
 @layer base {
@@ -136,7 +97,7 @@
 
   h1, h2, h3, h4, h5, h6 {
     font-family: Verdana, Geneva, Tahoma, sans-serif;
-    @apply tracking-tight font-bold;
+    @apply font-bold tracking-tight;
   }
 }
 
@@ -213,38 +174,6 @@
     transform: translateY(-4px);
   }
 
-  /* Icon containers */
-  .icon-container {
-    @apply relative overflow-hidden rounded-xl;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .icon-container::before {
-    content: '';
-    @apply absolute inset-0 opacity-0;
-    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--navy-light)) 100%);
-    transition: opacity 0.4s ease;
-  }
-
-  .group:hover .icon-container::before {
-    @apply opacity-100;
-  }
-
-  /* Animated underline */
-  .link-underline {
-    @apply relative;
-  }
-
-  .link-underline::after {
-    content: '';
-    @apply absolute bottom-0 left-0 w-0 h-0.5 bg-gold;
-    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-
-  .link-underline:hover::after {
-    @apply w-full;
-  }
-
   /* Floating animation */
   @keyframes float {
     0%, 100% { transform: translateY(0px); }
@@ -263,44 +192,6 @@
 
   .animate-pulse-glow {
     animation: pulse-glow 3s ease-in-out infinite;
-  }
-
-  /* Shimmer effect */
-  @keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
-  }
-
-  .animate-shimmer {
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-    background-size: 200% 100%;
-    animation: shimmer 2s infinite;
-  }
-
-  /* Gradient border */
-  .gradient-border {
-    position: relative;
-    background: hsl(var(--card));
-    border-radius: var(--radius);
-  }
-
-  .gradient-border::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    padding: 2px;
-    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--gold)), hsl(var(--sky)));
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    opacity: 0;
-    transition: opacity 0.4s ease;
-  }
-
-  .gradient-border:hover::before {
-    opacity: 1;
   }
 
   /* Button modern */

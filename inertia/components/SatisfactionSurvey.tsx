@@ -1,32 +1,27 @@
 import { Link } from "@inertiajs/react";
-import { MessageSquareHeart, ArrowRight } from "lucide-react";
+import { Star, ArrowRight } from "lucide-react";
 
 export const SatisfactionSurvey = () => {
   return (
-    <section className="py-16 px-4 section-gradient">
+    <section className="py-12 px-4 bg-gradient-to-r from-primary to-navy-light">
       <div className="container mx-auto">
-        <div className="bg-card rounded-2xl border border-border shadow-md p-6 md:p-8 animate-fade-in">
-          <div className="flex flex-col md:flex-row items-center gap-6">
-            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-              <MessageSquareHeart className="w-8 h-8 text-primary" />
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-4 text-primary-foreground">
+            <div className="w-14 h-14 rounded-xl bg-white/10 flex items-center justify-center">
+              <Star className="w-7 h-7 text-gold" />
             </div>
-            <div className="text-center md:text-left flex-1">
-              <h3 className="text-xl font-bold text-foreground mb-2">
-                Pesquisa de Satisfação
-              </h3>
-              <p className="text-muted-foreground text-sm mb-4">
-                Sua opinião é muito importante para nós! Participe da nossa pesquisa de satisfação 
-                e ajude-nos a melhorar os serviços prestados à população.
-              </p>
-              <Link
-                href="/pesquisa-de-satisfacao"
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-all hover:scale-[1.02] active:scale-[0.98] no-underline"
-              >
-                Participar da Pesquisa
-                <ArrowRight className="w-4 h-4" />
-              </Link>
+            <div>
+              <h3 className="font-bold text-lg">Sua opinião é importante!</h3>
+              <p className="text-primary-foreground/80 text-sm">Ajude-nos a melhorar nossos serviços</p>
             </div>
           </div>
+          <Link
+            href="/pesquisa-de-satisfacao"
+            className="btn-modern inline-flex items-center gap-3 bg-gold text-navy-dark hover:bg-gold-light no-underline"
+          >
+            Responder Pesquisa
+            <ArrowRight className="w-5 h-5" />
+          </Link>
         </div>
       </div>
     </section>
