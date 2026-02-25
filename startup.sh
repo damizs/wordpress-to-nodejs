@@ -8,10 +8,11 @@ echo "=== Running database seeds ==="
 node ace db:seed || true
 
 # Run WordPress migration only once
-MARKER="/app/public/uploads/.wp-migrated"
+MARKER="/app/public/uploads/.wp-migrated-v2"
 if [ "$FORCE_WP_MIGRATE" = "true" ] || [ ! -f "$MARKER" ]; then
   echo "=== Running WordPress data migration ==="
   [ "$FORCE_WP_MIGRATE" = "true" ] && echo "(Forced via FORCE_WP_MIGRATE env)"
+  [ ! -f "$MARKER" ] && echo "(First run or marker reset)"
   node ace wp:migrate --force && touch "$MARKER" || echo "WP migration had errors (non-fatal)"
 else
   echo "=== WordPress migration already done (skipping) ==="
