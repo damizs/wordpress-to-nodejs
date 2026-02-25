@@ -1,9 +1,9 @@
 import { Link, usePage, router } from '@inertiajs/react'
 import { FlashMessages } from '~/components/FlashMessages'
 import {
-  LayoutDashboard, Newspaper, Palette, ChevronLeft, ChevronRight,
+  LayoutDashboard, Newspaper, Palette, ChevronLeft, ChevronRight, ChevronDown,
   LogOut, Menu, X, User, Home, Users, FileText, Link2, Shield,
-  ScrollText, Settings, Monitor, HelpCircle, BookOpen, Info, Tags, Calendar, Users2, Gavel, ClipboardCheck,
+  ScrollText, Settings, Monitor, HelpCircle, BookOpen, Info, Tags, Calendar, Users2, Gavel, ClipboardCheck, Instagram,
 } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 
@@ -12,10 +12,24 @@ interface AdminLayoutProps {
   title: string
 }
 
-const navItems = [
+interface NavItem {
+  label: string
+  href?: string
+  icon: any
+  children?: { label: string; href: string }[]
+}
+
+const navItems: NavItem[] = [
   { label: 'Dashboard', href: '/painel', icon: LayoutDashboard },
   { label: 'Homepage', href: '/painel/homepage', icon: Monitor },
-  { label: 'Notícias', href: '/painel/noticias', icon: Newspaper },
+  { 
+    label: 'Notícias', 
+    icon: Newspaper,
+    children: [
+      { label: 'Todas as Notícias', href: '/painel/noticias' },
+      { label: 'Automação Instagram', href: '/painel/noticias/instagram' },
+    ]
+  },
   { label: 'Legislaturas', href: '/painel/legislaturas', icon: Settings },
   { label: 'Biênios', href: '/painel/bienios', icon: Calendar },
   { label: 'Vereadores', href: '/painel/vereadores', icon: Users },
@@ -37,11 +51,27 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
   const { auth } = usePage().props as any
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [expandedMenus, setExpandedMenus] = useState<string[]>(['Notícias'])
   const currentUrl = usePage().url
 
   function isActive(href: string) {
     if (href === '/painel') return currentUrl === '/painel'
     return currentUrl.startsWith(href)
+  }
+
+  function isParentActive(item: NavItem) {
+    if (item.children) {
+      return item.children.some(child => currentUrl.startsWith(child.href))
+    }
+    return item.href ? isActive(item.href) : false
+  }
+
+  function toggleMenu(label: string) {
+    setExpandedMenus(prev => 
+      prev.includes(label) 
+        ? prev.filter(l => l !== label) 
+        : [...prev, label]
+    )
   }
 
   function handleLogout() {
@@ -80,19 +110,59 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
         {/* Nav */}
         <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
           {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                isActive(item.href)
-                  ? 'bg-gold/20 text-gold'
-                  : 'text-white/70 hover:text-white hover:bg-white/10'
-              } ${collapsed ? 'justify-center' : ''}`}
-              title={collapsed ? item.label : undefined}
-            >
-              <item.icon className="w-5 h-5 flex-shrink-0" />
-              {!collapsed && <span>{item.label}</span>}
-            </Link>
+            <div key={item.label}>
+              {item.children ? (
+                <>
+                  <button
+                    onClick={() => toggleMenu(item.label)}
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors w-full ${
+                      isParentActive(item)
+                        ? 'bg-gold/20 text-gold'
+                        : 'text-white/70 hover:text-white hover:bg-white/10'
+                    } ${collapsed ? 'justify-center' : 'justify-between'}`}
+                    title={collapsed ? item.label : undefined}
+                  >
+                    <span className="flex items-center gap-3">
+                      <item.icon className="w-5 h-5 flex-shrink-0" />
+                      {!collapsed && <span>{item.label}</span>}
+                    </span>
+                    {!collapsed && (
+                      <ChevronDown className={`w-4 h-4 transition-transform ${expandedMenus.includes(item.label) ? 'rotate-180' : ''}`} />
+                    )}
+                  </button>
+                  {!collapsed && expandedMenus.includes(item.label) && (
+                    <div className="ml-4 mt-1 space-y-1 border-l border-white/10 pl-4">
+                      {item.children.map((child) => (
+                        <Link
+                          key={child.href}
+                          href={child.href}
+                          className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm transition-colors ${
+                            isActive(child.href)
+                              ? 'bg-gold/10 text-gold'
+                              : 'text-white/60 hover:text-white hover:bg-white/5'
+                          }`}
+                        >
+                          {child.label}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <Link
+                  href={item.href!}
+                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                    isActive(item.href!)
+                      ? 'bg-gold/20 text-gold'
+                      : 'text-white/70 hover:text-white hover:bg-white/10'
+                  } ${collapsed ? 'justify-center' : ''}`}
+                  title={collapsed ? item.label : undefined}
+                >
+                  <item.icon className="w-5 h-5 flex-shrink-0" />
+                  {!collapsed && <span>{item.label}</span>}
+                </Link>
+              )}
+            </div>
           ))}
         </nav>
 

@@ -129,18 +129,18 @@ router.group(() => {
   router.put('/noticias/:id', [AdminNewsController, 'update'])
   router.delete('/noticias/:id', [AdminNewsController, 'destroy'])
 
-  // Instagram Auto Import
-  router.get('/instagram', [AdminInstagramController, 'index'])
-  router.get('/instagram/configuracoes', [AdminInstagramController, 'settings'])
-  router.post('/instagram/configuracoes', [AdminInstagramController, 'saveSettings'])
-  router.get('/instagram/historico', [AdminInstagramController, 'history'])
-  router.delete('/instagram/:id', [AdminInstagramController, 'deleteImport'])
+  // Instagram Auto Import (submenu de Notícias)
+  router.get('/noticias/instagram', [AdminInstagramController, 'index'])
+  router.get('/noticias/instagram/configuracoes', [AdminInstagramController, 'settings'])
+  router.post('/noticias/instagram/configuracoes', [AdminInstagramController, 'saveSettings'])
+  router.get('/noticias/instagram/historico', [AdminInstagramController, 'history'])
+  router.delete('/noticias/instagram/:id', [AdminInstagramController, 'deleteImport'])
   // Instagram AJAX
-  router.post('/instagram/fetch-posts', [AdminInstagramController, 'fetchPosts'])
-  router.post('/instagram/process-caption', [AdminInstagramController, 'processCaption'])
-  router.post('/instagram/test-ai', [AdminInstagramController, 'testAiConnection'])
-  router.post('/instagram/publish', [AdminInstagramController, 'publishPost'])
-  router.post('/instagram/auto-import', [AdminInstagramController, 'runAutoImport'])
+  router.post('/noticias/instagram/fetch-posts', [AdminInstagramController, 'fetchPosts'])
+  router.post('/noticias/instagram/process-caption', [AdminInstagramController, 'processCaption'])
+  router.post('/noticias/instagram/test-ai', [AdminInstagramController, 'testAiConnection'])
+  router.post('/noticias/instagram/publish', [AdminInstagramController, 'publishPost'])
+  router.post('/noticias/instagram/auto-import', [AdminInstagramController, 'runAutoImport'])
 
   // Legislaturas
   router.get('/legislaturas', [AdminLegislaturesController, 'index'])
