@@ -1,5 +1,6 @@
 import { Head, Link, router } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
+import { useConfirm } from '~/components/ConfirmDialog'
 import { Plus, Search, Edit, Trash2, Eye, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState } from 'react'
 
@@ -32,6 +33,7 @@ interface Props {
 
 export default function NewsIndex({ news, categories, filters }: Props) {
   const [search, setSearch] = useState(filters.search)
+  const confirm = useConfirm()
 
   function applyFilters(overrides: Record<string, string> = {}) {
     const params: Record<string, string> = {
@@ -48,8 +50,16 @@ export default function NewsIndex({ news, categories, filters }: Props) {
     router.get('/painel/noticias', clean, { preserveState: true })
   }
 
-  function handleDelete(id: number, title: string) {
-    if (confirm(`Excluir "${title}"?`)) {
+  async function handleDelete(id: number, title: string) {
+    const confirmed = await confirm({
+      title: 'Excluir notícia',
+      message: `Tem certeza que deseja excluir "${title}"? Esta ação não pode ser desfeita.`,
+      confirmText: 'Excluir',
+      cancelText: 'Cancelar',
+      variant: 'danger'
+    })
+    
+    if (confirmed) {
       router.delete(`/painel/noticias/${id}`)
     }
   }

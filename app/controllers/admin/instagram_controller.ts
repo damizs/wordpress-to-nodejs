@@ -24,7 +24,7 @@ export default class InstagramController {
         .count('* as total'),
     }
 
-    return inertia.render('admin/noticias/automacao/index', {
+    return inertia.render('admin/news/instagram/index', {
       settings,
       logs,
       stats: {
@@ -43,7 +43,7 @@ export default class InstagramController {
     const settings = await InstagramImportSetting.getAll()
     const categories = await NewsCategory.query().orderBy('name', 'asc')
 
-    return inertia.render('admin/noticias/automacao/settings', {
+    return inertia.render('admin/news/instagram/settings', {
       settings,
       categories,
       aiProviders: [
@@ -118,7 +118,7 @@ export default class InstagramController {
 
     const logs = await query.paginate(page, 20)
 
-    return inertia.render('admin/noticias/automacao/history', {
+    return inertia.render('admin/news/instagram/history', {
       logs: logs.serialize(),
     })
   }

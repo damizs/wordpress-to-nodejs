@@ -1,5 +1,6 @@
 import { Link, usePage, router } from '@inertiajs/react'
 import { FlashMessages } from '~/components/FlashMessages'
+import { ConfirmProvider } from '~/components/ConfirmDialog'
 import {
   LayoutDashboard, Newspaper, Palette, ChevronLeft, ChevronRight, ChevronDown,
   LogOut, Menu, X, User, Home, Users, FileText, Link2, Shield,
@@ -79,6 +80,7 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
   }
 
   return (
+    <ConfirmProvider>
     <div className="min-h-screen bg-gray-50" style={{ fontFamily: "'Verdana', Geneva, Tahoma, sans-serif" }}>
       <FlashMessages />
 
@@ -222,5 +224,6 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
         </main>
       </div>
     </div>
+    </ConfirmProvider>
   )
 }

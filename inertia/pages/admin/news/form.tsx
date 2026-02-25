@@ -12,6 +12,7 @@ interface NewsItem {
   status: string
   cover_image_url: string | null
   category_id: number | null
+  published_at: string | null
 }
 
 interface Props {
@@ -22,12 +23,20 @@ interface Props {
 export default function NewsForm({ news: existing, categories }: Props) {
   const isEditing = !!existing
 
+  // Format date for datetime-local input
+  const formatDateForInput = (dateStr: string | null) => {
+    if (!dateStr) return ''
+    const date = new Date(dateStr)
+    return date.toISOString().slice(0, 16)
+  }
+
   const { data, setData, processing } = useForm({
     title: existing?.title || '',
     excerpt: existing?.excerpt || '',
     content: existing?.content || '',
     status: existing?.status || 'draft',
     category_id: existing?.category_id?.toString() || '',
+    published_at: formatDateForInput(existing?.published_at),
     cover_image: null as File | null,
   })
 
@@ -52,6 +61,7 @@ export default function NewsForm({ news: existing, categories }: Props) {
     formData.append('content', data.content)
     formData.append('status', data.status)
     formData.append('category_id', data.category_id)
+    formData.append('published_at', data.published_at)
     if (data.cover_image) {
       formData.append('cover_image', data.cover_image)
     }
@@ -60,6 +70,9 @@ export default function NewsForm({ news: existing, categories }: Props) {
       formData.append('_method', 'PUT')
       router.post(`/painel/noticias/${existing!.id}`, formData, {
         forceFormData: true,
+        onSuccess: () => {
+          // Redirect handled by controller
+        }
       })
     } else {
       router.post('/painel/noticias', formData, {
@@ -172,7 +185,7 @@ export default function NewsForm({ news: existing, categories }: Props) {
               )}
             </div>
 
-            {/* Status + Category */}
+            {/* Status + Category + Date */}
             <div className="space-y-5">
               <div className="bg-white rounded-xl border border-gray-100 p-5">
                 <label className="block text-sm font-medium text-gray-700 mb-1.5">Status</label>
@@ -199,6 +212,17 @@ export default function NewsForm({ news: existing, categories }: Props) {
                     <option key={cat.id} value={cat.id}>{cat.name}</option>
                   ))}
                 </select>
+              </div>
+
+              <div className="bg-white rounded-xl border border-gray-100 p-5">
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Data de Publicação</label>
+                <input
+                  type="datetime-local"
+                  value={data.published_at}
+                  onChange={(e) => setData('published_at', e.target.value)}
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 outline-none"
+                />
+                <p className="text-xs text-gray-400 mt-1">Deixe em branco para usar a data atual ao publicar</p>
               </div>
             </div>
           </div>

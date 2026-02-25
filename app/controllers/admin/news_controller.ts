@@ -45,12 +45,20 @@ export default class NewsController {
 
   /** Store new news */
   async store({ request, response, auth, session }: HttpContext) {
-    const data = request.only(['title', 'excerpt', 'content', 'status', 'category_id'])
+    const data = request.only(['title', 'excerpt', 'content', 'status', 'category_id', 'published_at'])
 
     // Generate slug
     let slug = string.slug(data.title, { lower: true })
     const existing = await News.findBy('slug', slug)
     if (existing) slug = `${slug}-${cuid().slice(0, 6)}`
+
+    // Handle published_at
+    let publishedAt = null
+    if (data.published_at) {
+      publishedAt = new Date(data.published_at) as any
+    } else if (data.status === 'published') {
+      publishedAt = new Date() as any
+    }
 
     const news = await News.create({
       title: data.title,
@@ -60,7 +68,7 @@ export default class NewsController {
       status: data.status || 'draft',
       categoryId: data.category_id || null,
       authorId: auth.user!.id,
-      publishedAt: data.status === 'published' ? new Date() as any : null,
+      publishedAt,
       viewsCount: 0,
     })
 
@@ -92,7 +100,7 @@ export default class NewsController {
   /** Update existing news */
   async update({ request, response, params, session }: HttpContext) {
     const news = await News.findOrFail(params.id)
-    const data = request.only(['title', 'excerpt', 'content', 'status', 'category_id'])
+    const data = request.only(['title', 'excerpt', 'content', 'status', 'category_id', 'published_at'])
 
     news.title = data.title
     news.excerpt = data.excerpt || null
@@ -100,8 +108,10 @@ export default class NewsController {
     news.status = data.status || 'draft'
     news.categoryId = data.category_id || null
 
-    // Set publishedAt if publishing for first time
-    if (data.status === 'published' && !news.publishedAt) {
+    // Handle published_at
+    if (data.published_at) {
+      news.publishedAt = new Date(data.published_at) as any
+    } else if (data.status === 'published' && !news.publishedAt) {
       news.publishedAt = new Date() as any
     }
 
