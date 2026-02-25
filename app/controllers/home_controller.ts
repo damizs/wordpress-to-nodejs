@@ -41,8 +41,19 @@ export default class HomeController {
       links: links.filter((l) => l.sectionId === section.id).map((l) => l.serialize()),
     }))
 
+    // Map news to expected format for NewsSection component
+    const mappedNews = news.map((n, index) => ({
+      id: n.id,
+      title: n.title,
+      excerpt: n.excerpt || '',
+      date: n.publishedAt?.toFormat('dd/MM/yyyy') || '',
+      image: n.coverImageUrl,
+      slug: n.slug,
+      featured: index === 0, // First news is featured
+    }))
+
     return inertia.render('home', {
-      news: news.map((n) => n.serialize()),
+      news: mappedNews,
       councilors: councilors.map((c) => c.serialize()),
       quickLinks: quickLinks.map((q) => q.serialize()),
       transparencySections: sectionsWithLinks,
