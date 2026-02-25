@@ -2,6 +2,7 @@ import { Link, router } from "@inertiajs/react";
 import { SeoHead } from "~/components/SeoHead";
 import { TopBar } from "~/components/TopBar";
 import { Header } from "~/components/Header";
+import { Breadcrumb } from "~/components/Breadcrumb";
 import { PageHero } from "~/components/PageHero";
 import { Footer } from "~/components/Footer";
 import { Calendar, ArrowRight, ChevronLeft, ChevronRight, Filter, X } from "lucide-react";
@@ -84,10 +85,11 @@ export default function NewsIndex({ news, categories = [], filters = {} }: Props
         <TopBar />
         <Header />
         
+        <Breadcrumb items={[{ label: "Notícias" }]} />
+        
         <PageHero
           title="Notícias"
           subtitle="Acompanhe as últimas notícias da Câmara Municipal"
-          breadcrumbs={[{ label: "Notícias" }]}
         />
 
         <main className="py-12">
