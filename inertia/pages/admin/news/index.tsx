@@ -1,7 +1,6 @@
 import { Head, Link, router } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { useConfirm } from '~/components/ConfirmDialog'
-import { Plus, Search, Edit, Trash2, Eye, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Plus, Search, Edit, Trash2, Eye, ChevronLeft, ChevronRight, AlertTriangle, X } from 'lucide-react'
 import { useState } from 'react'
 
 interface NewsItem {
@@ -33,7 +32,7 @@ interface Props {
 
 export default function NewsIndex({ news, categories, filters }: Props) {
   const [search, setSearch] = useState(filters.search)
-  const confirm = useConfirm()
+  const [deleteModal, setDeleteModal] = useState<{ id: number; title: string } | null>(null)
 
   function applyFilters(overrides: Record<string, string> = {}) {
     const params: Record<string, string> = {
@@ -50,17 +49,14 @@ export default function NewsIndex({ news, categories, filters }: Props) {
     router.get('/painel/noticias', clean, { preserveState: true })
   }
 
-  async function handleDelete(id: number, title: string) {
-    const confirmed = await confirm({
-      title: 'Excluir notícia',
-      message: `Tem certeza que deseja excluir "${title}"? Esta ação não pode ser desfeita.`,
-      confirmText: 'Excluir',
-      cancelText: 'Cancelar',
-      variant: 'danger'
-    })
-    
-    if (confirmed) {
-      router.delete(`/painel/noticias/${id}`)
+  function handleDelete(id: number, title: string) {
+    setDeleteModal({ id, title })
+  }
+
+  function confirmDelete() {
+    if (deleteModal) {
+      router.delete(`/painel/noticias/${deleteModal.id}`)
+      setDeleteModal(null)
     }
   }
 
@@ -238,6 +234,43 @@ export default function NewsIndex({ news, categories, filters }: Props) {
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Modal */}
+      {deleteModal && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+          <div 
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setDeleteModal(null)}
+          />
+          <div className="relative bg-white rounded-xl shadow-2xl w-full max-w-md">
+            <div className="p-6">
+              <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 flex items-center justify-center mx-auto mb-4">
+                <AlertTriangle className="w-6 h-6" />
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 text-center mb-2">
+                Excluir notícia
+              </h3>
+              <p className="text-gray-600 text-center text-sm">
+                Tem certeza que deseja excluir "{deleteModal.title}"? Esta ação não pode ser desfeita.
+              </p>
+            </div>
+            <div className="flex gap-3 p-4 bg-gray-50 rounded-b-xl border-t">
+              <button
+                onClick={() => setDeleteModal(null)}
+                className="flex-1 px-4 py-2.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="flex-1 px-4 py-2.5 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition-colors"
+              >
+                Excluir
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AdminLayout>
   )
 }
