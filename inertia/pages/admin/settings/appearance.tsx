@@ -45,20 +45,24 @@ export default function Appearance({ settings }: Props) {
     esic_email: getVal(esic, 'esic_email'),
     logo_url: null as File | null,
     favicon_url: null as File | null,
+    news_background_image: null as File | null,
   })
 
   const logoRef = useRef<HTMLInputElement>(null)
   const faviconRef = useRef<HTMLInputElement>(null)
+  const newsBackgroundRef = useRef<HTMLInputElement>(null)
   const [logoPreview, setLogoPreview] = useState<string | null>(getVal(appearance, 'logo_url'))
   const [faviconPreview, setFaviconPreview] = useState<string | null>(getVal(appearance, 'favicon_url'))
+  const [newsBackgroundPreview, setNewsBackgroundPreview] = useState<string | null>(getVal(appearance, 'news_background_image'))
 
-  function handleFileChange(field: 'logo_url' | 'favicon_url', file: File | null) {
+  function handleFileChange(field: 'logo_url' | 'favicon_url' | 'news_background_image', file: File | null) {
     setData(field, file)
     if (file) {
       const reader = new FileReader()
       reader.onload = (e) => {
         if (field === 'logo_url') setLogoPreview(e.target?.result as string)
-        else setFaviconPreview(e.target?.result as string)
+        else if (field === 'favicon_url') setFaviconPreview(e.target?.result as string)
+        else setNewsBackgroundPreview(e.target?.result as string)
       }
       reader.readAsDataURL(file)
     }
