@@ -41,7 +41,9 @@ export const TransparencySealSection = ({ title, subtitle }: TransparencySealSec
               Selo Ouro concedido pelo Tribunal de Contas do Estado da Paraíba.
             </p>
             <a
-              href="#"
+              href="https://tce.pb.gov.br/transparencia"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-4 py-2 bg-gold text-navy-dark rounded-lg text-sm font-medium hover:bg-gold-light transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
               Saiba Mais
@@ -65,7 +67,9 @@ export const TransparencySealSection = ({ title, subtitle }: TransparencySealSec
               Participante do Programa Nacional de Prevenção à Corrupção.
             </p>
             <a
-              href="#"
+              href="https://www.cnmp.mp.br/pnpc"
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center gap-2 px-4 py-2 bg-primary-foreground/10 text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary-foreground/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
               Conhecer Programa
@@ -77,7 +81,7 @@ export const TransparencySealSection = ({ title, subtitle }: TransparencySealSec
         {/* Portal Link */}
         <div className="text-center mt-10 animate-fade-in">
           <a
-            href="#transparencia"
+            href="/transparencia"
             className="inline-flex items-center gap-2 px-6 py-3 bg-gold text-navy-dark rounded-lg font-medium hover:bg-gold-light transition-all hover:scale-[1.02] active:scale-[0.98]"
           >
             Acessar Portal da Transparência

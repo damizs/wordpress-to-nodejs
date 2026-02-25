@@ -14,15 +14,15 @@ import {
 } from "lucide-react";
 
 const transparencyItems = [
-  { icon: FileCheck, title: "Concursos e Seleções Públicas", color: "from-blue-500 to-indigo-600" },
-  { icon: Gavel, title: "Apreciação e/ou Julgamento", color: "from-purple-500 to-violet-600" },
-  { icon: ClipboardList, title: "Prestação de Contas da Gestão", color: "from-emerald-500 to-green-600" },
-  { icon: Building2, title: "Obras", color: "from-amber-500 to-orange-600" },
-  { icon: Wallet, title: "Diárias", color: "from-pink-500 to-rose-600" },
-  { icon: Receipt, title: "Verbas Indenizatórias", color: "from-cyan-500 to-teal-600" },
-  { icon: GraduationCap, title: "Relação de Estagiários", color: "from-red-500 to-rose-600" },
-  { icon: Users2, title: "Funcionários Terceirizados", color: "from-indigo-500 to-purple-600" },
-  { icon: BarChart3, title: "Relatório de Gestão", color: "from-sky-500 to-blue-600" },
+  { icon: FileCheck, title: "Concursos e Seleções Públicas", color: "from-blue-500 to-indigo-600", href: "/transparencia#concursos" },
+  { icon: Gavel, title: "Apreciação e/ou Julgamento", color: "from-purple-500 to-violet-600", href: "/transparencia#julgamento" },
+  { icon: ClipboardList, title: "Prestação de Contas da Gestão", color: "from-emerald-500 to-green-600", href: "/transparencia#prestacao-contas" },
+  { icon: Building2, title: "Obras", color: "from-amber-500 to-orange-600", href: "/transparencia#obras" },
+  { icon: Wallet, title: "Diárias", color: "from-pink-500 to-rose-600", href: "/transparencia#diarias" },
+  { icon: Receipt, title: "Verbas Indenizatórias", color: "from-cyan-500 to-teal-600", href: "/transparencia#verbas" },
+  { icon: GraduationCap, title: "Relação de Estagiários", color: "from-red-500 to-rose-600", href: "/transparencia#estagiarios" },
+  { icon: Users2, title: "Funcionários Terceirizados", color: "from-indigo-500 to-purple-600", href: "/transparencia#terceirizados" },
+  { icon: BarChart3, title: "Relatório de Gestão", color: "from-sky-500 to-blue-600", href: "/transparencia#relatorios" },
 ];
 
 interface TransparencySectionProps {
@@ -68,7 +68,9 @@ export const TransparencySection = ({ sections, title, subtitle }: TransparencyS
                 Comprometidos com a transparência e prestação de contas à população.
               </p>
               <a
-                href="#"
+                href="https://radardatransparencia.atricon.org.br/"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="btn-modern inline-flex items-center gap-3 bg-gold text-navy-dark shadow-lg hover:shadow-glow"
               >
                 Acessar Radar
@@ -83,7 +85,7 @@ export const TransparencySection = ({ sections, title, subtitle }: TransparencyS
           {transparencyItems.map((item, index) => (
             <a
               key={index}
-              href="#"
+              href={item.href}
               className="group card-modern flex items-center gap-5 p-6 animate-fade-in"
               style={{ animationDelay: `${index * 50}ms` }}
             >

@@ -71,7 +71,7 @@ export const QuickAccessSection = ({ quickLinks, title, subtitle, badge }: Quick
 
         <div className="text-center mt-12">
           <a
-            href="#transparencia"
+            href="/transparencia"
             className="btn-modern inline-flex items-center gap-3 bg-gradient-to-r from-primary to-navy-light text-primary-foreground shadow-lg hover:shadow-xl hover:gap-4"
           >
             Acessar Portal Completo

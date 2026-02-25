@@ -18,7 +18,7 @@ export const SatisfactionSurvey = () => {
                 e ajude-nos a melhorar os serviços prestados à população.
               </p>
               <a
-                href="#"
+                href="/pesquisa-de-satisfacao"
                 className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-all hover:scale-[1.02] active:scale-[0.98]"
               >
                 Participar da Pesquisa
