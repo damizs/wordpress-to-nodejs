@@ -45,7 +45,7 @@ export const QuickAccessSection = ({ quickLinks, title, subtitle, badge }: Quick
           <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
             {badge || 'Navegação Rápida'}
           </span>
-          <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
             {title || 'Acesso Rápido'}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">

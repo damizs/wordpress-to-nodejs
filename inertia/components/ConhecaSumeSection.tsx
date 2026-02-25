@@ -20,7 +20,7 @@ export const ConhecaSumeSection = ({ title, subtitle }: ConhecaSumeSectionProps)
           <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
             Nossa Cidade
           </span>
-          <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
             {title || 'Conheça Sumé'}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
@@ -38,7 +38,7 @@ export const ConhecaSumeSection = ({ title, subtitle }: ConhecaSumeSectionProps)
               <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
                 <stat.icon className="w-7 h-7 text-primary" />
               </div>
-              <div className="text-2xl md:text-3xl font-serif font-bold text-foreground mb-1">
+              <div className="text-2xl md:text-3xl font-bold text-foreground mb-1">
                 {stat.value}
               </div>
               <div className="text-sm text-muted-foreground">

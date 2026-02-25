@@ -65,7 +65,7 @@ export default function NewsIndex({ news, categories, filters }: Props) {
           {/* Hero com busca */}
           <section className="bg-gradient-hero py-8">
             <div className="container mx-auto px-4 text-center">
-              <h1 className="text-2xl md:text-4xl font-serif font-bold text-primary-foreground tracking-wide mb-4">
+              <h1 className="text-2xl md:text-4xl font-bold text-primary-foreground tracking-wide mb-4">
                 NOTÍCIAS
               </h1>
               <p className="text-primary-foreground/70 max-w-lg mx-auto mb-6">
@@ -157,7 +157,7 @@ export default function NewsIndex({ news, categories, filters }: Props) {
                           <Calendar className="w-3.5 h-3.5" />
                           <span>{formatDate(item.published_at)}</span>
                         </div>
-                        <h2 className="text-base font-serif font-bold text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-snug mb-2">
+                        <h2 className="text-base font-bold text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-snug mb-2">
                           {item.title}
                         </h2>
                         {item.excerpt && (

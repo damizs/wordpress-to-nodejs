@@ -11,7 +11,7 @@ export const SatisfactionSurvey = () => {
               <MessageSquareHeart className="w-8 h-8 text-primary" />
             </div>
             <div className="text-center md:text-left flex-1">
-              <h3 className="text-xl font-serif font-bold text-foreground mb-2">
+              <h3 className="text-xl font-bold text-foreground mb-2">
                 Pesquisa de Satisfação
               </h3>
               <p className="text-muted-foreground text-sm mb-4">

@@ -67,7 +67,7 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
         {/* Logo */}
         <div className={`flex items-center h-16 px-4 border-b border-white/10 ${collapsed ? 'justify-center' : 'gap-3'}`}>
           <div className="w-9 h-9 rounded-lg bg-gold/20 flex items-center justify-center flex-shrink-0">
-            <span className="text-gold font-serif font-bold text-lg">C</span>
+            <span className="text-gold font-bold text-lg">C</span>
           </div>
           {!collapsed && (
             <div className="min-w-0">

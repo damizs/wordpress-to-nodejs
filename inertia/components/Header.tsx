@@ -48,14 +48,14 @@ export const Header = () => {
           <div className="relative group">
             <div className="absolute inset-0 rounded-full bg-gold/20 blur-xl group-hover:bg-gold/30 transition-all duration-500" />
             <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-full glass flex items-center justify-center border-2 border-primary-foreground/20 group-hover:border-gold/50 transition-all duration-500 group-hover:scale-105">
-              <div className="text-3xl md:text-4xl font-serif font-bold text-gradient-gold">C</div>
+              <div className="text-3xl md:text-4xl font-bold text-gradient-gold">C</div>
             </div>
           </div>
           <div className="text-center md:text-left">
-            <h1 className="text-3xl md:text-5xl font-serif font-bold tracking-tight text-primary-foreground">
+            <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-primary-foreground">
               CÂMARA
             </h1>
-            <p className="text-2xl md:text-4xl font-serif text-gradient-gold">MUNICIPAL DE SUMÉ</p>
+            <p className="text-2xl md:text-4xl text-gradient-gold">MUNICIPAL DE SUMÉ</p>
             <p className="text-xs md:text-sm opacity-60 mt-2 tracking-wider uppercase text-primary-foreground">
               Estado da Paraíba
             </p>

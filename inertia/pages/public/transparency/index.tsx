@@ -32,7 +32,7 @@ export default function TransparencyIndex({ sections }: Props) {
                   <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
                     <Shield className="w-6 h-6 text-primary" />
                   </div>
-                  <h2 className="text-xl font-serif font-bold text-foreground">Acesso à Informação</h2>
+                  <h2 className="text-xl font-bold text-foreground">Acesso à Informação</h2>
                 </div>
                 <p className="text-muted-foreground leading-relaxed">
                   O Portal da Transparência da Câmara Municipal de Sumé disponibiliza informações sobre a gestão pública 

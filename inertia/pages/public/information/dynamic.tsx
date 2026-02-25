@@ -42,7 +42,7 @@ export default function DynamicInfoPage({ records, category, allCategories, filt
           <div className="bg-gradient-hero text-primary-foreground py-14 text-center">
             <div className="flex items-center justify-center gap-3 mb-3">
               <FolderOpen className="w-8 h-8" />
-              <h1 className="text-3xl md:text-4xl font-serif font-bold">{category.name}</h1>
+              <h1 className="text-3xl md:text-4xl font-bold">{category.name}</h1>
             </div>
             <p className="text-primary-foreground/80 max-w-2xl mx-auto">
               Informações disponibilizadas conforme Lei de Acesso à Informação (Lei nº 12.527/2011)

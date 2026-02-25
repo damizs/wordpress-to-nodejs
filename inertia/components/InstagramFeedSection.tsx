@@ -35,7 +35,7 @@ export const InstagramFeedSection = () => {
           <span className="inline-block px-4 py-1.5 bg-gold/20 text-gold rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
             Redes Sociais
           </span>
-          <h2 className="text-3xl md:text-4xl font-serif font-bold mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
             Siga-nos no Instagram
           </h2>
           <p className="text-primary-foreground/80 max-w-2xl mx-auto text-lg">

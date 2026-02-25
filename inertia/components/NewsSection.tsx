@@ -62,7 +62,7 @@ export const NewsSection = ({ news = [] }: NewsSectionProps) => {
                     <Calendar className="w-4 h-4" />
                     <span>{formatDate(featuredNews.published_at || featuredNews.created_at)}</span>
                   </div>
-                  <h2 className="text-2xl lg:text-3xl font-serif font-bold text-primary-foreground mb-4 group-hover:text-gold transition-colors duration-500 leading-tight">
+                  <h2 className="text-2xl lg:text-3xl font-bold text-primary-foreground mb-4 group-hover:text-gold transition-colors duration-500 leading-tight">
                     {featuredNews.title}
                   </h2>
                   <p className="text-primary-foreground/80 text-base lg:text-lg line-clamp-2">
@@ -93,7 +93,7 @@ export const NewsSection = ({ news = [] }: NewsSectionProps) => {
                     <span className="inline-block text-gold/80 text-xs mb-2">
                       {formatDate(item.published_at || item.created_at)}
                     </span>
-                    <h3 className="text-sm font-serif font-bold text-primary-foreground group-hover:text-gold transition-colors duration-500 line-clamp-2 leading-snug">
+                    <h3 className="text-sm font-bold text-primary-foreground group-hover:text-gold transition-colors duration-500 line-clamp-2 leading-snug">
                       {item.title}
                     </h3>
                   </div>

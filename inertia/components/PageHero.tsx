@@ -38,7 +38,7 @@ export function PageHero({ title, subtitle, icon, breadcrumbs }: PageHeroProps) 
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-center gap-3">
             {icon && <span className="text-primary-foreground">{icon}</span>}
-            <h1 className="text-2xl md:text-4xl font-serif font-bold text-primary-foreground text-center tracking-wide">
+            <h1 className="text-2xl md:text-4xl font-bold text-primary-foreground text-center tracking-wide">
               {title.toUpperCase()}
             </h1>
           </div>

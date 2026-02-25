@@ -60,7 +60,7 @@ export default function Ouvidoria() {
                   <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
                     <MessageSquare className="w-6 h-6 text-primary" />
                   </div>
-                  <h2 className="text-xl font-serif font-bold text-foreground">O que é a Ouvidoria?</h2>
+                  <h2 className="text-xl font-bold text-foreground">O que é a Ouvidoria?</h2>
                 </div>
                 <p className="text-muted-foreground leading-relaxed">
                   A Ouvidoria da Câmara Municipal de Sumé é o canal de comunicação direta entre o cidadão 
@@ -119,7 +119,7 @@ export default function Ouvidoria() {
 
               {/* Formulário */}
               <div className="card-modern p-6 md:p-8">
-                <h2 className="text-xl font-serif font-bold text-foreground mb-6">Registrar Manifestação</h2>
+                <h2 className="text-xl font-bold text-foreground mb-6">Registrar Manifestação</h2>
                 
                 {mensagemSucesso && (
                   <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">

@@ -94,7 +94,7 @@ export default function MesaDiretoraIndex({ biennium, legislature_name, position
                       <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
                         <Users2 className="w-6 h-6 text-primary" />
                       </div>
-                      <h2 className="text-2xl font-serif font-bold text-foreground">Competências</h2>
+                      <h2 className="text-2xl font-bold text-foreground">Competências</h2>
                     </div>
                     <div className="card-modern p-6 md:p-8">
                       <ul className="space-y-4">

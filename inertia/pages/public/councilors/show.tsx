@@ -73,7 +73,7 @@ export default function CouncilorShow({ councilor }: Props) {
                 <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
                   <User className="w-6 h-6 text-primary" />
                 </div>
-                <h1 className="text-2xl md:text-3xl font-serif font-bold text-foreground">
+                <h1 className="text-2xl md:text-3xl font-bold text-foreground">
                   {councilor.full_name || councilor.name}
                 </h1>
               </div>
@@ -169,7 +169,7 @@ export default function CouncilorShow({ councilor }: Props) {
               {/* Atividades Legislativas */}
               <div className="card-modern p-6">
                 <div className="flex items-center gap-3 mb-4">
-                  <h2 className="text-xl font-serif font-bold text-foreground">Atividades Legislativas</h2>
+                  <h2 className="text-xl font-bold text-foreground">Atividades Legislativas</h2>
                 </div>
                 <p className="text-sm text-muted-foreground mb-6">
                   {activities.length} atividades legislativas encontradas para esse vereador

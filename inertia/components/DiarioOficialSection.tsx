@@ -36,7 +36,7 @@ export const DiarioOficialSection = ({ latestGazette, title, subtitle }: DiarioO
             <span className="inline-block px-4 py-1.5 bg-gold/20 text-gold rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
               Publicação Oficial
             </span>
-            <h2 className="text-3xl md:text-4xl font-serif font-bold mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
               {title || 'Diário Oficial'}
             </h2>
             <p className="text-primary-foreground/80 text-lg mb-8 max-w-lg">

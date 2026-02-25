@@ -31,7 +31,7 @@ export const TransparencySection = ({ sections, title, subtitle }: TransparencyS
           <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
             Portal da Transparência
           </span>
-          <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
             {title || 'Acesso à Informação'}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
@@ -51,7 +51,7 @@ export const TransparencySection = ({ sections, title, subtitle }: TransparencyS
               <Award className="w-12 h-12 text-navy-dark" />
             </div>
             <div className="text-center md:text-left flex-1">
-              <h3 className="text-2xl font-serif font-bold mb-3">
+              <h3 className="text-2xl font-bold mb-3">
                 Radar da Transparência
               </h3>
               <p className="text-base opacity-80 mb-6 max-w-xl">

@@ -37,7 +37,7 @@ export const ESicSection = ({ settings = {} }: ESicSectionProps) => {
             <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
               Acesso à Informação
             </span>
-            <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-4">
+            <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
               {title}
             </h2>
             <p className="text-muted-foreground text-lg mb-8">
@@ -70,7 +70,7 @@ export const ESicSection = ({ settings = {} }: ESicSectionProps) => {
           <div className="space-y-4 animate-fade-in">
             {/* Contact Info Card */}
             <div className="card-modern p-6">
-              <h3 className="font-serif font-bold text-foreground mb-4 flex items-center gap-2">
+              <h3 className="font-bold text-foreground mb-4 flex items-center gap-2">
                 <Shield className="w-5 h-5 text-primary" />
                 Atendimento Presencial
               </h3>

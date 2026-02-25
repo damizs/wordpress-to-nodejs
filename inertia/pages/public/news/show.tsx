@@ -81,7 +81,7 @@ export default function NewsShow({ news, related }: Props) {
                   </span>
                 )}
 
-                <h1 className="text-2xl lg:text-4xl font-serif font-bold text-white leading-tight">
+                <h1 className="text-2xl lg:text-4xl font-bold text-white leading-tight">
                   {news.title}
                 </h1>
               </div>
@@ -125,7 +125,7 @@ export default function NewsShow({ news, related }: Props) {
 
               {/* Article content */}
               <article
-                className="prose prose-lg max-w-none prose-headings:font-serif prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-img:rounded-xl"
+                className="prose prose-lg max-w-none prose-headings:prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-img:rounded-xl"
                 dangerouslySetInnerHTML={{ __html: news.content }}
               />
             </div>
@@ -135,7 +135,7 @@ export default function NewsShow({ news, related }: Props) {
           {related.length > 0 && (
             <section className="py-12 bg-muted/30 border-t border-border">
               <div className="container mx-auto px-4 max-w-4xl">
-                <h2 className="text-xl font-serif font-bold text-foreground mb-6">Notícias Relacionadas</h2>
+                <h2 className="text-xl font-bold text-foreground mb-6">Notícias Relacionadas</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
                   {related.map((item) => (
                     <Link

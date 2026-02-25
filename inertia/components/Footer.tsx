@@ -11,10 +11,10 @@ export const Footer = () => {
           <div>
             <div className="flex items-center gap-3 mb-4">
               <div className="w-12 h-12 rounded-full bg-primary-foreground/10 flex items-center justify-center border border-primary-foreground/30">
-                <span className="text-xl font-serif font-bold">C</span>
+                <span className="text-xl font-bold">C</span>
               </div>
               <div>
-                <h3 className="font-serif font-bold text-lg">CÂMARA</h3>
+                <h3 className="font-bold text-lg">CÂMARA</h3>
                 <p className="text-gold text-sm">MUNICIPAL DE SUMÉ</p>
               </div>
             </div>
@@ -36,7 +36,7 @@ export const Footer = () => {
 
           {/* Quick Links */}
           <div>
-            <h4 className="font-serif font-bold text-lg mb-4 text-gold">Links Úteis</h4>
+            <h4 className="font-bold text-lg mb-4 text-gold">Links Úteis</h4>
             <ul className="space-y-2 text-sm">
               <li><Link href="/transparencia" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline text-primary-foreground">Portal da Transparência</Link></li>
               <li><Link href="/ouvidoria" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline text-primary-foreground">e-SIC / Ouvidoria</Link></li>
@@ -49,7 +49,7 @@ export const Footer = () => {
 
           {/* Institutional */}
           <div>
-            <h4 className="font-serif font-bold text-lg mb-4 text-gold">Institucional</h4>
+            <h4 className="font-bold text-lg mb-4 text-gold">Institucional</h4>
             <ul className="space-y-2 text-sm">
               <li><Link href="/historia-da-camara" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline text-primary-foreground">História da Câmara</Link></li>
               <li><Link href="/mesa-diretora" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline text-primary-foreground">Mesa Diretora</Link></li>
@@ -62,7 +62,7 @@ export const Footer = () => {
 
           {/* Contact */}
           <div>
-            <h4 className="font-serif font-bold text-lg mb-4 text-gold">Contato</h4>
+            <h4 className="font-bold text-lg mb-4 text-gold">Contato</h4>
             <div className="space-y-3 text-sm">
               <div className="flex items-start gap-3">
                 <MapPin className="w-4 h-4 mt-1 text-gold flex-shrink-0" />

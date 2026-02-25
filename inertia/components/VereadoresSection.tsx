@@ -37,7 +37,7 @@ export const VereadoresSection = ({
           <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
             {badge || 'Poder Legislativo'}
           </span>
-          <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
             {title || 'Nossos Vereadores'}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
@@ -61,7 +61,7 @@ export const VereadoresSection = ({
                   className="relative w-full h-full rounded-full object-cover border-4 border-card group-hover:border-gold transition-all duration-500 group-hover:scale-105"
                 />
               </div>
-              <h3 className="font-serif font-bold text-foreground text-sm md:text-base group-hover:text-primary transition-colors duration-300 mb-1">
+              <h3 className="font-bold text-foreground text-sm md:text-base group-hover:text-primary transition-colors duration-300 mb-1">
                 {councilor.name}
               </h3>
               <p className="text-xs text-muted-foreground uppercase tracking-wide">

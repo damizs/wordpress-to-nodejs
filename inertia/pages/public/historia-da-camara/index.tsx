@@ -84,7 +84,7 @@ export default function HistoriaDaCamara({ timeline, introTitle, introText, site
                 <div className="flex items-start gap-4 mb-6">
                   <BookOpen className="w-8 h-8 text-primary flex-shrink-0 mt-1" />
                   <div>
-                    <h2 className="text-2xl md:text-3xl font-serif font-bold text-foreground mb-4">
+                    <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
                       {title}
                     </h2>
                     <p className="text-muted-foreground leading-relaxed">
@@ -106,7 +106,7 @@ export default function HistoriaDaCamara({ timeline, introTitle, introText, site
                     Linha do Tempo
                   </span>
                 </div>
-                <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground">
+                <h2 className="text-3xl md:text-4xl font-bold text-foreground">
                   Marcos Históricos
                 </h2>
               </div>
@@ -131,7 +131,7 @@ export default function HistoriaDaCamara({ timeline, introTitle, introText, site
                         <span className="inline-block text-sm font-bold text-primary bg-primary/10 px-3 py-1 rounded-full mb-3">
                           {event.year}
                         </span>
-                        <h3 className="text-xl font-serif font-bold text-foreground mb-2">
+                        <h3 className="text-xl font-bold text-foreground mb-2">
                           {event.title}
                         </h3>
                         <p className="text-muted-foreground text-sm leading-relaxed">

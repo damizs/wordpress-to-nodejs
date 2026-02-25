@@ -24,9 +24,9 @@ export default function Login() {
           {/* Logo */}
           <div className="text-center mb-8">
             <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 mb-4">
-              <span className="text-3xl font-serif font-bold text-gold">C</span>
+              <span className="text-3xl font-bold text-gold">C</span>
             </div>
-            <h1 className="text-2xl font-serif font-bold text-white">Painel Administrativo</h1>
+            <h1 className="text-2xl font-bold text-white">Painel Administrativo</h1>
             <p className="text-white/60 text-sm mt-1">Câmara Municipal de Sumé</p>
           </div>
 

@@ -16,7 +16,7 @@ export const TransparencySealSection = ({ title, subtitle }: TransparencySealSec
           <span className="inline-block px-4 py-1.5 bg-gold/20 text-gold rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
             CERTIFICAÇÕES
           </span>
-          <h2 className="text-3xl md:text-4xl font-serif font-bold mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
             {title || 'Compromisso com a Transparência'}
           </h2>
           <p className="text-base opacity-80 max-w-2xl mx-auto">
@@ -35,7 +35,7 @@ export const TransparencySealSection = ({ title, subtitle }: TransparencySealSec
                 className="w-full h-full object-contain drop-shadow-lg"
               />
             </div>
-            <h3 className="text-lg font-serif font-bold mb-2">
+            <h3 className="text-lg font-bold mb-2">
               Qualidade em Transparência
             </h3>
             <p className="text-sm opacity-70 mb-4">
@@ -61,7 +61,7 @@ export const TransparencySealSection = ({ title, subtitle }: TransparencySealSec
                 className="w-full h-full object-contain drop-shadow-lg"
               />
             </div>
-            <h3 className="text-lg font-serif font-bold mb-2">
+            <h3 className="text-lg font-bold mb-2">
               Prevenção à Corrupção
             </h3>
             <p className="text-sm opacity-70 mb-4">

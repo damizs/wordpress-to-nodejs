@@ -29,7 +29,7 @@ export default function Sobre() {
                 <div className="flex items-start gap-4 mb-6">
                   <Building2 className="w-8 h-8 text-primary flex-shrink-0 mt-1" />
                   <div>
-                    <h2 className="text-2xl md:text-3xl font-serif font-bold text-foreground mb-4">
+                    <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
                       Câmara Municipal de Sumé
                     </h2>
                     <p className="text-muted-foreground leading-relaxed mb-4">
@@ -57,7 +57,7 @@ export default function Sobre() {
                   <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
                     <Target className="w-7 h-7 text-white" />
                   </div>
-                  <h3 className="text-xl font-serif font-bold text-foreground mb-3">Missão</h3>
+                  <h3 className="text-xl font-bold text-foreground mb-3">Missão</h3>
                   <p className="text-muted-foreground text-sm leading-relaxed">
                     Legislar, fiscalizar e representar os interesses da população sumeense, 
                     promovendo o desenvolvimento sustentável do município através de ações 
@@ -70,7 +70,7 @@ export default function Sobre() {
                   <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center">
                     <Building2 className="w-7 h-7 text-white" />
                   </div>
-                  <h3 className="text-xl font-serif font-bold text-foreground mb-3">Visão</h3>
+                  <h3 className="text-xl font-bold text-foreground mb-3">Visão</h3>
                   <p className="text-muted-foreground text-sm leading-relaxed">
                     Ser reconhecida como uma Casa Legislativa moderna, eficiente e comprometida 
                     com a transparência, a ética e o bem-estar da comunidade sumeense.
@@ -82,7 +82,7 @@ export default function Sobre() {
                   <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
                     <Award className="w-7 h-7 text-white" />
                   </div>
-                  <h3 className="text-xl font-serif font-bold text-foreground mb-3">Valores</h3>
+                  <h3 className="text-xl font-bold text-foreground mb-3">Valores</h3>
                   <p className="text-muted-foreground text-sm leading-relaxed">
                     Transparência, ética, responsabilidade social, respeito ao cidadão, 
                     compromisso com a lei e promoção da participação popular.
@@ -102,7 +102,7 @@ export default function Sobre() {
                     Composição
                   </span>
                 </div>
-                <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground">
+                <h2 className="text-3xl md:text-4xl font-bold text-foreground">
                   Estrutura Organizacional
                 </h2>
               </div>
