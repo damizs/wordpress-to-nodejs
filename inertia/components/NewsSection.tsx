@@ -1,47 +1,33 @@
 import { Calendar, ArrowRight, Play } from "lucide-react";
+import { Link } from "@inertiajs/react";
 
-const newsItems = [
-  {
-    id: 1,
-    title: "Câmara de Sumé aprova crédito de quase R$1 milhão para Educação e Infraestrutura",
-    excerpt: "A Câmara Municipal de Sumé realizou uma sessão extraordinária para aprovação de importantes projetos...",
-    date: "29 Dez 2025",
-    featured: true,
-    image: "https://images.unsplash.com/photo-1577962917302-cd874c4e31d2?w=800&h=600&fit=crop"
-  },
-  {
-    id: 2,
-    title: "Câmara de Sumé Recebe Selo Ouro da ATRICON por Transparência Pública",
-    excerpt: "A Câmara Municipal foi agraciada com o Selo Ouro do Programa Nacional de Transparência...",
-    date: "22 Dez 2025",
-    image: "https://images.unsplash.com/photo-1554469384-e58fac16e23a?w=600&h=400&fit=crop"
-  },
-  {
-    id: 3,
-    title: "Transparência e Participação Cidadã nas Sessões",
-    excerpt: "A Câmara mantém sua agenda de trabalho legislativo com participação ativa da população...",
-    date: "20 Dez 2025",
-    image: "https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=600&h=400&fit=crop"
-  },
-  {
-    id: 4,
-    title: "Participe da 2ª Audiência Pública sobre PPA e LOA",
-    excerpt: "Convite à população para participar da audiência pública dedicada ao planejamento municipal...",
-    date: "15 Dez 2025",
-    image: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=600&h=400&fit=crop"
-  },
-  {
-    id: 5,
-    title: "Centenário da Assembleia de Deus celebrado em sessão solene",
-    excerpt: "A Câmara realizou sessão solene em homenagem ao centenário da igreja na cidade...",
-    date: "17 Nov 2025",
-    image: "https://images.unsplash.com/photo-1438232992991-995b7058bbb3?w=600&h=400&fit=crop"
-  },
-];
+interface NewsItem {
+  id: number;
+  title: string;
+  slug: string;
+  excerpt?: string;
+  content?: string;
+  image_url?: string;
+  published_at?: string;
+  created_at?: string;
+}
 
-export const NewsSection = () => {
-  const featuredNews = newsItems.find((n) => n.featured);
-  const otherNews = newsItems.filter((n) => !n.featured);
+interface NewsSectionProps {
+  news?: NewsItem[];
+}
+
+const formatDate = (dateStr?: string) => {
+  if (!dateStr) return '';
+  return new Date(dateStr).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+};
+
+const defaultImage = "https://images.unsplash.com/photo-1577962917302-cd874c4e31d2?w=800&h=600&fit=crop";
+
+export const NewsSection = ({ news = [] }: NewsSectionProps) => {
+  if (news.length === 0) return null;
+  
+  const featuredNews = news[0];
+  const otherNews = news.slice(1, 5);
 
   return (
     <section className="relative bg-gradient-hero py-20 px-4 overflow-hidden">
@@ -55,10 +41,10 @@ export const NewsSection = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Featured News */}
           {featuredNews && (
-            <article className="relative group cursor-pointer lg:row-span-2 animate-fade-in">
-              <div className="relative h-full min-h-[450px] lg:min-h-[550px] rounded-3xl overflow-hidden shadow-2xl">
+            <Link href={`/noticias/${featuredNews.slug}`} className="relative group lg:row-span-2 animate-fade-in no-underline">
+              <article className="relative h-full min-h-[450px] lg:min-h-[550px] rounded-3xl overflow-hidden shadow-2xl">
                 <img
-                  src={featuredNews.image}
+                  src={featuredNews.image_url || defaultImage}
                   alt={featuredNews.title}
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
@@ -74,55 +60,58 @@ export const NewsSection = () => {
                 <div className="absolute bottom-0 left-0 right-0 p-8 lg:p-10">
                   <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass text-gold text-sm mb-4">
                     <Calendar className="w-4 h-4" />
-                    <span>{featuredNews.date}</span>
+                    <span>{formatDate(featuredNews.published_at || featuredNews.created_at)}</span>
                   </div>
                   <h2 className="text-2xl lg:text-3xl font-serif font-bold text-primary-foreground mb-4 group-hover:text-gold transition-colors duration-500 leading-tight">
                     {featuredNews.title}
                   </h2>
                   <p className="text-primary-foreground/80 text-base lg:text-lg line-clamp-2">
-                    {featuredNews.excerpt}
+                    {featuredNews.excerpt || ''}
                   </p>
                 </div>
-              </div>
-            </article>
+              </article>
+            </Link>
           )}
 
           {/* Other News Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-            {otherNews.map((news, index) => (
-              <article
-                key={news.id}
-                className="relative group cursor-pointer animate-fade-in"
+            {otherNews.map((item, index) => (
+              <Link
+                key={item.id}
+                href={`/noticias/${item.slug}`}
+                className="relative group animate-fade-in no-underline"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className="relative h-56 rounded-2xl overflow-hidden shadow-lg">
+                <article className="relative h-56 rounded-2xl overflow-hidden shadow-lg">
                   <img
-                    src={news.image}
-                    alt={news.title}
+                    src={item.image_url || defaultImage}
+                    alt={item.title}
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-navy-dark via-navy-dark/60 to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-5">
-                    <span className="inline-block text-gold/80 text-xs mb-2">{news.date}</span>
+                    <span className="inline-block text-gold/80 text-xs mb-2">
+                      {formatDate(item.published_at || item.created_at)}
+                    </span>
                     <h3 className="text-sm font-serif font-bold text-primary-foreground group-hover:text-gold transition-colors duration-500 line-clamp-2 leading-snug">
-                      {news.title}
+                      {item.title}
                     </h3>
                   </div>
-                </div>
-              </article>
+                </article>
+              </Link>
             ))}
           </div>
         </div>
 
         {/* View More Link */}
         <div className="text-center mt-12">
-          <a
-            href="#noticias"
-            className="group inline-flex items-center gap-3 px-6 py-3 glass rounded-full text-gold hover:bg-gold hover:text-navy-dark transition-all duration-500 font-medium"
+          <Link
+            href="/noticias"
+            className="group inline-flex items-center gap-3 px-6 py-3 glass rounded-full text-gold hover:bg-gold hover:text-navy-dark transition-all duration-500 font-medium no-underline"
           >
             Ver mais notícias
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-          </a>
+          </Link>
         </div>
       </div>
     </section>

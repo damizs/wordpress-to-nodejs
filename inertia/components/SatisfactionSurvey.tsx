@@ -1,8 +1,9 @@
-import { MessageSquareHeart, ExternalLink } from "lucide-react";
+import { Link } from "@inertiajs/react";
+import { MessageSquareHeart, ArrowRight } from "lucide-react";
 
 export const SatisfactionSurvey = () => {
   return (
-    <section className="py-12 px-4 bg-muted/50">
+    <section className="py-16 px-4 section-gradient">
       <div className="container mx-auto">
         <div className="bg-card rounded-2xl border border-border shadow-md p-6 md:p-8 animate-fade-in">
           <div className="flex flex-col md:flex-row items-center gap-6">
@@ -17,13 +18,13 @@ export const SatisfactionSurvey = () => {
                 Sua opinião é muito importante para nós! Participe da nossa pesquisa de satisfação 
                 e ajude-nos a melhorar os serviços prestados à população.
               </p>
-              <a
-                href="#"
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-all hover:scale-[1.02] active:scale-[0.98]"
+              <Link
+                href="/pesquisa-de-satisfacao"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-lg font-medium hover:bg-primary/90 transition-all hover:scale-[1.02] active:scale-[0.98] no-underline"
               >
                 Participar da Pesquisa
-                <ExternalLink className="w-4 h-4" />
-              </a>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
             </div>
           </div>
         </div>

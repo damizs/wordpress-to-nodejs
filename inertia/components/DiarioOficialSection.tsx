@@ -1,132 +1,119 @@
-import { FileText, Download, ChevronLeft, ChevronRight, Calendar } from "lucide-react";
-import { useState } from "react";
+import { FileText, Download, Calendar, ArrowRight, Newspaper } from "lucide-react";
+import { Link } from "@inertiajs/react";
 
-const meses = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-const diasSemana = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+interface Gazette {
+  id: number;
+  title: string;
+  edition_number?: string;
+  publication_date?: string;
+  file_url?: string;
+}
 
-export const DiarioOficialSection = () => {
-  const [mesAtual, setMesAtual] = useState(0); // Janeiro
-  const [anoAtual, setAnoAtual] = useState(2026);
+interface DiarioOficialSectionProps {
+  latestGazette?: Gazette | null;
+  title?: string | null;
+  subtitle?: string | null;
+}
 
-  const getDiasNoMes = (mes: number, ano: number) => {
-    return new Date(ano, mes + 1, 0).getDate();
-  };
+const formatDate = (dateStr?: string) => {
+  if (!dateStr) return '';
+  return new Date(dateStr).toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+};
 
-  const getPrimeiroDiaSemana = (mes: number, ano: number) => {
-    return new Date(ano, mes, 1).getDay();
-  };
-
-  const diasNoMes = getDiasNoMes(mesAtual, anoAtual);
-  const primeiroDia = getPrimeiroDiaSemana(mesAtual, anoAtual);
-
-  const handlePrevMes = () => {
-    if (mesAtual === 0) {
-      setMesAtual(11);
-      setAnoAtual(anoAtual - 1);
-    } else {
-      setMesAtual(mesAtual - 1);
-    }
-  };
-
-  const handleNextMes = () => {
-    if (mesAtual === 11) {
-      setMesAtual(0);
-      setAnoAtual(anoAtual + 1);
-    } else {
-      setMesAtual(mesAtual + 1);
-    }
-  };
-
+export const DiarioOficialSection = ({ latestGazette, title, subtitle }: DiarioOficialSectionProps) => {
   return (
-    <section className="py-16 px-4 bg-muted/30">
-      <div className="container mx-auto">
-        {/* Header */}
-        <div className="text-center mb-12 animate-fade-in">
-          <h2 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-4">
-            Diário Oficial
-          </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Fique sempre atualizado com as publicações e informações oficiais do município
-          </p>
-        </div>
+    <section className="py-16 px-4 bg-gradient-navy text-primary-foreground relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gold/5 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-sky/5 rounded-full blur-3xl" />
+      </div>
 
-        {/* Content Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
-          {/* Última Edição */}
-          <div className="bg-card rounded-xl border border-border p-6 animate-fade-in">
-            <div className="flex items-start gap-4 mb-6">
-              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-                <FileText className="w-6 h-6 text-primary" />
+      <div className="container mx-auto relative">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          {/* Content */}
+          <div className="animate-fade-in">
+            <span className="inline-block px-4 py-1.5 bg-gold/20 text-gold rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
+              Publicação Oficial
+            </span>
+            <h2 className="text-3xl md:text-4xl font-serif font-bold mb-4">
+              {title || 'Diário Oficial'}
+            </h2>
+            <p className="text-primary-foreground/80 text-lg mb-8 max-w-lg">
+              {subtitle || 'Acesse as publicações oficiais da Câmara Municipal de Sumé. Leis, decretos, atos normativos e muito mais.'}
+            </p>
+
+            {latestGazette ? (
+              <div className="glass rounded-2xl p-6 mb-8">
+                <div className="flex items-start gap-4">
+                  <div className="w-14 h-14 rounded-xl bg-gold/20 flex items-center justify-center flex-shrink-0">
+                    <Newspaper className="w-7 h-7 text-gold" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-lg mb-1">{latestGazette.title}</h3>
+                    <div className="flex items-center gap-3 text-sm text-primary-foreground/70 mb-3">
+                      {latestGazette.edition_number && (
+                        <span>Edição {latestGazette.edition_number}</span>
+                      )}
+                      {latestGazette.publication_date && (
+                        <span className="flex items-center gap-1">
+                          <Calendar className="w-3.5 h-3.5" />
+                          {formatDate(latestGazette.publication_date)}
+                        </span>
+                      )}
+                    </div>
+                    {latestGazette.file_url && (
+                      <a
+                        href={latestGazette.file_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-gold text-navy-dark rounded-lg text-sm font-medium hover:bg-gold-light transition-colors no-underline"
+                      >
+                        <Download className="w-4 h-4" /> Baixar PDF
+                      </a>
+                    )}
+                  </div>
+                </div>
               </div>
-              <div>
-                <span className="text-xs text-muted-foreground uppercase tracking-wide">
-                  Quinta, 08 de Janeiro de 2026
-                </span>
-                <h3 className="font-bold text-foreground text-lg">
-                  Diário Oficial do Município
-                </h3>
-                <p className="text-sm text-muted-foreground flex items-center gap-1 mt-1">
-                  <Calendar className="w-4 h-4" />
-                  Última Edição - 16/03/2023
-                </p>
+            ) : (
+              <div className="glass rounded-2xl p-6 mb-8 text-center">
+                <Newspaper className="w-12 h-12 text-primary-foreground/30 mx-auto mb-3" />
+                <p className="text-primary-foreground/60">Nenhuma publicação recente disponível</p>
               </div>
-            </div>
-            <button className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-muted rounded-lg text-foreground font-medium hover:bg-muted/80 transition-colors">
-              <Download className="w-5 h-5" />
-              Clique para baixar
-            </button>
+            )}
+
+            <Link
+              href="/publicacoes-oficiais"
+              className="btn-modern inline-flex items-center gap-3 bg-gold text-navy-dark shadow-lg hover:shadow-glow no-underline"
+            >
+              Ver todas as publicações
+              <ArrowRight className="w-5 h-5" />
+            </Link>
           </div>
 
-          {/* Calendário */}
-          <div className="bg-card rounded-xl border border-border overflow-hidden animate-fade-in">
-            {/* Header do Calendário */}
-            <div className="bg-primary p-4 flex items-center justify-between">
-              <button 
-                onClick={handlePrevMes}
-                className="w-8 h-8 rounded-full bg-primary-foreground/20 flex items-center justify-center hover:bg-primary-foreground/30 transition-colors"
-              >
-                <ChevronLeft className="w-5 h-5 text-primary-foreground" />
-              </button>
-              <div className="text-center">
-                <span className="text-primary-foreground font-bold text-lg">
-                  {meses[mesAtual]}
-                </span>
-                <span className="block text-primary-foreground/80 text-sm">
-                  {anoAtual}
-                </span>
-              </div>
-              <button 
-                onClick={handleNextMes}
-                className="w-8 h-8 rounded-full bg-primary-foreground/20 flex items-center justify-center hover:bg-primary-foreground/30 transition-colors"
-              >
-                <ChevronRight className="w-5 h-5 text-primary-foreground" />
-              </button>
-            </div>
-
-            {/* Grid do Calendário */}
-            <div className="p-4">
-              {/* Dias da Semana */}
-              <div className="grid grid-cols-7 gap-1 mb-2">
-                {diasSemana.map((dia) => (
-                  <div key={dia} className="text-center text-xs font-medium text-muted-foreground py-2">
-                    {dia}
+          {/* Decorative illustration */}
+          <div className="hidden lg:flex items-center justify-center animate-fade-in">
+            <div className="relative">
+              <div className="absolute inset-0 bg-gold/10 rounded-3xl blur-2xl animate-pulse-glow" />
+              <div className="relative glass rounded-3xl p-8 border border-primary-foreground/10">
+                <div className="flex items-center gap-4 mb-6">
+                  <div className="w-16 h-16 rounded-xl bg-gold/20 flex items-center justify-center">
+                    <FileText className="w-8 h-8 text-gold" />
                   </div>
-                ))}
-              </div>
-
-              {/* Dias do Mês */}
-              <div className="grid grid-cols-7 gap-1">
-                {Array.from({ length: primeiroDia }).map((_, i) => (
-                  <div key={`empty-${i}`} className="aspect-square" />
-                ))}
-                {Array.from({ length: diasNoMes }).map((_, i) => (
-                  <button
-                    key={i + 1}
-                    className="aspect-square flex items-center justify-center text-sm rounded-lg hover:bg-primary/10 transition-colors text-foreground"
-                  >
-                    {i + 1}
-                  </button>
-                ))}
+                  <div>
+                    <div className="h-3 w-32 bg-primary-foreground/20 rounded mb-2" />
+                    <div className="h-2 w-24 bg-primary-foreground/10 rounded" />
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <div className="h-2 w-full bg-primary-foreground/10 rounded" />
+                  <div className="h-2 w-4/5 bg-primary-foreground/10 rounded" />
+                  <div className="h-2 w-3/4 bg-primary-foreground/10 rounded" />
+                </div>
+                <div className="mt-6 flex gap-3">
+                  <div className="h-8 w-20 bg-gold/30 rounded-lg" />
+                  <div className="h-8 w-20 bg-primary-foreground/10 rounded-lg" />
+                </div>
               </div>
             </div>
           </div>

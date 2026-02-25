@@ -1,141 +1,87 @@
-import { Instagram, Heart, MessageCircle, ChevronLeft, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { Instagram, ExternalLink } from "lucide-react";
 
-const posts = [
-  { 
-    imagem: "https://images.unsplash.com/photo-1577962917302-cd874c4e31d2?w=400&h=400&fit=crop",
-    titulo: "PARABÉNS, VEREADORA MARCELA! 🎉",
-    descricao: "Hoje é um dia especial...",
-    likes: 17,
-    comments: 6
+const instagramPosts = [
+  {
+    id: 1,
+    image: "https://images.unsplash.com/photo-1577962917302-cd874c4e31d2?w=400&h=400&fit=crop",
+    title: "Sessão Extraordinária",
+    likes: 234,
   },
-  { 
-    imagem: "https://images.unsplash.com/photo-1464983953574-0892a716854b?w=400&h=400&fit=crop",
-    titulo: "FELIZ 2026, SUMÉ! 💚✨",
-    descricao: "Vereadoras e...",
-    likes: 20,
-    comments: 3
+  {
+    id: 2,
+    image: "https://images.unsplash.com/photo-1529107386315-e1a2ed48a620?w=400&h=400&fit=crop",
+    title: "Homenagem aos Servidores",
+    likes: 189,
   },
-  { 
-    imagem: "https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=400&h=400&fit=crop",
-    titulo: "SESSÃO EXTRAORDINÁRIA! ✅",
-    descricao: "Vereadores e...",
-    likes: 49,
-    comments: 2
+  {
+    id: 3,
+    image: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=400&h=400&fit=crop",
+    title: "Audiência Pública",
+    likes: 312,
   },
-  { 
-    imagem: "https://images.unsplash.com/photo-1560439514-4e9645039924?w=400&h=400&fit=crop",
-    titulo: "DÁ PRA GANHAR O CONCURSO? ✨🎖️",
-    descricao: "Brincadeira!...",
-    likes: 28,
-    comments: 3
+  {
+    id: 4,
+    image: "https://images.unsplash.com/photo-1554469384-e58fac16e23a?w=400&h=400&fit=crop",
+    title: "Transparência em Ação",
+    likes: 276,
   },
 ];
 
 export const InstagramFeedSection = () => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  const handlePrev = () => {
-    setCurrentIndex((prev) => Math.max(0, prev - 1));
-  };
-
-  const handleNext = () => {
-    setCurrentIndex((prev) => Math.min(posts.length - 4, prev + 1));
-  };
-
   return (
-    <section className="py-16 px-4 bg-background">
+    <section className="py-16 px-4 bg-gradient-navy text-primary-foreground">
       <div className="container mx-auto">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row items-center justify-center gap-4 mb-12 animate-fade-in">
-          <div className="flex items-center gap-3">
-            <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 p-[3px]">
-              <div className="w-full h-full rounded-full bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground font-serif font-bold text-lg">C</span>
-              </div>
-            </div>
-            <div>
-              <h3 className="font-bold text-foreground text-lg">camaradecuite</h3>
-              <p className="text-muted-foreground text-sm flex items-center gap-1">
-                <Instagram className="w-4 h-4" />
-                205 publicações
-              </p>
-            </div>
-          </div>
+        <div className="text-center mb-12 animate-fade-in">
+          <span className="inline-block px-4 py-1.5 bg-gold/20 text-gold rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
+            Redes Sociais
+          </span>
+          <h2 className="text-3xl md:text-4xl font-serif font-bold mb-4">
+            Siga-nos no Instagram
+          </h2>
+          <p className="text-primary-foreground/80 max-w-2xl mx-auto text-lg">
+            Acompanhe as atividades da Câmara Municipal de Sumé em tempo real
+          </p>
         </div>
 
-        {/* Posts Grid */}
-        <div className="relative">
-          <div className="overflow-hidden">
-            <div 
-              className="flex gap-6 transition-transform duration-500 ease-out"
-              style={{ transform: `translateX(-${currentIndex * 25}%)` }}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+          {instagramPosts.map((post, index) => (
+            <a
+              key={post.id}
+              href="https://instagram.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative aspect-square rounded-2xl overflow-hidden animate-fade-in no-underline"
+              style={{ animationDelay: `${index * 100}ms` }}
             >
-              {posts.map((post, index) => (
-                <div 
-                  key={index}
-                  className="min-w-[calc(25%-18px)] sm:min-w-[calc(50%-12px)] lg:min-w-[calc(25%-18px)] animate-fade-in"
-                >
-                  <div className="bg-card rounded-xl overflow-hidden border border-border shadow-sm hover:shadow-lg transition-all group">
-                    <div className="relative aspect-square overflow-hidden">
-                      <img 
-                        src={post.imagem}
-                        alt={post.titulo}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                    </div>
-                    <div className="p-4">
-                      <h4 className="font-bold text-foreground text-sm mb-1 line-clamp-1">
-                        {post.titulo}
-                      </h4>
-                      <p className="text-muted-foreground text-xs mb-3 line-clamp-1">
-                        {post.descricao}
-                      </p>
-                      <div className="flex items-center gap-4 text-muted-foreground text-xs">
-                        <span className="flex items-center gap-1">
-                          <Heart className="w-4 h-4" />
-                          {post.likes}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <MessageCircle className="w-4 h-4" />
-                          {post.comments}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+              <img
+                src={post.image}
+                alt={post.title}
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                <div className="w-12 h-12 rounded-full bg-gold/90 flex items-center justify-center">
+                  <Instagram className="w-6 h-6 text-navy-dark" />
                 </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Navigation */}
-          <button 
-            onClick={handlePrev}
-            disabled={currentIndex === 0}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 w-10 h-10 rounded-full bg-card border border-border shadow-lg flex items-center justify-center hover:bg-muted transition-colors disabled:opacity-50"
-          >
-            <ChevronLeft className="w-5 h-5 text-foreground" />
-          </button>
-          <button 
-            onClick={handleNext}
-            disabled={currentIndex >= posts.length - 4}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 w-10 h-10 rounded-full bg-card border border-border shadow-lg flex items-center justify-center hover:bg-muted transition-colors disabled:opacity-50"
-          >
-            <ChevronRight className="w-5 h-5 text-foreground" />
-          </button>
+              </div>
+              <div className="absolute bottom-0 left-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                <p className="text-sm font-medium text-primary-foreground truncate">{post.title}</p>
+              </div>
+            </a>
+          ))}
         </div>
 
-        {/* Pagination Dots */}
-        <div className="flex justify-center gap-2 mt-6">
-          {[0, 1, 2].map((dot) => (
-            <button
-              key={dot}
-              onClick={() => setCurrentIndex(dot)}
-              className={`w-2 h-2 rounded-full transition-colors ${
-                currentIndex === dot ? "bg-primary" : "bg-muted-foreground/30"
-              }`}
-            />
-          ))}
+        <div className="text-center">
+          <a
+            href="https://instagram.com"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-modern inline-flex items-center gap-3 bg-gold text-navy-dark shadow-lg hover:shadow-glow no-underline"
+          >
+            <Instagram className="w-5 h-5" />
+            Seguir @camaradesume
+            <ExternalLink className="w-4 h-4" />
+          </a>
         </div>
       </div>
     </section>
