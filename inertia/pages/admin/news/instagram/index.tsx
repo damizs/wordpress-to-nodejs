@@ -3,6 +3,12 @@ import AdminLayout from '~/layouts/AdminLayout'
 import { Instagram, Settings, History, Play, Search, CheckCircle, XCircle, Clock, Loader2 } from 'lucide-react'
 import { useState } from 'react'
 
+// Helper para usar proxy de imagens do Instagram (contorna CORS)
+const getProxyImageUrl = (url: string) => {
+  if (!url || !url.includes('cdninstagram.com')) return url
+  return `/painel/noticias/instagram/proxy-image?url=${encodeURIComponent(url)}`
+}
+
 interface InstagramPost {
   id: string
   shortcode: string
@@ -230,7 +236,7 @@ export default function InstagramDashboard({ settings, logs, stats }: Props) {
                     <div className="absolute top-2 left-2 z-10"><input type="checkbox" checked={isSelected} disabled={isImported} onChange={() => toggleSelect(post.id)} className="w-5 h-5 rounded text-pink-600" /></div>
                     <div className="absolute top-2 right-2 z-10 px-2 py-1 text-xs bg-black/70 text-white rounded">{new Date(post.takenAtTimestamp * 1000).toLocaleDateString('pt-BR')}</div>
                     {isImported && <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-10"><span className="px-3 py-1 text-sm bg-green-500 text-white rounded-full">✓ Importado</span></div>}
-                    <img src={post.thumbnailSrc} alt="" className="w-full aspect-square object-cover" loading="lazy" />
+                    <img src={getProxyImageUrl(post.thumbnailSrc)} alt="" className="w-full aspect-square object-cover" loading="lazy" />
                     <div className="p-2 bg-gray-50"><p className="text-xs text-gray-600 line-clamp-2">{post.caption || 'Sem legenda'}</p></div>
                   </div>
                 )

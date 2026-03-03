@@ -41,6 +41,7 @@ const AdminCategoriesController = () => import('#controllers/admin/system_catego
 const AdminLicitacoesController = () => import('#controllers/admin/licitacoes_controller')
 const AdminSatisfactionSurveyController = () => import('#controllers/admin/satisfaction_survey_controller')
 const AdminInstagramController = () => import('#controllers/admin/instagram_controller')
+const InstagramProxyController = () => import('#controllers/admin/instagram_proxy_controller')
 
 // ========= HEALTH CHECK =========
 router.get('/health', async () => ({ status: 'ok', timestamp: new Date().toISOString() }))
@@ -112,6 +113,9 @@ router.get('/api/reset-quick-links', async ({ response, auth }) => {
   await QuickLink.createMany(links)
   return response.json({ success: true, message: `${links.length} links rápidos criados` })
 })
+
+// ========= INSTAGRAM IMAGE PROXY (no auth required) =========
+router.get('/painel/noticias/instagram/proxy-image', [InstagramProxyController, 'image'])
 
 // ========= ADMIN PANEL =========
 router.group(() => {
