@@ -1,13 +1,26 @@
 import { DateTime } from 'luxon'
-import InstagramImportSetting from '#models/instagram_import_setting'
+import InstagramSetting from '#models/instagram_setting'
 import InstagramImportLog from '#models/instagram_import_log'
 import News from '#models/news'
-import InstagramScraperService, { type InstagramPost } from './instagram_scraper_service.js'
+import InstagramScraperService, { InstagramPost } from './instagram_scraper_service.js'
 import AIProcessorService from './ai_processor_service.js'
-import { cuid } from '@adonisjs/core/helpers'
 import app from '@adonisjs/core/services/app'
-import fs from 'node:fs'
+import { cuid } from '@adonisjs/core/helpers'
+import { createWriteStream } from 'node:fs'
+import { mkdir } from 'node:fs/promises'
+import { pipeline } from 'node:stream/promises'
 import path from 'node:path'
+
+export interface ImportResult {
+  imported: number
+  errors: number
+  posts: Array<{
+    instagramId: string
+    title?: string
+    newsId?: number
+    error?: string
+  }>
+}
 
 export default class InstagramAutoImporterService {
   private scraper: InstagramScraperService
@@ -19,236 +32,265 @@ export default class InstagramAutoImporterService {
   }
 
   /**
-   * Executa importação automática
+   * Fetch posts from Instagram
    */
-  async runAutoImport(): Promise<{ imported: number; errors: string[] }> {
-    const errors: string[] = []
-    let importedCount = 0
+  async fetchPosts(limit?: number): Promise<InstagramPost[]> {
+    const profileUrl = await InstagramSetting.get('instagram_profile_url')
+    if (!profileUrl) {
+      throw new Error('URL do perfil do Instagram não configurada')
+    }
+    return this.scraper.getPostsFromProfile(profileUrl, limit)
+  }
 
-    console.log(`[Auto Import] Iniciando às ${DateTime.now().toFormat('dd/MM/yyyy HH:mm:ss')}`)
+  /**
+   * Run automatic import - imports only today's posts
+   */
+  async runAutoImport(): Promise<ImportResult> {
+    console.log('Auto Import: Starting at', DateTime.now().setZone('America/Sao_Paulo').toFormat('dd/MM/yyyy HH:mm:ss'))
 
-    // Verificar se está habilitado
-    const enabled = await InstagramImportSetting.get('auto_import_enabled')
+    const enabled = await InstagramSetting.get('auto_import_enabled')
     if (enabled !== 'true' && enabled !== '1') {
-      console.log('[Auto Import] Desabilitado')
-      return { imported: 0, errors: ['Importação automática desabilitada'] }
+      console.log('Auto Import: Disabled')
+      return { imported: 0, errors: 0, posts: [] }
     }
 
-    // Obter URL do perfil
-    const profileUrl = await InstagramImportSetting.get('instagram_profile_url')
+    const profileUrl = await InstagramSetting.get('instagram_profile_url')
     if (!profileUrl) {
-      console.log('[Auto Import] URL do perfil não configurada')
-      return { imported: 0, errors: ['URL do perfil não configurada'] }
+      console.log('Auto Import: Profile URL not configured')
+      return { imported: 0, errors: 0, posts: [] }
     }
 
     try {
-      // Buscar posts
+      // Fetch posts
       const posts = await this.scraper.getPostsFromProfile(profileUrl)
-
       if (posts.length === 0) {
-        console.log('[Auto Import] Nenhum post encontrado')
-        return { imported: 0, errors: [this.scraper.getLastError() || 'Nenhum post encontrado'] }
+        console.log('Auto Import: No posts found')
+        return { imported: 0, errors: 0, posts: [] }
       }
 
-      console.log(`[Auto Import] ${posts.length} posts encontrados`)
+      console.log(`Auto Import: ${posts.length} posts found in profile`)
 
-      // Obter IDs já importados
+      // Get already imported IDs
       const importedIds = await InstagramImportLog.getImportedIds()
 
-      // Filtrar posts de hoje não importados
-      const todayStart = DateTime.now().setZone('America/Sao_Paulo').startOf('day').toSeconds()
-      const todayEnd = DateTime.now().setZone('America/Sao_Paulo').endOf('day').toSeconds()
+      // Filter only today's posts (Brasília timezone)
+      const now = DateTime.now().setZone('America/Sao_Paulo')
+      const todayStart = now.startOf('day').toSeconds()
+      const todayEnd = now.endOf('day').toSeconds()
+
+      console.log(`Auto Import: Filtering posts from ${now.toFormat('dd/MM/yyyy')}`)
 
       const newPosts = posts.filter(post => {
-        if (importedIds.includes(post.id)) return false
-        if (post.takenAtTimestamp < todayStart || post.takenAtTimestamp > todayEnd) return false
+        // Skip if already imported
+        if (importedIds.includes(post.id)) {
+          return false
+        }
+        // Check if it's from today
+        if (post.takenAtTimestamp < todayStart || post.takenAtTimestamp > todayEnd) {
+          return false
+        }
         return true
       })
 
-      console.log(`[Auto Import] ${newPosts.length} posts novos de hoje`)
+      console.log(`Auto Import: ${newPosts.length} new posts from today`)
 
       if (newPosts.length === 0) {
-        return { imported: 0, errors: [] }
+        return { imported: 0, errors: 0, posts: [] }
       }
 
-      // Limitar quantidade
-      const limitStr = await InstagramImportSetting.get('auto_import_limit')
-      const limit = parseInt(limitStr || '5', 10)
+      // Limit posts per execution
+      const limit = Number(await InstagramSetting.get('auto_import_limit', '5'))
       const postsToImport = newPosts.slice(0, limit)
 
-      // Processar cada post
+      // Import each post
+      const result: ImportResult = { imported: 0, errors: 0, posts: [] }
+
       for (const post of postsToImport) {
         try {
-          const result = await this.importSinglePost(post)
-          if (result) {
-            importedCount++
+          const news = await this.importSinglePost(post)
+          if (news) {
+            result.imported++
+            result.posts.push({
+              instagramId: post.id,
+              title: news.title,
+              newsId: news.id,
+            })
           }
-          // Pausa entre importações
-          await new Promise(resolve => setTimeout(resolve, 2000))
         } catch (error: any) {
-          errors.push(`Post ${post.id}: ${error.message}`)
+          result.errors++
+          result.posts.push({
+            instagramId: post.id,
+            error: error.message,
+          })
         }
+
+        // Small delay between imports
+        await new Promise(resolve => setTimeout(resolve, 2000))
       }
 
-      console.log(`[Auto Import] ${importedCount} post(s) importado(s)`)
-      return { imported: importedCount, errors }
+      console.log(`Auto Import: ${result.imported} post(s) imported, ${result.errors} error(s)`)
+      return result
 
     } catch (error: any) {
-      console.error(`[Auto Import] Erro: ${error.message}`)
-      return { imported: 0, errors: [error.message] }
+      console.error('Auto Import Error:', error.message)
+      throw error
     }
   }
 
   /**
-   * Importa um único post
+   * Import a single post
    */
   async importSinglePost(post: InstagramPost, userId?: number): Promise<News | null> {
     const startTime = Date.now()
 
     try {
-      // Gerar conteúdo com IA
       const caption = post.caption || 'Publicação do Instagram'
+
+      // Generate content with AI
+      await this.aiProcessor.init()
       const generated = await this.aiProcessor.processCaption(caption)
 
-      if (!generated.title) {
-        throw new Error('IA não gerou título')
+      if (!generated?.title) {
+        throw new Error('Falha ao gerar conteúdo')
       }
 
-      // Obter configurações
-      const categoryIdStr = await InstagramImportSetting.get('default_category')
-      const categoryId = categoryIdStr ? parseInt(categoryIdStr, 10) : null
-      const defaultStatusSetting = await InstagramImportSetting.get('default_status') || 'published'
-      const defaultStatus: 'draft' | 'published' | 'archived' = 
-        defaultStatusSetting === 'draft' ? 'draft' : 
-        defaultStatusSetting === 'archived' ? 'archived' : 'published'
+      // Get settings
+      const categoryId = Number(await InstagramSetting.get('default_category', '0')) || null
+      const defaultStatus = await InstagramSetting.get('default_status', 'draft')
+      
+      // For auto import, always publish
+      const status = userId ? defaultStatus : 'published'
 
-      // Baixar imagem
-      let imagePath: string | null = null
-      if (post.displayUrl) {
-        try {
-          imagePath = await this.downloadImage(post.displayUrl)
-        } catch (imgError: any) {
-          console.error(`[Auto Import] Erro ao baixar imagem: ${imgError.message}`)
+      // Use original Instagram date
+      let publishedAt: DateTime = DateTime.now()
+      if (post.takenAtTimestamp) {
+        const parsed = DateTime.fromSeconds(post.takenAtTimestamp)
+        if (parsed.isValid) {
+          publishedAt = parsed
         }
       }
 
-      // Criar notícia
+      // Download image
+      let coverImageUrl: string | null = null
+      if (post.displayUrl) {
+        try {
+          coverImageUrl = await this.downloadImage(post.displayUrl)
+        } catch (error: any) {
+          console.error('Image download error:', error.message)
+        }
+      }
+
+      // Create news
       const news = await News.create({
         title: generated.title,
-        slug: this.generateSlug(generated.title),
         content: generated.content,
-        excerpt: caption.substring(0, 200),
-        status: defaultStatus,
-        categoryId: categoryId,
-        coverImageUrl: imagePath,
-        publishedAt: DateTime.fromSeconds(post.takenAtTimestamp),
+        excerpt: generated.content.substring(0, 200) + '...',
+        status: status as 'draft' | 'published',
+        categoryId,
+        coverImageUrl,
+        authorId: userId || null,
+        publishedAt,
+        slug: this.generateSlug(generated.title),
       })
 
-      const processingTime = (Date.now() - startTime) / 1000
+      const processingTime = Date.now() - startTime
 
-      // Salvar log
+      // Save import log
       await InstagramImportLog.create({
         instagramId: post.id,
         instagramShortcode: post.shortcode,
-        instagramUrl: post.shortcode ? `https://instagram.com/p/${post.shortcode}` : null,
+        instagramUrl: `https://instagram.com/p/${post.shortcode}`,
         instagramCaption: post.caption,
         instagramImageUrl: post.displayUrl,
         instagramPostDate: DateTime.fromSeconds(post.takenAtTimestamp),
         generatedTitle: generated.title,
         generatedContent: generated.content,
-        aiProvider: await InstagramImportSetting.get('ai_provider'),
-        aiModel: await InstagramImportSetting.get('ai_model'),
+        aiProvider: await InstagramSetting.get('ai_provider'),
+        aiModel: await InstagramSetting.get('ai_model'),
         aiTokensUsed: generated.tokensUsed,
         newsId: news.id,
-        status: 'published',
-        categoryId: categoryId,
-        processingTime: processingTime,
+        categoryId,
         importedBy: userId || null,
+        status: status === 'published' ? 'published' : 'draft',
+        processingTime,
       })
 
-      console.log(`[Auto Import] Notícia criada: ${news.id} - ${news.title}`)
+      console.log(`Imported: ${generated.title} (ID: ${news.id})`)
       return news
 
     } catch (error: any) {
-      const processingTime = (Date.now() - startTime) / 1000
+      const processingTime = Date.now() - startTime
 
-      // Salvar log de erro
+      // Save error log
       await InstagramImportLog.create({
         instagramId: post.id,
         instagramShortcode: post.shortcode,
-        instagramUrl: post.shortcode ? `https://instagram.com/p/${post.shortcode}` : null,
+        instagramUrl: `https://instagram.com/p/${post.shortcode}`,
         instagramCaption: post.caption,
         instagramImageUrl: post.displayUrl,
-        instagramPostDate: DateTime.fromSeconds(post.takenAtTimestamp),
-        status: 'error',
-        processingTime: processingTime,
-        errorMessage: error.message,
+        instagramPostDate: post.takenAtTimestamp ? DateTime.fromSeconds(post.takenAtTimestamp) : null,
         importedBy: userId || null,
+        status: 'error',
+        errorMessage: error.message,
+        processingTime,
       })
 
-      console.error(`[Auto Import] Erro ao importar post ${post.id}: ${error.message}`)
-      return null
+      throw error
     }
   }
 
   /**
-   * Baixa imagem do Instagram
+   * Download image from URL
    */
   private async downloadImage(url: string): Promise<string> {
-    const response = await fetch(url, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-      },
-    })
+    const uploadsDir = app.makePath('public/uploads/instagram')
+    await mkdir(uploadsDir, { recursive: true })
 
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`)
+    const ext = this.getImageExtension(url)
+    const filename = `ig-${cuid()}.${ext}`
+    const filepath = path.join(uploadsDir, filename)
+
+    const response = await fetch(url)
+    if (!response.ok || !response.body) {
+      throw new Error(`Failed to download image: ${response.status}`)
     }
 
-    const buffer = await response.arrayBuffer()
-    const fileName = `instagram_${cuid()}.jpg`
-    const uploadPath = app.makePath('public/uploads/news')
+    const writeStream = createWriteStream(filepath)
+    // @ts-ignore - Node.js types issue
+    await pipeline(response.body, writeStream)
 
-    // Criar diretório se não existir
-    if (!fs.existsSync(uploadPath)) {
-      fs.mkdirSync(uploadPath, { recursive: true })
-    }
-
-    const filePath = path.join(uploadPath, fileName)
-    fs.writeFileSync(filePath, Buffer.from(buffer))
-
-    return `/uploads/news/${fileName}`
+    return `/uploads/instagram/${filename}`
   }
 
   /**
-   * Gera slug único
+   * Get image extension from URL
+   */
+  private getImageExtension(url: string): string {
+    try {
+      const parsed = new URL(url)
+      const pathname = parsed.pathname.toLowerCase()
+      if (pathname.includes('.png')) return 'png'
+      if (pathname.includes('.gif')) return 'gif'
+      if (pathname.includes('.webp')) return 'webp'
+    } catch {}
+    return 'jpg'
+  }
+
+  /**
+   * Generate slug from title
    */
   private generateSlug(title: string): string {
-    const base = title
+    return title
       .toLowerCase()
       .normalize('NFD')
       .replace(/[\u0300-\u036f]/g, '')
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '')
-      .substring(0, 80)
-
-    return `${base}-${cuid().substring(0, 6)}`
+      .substring(0, 100)
   }
 
   /**
-   * Busca posts do Instagram (para visualização no admin)
-   */
-  async fetchPosts(): Promise<InstagramPost[]> {
-    const profileUrl = await InstagramImportSetting.get('instagram_profile_url')
-    if (!profileUrl) {
-      throw new Error('URL do perfil não configurada')
-    }
-
-    return this.scraper.getPostsFromProfile(profileUrl)
-  }
-
-  /**
-   * Testa conexão com IA
+   * Test AI connection
    */
   async testAIConnection(): Promise<{ success: boolean; error?: string }> {
     return this.aiProcessor.testConnection()

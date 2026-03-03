@@ -2,62 +2,16 @@ import { DateTime } from 'luxon'
 import { BaseModel, column } from '@adonisjs/lucid/orm'
 
 export default class InstagramSetting extends BaseModel {
+  static table = 'instagram_settings'
+
   @column({ isPrimary: true })
   declare id: number
 
-  // Configurações do Instagram
   @column()
-  declare instagramProfileUrl: string | null
+  declare key: string
 
   @column()
-  declare rapidapiKey: string | null
-
-  @column()
-  declare instagramSessionid: string | null
-
-  @column()
-  declare instagramUseragent: string | null
-
-  // Configurações de IA
-  @column()
-  declare aiProvider: string
-
-  @column()
-  declare aiApiKey: string | null
-
-  @column()
-  declare aiModel: string
-
-  @column()
-  declare aiPrompt: string | null
-
-  // Configurações de importação
-  @column()
-  declare autoImportEnabled: boolean
-
-  @column()
-  declare cronMode: string
-
-  @column()
-  declare cronHour: number
-
-  @column()
-  declare cronMinute: number
-
-  @column()
-  declare autoImportLimit: number
-
-  @column()
-  declare defaultStatus: string
-
-  @column()
-  declare defaultCategoryId: number | null
-
-  @column()
-  declare downloadImages: boolean
-
-  @column()
-  declare preventDuplicates: boolean
+  declare value: string | null
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -65,8 +19,45 @@ export default class InstagramSetting extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   declare updatedAt: DateTime
 
-  // Prompt padrão
-  static get DEFAULT_PROMPT() {
+  /**
+   * Get a single setting value
+   */
+  static async get(key: string, defaultValue: string | null = null): Promise<string | null> {
+    const setting = await this.query().where('key', key).first()
+    return setting?.value ?? defaultValue
+  }
+
+  /**
+   * Set a setting value
+   */
+  static async set(key: string, value: string | null): Promise<void> {
+    await this.updateOrCreate({ key }, { key, value })
+  }
+
+  /**
+   * Get all settings as key-value object
+   */
+  static async getAll(): Promise<Record<string, string | null>> {
+    const settings = await this.all()
+    return settings.reduce((acc, setting) => {
+      acc[setting.key] = setting.value
+      return acc
+    }, {} as Record<string, string | null>)
+  }
+
+  /**
+   * Set multiple settings at once
+   */
+  static async setMany(data: Record<string, string | null>): Promise<void> {
+    for (const [key, value] of Object.entries(data)) {
+      await this.set(key, value)
+    }
+  }
+
+  /**
+   * Default AI prompt
+   */
+  static get DEFAULT_PROMPT(): string {
     return `Você é um redator profissional de portais institucionais governamentais (câmaras e prefeituras).
 Com base na legenda do Instagram abaixo, gere:
 1. Um título jornalístico chamativo e informativo (máximo 80 caracteres, SEM truncar com reticências)

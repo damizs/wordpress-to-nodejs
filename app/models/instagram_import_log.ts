@@ -47,22 +47,22 @@ export default class InstagramImportLog extends BaseModel {
   declare newsId: number | null
 
   @column()
-  declare status: 'pending' | 'published' | 'draft' | 'error'
-
-  @column()
   declare categoryId: number | null
 
   @column()
   declare imageId: number | null
 
   @column()
+  declare importedBy: number | null
+
+  @column()
+  declare status: 'pending' | 'published' | 'draft' | 'error'
+
+  @column()
   declare processingTime: number | null
 
   @column()
   declare errorMessage: string | null
-
-  @column()
-  declare importedBy: number | null
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime
@@ -76,20 +76,49 @@ export default class InstagramImportLog extends BaseModel {
   @belongsTo(() => User, { foreignKey: 'importedBy' })
   declare user: BelongsTo<typeof User>
 
-  // Helper para verificar se já foi importado
+  /**
+   * Check if an Instagram post was already imported
+   */
   static async isImported(instagramId: string): Promise<boolean> {
     const log = await this.query()
-      .where('instagram_id', instagramId)
-      .whereNotNull('news_id')
+      .where('instagramId', instagramId)
+      .whereNotNull('newsId')
       .first()
     return !!log
   }
 
-  // Helper para obter IDs já importados
+  /**
+   * Get all imported Instagram IDs
+   */
   static async getImportedIds(): Promise<string[]> {
     const logs = await this.query()
-      .whereNotNull('news_id')
-      .select('instagram_id')
+      .whereNotNull('newsId')
+      .select('instagramId')
     return logs.map(log => log.instagramId)
+  }
+
+  /**
+   * Get stats for dashboard
+   */
+  static async getStats(): Promise<{
+    total: number
+    success: number
+    errors: number
+    today: number
+  }> {
+    const total = await this.query().count('* as count').first()
+    const success = await this.query().whereNotNull('newsId').count('* as count').first()
+    const errors = await this.query().where('status', 'error').count('* as count').first()
+    const today = await this.query()
+      .whereRaw('DATE(created_at) = CURRENT_DATE')
+      .count('* as count')
+      .first()
+
+    return {
+      total: Number(total?.$extras.count || 0),
+      success: Number(success?.$extras.count || 0),
+      errors: Number(errors?.$extras.count || 0),
+      today: Number(today?.$extras.count || 0),
+    }
   }
 }

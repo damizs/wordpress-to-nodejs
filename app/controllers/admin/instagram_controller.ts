@@ -1,77 +1,53 @@
 import type { HttpContext } from '@adonisjs/core/http'
-import InstagramImportSetting from '#models/instagram_import_setting'
+import InstagramSetting from '#models/instagram_setting'
 import InstagramImportLog from '#models/instagram_import_log'
 import InstagramAutoImporterService from '#services/instagram_auto_importer_service'
+import AIProcessorService from '#services/ai_processor_service'
 import NewsCategory from '#models/news_category'
 
 export default class InstagramController {
   /**
-   * Dashboard principal
+   * Dashboard - main page with posts grid
    */
   async index({ inertia }: HttpContext) {
-    const settings = await InstagramImportSetting.getAll()
+    const settings = await InstagramSetting.getAll()
+    const stats = await InstagramImportLog.getStats()
     const logs = await InstagramImportLog.query()
-      .orderBy('created_at', 'desc')
+      .orderBy('createdAt', 'desc')
       .limit(10)
       .preload('news')
 
-    const stats = {
-      total: await InstagramImportLog.query().count('* as total'),
-      success: await InstagramImportLog.query().whereNotNull('news_id').count('* as total'),
-      errors: await InstagramImportLog.query().where('status', 'error').count('* as total'),
-      today: await InstagramImportLog.query()
-        .whereRaw('DATE(created_at) = CURRENT_DATE')
-        .count('* as total'),
-    }
-
-    return inertia.render('admin/news/instagram/index', {
+    return inertia.render('admin/instagram/index', {
       settings,
-      logs,
-      stats: {
-        total: Number(stats.total[0].$extras.total),
-        success: Number(stats.success[0].$extras.total),
-        errors: Number(stats.errors[0].$extras.total),
-        today: Number(stats.today[0].$extras.total),
-      },
+      stats,
+      recentLogs: logs.map(log => ({
+        id: log.id,
+        instagramId: log.instagramId,
+        title: log.generatedTitle,
+        status: log.status,
+        newsId: log.newsId,
+        createdAt: log.createdAt.toFormat('dd/MM/yyyy HH:mm'),
+        error: log.errorMessage,
+      })),
     })
   }
 
   /**
-   * Configurações
+   * Settings page
    */
   async settings({ inertia }: HttpContext) {
-    const settings = await InstagramImportSetting.getAll()
+    const settings = await InstagramSetting.getAll()
     const categories = await NewsCategory.query().orderBy('name', 'asc')
 
-    return inertia.render('admin/news/instagram/settings', {
+    return inertia.render('admin/instagram/settings', {
       settings,
-      categories,
-      aiProviders: [
-        { value: 'gemini', label: 'Google Gemini' },
-        { value: 'openai', label: 'OpenAI GPT' },
-        { value: 'claude', label: 'Anthropic Claude' },
-      ],
-      aiModels: {
-        gemini: [
-          { value: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash (Recomendado)' },
-          { value: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash' },
-          { value: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro' },
-        ],
-        openai: [
-          { value: 'gpt-4o-mini', label: 'GPT-4o Mini (Recomendado)' },
-          { value: 'gpt-4o', label: 'GPT-4o' },
-          { value: 'gpt-4-turbo', label: 'GPT-4 Turbo' },
-        ],
-        claude: [
-          { value: 'claude-3-5-sonnet-20241022', label: 'Claude 3.5 Sonnet (Recomendado)' },
-          { value: 'claude-3-5-haiku-20241022', label: 'Claude 3.5 Haiku' },
-        ],
-      },
+      categories: categories.map(c => ({ id: c.id, name: c.name })),
+      defaultPrompt: InstagramSetting.DEFAULT_PROMPT,
     })
   }
 
   /**
-   * Salvar configurações
+   * Save settings
    */
   async saveSettings({ request, response, session }: HttpContext) {
     const data = request.only([
@@ -85,6 +61,7 @@ export default class InstagramController {
       'ai_prompt',
       'default_category',
       'default_status',
+      'posts_fetch_count',
       'auto_import_enabled',
       'auto_import_limit',
       'cron_mode',
@@ -92,23 +69,21 @@ export default class InstagramController {
       'cron_minute',
     ])
 
-    for (const [key, value] of Object.entries(data)) {
-      await InstagramImportSetting.set(key, value as string)
-    }
+    await InstagramSetting.setMany(data as Record<string, string | null>)
 
     session.flash('success', 'Configurações salvas com sucesso!')
     return response.redirect().back()
   }
 
   /**
-   * Histórico de importação
+   * History page with pagination
    */
   async history({ inertia, request }: HttpContext) {
     const page = request.input('page', 1)
     const status = request.input('status', '')
 
     let query = InstagramImportLog.query()
-      .orderBy('created_at', 'desc')
+      .orderBy('createdAt', 'desc')
       .preload('news')
       .preload('user')
 
@@ -118,24 +93,30 @@ export default class InstagramController {
 
     const logs = await query.paginate(page, 20)
 
-    return inertia.render('admin/news/instagram/history', {
+    return inertia.render('admin/instagram/history', {
       logs: logs.serialize(),
     })
   }
 
   /**
-   * Carregar posts do Instagram
+   * Fetch posts from Instagram
    */
   async fetchPosts({ response }: HttpContext) {
     try {
       const service = new InstagramAutoImporterService()
       const posts = await service.fetchPosts()
 
-      // Verificar quais já foram importados
+      // Check which are already imported
       const importedIds = await InstagramImportLog.getImportedIds()
 
       const postsWithStatus = posts.map(post => ({
-        ...post,
+        id: post.id,
+        shortcode: post.shortcode,
+        thumbnailSrc: post.thumbnailSrc,
+        displayUrl: post.displayUrl,
+        caption: post.caption,
+        takenAtTimestamp: post.takenAtTimestamp,
+        isVideo: post.isVideo,
         isImported: importedIds.includes(post.id),
       }))
 
@@ -146,7 +127,7 @@ export default class InstagramController {
   }
 
   /**
-   * Publicar post individual
+   * Publish a single post
    */
   async publishPost({ request, response, auth }: HttpContext) {
     try {
@@ -159,6 +140,7 @@ export default class InstagramController {
           success: true,
           message: 'Notícia publicada com sucesso!',
           newsId: news.id,
+          title: news.title,
         })
       } else {
         return response.json({ success: false, error: 'Erro ao publicar notícia' })
@@ -169,7 +151,46 @@ export default class InstagramController {
   }
 
   /**
-   * Executar importação automática manualmente
+   * Publish multiple posts automatically
+   */
+  async publishMultiple({ request, response, auth }: HttpContext) {
+    try {
+      const { posts } = request.only(['posts'])
+      const service = new InstagramAutoImporterService()
+      
+      const results = {
+        success: 0,
+        errors: 0,
+        items: [] as Array<{ id: string; title?: string; newsId?: number; error?: string }>,
+      }
+
+      for (const post of posts) {
+        try {
+          const news = await service.importSinglePost(post, auth.user?.id)
+          if (news) {
+            results.success++
+            results.items.push({ id: post.id, title: news.title, newsId: news.id })
+          }
+        } catch (error: any) {
+          results.errors++
+          results.items.push({ id: post.id, error: error.message })
+        }
+        // Small delay
+        await new Promise(resolve => setTimeout(resolve, 1000))
+      }
+
+      return response.json({
+        success: true,
+        message: `${results.success} post(s) publicado(s), ${results.errors} erro(s)`,
+        results,
+      })
+    } catch (error: any) {
+      return response.json({ success: false, error: error.message })
+    }
+  }
+
+  /**
+   * Run auto import manually
    */
   async runAutoImport({ response }: HttpContext) {
     try {
@@ -183,6 +204,7 @@ export default class InstagramController {
         message: result.imported > 0
           ? `${result.imported} post(s) importado(s) com sucesso!`
           : 'Nenhum post novo de hoje para importar',
+        posts: result.posts,
       })
     } catch (error: any) {
       return response.json({ success: false, error: error.message })
@@ -190,7 +212,7 @@ export default class InstagramController {
   }
 
   /**
-   * Testar conexão com IA
+   * Test AI connection
    */
   async testAiConnection({ response }: HttpContext) {
     try {
@@ -208,14 +230,11 @@ export default class InstagramController {
   }
 
   /**
-   * Processar legenda com IA
+   * Process caption with AI (preview)
    */
   async processCaption({ request, response }: HttpContext) {
     try {
       const { caption } = request.only(['caption'])
-      
-      // Usar AIProcessor diretamente
-      const AIProcessorService = (await import('#services/ai_processor_service')).default
       const ai = new AIProcessorService()
       const result = await ai.processCaption(caption)
 
@@ -231,7 +250,7 @@ export default class InstagramController {
   }
 
   /**
-   * Deletar importação
+   * Delete import log
    */
   async deleteImport({ params, response, session }: HttpContext) {
     const log = await InstagramImportLog.find(params.id)
