@@ -6,10 +6,10 @@ interface Seal {
   id: number
   title: string
   description: string | null
-  imageUrl: string | null
-  linkUrl: string | null
-  sortOrder: number
-  isActive: boolean
+  image_url: string | null
+  link_url: string | null
+  sort_order: number
+  is_active: boolean
 }
 
 interface Props {
@@ -60,8 +60,8 @@ export default function SealsIndex({ seals }: Props) {
               {seals.map((seal) => (
                 <tr key={seal.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3">
-                    {seal.imageUrl ? (
-                      <img src={seal.imageUrl} alt={seal.title} className="w-16 h-16 object-contain rounded" />
+                    {seal.image_url ? (
+                      <img src={seal.image_url} alt={seal.title} className="w-16 h-16 object-contain rounded" />
                     ) : (
                       <div className="w-16 h-16 bg-gray-100 rounded flex items-center justify-center">
                         <Award className="w-8 h-8 text-gray-300" />
@@ -73,8 +73,8 @@ export default function SealsIndex({ seals }: Props) {
                     {seal.description && <p className="text-sm text-gray-500">{seal.description}</p>}
                   </td>
                   <td className="px-4 py-3">
-                    <span className={seal.isActive ? "px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700" : "px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-600"}>
-                      {seal.isActive ? 'Ativo' : 'Inativo'}
+                    <span className={seal.is_active ? "px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700" : "px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-600"}>
+                      {seal.is_active ? 'Ativo' : 'Inativo'}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right">

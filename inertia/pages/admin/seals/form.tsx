@@ -7,10 +7,10 @@ interface Seal {
   id: number
   title: string
   description: string | null
-  imageUrl: string | null
-  linkUrl: string | null
-  sortOrder: number
-  isActive: boolean
+  image_url: string | null
+  link_url: string | null
+  sort_order: number
+  is_active: boolean
 }
 
 interface Props {
@@ -20,14 +20,14 @@ interface Props {
 export default function SealForm({ seal }: Props) {
   const isEditing = !!seal
   const fileRef = useRef<HTMLInputElement>(null)
-  const [preview, setPreview] = useState<string | null>(seal?.imageUrl || null)
+  const [preview, setPreview] = useState<string | null>(seal?.image_url || null)
 
   const { data, setData, post, processing } = useForm({
     title: seal?.title || '',
     description: seal?.description || '',
-    link_url: seal?.linkUrl || '',
-    sort_order: seal?.sortOrder || 0,
-    is_active: seal?.isActive === false ? 'false' : 'true',
+    link_url: seal?.link_url || '',
+    sort_order: seal?.sort_order || 0,
+    is_active: seal?.is_active === false ? 'false' : 'true',
     image: null as File | null,
   })
 
