@@ -79,7 +79,7 @@ export default function Home({
           <VereadoresSection vereadores={vereadores} legislatura={legislatura} />
           <DiarioOficialSection publicacoes={publicacoes} />
           <InstagramFeedSection />
-          <ConhecaSumeSection />
+          <ConhecaSumeSection images={siteSettings?.city_images ? JSON.parse(siteSettings.city_images) : []} />
           <TransparencySealSection />
           <SatisfactionSurvey />
         </main>

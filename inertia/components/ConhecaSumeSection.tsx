@@ -1,21 +1,61 @@
-import { MapPin, Users, Mountain, History } from "lucide-react";
+import { useState, useEffect } from "react";
+import { MapPin, Users, Mountain, History, ChevronLeft, ChevronRight } from "lucide-react";
 
-export const ConhecaSumeSection = () => {
+interface ConhecaSumeSectionProps {
+  images?: string[];
+}
+
+export const ConhecaSumeSection = ({ images }: ConhecaSumeSectionProps) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  
+  const defaultImages = ["/images/sume-cidade.jpg"];
+  const carouselImages = images && images.length > 0 ? images : defaultImages;
+  const hasMultipleImages = carouselImages.length > 1;
+
+  useEffect(() => {
+    if (!hasMultipleImages) return;
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % carouselImages.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [carouselImages.length, hasMultipleImages]);
+
+  const goToPrevious = () => setCurrentIndex((prev) => (prev - 1 + carouselImages.length) % carouselImages.length);
+  const goToNext = () => setCurrentIndex((prev) => (prev + 1) % carouselImages.length);
+
   return (
     <section className="py-20 px-4 bg-background">
       <div className="container mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          {/* Image */}
+          {/* Image Carousel */}
           <div className="relative animate-fade-in">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-gold/20 rounded-3xl blur-3xl" />
-            <img
-              src="/images/sume-cidade.jpg"
-              alt="Cidade de Sumé"
-              className="relative rounded-3xl shadow-2xl w-full h-auto object-cover"
-              onError={(e) => {
-                e.currentTarget.src = "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800&h=600&fit=crop";
-              }}
-            />
+            <div className="relative rounded-3xl shadow-2xl overflow-hidden aspect-[4/3]">
+              {carouselImages.map((src, index) => (
+                <img
+                  key={index}
+                  src={src}
+                  alt={`Sumé - Imagem ${index + 1}`}
+                  className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${index === currentIndex ? 'opacity-100' : 'opacity-0'}`}
+                  onError={(e) => { e.currentTarget.src = "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800&h=600&fit=crop"; }}
+                />
+              ))}
+              {hasMultipleImages && (
+                <>
+                  <button onClick={goToPrevious} className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 hover:bg-white shadow-lg transition-all">
+                    <ChevronLeft className="w-5 h-5 text-gray-800" />
+                  </button>
+                  <button onClick={goToNext} className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 hover:bg-white shadow-lg transition-all">
+                    <ChevronRight className="w-5 h-5 text-gray-800" />
+                  </button>
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                    {carouselImages.map((_, index) => (
+                      <button key={index} onClick={() => setCurrentIndex(index)} className={`w-2.5 h-2.5 rounded-full transition-all ${index === currentIndex ? 'bg-gold w-6' : 'bg-white/60 hover:bg-white/80'}`} />
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
           </div>
 
           {/* Content */}

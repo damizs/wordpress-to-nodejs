@@ -16,6 +16,7 @@ const APPEARANCE_KEYS: Record<string, { group: string; defaultValue: string; typ
   logo_url: { group: 'appearance', defaultValue: '', type: 'image', label: 'Logo (PNG)' },
   favicon_url: { group: 'appearance', defaultValue: '', type: 'image', label: 'Favicon' },
   news_background_image: { group: 'appearance', defaultValue: '', type: 'image', label: 'Imagem de Fundo - Notícias' },
+  city_images: { group: 'appearance', defaultValue: '[]', type: 'json', label: 'Fotos da Cidade (Carrossel)' },
   footer_address: { group: 'footer', defaultValue: 'Rua Antônio Vieira Lima, S/N, Centro, Sumé - PB', type: 'text', label: 'Endereço' },
   footer_phone: { group: 'footer', defaultValue: '(83) 3353-1175', type: 'text', label: 'Telefone' },
   footer_email: { group: 'footer', defaultValue: 'contato@camaradesume.pb.gov.br', type: 'text', label: 'Email' },
@@ -29,8 +30,8 @@ const APPEARANCE_KEYS: Record<string, { group: string; defaultValue: string; typ
   esic_email: { group: 'esic', defaultValue: '', type: 'text', label: 'Email E-SIC' },
 }
 
-/** Text field keys (everything except image uploads) */
-const TEXT_KEYS = Object.keys(APPEARANCE_KEYS).filter((k) => !['logo_url', 'favicon_url', 'news_background_image'].includes(k))
+/** Text field keys (everything except image uploads and special fields) */
+const TEXT_KEYS = Object.keys(APPEARANCE_KEYS).filter((k) => !['logo_url', 'favicon_url', 'news_background_image', 'city_images'].includes(k))
 
 export default class SettingsController {
   /** Ensure all settings exist in DB, creating missing ones with defaults */
@@ -114,6 +115,32 @@ export default class SettingsController {
         if (newsBackground.state === 'moved') {
           await SiteSetting.setValue('news_background_image', `/uploads/${fileName}`, 'appearance', 'image')
         }
+      }
+
+      // Handle city images upload (multiple files)
+      const cityImageFiles = request.files('city_images', { size: '5mb', extnames: ['png', 'jpg', 'jpeg', 'webp'] })
+      if (cityImageFiles && cityImageFiles.length > 0) {
+        const uploadDir = join(app.publicPath(), 'uploads', 'cidade')
+        if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true })
+        
+        let existingImages: string[] = []
+        try {
+          const existing = await SiteSetting.getValue('city_images')
+          if (existing) existingImages = JSON.parse(existing)
+        } catch { /* ignore */ }
+        
+        const keepExisting = request.input('keep_existing_city_images') === 'true'
+        const newImages: string[] = keepExisting ? existingImages : []
+        
+        for (const file of cityImageFiles) {
+          const fileName = 'cidade-' + cuid() + '.' + file.extname
+          await file.move(uploadDir, { name: fileName })
+          if (file.state === 'moved') {
+            newImages.push('/uploads/cidade/' + fileName)
+          }
+        }
+        
+        await SiteSetting.setValue('city_images', JSON.stringify(newImages), 'appearance', 'json' as any)
       }
 
       session.flash('success', 'Configurações salvas com sucesso!')
