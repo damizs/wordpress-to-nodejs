@@ -27,7 +27,7 @@ const navItems: NavItem[] = [
     icon: Newspaper,
     children: [
       { label: 'Todas as Notícias', href: '/painel/noticias' },
-      { label: 'Automação Instagram', href: '/painel/instagram' },
+      { label: 'Automação Instagram', href: '/painel/noticias/instagram' },
     ]
   },
   { label: 'Legislaturas', href: '/painel/legislaturas', icon: Settings },
