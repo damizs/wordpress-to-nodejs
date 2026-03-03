@@ -1,26 +1,31 @@
+import { MessageCircle, ExternalLink } from "lucide-react";
 import { Link } from "@inertiajs/react";
-import { Star, ArrowRight } from "lucide-react";
 
 export const SatisfactionSurvey = () => {
   return (
-    <section className="py-12 px-4 bg-gradient-to-r from-primary to-navy-light">
+    <section className="py-12 px-4 bg-background">
       <div className="container mx-auto">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-4 text-primary-foreground">
-            <div className="w-14 h-14 rounded-xl bg-white/10 flex items-center justify-center">
-              <Star className="w-7 h-7 text-gold" />
+        <div className="bg-white rounded-2xl shadow-lg p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+          {/* Icon and Text */}
+          <div className="flex items-center gap-5">
+            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <MessageCircle className="w-8 h-8 text-primary" />
             </div>
             <div>
-              <h3 className="font-bold text-lg">Sua opinião é importante!</h3>
-              <p className="text-primary-foreground/80 text-sm">Ajude-nos a melhorar nossos serviços</p>
+              <h3 className="text-xl font-bold text-foreground mb-1">Pesquisa de Satisfação</h3>
+              <p className="text-muted-foreground">
+                Sua opinião é muito importante para nós! Participe da nossa pesquisa de satisfação e ajude-nos a melhorar os serviços prestados à população.
+              </p>
             </div>
           </div>
+
+          {/* Button */}
           <Link
             href="/pesquisa-de-satisfacao"
-            className="btn-modern inline-flex items-center gap-3 bg-gold text-navy-dark hover:bg-gold-light no-underline"
+            className="flex items-center gap-2 px-6 py-3 bg-primary text-white rounded-xl font-medium hover:bg-primary/90 transition-colors whitespace-nowrap"
           >
-            Responder Pesquisa
-            <ArrowRight className="w-5 h-5" />
+            Participar da Pesquisa
+            <ExternalLink className="w-4 h-4" />
           </Link>
         </div>
       </div>

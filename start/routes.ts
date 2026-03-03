@@ -40,6 +40,7 @@ const AdminInformationRecordsController = () => import('#controllers/admin/infor
 const AdminCategoriesController = () => import('#controllers/admin/system_categories_controller')
 const AdminLicitacoesController = () => import('#controllers/admin/licitacoes_controller')
 const AdminSatisfactionSurveyController = () => import('#controllers/admin/satisfaction_survey_controller')
+const AdminSealsController = () => import('#controllers/admin/seals_controller')
 const AdminInstagramController = () => import('#controllers/admin/instagram_controller')
 const InstagramProxyController = () => import('#controllers/admin/instagram_proxy_controller')
 
@@ -263,6 +264,14 @@ router.group(() => {
   router.get('/pesquisa-satisfacao', [AdminSatisfactionSurveyController, 'index'])
   router.get('/pesquisa-satisfacao/:id', [AdminSatisfactionSurveyController, 'show'])
   router.delete('/pesquisa-satisfacao/:id', [AdminSatisfactionSurveyController, 'destroy'])
+
+  // Selos e Certificações
+  router.get('/selos', [AdminSealsController, 'index'])
+  router.get('/selos/novo', [AdminSealsController, 'create'])
+  router.post('/selos', [AdminSealsController, 'store'])
+  router.get('/selos/:id/editar', [AdminSealsController, 'edit'])
+  router.post('/selos/:id', [AdminSealsController, 'update'])
+  router.delete('/selos/:id', [AdminSealsController, 'destroy'])
 })
   .prefix('/painel')
   .use(middleware.auth())
