@@ -1,7 +1,11 @@
 import { Link } from "@inertiajs/react";
 import { MapPin, Phone, Mail, Clock, Facebook, Instagram, Youtube } from "lucide-react";
 
-export const Footer = () => {
+interface FooterProps {
+  logoUrl?: string | null;
+}
+
+export const Footer = ({ logoUrl }: FooterProps) => {
   return (
     <footer className="bg-gradient-navy text-primary-foreground">
       {/* Main Footer */}
@@ -10,13 +14,23 @@ export const Footer = () => {
           {/* Logo & Description */}
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-full bg-primary-foreground/10 flex items-center justify-center border border-primary-foreground/30">
-                <span className="text-xl font-bold">C</span>
-              </div>
-              <div>
-                <h3 className="font-bold text-lg">CÂMARA</h3>
-                <p className="text-gold text-sm">MUNICIPAL DE SUMÉ</p>
-              </div>
+              {logoUrl ? (
+                <img 
+                  src={logoUrl} 
+                  alt="Câmara Municipal de Sumé" 
+                  className="h-16 w-auto object-contain"
+                />
+              ) : (
+                <>
+                  <div className="w-12 h-12 rounded-full bg-primary-foreground/10 flex items-center justify-center border border-primary-foreground/30">
+                    <span className="text-xl font-bold">C</span>
+                  </div>
+                  <div>
+                    <h3 className="font-bold text-lg">CÂMARA</h3>
+                    <p className="text-gold text-sm">MUNICIPAL DE SUMÉ</p>
+                  </div>
+                </>
+              )}
             </div>
             <p className="text-sm opacity-80 mb-4">
               Comprometida com a transparência e o bem-estar da população sumeense.

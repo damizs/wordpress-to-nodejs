@@ -2,6 +2,10 @@ import { useState } from "react";
 import { Link, router } from "@inertiajs/react";
 import { Menu, X, ChevronDown } from "lucide-react";
 
+interface HeaderProps {
+  logoUrl?: string | null;
+}
+
 const camaraSubItems = [
   { label: "História da Câmara", href: "/historia-da-camara" },
   { label: "Vereadores", href: "/vereadores" },
@@ -29,7 +33,7 @@ const navItems = [
   { label: "Cidadão", href: "/ouvidoria", hasDropdown: true, subItems: cidadaoSubItems },
 ];
 
-export const Header = () => {
+export const Header = ({ logoUrl }: HeaderProps) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileExpandedItem, setMobileExpandedItem] = useState<string | null>(null);
 
@@ -51,21 +55,33 @@ export const Header = () => {
       <div className="relative container mx-auto px-4 py-8">
         {/* Logo and Title */}
         <Link href="/" className="flex items-center justify-center gap-5 mb-8 animate-fade-in no-underline">
-          <div className="relative group">
-            <div className="absolute inset-0 rounded-full bg-gold/20 blur-xl group-hover:bg-gold/30 transition-all duration-500" />
-            <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-full glass flex items-center justify-center border-2 border-primary-foreground/20 group-hover:border-gold/50 transition-all duration-500 group-hover:scale-105">
-              <div className="text-3xl md:text-4xl font-bold text-gradient-gold">C</div>
-            </div>
-          </div>
-          <div className="text-center md:text-left">
-            <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-primary-foreground">
-              CÂMARA
-            </h1>
-            <p className="text-2xl md:text-4xl text-gradient-gold">MUNICIPAL DE SUMÉ</p>
-            <p className="text-xs md:text-sm opacity-60 mt-2 tracking-wider uppercase text-primary-foreground">
-              Estado da Paraíba
-            </p>
-          </div>
+          {logoUrl ? (
+            /* Logo Image */
+            <img 
+              src={logoUrl} 
+              alt="Câmara Municipal de Sumé" 
+              className="h-24 md:h-32 w-auto object-contain"
+            />
+          ) : (
+            /* Fallback: Text Logo */
+            <>
+              <div className="relative group">
+                <div className="absolute inset-0 rounded-full bg-gold/20 blur-xl group-hover:bg-gold/30 transition-all duration-500" />
+                <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-full glass flex items-center justify-center border-2 border-primary-foreground/20 group-hover:border-gold/50 transition-all duration-500 group-hover:scale-105">
+                  <div className="text-3xl md:text-4xl font-bold text-gradient-gold">C</div>
+                </div>
+              </div>
+              <div className="text-center md:text-left">
+                <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-primary-foreground">
+                  CÂMARA
+                </h1>
+                <p className="text-2xl md:text-4xl text-gradient-gold">MUNICIPAL DE SUMÉ</p>
+                <p className="text-xs md:text-sm opacity-60 mt-2 tracking-wider uppercase text-primary-foreground">
+                  Estado da Paraíba
+                </p>
+              </div>
+            </>
+          )}
         </Link>
 
         {/* Desktop Navigation */}

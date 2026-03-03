@@ -48,6 +48,7 @@ interface HomeProps {
   publicacoes?: Publicacao[];
   legislatura?: string;
   newsBackgroundImage?: string | null;
+  siteSettings?: Record<string, string | null>;
 }
 
 export default function Home({ 
@@ -55,8 +56,10 @@ export default function Home({
   vereadores = [], 
   publicacoes = [],
   legislatura = "2025-2028",
-  newsBackgroundImage = null
+  newsBackgroundImage = null,
+  siteSettings = {}
 }: HomeProps) {
+  const logoUrl = siteSettings?.logo_url || null;
   return (
     <>
       <SeoHead 
@@ -66,7 +69,7 @@ export default function Home({
       
       <div className="min-h-screen bg-background">
         <TopBar />
-        <Header />
+        <Header logoUrl={logoUrl} />
         
         <main>
           <NewsSection news={news} backgroundImage={newsBackgroundImage} />
@@ -81,7 +84,7 @@ export default function Home({
           <SatisfactionSurvey />
         </main>
         
-        <Footer />
+        <Footer logoUrl={logoUrl} />
         <AssistenteVirtual />
       </div>
     </>
