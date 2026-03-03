@@ -140,26 +140,37 @@ export default class InstagramAutoImporterService {
   /**
    * Import a single post
    */
-  async importSinglePost(post: InstagramPost, userId?: number): Promise<News | null> {
+  async importSinglePost(post: InstagramPost, userId?: number, customTitle?: string, customContent?: string): Promise<News | null> {
     const startTime = Date.now()
 
     try {
-      const caption = post.caption || 'Publicação do Instagram'
+      let title: string
+      let content: string
+      let tokensUsed = 0
 
-      // Generate content with AI
-      await this.aiProcessor.init()
-      const generated = await this.aiProcessor.processCaption(caption)
+      // Se título e conteúdo customizados foram fornecidos, usar diretamente
+      if (customTitle && customContent) {
+        title = customTitle
+        content = customContent
+      } else {
+        // Gerar com IA
+        const caption = post.caption || 'Publicação do Instagram'
+        await this.aiProcessor.init()
+        const generated = await this.aiProcessor.processCaption(caption)
 
-      if (!generated?.title) {
-        throw new Error('Falha ao gerar conteúdo')
+        if (!generated?.title) {
+          throw new Error('Falha ao gerar conteúdo')
+        }
+        
+        title = generated.title
+        content = generated.content
+        tokensUsed = generated.tokensUsed
       }
 
       // Get settings
       const categoryId = Number(await InstagramSetting.get('default_category', '0')) || null
-      const defaultStatus = await InstagramSetting.get('default_status', 'draft')
-      
-      // For auto import, always publish
-      const status = userId ? defaultStatus : 'published'
+      const defaultStatus = await InstagramSetting.get('default_status', 'published')
+      const status = defaultStatus as 'draft' | 'published'
 
       // Use original Instagram date
       let publishedAt: DateTime = DateTime.now()
@@ -182,15 +193,15 @@ export default class InstagramAutoImporterService {
 
       // Create news
       const news = await News.create({
-        title: generated.title,
-        content: generated.content,
-        excerpt: generated.content.substring(0, 200) + '...',
-        status: status as 'draft' | 'published',
+        title,
+        content,
+        excerpt: content.substring(0, 200) + '...',
+        status,
         categoryId,
         coverImageUrl,
         authorId: userId || null,
         publishedAt,
-        slug: this.generateSlug(generated.title),
+        slug: this.generateSlug(title),
       })
 
       const processingTime = Date.now() - startTime
@@ -203,11 +214,11 @@ export default class InstagramAutoImporterService {
         instagramCaption: post.caption,
         instagramImageUrl: post.displayUrl,
         instagramPostDate: DateTime.fromSeconds(post.takenAtTimestamp),
-        generatedTitle: generated.title,
-        generatedContent: generated.content,
+        generatedTitle: title,
+        generatedContent: content,
         aiProvider: await InstagramSetting.get('ai_provider'),
         aiModel: await InstagramSetting.get('ai_model'),
-        aiTokensUsed: generated.tokensUsed,
+        aiTokensUsed: tokensUsed,
         newsId: news.id,
         categoryId,
         importedBy: userId || null,
@@ -215,7 +226,7 @@ export default class InstagramAutoImporterService {
         processingTime,
       })
 
-      console.log(`Imported: ${generated.title} (ID: ${news.id})`)
+      console.log(`Imported: ${title} (ID: ${news.id})`)
       return news
 
     } catch (error: any) {

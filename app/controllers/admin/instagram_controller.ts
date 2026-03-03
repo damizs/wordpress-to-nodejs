@@ -153,9 +153,11 @@ export default class InstagramController {
    */
   async publishPost({ request, response, auth }: HttpContext) {
     try {
-      const { post } = request.only(['post'])
+      const { post, title, content } = request.only(['post', 'title', 'content'])
       const service = new InstagramAutoImporterService()
-      const news = await service.importSinglePost(post, auth.user?.id)
+      
+      // Se título e conteúdo foram fornecidos, usar diretamente (sem chamar IA)
+      const news = await service.importSinglePost(post, auth.user?.id, title, content)
 
       if (news) {
         return response.json({
