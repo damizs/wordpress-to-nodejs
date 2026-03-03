@@ -21,13 +21,19 @@ export default class SealsController {
     const image = request.file('image', { size: '2mb', extnames: ['png', 'jpg', 'jpeg', 'webp', 'svg'] })
     let imageUrl: string | null = null
     
+    console.log('STORE - data received:', data)
+    
     if (image) {
       const uploadDir = join(app.publicPath(), 'uploads', 'seals')
       if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true })
       const fileName = 'seal-' + cuid() + '.' + image.extname
       await image.move(uploadDir, { name: fileName })
       if (image.state === 'moved') imageUrl = '/uploads/seals/' + fileName
+      console.log('STORE - image saved:', imageUrl)
     }
+
+    const isActive = data.is_active === 'true' || data.is_active === true || data.is_active === '1'
+    console.log('STORE - isActive:', isActive, 'raw:', data.is_active)
 
     await Seal.create({
       title: data.title,
@@ -35,7 +41,7 @@ export default class SealsController {
       imageUrl,
       linkUrl: data.link_url || null,
       sortOrder: Number(data.sort_order) || 0,
-      isActive: data.is_active === 'true' || data.is_active === true,
+      isActive,
     })
 
     session.flash('success', 'Selo criado com sucesso!')
@@ -52,24 +58,44 @@ export default class SealsController {
     const data = request.only(['title', 'description', 'link_url', 'sort_order', 'is_active'])
     const image = request.file('image', { size: '2mb', extnames: ['png', 'jpg', 'jpeg', 'webp', 'svg'] })
     
-    if (image) {
+    console.log('UPDATE - seal id:', params.id)
+    console.log('UPDATE - data received:', data)
+    console.log('UPDATE - current imageUrl:', seal.imageUrl)
+    console.log('UPDATE - new image:', image ? 'yes' : 'no')
+    
+    // Só atualiza imagem se uma nova foi enviada
+    if (image && image.size > 0) {
+      // Deleta imagem antiga
       if (seal.imageUrl) {
         const oldPath = join(app.publicPath(), seal.imageUrl)
-        if (existsSync(oldPath)) try { unlinkSync(oldPath) } catch {}
+        if (existsSync(oldPath)) {
+          try { unlinkSync(oldPath) } catch (e) { console.log('Error deleting old image:', e) }
+        }
       }
       const uploadDir = join(app.publicPath(), 'uploads', 'seals')
       if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true })
       const fileName = 'seal-' + cuid() + '.' + image.extname
       await image.move(uploadDir, { name: fileName })
-      if (image.state === 'moved') seal.imageUrl = '/uploads/seals/' + fileName
+      if (image.state === 'moved') {
+        seal.imageUrl = '/uploads/seals/' + fileName
+        console.log('UPDATE - new image saved:', seal.imageUrl)
+      }
     }
 
     seal.title = data.title
     seal.description = data.description || null
     seal.linkUrl = data.link_url || null
     seal.sortOrder = Number(data.sort_order) || 0
-    seal.isActive = data.is_active === 'true' || data.is_active === true
+    
+    // Processa is_active de várias formas possíveis
+    const isActive = data.is_active === 'true' || data.is_active === true || data.is_active === '1'
+    seal.isActive = isActive
+    
+    console.log('UPDATE - isActive:', isActive, 'raw:', data.is_active, typeof data.is_active)
+    
     await seal.save()
+    
+    console.log('UPDATE - saved seal:', seal.toJSON())
 
     session.flash('success', 'Selo atualizado!')
     return response.redirect('/painel/selos')
