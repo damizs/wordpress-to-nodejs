@@ -27,7 +27,7 @@ export default function SealForm({ seal }: Props) {
     description: seal?.description || '',
     link_url: seal?.linkUrl || '',
     sort_order: seal?.sortOrder || 0,
-    is_active: seal?.isActive ?? true,
+    is_active: seal?.isActive === false ? 'false' : 'true',
     image: null as File | null,
   })
 
@@ -61,19 +61,19 @@ export default function SealForm({ seal }: Props) {
       <form onSubmit={handleSubmit} className="max-w-2xl">
         <div className="bg-white rounded-xl border p-6 space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Título *</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Titulo *</label>
             <input
               type="text"
               value={data.title}
               onChange={(e) => setData('title', e.target.value)}
               className="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-navy/20 focus:border-navy"
-              placeholder="Ex: Qualidade em Transparência"
+              placeholder="Ex: Qualidade em Transparencia"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Descrição</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Descricao</label>
             <textarea
               value={data.description}
               onChange={(e) => setData('description', e.target.value)}
@@ -131,8 +131,8 @@ export default function SealForm({ seal }: Props) {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">Status</label>
               <select
-                value={data.is_active ? 'true' : 'false'}
-                onChange={(e) => setData('is_active', e.target.value === 'true')}
+                value={data.is_active}
+                onChange={(e) => setData('is_active', e.target.value)}
                 className="w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-navy/20 focus:border-navy"
               >
                 <option value="true">Ativo</option>
