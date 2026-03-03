@@ -151,4 +151,55 @@ export default class SettingsController {
 
     return response.redirect().back()
   }
+
+  /** Show city images settings */
+  async cityImages({ inertia }: HttpContext) {
+    let images: string[] = []
+    try {
+      const setting = await SiteSetting.getValue('city_images')
+      if (setting) images = JSON.parse(setting)
+    } catch { /* ignore */ }
+
+    return inertia.render('admin/settings/city-images', { images })
+  }
+
+  /** Update city images */
+  async updateCityImages({ request, response, session }: HttpContext) {
+    try {
+      const uploadDir = join(app.publicPath(), 'uploads', 'cidade')
+      if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true })
+
+      // Get existing images to keep
+      let existingImages: string[] = []
+      try {
+        const existingJson = request.input('existing_images')
+        if (existingJson) existingImages = JSON.parse(existingJson)
+      } catch { /* ignore */ }
+
+      // Upload new images
+      const newFiles = request.files('city_images', { size: '5mb', extnames: ['png', 'jpg', 'jpeg', 'webp'] })
+      const newImages: string[] = []
+      
+      if (newFiles && newFiles.length > 0) {
+        for (const file of newFiles) {
+          const fileName = `cidade-${cuid()}.${file.extname}`
+          await file.move(uploadDir, { name: fileName })
+          if (file.state === 'moved') {
+            newImages.push(`/uploads/cidade/${fileName}`)
+          }
+        }
+      }
+
+      // Combine existing and new images
+      const allImages = [...existingImages, ...newImages]
+      await SiteSetting.setValue('city_images', JSON.stringify(allImages), 'appearance', 'json' as any)
+
+      session.flash('success', 'Fotos da cidade atualizadas!')
+    } catch (error) {
+      console.error('Error saving city images:', error)
+      session.flash('error', 'Erro ao salvar fotos.')
+    }
+
+    return response.redirect().back()
+  }
 }

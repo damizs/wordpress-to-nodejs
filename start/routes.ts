@@ -124,6 +124,8 @@ router.group(() => {
   router.post('/homepage', [AdminHomepageController, 'update'])
   router.get('/aparencia', [AdminSettingsController, 'appearance'])
   router.post('/aparencia', [AdminSettingsController, 'updateAppearance'])
+  router.get('/configuracoes/fotos-cidade', [AdminSettingsController, 'cityImages'])
+  router.post('/configuracoes/fotos-cidade', [AdminSettingsController, 'updateCityImages'])
 
   // Notícias
   router.get('/noticias', [AdminNewsController, 'index'])
