@@ -8,9 +8,10 @@ interface Props {
   categories: { id: number; name: string }[]
   aiProviders: { value: string; label: string }[]
   aiModels: Record<string, { value: string; label: string }[]>
+  defaultPrompt: string
 }
 
-export default function InstagramSettings({ settings, categories, aiProviders, aiModels }: Props) {
+export default function InstagramSettings({ settings, categories, aiProviders, aiModels, defaultPrompt }: Props) {
   const [testingAi, setTestingAi] = useState(false)
   const [aiTestResult, setAiTestResult] = useState<{ success: boolean; message: string } | null>(null)
 
@@ -22,7 +23,7 @@ export default function InstagramSettings({ settings, categories, aiProviders, a
     ai_provider: settings.ai_provider || 'gemini',
     ai_api_key: settings.ai_api_key || '',
     ai_model: settings.ai_model || 'gemini-2.0-flash',
-    ai_prompt: settings.ai_prompt || '',
+    ai_prompt: settings.ai_prompt || defaultPrompt || '',
     default_category: settings.default_category || '',
     default_status: settings.default_status || 'draft',
     posts_fetch_count: settings.posts_fetch_count || '50',
@@ -155,7 +156,7 @@ export default function InstagramSettings({ settings, categories, aiProviders, a
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Prompt Personalizado (opcional)</label>
-              <textarea value={data.ai_prompt} onChange={e => setData('ai_prompt', e.target.value)} rows={4} placeholder="Deixe em branco para usar o prompt padrão. Use {CAPTION} para inserir a legenda." className="w-full px-4 py-2 border rounded-lg text-sm" />
+              <textarea value={data.ai_prompt} onChange={e => setData('ai_prompt', e.target.value)} rows={8} placeholder="Use {CAPTION} para inserir a legenda do Instagram." className="w-full px-4 py-2 border rounded-lg text-sm font-mono" />
             </div>
           </div>
 
