@@ -9,15 +9,15 @@ export const Footer = ({ logoUrl }: FooterProps) => {
   return (
     <footer className="bg-gradient-navy text-primary-foreground">
       {/* Main Footer */}
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 py-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           {/* Logo & Description */}
           <div>
             <div className="flex items-center gap-3 mb-4">
               {logoUrl ? (
                 <img 
                   src={logoUrl} 
-                  alt="Câmara Municipal de Sumé" 
+                  alt="Camara Municipal de Sume" 
                   className="h-16 w-auto object-contain"
                 />
               ) : (
@@ -26,14 +26,14 @@ export const Footer = ({ logoUrl }: FooterProps) => {
                     <span className="text-xl font-bold">C</span>
                   </div>
                   <div>
-                    <h3 className="font-bold text-lg">CÂMARA</h3>
-                    <p className="text-gold text-sm">MUNICIPAL DE SUMÉ</p>
+                    <h3 className="font-bold text-lg">CAMARA</h3>
+                    <p className="text-gold text-sm">MUNICIPAL DE SUME</p>
                   </div>
                 </>
               )}
             </div>
-            <p className="text-sm opacity-80 mb-4">
-              Comprometida com a transparência e o bem-estar da população sumeense.
+            <p className="text-sm opacity-80 mb-4 leading-relaxed">
+              Casa Vereador Cicero Soares - Comprometida com a transparencia e o bem-estar da populacao.
             </p>
             <div className="flex gap-3">
               <a 
@@ -65,37 +65,37 @@ export const Footer = ({ logoUrl }: FooterProps) => {
 
           {/* Quick Links */}
           <div>
-            <h4 className="font-bold text-lg mb-4 text-gold">Links Úteis</h4>
-            <ul className="space-y-2 text-sm">
-              <li><Link href="/transparencia" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Portal da Transparência</Link></li>
+            <h4 className="font-bold text-lg mb-4">Links Uteis</h4>
+            <ul className="space-y-2.5 text-sm">
+              <li><Link href="/transparencia" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Portal da Transparencia</Link></li>
               <li><Link href="/e-sic" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">E-SIC</Link></li>
               <li><Link href="/ouvidoria" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Ouvidoria</Link></li>
-              <li><Link href="/licitacoes" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Licitações</Link></li>
+              <li><Link href="/licitacoes" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Licitacoes</Link></li>
               <li><Link href="/vereadores" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Vereadores</Link></li>
-              <li><Link href="/atas" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Sessões Plenárias</Link></li>
+              <li><Link href="/atas" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Atas</Link></li>
             </ul>
           </div>
 
           {/* Institutional */}
           <div>
-            <h4 className="font-bold text-lg mb-4 text-gold">Institucional</h4>
-            <ul className="space-y-2 text-sm">
-              <li><Link href="/historia-da-camara" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">A Câmara</Link></li>
+            <h4 className="font-bold text-lg mb-4">Institucional</h4>
+            <ul className="space-y-2.5 text-sm">
+              <li><Link href="/historia-da-camara" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">A Camara</Link></li>
               <li><Link href="/mesa-diretora" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Mesa Diretora</Link></li>
-              <li><Link href="/comissoes" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Comissões</Link></li>
+              <li><Link href="/comissoes" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Comissoes</Link></li>
               <li><Link href="/publicacoes-oficiais" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Regimento Interno</Link></li>
-              <li><Link href="/publicacoes-oficiais" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Lei Orgânica</Link></li>
-              <li><Link href="/politica-de-privacidade" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Política de Privacidade</Link></li>
+              <li><Link href="/publicacoes-oficiais" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Leis Municipais</Link></li>
+              <li><Link href="/politica-de-privacidade" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Politica de Privacidade</Link></li>
             </ul>
           </div>
 
           {/* Contact */}
           <div>
-            <h4 className="font-bold text-lg mb-4 text-gold">Contato</h4>
+            <h4 className="font-bold text-lg mb-4">Contato</h4>
             <ul className="space-y-3 text-sm">
               <li className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-gold shrink-0 mt-0.5" />
-                <span className="opacity-80">Rua Luiz Grande, S/N, Centro<br />CEP: 58540-000 - Sumé/PB</span>
+                <span className="opacity-80">Rua Luiz Grande, S/N, Centro<br />CEP: 58540-000 - Sume/PB</span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-gold shrink-0" />
@@ -107,7 +107,7 @@ export const Footer = ({ logoUrl }: FooterProps) => {
               </li>
               <li className="flex items-start gap-3">
                 <Clock className="w-5 h-5 text-gold shrink-0 mt-0.5" />
-                <span className="opacity-80">Segunda à Sexta<br />7h às 13h</span>
+                <span className="opacity-80">Atendimento das 7:00 as 13:00 horas</span>
               </li>
             </ul>
           </div>
@@ -116,10 +116,10 @@ export const Footer = ({ logoUrl }: FooterProps) => {
 
       {/* Bottom Bar */}
       <div className="border-t border-primary-foreground/10">
-        <div className="container mx-auto px-4 py-4">
+        <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 py-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-2 text-xs opacity-70">
-            <p>© {new Date().getFullYear()} Câmara Municipal de Sumé. Todos os direitos reservados.</p>
-            <p>Desenvolvido com transparência e compromisso público.</p>
+            <p>© Todos os direitos reservados.</p>
+            <p>Desenvolvido com transparencia e compromisso publico.</p>
           </div>
         </div>
       </div>
