@@ -10,7 +10,17 @@ import Seal from '#models/seal'
 
 export default class HomeController {
   async index({ inertia }: HttpContext) {
-    const [news, councilors, quickLinks, transparencySections, latestGazette, siteSettings, seals] = await Promise.all([
+    // Try to fetch seals, return empty array if table doesn't exist
+    let seals: Seal[] = []
+    try {
+      seals = await Seal.query()
+        .where('is_active', true)
+        .orderBy('sort_order', 'asc')
+    } catch (e) {
+      console.log('Seals table may not exist yet:', e.message)
+    }
+
+    const [news, councilors, quickLinks, transparencySections, latestGazette, siteSettings] = await Promise.all([
       News.query()
         .where('status', 'published')
         .orderBy('published_at', 'desc')
@@ -29,9 +39,6 @@ export default class HomeController {
         .orderBy('publication_date', 'desc')
         .first(),
       SiteSetting.allAsObject(),
-      Seal.query()
-        .where('is_active', true)
-        .orderBy('sort_order', 'asc'),
     ])
 
     // Fetch transparency links for each section
