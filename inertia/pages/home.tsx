@@ -11,7 +11,7 @@ import { VereadoresSection } from "~/components/VereadoresSection";
 import { DiarioOficialSection } from "~/components/DiarioOficialSection";
 import { InstagramFeedSection } from "~/components/InstagramFeedSection";
 import { ConhecaSumeSection } from "~/components/ConhecaSumeSection";
-import { TransparencySealSection } from "~/components/TransparencySealSection";
+import { CertificationsSection } from "~/components/CertificationsSection";
 import { SatisfactionSurvey } from "~/components/SatisfactionSurvey";
 import { AssistenteVirtual } from "~/components/AssistenteVirtual";
 
@@ -43,12 +43,21 @@ interface Publicacao {
   arquivo: string | null;
 }
 
+interface Seal {
+  id: number;
+  title: string;
+  description: string | null;
+  imageUrl: string | null;
+  linkUrl: string | null;
+}
+
 interface HomeProps {
   news?: NewsItem[];
   vereadores?: Vereador[];
   publicacoes?: Publicacao[];
   legislatura?: string;
   newsBackgroundImage?: string | null;
+  seals?: Seal[];
   siteSettings?: Record<string, string | null>;
 }
 
@@ -58,6 +67,7 @@ export default function Home({
   publicacoes = [],
   legislatura = "2025-2028",
   newsBackgroundImage = null,
+  seals = [],
   siteSettings = {}
 }: HomeProps) {
   const logoUrl = siteSettings?.logo_url || null;
@@ -82,7 +92,7 @@ export default function Home({
           <DiarioOficialSection publicacoes={publicacoes} />
           <InstagramFeedSection />
           <ConhecaSumeSection images={siteSettings?.city_images ? JSON.parse(siteSettings.city_images) : []} />
-          <TransparencySealSection />
+          <CertificationsSection seals={seals} />
           <SatisfactionSurvey />
         </main>
         

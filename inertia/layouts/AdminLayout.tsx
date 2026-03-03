@@ -3,7 +3,7 @@ import { FlashMessages } from '~/components/FlashMessages'
 import {
   LayoutDashboard, Newspaper, Palette, ChevronLeft, ChevronRight, ChevronDown,
   LogOut, Menu, X, User, Home, Users, FileText, Link2, Shield,
-  ScrollText, Settings, Monitor, HelpCircle, BookOpen, Info, Tags, Calendar, Users2, Gavel, ClipboardCheck, Instagram, Image,
+  ScrollText, Settings, Monitor, HelpCircle, BookOpen, Info, Tags, Calendar, Users2, Gavel, ClipboardCheck, Instagram, Image, Award,
 } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 
