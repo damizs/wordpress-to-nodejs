@@ -1,3 +1,4 @@
+import { GlobalEffects } from "~/components/GlobalEffects";
 import { TopBar } from "~/components/TopBar";
 import { Header } from "~/components/Header";
 import { Footer } from "~/components/Footer";
@@ -62,6 +63,7 @@ export default function Home({
   const logoUrl = siteSettings?.logo_url || null;
   return (
     <>
+      <GlobalEffects />
       <SeoHead 
         title="Início"
         description="Portal oficial da Câmara Municipal de Sumé, Paraíba. Acesse informações sobre vereadores, transparência, notícias e serviços ao cidadão."
