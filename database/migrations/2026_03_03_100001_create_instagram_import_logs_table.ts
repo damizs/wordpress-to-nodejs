@@ -4,6 +4,9 @@ export default class extends BaseSchema {
   protected tableName = 'instagram_import_logs'
 
   async up() {
+    // Drop if exists
+    this.schema.dropTableIfExists(this.tableName)
+    
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
       
@@ -32,9 +35,9 @@ export default class extends BaseSchema {
       table.integer('imported_by').unsigned().nullable()
         .references('id').inTable('users').onDelete('SET NULL')
       
-      // Status: pending, published, draft, error
-      table.string('status', 20).defaultTo('pending')
-      table.integer('processing_time').nullable() // in ms
+      // Status
+      table.enum('status', ['pending', 'published', 'draft', 'error']).defaultTo('pending')
+      table.integer('processing_time').nullable()
       table.text('error_message').nullable()
       
       table.timestamp('created_at')
