@@ -2,7 +2,7 @@ import { Link, usePage, router } from '@inertiajs/react'
 import { FlashMessages } from '~/components/FlashMessages'
 import {
   LayoutDashboard, Newspaper, Palette, ChevronLeft, ChevronRight, ChevronDown,
-  LogOut, Menu, X, User, Home, Users, FileText, Link2, Shield,
+  LogOut, Menu, X, User, Home, Users, FileText, Link2, Shield, UserCog,
   ScrollText, Settings, Monitor, HelpCircle, BookOpen, Info, Tags, Calendar, Users2, Gavel, ClipboardCheck, Instagram, Image, Award,
 } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
@@ -16,37 +16,54 @@ interface NavItem {
   label: string
   href?: string
   icon: any
-  children?: { label: string; href: string }[]
+  permissions?: string[] // exibe se o usuário tiver QUALQUER uma destas
+  children?: { label: string; href: string; permissions?: string[] }[]
 }
 
 const navItems: NavItem[] = [
   { label: 'Dashboard', href: '/painel', icon: LayoutDashboard },
-  { label: 'Homepage', href: '/painel/homepage', icon: Monitor },
+  { label: 'Homepage', href: '/painel/homepage', icon: Monitor, permissions: ['site.gerenciar'] },
   { 
     label: 'Notícias', 
     icon: Newspaper,
+    permissions: ['noticia.criar', 'noticia.editar', 'instagram.gerenciar'],
     children: [
-      { label: 'Todas as Notícias', href: '/painel/noticias' },
-      { label: 'Automação Instagram', href: '/painel/noticias/instagram' },
+      { label: 'Todas as Notícias', href: '/painel/noticias', permissions: ['noticia.criar', 'noticia.editar'] },
+      { label: 'Automação Instagram', href: '/painel/noticias/instagram', permissions: ['instagram.gerenciar'] },
     ]
   },
-  { label: 'Legislaturas', href: '/painel/legislaturas', icon: Settings },
-  { label: 'Biênios', href: '/painel/bienios', icon: Calendar },
-  { label: 'Vereadores', href: '/painel/vereadores', icon: Users },
-  { label: 'Comissões', href: '/painel/comissoes', icon: Users2 },
-  { label: 'Ativ. Legislativas', href: '/painel/atividades', icon: ScrollText },
-  { label: 'Sessões / Atas', href: '/painel/sessoes', icon: FileText },
-  { label: 'Publicações', href: '/painel/publicacoes', icon: FileText },
-  { label: 'FAQ', href: '/painel/faq', icon: HelpCircle },
-  { label: 'Pesquisa Satisfação', href: '/painel/pesquisa-satisfacao', icon: ClipboardCheck },
-  { label: 'Transparência', href: '/painel/transparencia', icon: Shield },
-  { label: 'Licitações', href: '/painel/licitacoes', icon: Gavel },
-  { label: 'Acesso à Informação', href: '/painel/acesso-informacao', icon: Info },
-  { label: 'Links Rápidos', href: '/painel/links-rapidos', icon: Link2 },
-  { label: 'Categorias', href: '/painel/categorias', icon: Tags },
-  { label: 'Aparência', href: '/painel/aparencia', icon: Palette },
-  { label: 'Fotos da Cidade', href: '/painel/configuracoes/fotos-cidade', icon: Image },
+  { label: 'Legislaturas', href: '/painel/legislaturas', icon: Settings, permissions: ['legislativo.gerenciar'] },
+  { label: 'Biênios', href: '/painel/bienios', icon: Calendar, permissions: ['legislativo.gerenciar'] },
+  { label: 'Vereadores', href: '/painel/vereadores', icon: Users, permissions: ['legislativo.gerenciar'] },
+  { label: 'Comissões', href: '/painel/comissoes', icon: Users2, permissions: ['legislativo.gerenciar'] },
+  { label: 'Ativ. Legislativas', href: '/painel/atividades', icon: ScrollText, permissions: ['atividade.gerenciar'] },
+  { label: 'Sessões / Atas', href: '/painel/sessoes', icon: FileText, permissions: ['sessao.gerenciar'] },
+  { label: 'Publicações', href: '/painel/publicacoes', icon: FileText, permissions: ['publicacao.gerenciar'] },
+  { label: 'FAQ', href: '/painel/faq', icon: HelpCircle, permissions: ['faq.gerenciar'] },
+  { label: 'Pesquisa Satisfação', href: '/painel/pesquisa-satisfacao', icon: ClipboardCheck, permissions: ['pesquisa.gerenciar'] },
+  { label: 'Transparência', href: '/painel/transparencia', icon: Shield, permissions: ['transparencia.gerenciar'] },
+  { label: 'Licitações', href: '/painel/licitacoes', icon: Gavel, permissions: ['licitacao.gerenciar'] },
+  { label: 'Acesso à Informação', href: '/painel/acesso-informacao', icon: Info, permissions: ['pntp.gerenciar'] },
+  { label: 'Links Rápidos', href: '/painel/links-rapidos', icon: Link2, permissions: ['site.gerenciar'] },
+  { label: 'Categorias', href: '/painel/categorias', icon: Tags, permissions: ['site.gerenciar'] },
+  { label: 'Aparência', href: '/painel/aparencia', icon: Palette, permissions: ['site.gerenciar'] },
+  { label: 'Fotos da Cidade', href: '/painel/configuracoes/fotos-cidade', icon: Image, permissions: ['site.gerenciar'] },
+  {
+    label: 'Usuários',
+    icon: UserCog,
+    permissions: ['usuario.gerenciar'],
+    children: [
+      { label: 'Todos os Usuários', href: '/painel/usuarios' },
+      { label: 'Papéis e Permissões', href: '/painel/papeis' },
+    ],
+  },
 ]
+
+function hasAny(userPermissions: string[], required?: string[]) {
+  if (!required || required.length === 0) return true
+  if (userPermissions.includes('*')) return true
+  return required.some((p) => userPermissions.includes(p))
+}
 
 export default function AdminLayout({ children, title }: AdminLayoutProps) {
   const { auth } = usePage().props as any
@@ -54,6 +71,15 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [expandedMenus, setExpandedMenus] = useState<string[]>(['Notícias'])
   const currentUrl = usePage().url
+
+  const userPermissions: string[] = auth?.permissions ?? []
+  const visibleNavItems = navItems
+    .filter((item) => hasAny(userPermissions, item.permissions))
+    .map((item) =>
+      item.children
+        ? { ...item, children: item.children.filter((c) => hasAny(userPermissions, c.permissions)) }
+        : item
+    )
 
   function isActive(href: string) {
     if (href === '/painel') return currentUrl === '/painel'
@@ -110,7 +136,7 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
 
         {/* Nav */}
         <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
-          {navItems.map((item) => (
+          {visibleNavItems.map((item) => (
             <div key={item.label}>
               {item.children ? (
                 <>

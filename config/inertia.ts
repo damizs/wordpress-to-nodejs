@@ -6,21 +6,21 @@ const inertiaConfig = defineConfig({
 
   sharedData: {
     auth: (ctx) =>
-      ctx.inertia.always(() => {
+      ctx.inertia.always(async () => {
         try {
           const user = ctx.auth?.user
+          if (!user) return { user: null, permissions: [] }
           return {
-            user: user
-              ? {
-                  id: user.id,
-                  fullName: user.fullName,
-                  email: user.email,
-                  role: user.role,
-                }
-              : null,
+            user: {
+              id: user.id,
+              fullName: user.fullName,
+              email: user.email,
+              role: user.role,
+            },
+            permissions: await user.getPermissionNames(),
           }
         } catch {
-          return { user: null }
+          return { user: null, permissions: [] }
         }
       }),
     flash: (ctx) =>

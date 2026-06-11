@@ -20,7 +20,9 @@ export default class AuthController {
         return response.redirect('/login')
       }
 
-      if (!['super_admin', 'admin', 'editor'].includes(user.role)) {
+      // Acesso ao painel: precisa ter ao menos uma permissão (papel RBAC ou enum legado)
+      const permissions = await user.getPermissionNames()
+      if (permissions.length === 0) {
         session.flash('error', 'Sem permissão de acesso ao painel.')
         return response.redirect('/login')
       }
