@@ -32,8 +32,9 @@ export default class PublicationsController {
     })
   }
 
-  async show({ params, inertia }: HttpContext) {
-    const publication = await OfficialPublication.query().where('slug', params.slug).firstOrFail()
+  async show({ params, inertia, response }: HttpContext) {
+    const publication = await OfficialPublication.query().where('slug', params.slug).first()
+    if (!publication) return response.redirect().status(301).toPath('/publicacoes-oficiais')
     const siteSettings = await SiteSetting.allAsObject()
     return inertia.render('public/publications/show', {
       publication: publication.serialize(),

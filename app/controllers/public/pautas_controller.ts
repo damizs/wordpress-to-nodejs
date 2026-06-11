@@ -33,8 +33,9 @@ export default class PautasController {
     })
   }
 
-  async show({ params, inertia }: HttpContext) {
-    const session = await PlenarySession.query().where('slug', params.slug).firstOrFail()
+  async show({ params, inertia, response }: HttpContext) {
+    const session = await PlenarySession.query().where('slug', params.slug).first()
+    if (!session) return response.redirect().status(301).toPath('/pautas')
     const siteSettings = await SiteSetting.allAsObject()
     return inertia.render('public/pautas/show', {
       pauta: {

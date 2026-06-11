@@ -1,5 +1,6 @@
 import router from '@adonisjs/core/services/router'
 import { middleware } from '#start/kernel'
+import { registerLegacyRedirects } from '#start/legacy_redirects'
 
 // Lazy imports - Public
 const HomeController = () => import('#controllers/home_controller')
@@ -99,6 +100,9 @@ router.get('/diario-oficial', [PublicDiarioOficialController, 'index'])
 router.get('/leis', ({ response }) =>
   response.redirect('https://www.sume.pb.gov.br/portal-da-transparencia/leis-municipais/')
 )
+// Redirects 301 das URLs do WordPress antigo (links da avaliação ATRICON)
+registerLegacyRedirects()
+
 // Dynamic info pages: /estagiarios, /terceirizados, /verbas, etc.
 router
   .get('/:slug', [PublicDynamicInfoController, 'show'])

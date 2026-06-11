@@ -41,13 +41,22 @@ export default class PublicNewsController {
   }
 
   /** Show single news article */
-  async show({ inertia, params }: HttpContext) {
+  async show({ inertia, params, response }: HttpContext) {
     const news = await News.query()
       .where('slug', params.slug)
       .where('status', 'published')
       .preload('category')
       .preload('author')
-      .firstOrFail()
+      .first()
+
+    if (!news) {
+      // URLs antigas de categoria do WP (/noticias/gestao-2023-2024/) → listagem
+      const category = await NewsCategory.findBy('slug', params.slug)
+      if (category) {
+        return response.redirect().status(301).toPath(`/noticias?categoria=${category.id}`)
+      }
+      return response.redirect().status(301).toPath('/noticias')
+    }
 
     // Increment views
     news.viewsCount = (news.viewsCount || 0) + 1

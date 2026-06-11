@@ -2,6 +2,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import InformationRecord from '#models/information_record'
 import SystemCategory from '#models/system_category'
 import SiteSetting from '#models/site_setting'
+import News from '#models/news'
 
 export default class DynamicInfoController {
   async show({ params, inertia, request, response }: HttpContext) {
@@ -13,6 +14,12 @@ export default class DynamicInfoController {
       .first()
 
     if (!category) {
+      // Permalink antigo do WordPress: notícias viviam na raiz (/slug-da-noticia/).
+      // Preserva os links indexados/avaliados com redirect 301 (CLAUDE.md §11.4).
+      const news = await News.query().where('slug', slug).where('status', 'published').first()
+      if (news) {
+        return response.redirect().status(301).toPath(`/noticias/${news.slug}`)
+      }
       return response.status(404).send('Página não encontrada')
     }
 

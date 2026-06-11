@@ -33,11 +33,12 @@ export default class LicitacoesController {
     })
   }
 
-  async show({ params, inertia }: HttpContext) {
+  async show({ params, inertia, response }: HttpContext) {
     const licitacao = await Licitacao.query()
       .where('slug', params.slug)
       .where('is_active', true)
-      .firstOrFail()
+      .first()
+    if (!licitacao) return response.redirect().status(301).toPath('/licitacoes')
     const siteSettings = await SiteSetting.allAsObject()
     return inertia.render('public/licitacoes/show', {
       licitacao: licitacao.serialize(),

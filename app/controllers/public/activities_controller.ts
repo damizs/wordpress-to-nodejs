@@ -32,8 +32,9 @@ export default class ActivitiesController {
     })
   }
 
-  async show({ params, inertia }: HttpContext) {
-    const activity = await LegislativeActivity.query().where('slug', params.slug).firstOrFail()
+  async show({ params, inertia, response }: HttpContext) {
+    const activity = await LegislativeActivity.query().where('slug', params.slug).first()
+    if (!activity) return response.redirect().status(301).toPath('/atividades-legislativa')
     const siteSettings = await SiteSetting.allAsObject()
     return inertia.render('public/activities/show', {
       activity: activity.serialize(),

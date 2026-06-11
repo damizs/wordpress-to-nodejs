@@ -47,8 +47,9 @@ export default class CouncilorsController {
     })
   }
 
-  async show({ params, inertia }: HttpContext) {
-    const councilor = await Councilor.query().where('slug', params.slug).firstOrFail()
+  async show({ params, inertia, response }: HttpContext) {
+    const councilor = await Councilor.query().where('slug', params.slug).first()
+    if (!councilor) return response.redirect().status(301).toPath('/vereadores')
 
     const positions = await CouncilorPosition.query()
       .where('councilor_id', councilor.id)

@@ -35,8 +35,10 @@ export default class AtasController {
     })
   }
 
-  async show({ params, inertia }: HttpContext) {
-    const session = await PlenarySession.query().where('slug', params.slug).firstOrFail()
+  async show({ params, inertia, response }: HttpContext) {
+    const session = await PlenarySession.query().where('slug', params.slug).first()
+    // Slug antigo do WP sem correspondente: preserva o link com 301 para a listagem
+    if (!session) return response.redirect().status(301).toPath('/atas')
     const siteSettings = await SiteSetting.allAsObject()
     return inertia.render('public/atas/show', {
       ata: {
