@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { MapPin, Users, Mountain, History, ChevronLeft, ChevronRight, X } from "lucide-react";
 
 interface ConhecaSumeSectionProps {
   images?: string[];
@@ -7,167 +7,261 @@ interface ConhecaSumeSectionProps {
   subtitle?: string;
 }
 
-function usePerPage() {
-  const [count, setCount] = useState(4);
-  useEffect(() => {
-    const update = () => setCount(window.innerWidth < 640 ? 1 : window.innerWidth < 1024 ? 2 : 4);
-    update();
-    window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
-  }, []);
-  return count;
-}
-
-export const ConhecaSumeSection = ({ images, title }: ConhecaSumeSectionProps) => {
+export const ConhecaSumeSection = ({ images, title, subtitle }: ConhecaSumeSectionProps) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  
   const defaultImages = ["/images/sume-cidade.jpg"];
   const carouselImages = images && images.length > 0 ? images : defaultImages;
-  const perPage = usePerPage();
-  const [start, setStart] = useState(0);
-  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
-  const [isPaused, setIsPaused] = useState(false);
-  const canScroll = carouselImages.length > perPage;
+  const hasMultipleImages = carouselImages.length > 1;
 
-  const next = () => setStart((s) => (s + 1) % carouselImages.length);
-  const prev = () => setStart((s) => (s - 1 + carouselImages.length) % carouselImages.length);
-
-  // Autoplay da fita de fotos
+  // Auto-play do carrossel (5 segundos)
   useEffect(() => {
-    if (!canScroll || isPaused || lightboxIndex !== null) return;
-    const t = setInterval(next, 5000);
-    return () => clearInterval(t);
-  }, [canScroll, isPaused, lightboxIndex, carouselImages.length]);
+    if (!hasMultipleImages || isPaused || lightboxOpen) return;
+    
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % carouselImages.length);
+    }, 5000);
+    
+    return () => clearInterval(interval);
+  }, [carouselImages.length, hasMultipleImages, isPaused, lightboxOpen]);
 
-  const visible = Array.from({ length: Math.min(perPage, carouselImages.length) }).map(
-    (_, i) => (start + i) % carouselImages.length
-  );
-
-  // Navegação por teclado no lightbox
-  useEffect(() => {
-    if (lightboxIndex === null) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") closeLightbox();
-      if (e.key === "ArrowLeft")
-        setLightboxIndex((i) => (i! - 1 + carouselImages.length) % carouselImages.length);
-      if (e.key === "ArrowRight") setLightboxIndex((i) => (i! + 1) % carouselImages.length);
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [lightboxIndex, carouselImages.length]);
-
-  const openLightbox = (index: number) => {
-    setLightboxIndex(index);
-    document.body.style.overflow = "hidden";
+  const goToPrevious = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setCurrentIndex((prev) => (prev - 1 + carouselImages.length) % carouselImages.length);
   };
+
+  const goToNext = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setCurrentIndex((prev) => (prev + 1) % carouselImages.length);
+  };
+
+  const openLightbox = () => {
+    setLightboxOpen(true);
+    document.body.style.overflow = 'hidden';
+  };
+
   const closeLightbox = () => {
-    setLightboxIndex(null);
-    document.body.style.overflow = "";
+    setLightboxOpen(false);
+    document.body.style.overflow = '';
   };
+
+  // Keyboard navigation
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowLeft') goToPrevious();
+      if (e.key === 'ArrowRight') goToNext();
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [lightboxOpen, carouselImages.length]);
 
   return (
     <>
-      <section data-reveal>
-        {/* Faixa navy com o título (padrão do portal) */}
-        <div className="bg-gradient-hero py-4">
-          <h2 className="text-center text-primary-foreground text-xl md:text-2xl font-bold">
-            {title || "Conheça Sumé - PB"}
-          </h2>
-        </div>
-
-        {/* Fita de fotos */}
-        <div
-          className="relative bg-background py-8 px-4"
-          onMouseEnter={() => setIsPaused(true)}
-          onMouseLeave={() => setIsPaused(false)}
-        >
-          <div className="container mx-auto">
-            <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 px-10">
-              {visible.map((imgIndex) => (
-                <button
-                  key={imgIndex}
-                  onClick={() => openLightbox(imgIndex)}
-                  className="relative aspect-[4/3] overflow-hidden rounded-xl group shadow-md"
-                  aria-label={`Ampliar foto ${imgIndex + 1} de Sumé`}
-                >
+      <section className="py-20 px-4 bg-background">
+        <div className="container mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            {/* Image Carousel */}
+            <div 
+              className="relative"
+              data-reveal="left"
+              onMouseEnter={() => setIsPaused(true)}
+              onMouseLeave={() => setIsPaused(false)}
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-gold/20 rounded-3xl blur-3xl" />
+              
+              <div 
+                className="relative rounded-3xl shadow-2xl overflow-hidden aspect-[4/3] cursor-pointer group"
+                onClick={openLightbox}
+              >
+                {carouselImages.map((src, index) => (
                   <img
-                    src={carouselImages[imgIndex]}
-                    alt={`Sumé - Imagem ${imgIndex + 1}`}
-                    loading="lazy"
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    key={index}
+                    src={src}
+                    alt={`Sumé - Imagem ${index + 1}`}
+                    className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
+                      index === currentIndex ? 'opacity-100' : 'opacity-0'
+                    }`}
+                    onError={(e) => {
+                      e.currentTarget.src = "https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800&h=600&fit=crop";
+                    }}
                   />
-                </button>
-              ))}
+                ))}
+
+                {/* Overlay com hint de clique */}
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
+                  <span className="text-white text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 px-4 py-2 rounded-full">
+                    Clique para ampliar
+                  </span>
+                </div>
+
+                {/* Navigation Arrows */}
+                {hasMultipleImages && (
+                  <>
+                    <button
+                      onClick={goToPrevious}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 hover:bg-white shadow-lg transition-all opacity-0 group-hover:opacity-100"
+                    >
+                      <ChevronLeft className="w-5 h-5 text-gray-800" />
+                    </button>
+                    <button
+                      onClick={goToNext}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 hover:bg-white shadow-lg transition-all opacity-0 group-hover:opacity-100"
+                    >
+                      <ChevronRight className="w-5 h-5 text-gray-800" />
+                    </button>
+                  </>
+                )}
+
+                {/* Dots Indicator */}
+                {hasMultipleImages && (
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+                    {carouselImages.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCurrentIndex(index);
+                        }}
+                        className={`h-2.5 rounded-full transition-all ${
+                          index === currentIndex 
+                            ? 'bg-gold w-6' 
+                            : 'bg-white/60 hover:bg-white/80 w-2.5'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
 
-            {canScroll && (
-              <>
-                <button
-                  onClick={prev}
-                  aria-label="Fotos anteriores"
-                  className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-card shadow-lg border border-border/60 flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={next}
-                  aria-label="Próximas fotos"
-                  className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-card shadow-lg border border-border/60 flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors"
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-                <div className="flex justify-center gap-1.5 mt-5">
-                  {carouselImages.map((_, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setStart(i)}
-                      aria-label={`Ir para foto ${i + 1}`}
-                      className={`h-2 rounded-full transition-all ${i === start ? "bg-primary w-5" : "bg-border w-2 hover:bg-muted-foreground/40"}`}
-                    />
-                  ))}
+            {/* Content */}
+            <div data-reveal="right" data-reveal-delay={120}>
+              <span className="inline-block px-4 py-1.5 bg-gold/10 text-gold rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
+                Conheça Nossa Cidade
+              </span>
+              {title ? (
+                <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-6">{title}</h2>
+              ) : (
+                <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-6">
+                  Sumé<br />
+                  <span className="text-gradient-gold">Cariri Paraibano</span>
+                </h2>
+              )}
+              <p className="text-muted-foreground text-lg mb-8 leading-relaxed">
+                {subtitle ||
+                  "Sumé, localizada no Cariri Ocidental da Paraíba, é uma cidade rica em história e cultura. Conhecida por sua hospitalidade e tradições, é um importante polo regional."}
+              </p>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/50">
+                  <MapPin className="w-6 h-6 text-primary" />
+                  <div>
+                    <p className="font-bold text-foreground">838 km²</p>
+                    <p className="text-xs text-muted-foreground">Área territorial</p>
+                  </div>
                 </div>
-              </>
-            )}
+                <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/50">
+                  <Users className="w-6 h-6 text-primary" />
+                  <div>
+                    <p className="font-bold text-foreground">~16 mil</p>
+                    <p className="text-xs text-muted-foreground">Habitantes</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/50">
+                  <Mountain className="w-6 h-6 text-primary" />
+                  <div>
+                    <p className="font-bold text-foreground">533m</p>
+                    <p className="text-xs text-muted-foreground">Altitude média</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/50">
+                  <History className="w-6 h-6 text-primary" />
+                  <div>
+                    <p className="font-bold text-foreground">1951</p>
+                    <p className="text-xs text-muted-foreground">Emancipação</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Lightbox */}
-      {lightboxIndex !== null && (
-        <div className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center" onClick={closeLightbox}>
-          <button onClick={closeLightbox} className="absolute top-4 right-4 p-2 text-white/70 hover:text-white transition-colors z-10">
+      {/* Lightbox Modal */}
+      {lightboxOpen && (
+        <div 
+          className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center"
+          onClick={closeLightbox}
+        >
+          {/* Close Button */}
+          <button
+            onClick={closeLightbox}
+            className="absolute top-4 right-4 p-2 text-white/70 hover:text-white transition-colors z-10"
+          >
             <X className="w-8 h-8" />
           </button>
-          <div className="absolute top-4 left-4 text-white/70 text-sm">
-            {lightboxIndex + 1} / {carouselImages.length}
-          </div>
+
+          {/* Image Counter */}
+          {hasMultipleImages && (
+            <div className="absolute top-4 left-4 text-white/70 text-sm">
+              {currentIndex + 1} / {carouselImages.length}
+            </div>
+          )}
+
+          {/* Main Image */}
           <div className="relative w-full h-full flex items-center justify-center p-4 md:p-12">
             <img
-              src={carouselImages[lightboxIndex]}
-              alt={`Sumé - Imagem ${lightboxIndex + 1}`}
+              src={carouselImages[currentIndex]}
+              alt={`Sumé - Imagem ${currentIndex + 1}`}
               className="max-w-full max-h-full object-contain"
               onClick={(e) => e.stopPropagation()}
             />
           </div>
-          {carouselImages.length > 1 && (
+
+          {/* Navigation Arrows */}
+          {hasMultipleImages && (
             <>
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setLightboxIndex((lightboxIndex - 1 + carouselImages.length) % carouselImages.length);
-                }}
+                onClick={goToPrevious}
                 className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all"
               >
                 <ChevronLeft className="w-8 h-8" />
               </button>
               <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setLightboxIndex((lightboxIndex + 1) % carouselImages.length);
-                }}
+                onClick={goToNext}
                 className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all"
               >
                 <ChevronRight className="w-8 h-8" />
               </button>
             </>
+          )}
+
+          {/* Thumbnails */}
+          {hasMultipleImages && (
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 max-w-[90vw] overflow-x-auto p-2">
+              {carouselImages.map((src, index) => (
+                <button
+                  key={index}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCurrentIndex(index);
+                  }}
+                  className={`w-16 h-12 rounded-lg overflow-hidden flex-shrink-0 transition-all ${
+                    index === currentIndex 
+                      ? 'ring-2 ring-gold opacity-100' 
+                      : 'opacity-50 hover:opacity-75'
+                  }`}
+                >
+                  <img src={src} alt="" className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
           )}
         </div>
       )}
