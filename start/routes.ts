@@ -383,6 +383,7 @@ router
         router.get('/licitacoes/:id/editar', [AdminLicitacoesController, 'edit'])
         router.put('/licitacoes/:id', [AdminLicitacoesController, 'update'])
         router.delete('/licitacoes/:id', [AdminLicitacoesController, 'destroy'])
+        router.delete('/licitacoes/documentos/:id', [AdminLicitacoesController, 'destroyDocument'])
       })
       .use(middleware.can(['licitacao.gerenciar']))
 

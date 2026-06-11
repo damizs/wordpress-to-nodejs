@@ -1,5 +1,7 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column } from '@adonisjs/lucid/orm'
+import { BaseModel, column, hasMany } from '@adonisjs/lucid/orm'
+import type { HasMany } from '@adonisjs/lucid/types/relations'
+import LicitacaoDocument from '#models/licitacao_document'
 
 export default class Licitacao extends BaseModel {
   static table = 'licitacoes'
@@ -20,4 +22,7 @@ export default class Licitacao extends BaseModel {
   @column() declare isActive: boolean
   @column.dateTime({ autoCreate: true }) declare createdAt: DateTime
   @column.dateTime({ autoCreate: true, autoUpdate: true }) declare updatedAt: DateTime | null
+
+  @hasMany(() => LicitacaoDocument)
+  declare documents: HasMany<typeof LicitacaoDocument>
 }

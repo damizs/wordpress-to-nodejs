@@ -7,9 +7,10 @@ import { Footer } from "~/components/Footer";
 import { Calendar, ArrowLeft, Download, FileText, Tag } from "lucide-react";
 
 interface Attachment { id: number; name: string; url: string; }
-interface Props { licitacao: { id: number; title: string; slug: string; number: string; modality?: string; date: string; status?: string; description?: string; object?: string; attachments?: Attachment[]; }; }
+interface DocumentGroup { type: string; label: string; files: { id: number; title: string; url: string }[]; }
+interface Props { licitacao: { id: number; title: string; slug: string; number: string; modality?: string; date: string; status?: string; description?: string; object?: string; attachments?: Attachment[]; }; documentGroups?: DocumentGroup[]; }
 
-export default function LicitacaoShow({ licitacao }: Props) {
+export default function LicitacaoShow({ licitacao, documentGroups = [] }: Props) {
   return (
     <>
       <SeoHead title={`${licitacao.number} - ${licitacao.title}`} url={`/licitacoes/${licitacao.slug}`} />
@@ -34,6 +35,32 @@ export default function LicitacaoShow({ licitacao }: Props) {
                   </div>
                 )}
                 {licitacao.description && <div className="prose max-w-none mb-6" dangerouslySetInnerHTML={{ __html: licitacao.description }} />}
+
+                {/* Documentos do processo, agrupados por fase */}
+                {documentGroups.length > 0 && (
+                  <div className="mb-6">
+                    <h2 className="font-semibold text-foreground mb-4">Documentos do Processo</h2>
+                    <div className="space-y-5">
+                      {documentGroups.map((group) => (
+                        <div key={group.type}>
+                          <h3 className="text-sm font-semibold text-primary uppercase tracking-wide mb-2 flex items-center gap-2">
+                            <Tag className="w-3.5 h-3.5" />
+                            {group.label}
+                          </h3>
+                          <div className="space-y-2">
+                            {group.files.map((file) => (
+                              <a key={file.id} href={file.url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-3 bg-muted/50 rounded-xl hover:bg-muted transition-colors no-underline text-foreground group">
+                                <span className="flex items-center gap-2 min-w-0"><FileText className="w-4 h-4 shrink-0 text-primary" /><span className="truncate">{file.title}</span></span>
+                                <Download className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors shrink-0" />
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {licitacao.attachments && licitacao.attachments.length > 0 && (
                   <div>
                     <h2 className="font-semibold text-foreground mb-4">Anexos</h2>
