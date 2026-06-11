@@ -1,11 +1,32 @@
 import { Link } from "@inertiajs/react";
 import { MapPin, Phone, Mail, Clock, Facebook, Instagram, Youtube } from "lucide-react";
+import { useSiteSettings } from "~/hooks/use_site_settings";
 
 interface FooterProps {
   logoUrl?: string | null;
 }
 
 export const Footer = ({ logoUrl }: FooterProps) => {
+  const settings = useSiteSettings();
+
+  const resolvedLogo = logoUrl ?? settings.logo_url ?? null;
+  const headerTitle = settings.header_title || "CÂMARA MUNICIPAL DE SUMÉ";
+  const [titleFirstWord, ...titleRest] = headerTitle.split(" ");
+  const description =
+    settings.footer_description ||
+    "Comprometida com a transparência e o bem-estar da população.";
+  const address = settings.footer_address || "";
+  const phone = settings.footer_phone || "";
+  const email = settings.footer_email || "";
+  const hours = settings.footer_hours || "";
+  const esicUrl = settings.esic_new_url && settings.esic_new_url !== "#" ? settings.esic_new_url : "/transparencia";
+
+  const socials = [
+    { icon: Facebook, url: settings.social_facebook },
+    { icon: Instagram, url: settings.social_instagram },
+    { icon: Youtube, url: settings.social_youtube },
+  ].filter((s) => s.url && s.url.trim() !== "");
+
   return (
     <footer className="bg-gradient-navy text-primary-foreground">
       {/* Main Footer */}
@@ -14,63 +35,52 @@ export const Footer = ({ logoUrl }: FooterProps) => {
           {/* Logo & Description */}
           <div>
             <div className="flex items-center gap-3 mb-4">
-              {logoUrl ? (
+              {resolvedLogo ? (
                 <img 
-                  src={logoUrl} 
-                  alt="Camara Municipal de Sume" 
+                  src={resolvedLogo} 
+                  alt={headerTitle} 
                   className="h-16 w-auto object-contain"
                 />
               ) : (
                 <>
                   <div className="w-12 h-12 rounded-full bg-primary-foreground/10 flex items-center justify-center border border-primary-foreground/30">
-                    <span className="text-xl font-bold">C</span>
+                    <span className="text-xl font-bold">{titleFirstWord.charAt(0)}</span>
                   </div>
                   <div>
-                    <h3 className="font-bold text-lg">CAMARA</h3>
-                    <p className="text-gold text-sm">MUNICIPAL DE SUME</p>
+                    <h3 className="font-bold text-lg">{titleFirstWord}</h3>
+                    <p className="text-gold text-sm">{titleRest.join(" ")}</p>
                   </div>
                 </>
               )}
             </div>
             <p className="text-sm opacity-80 mb-4 leading-relaxed">
-              Casa Vereador Cicero Soares - Comprometida com a transparencia e o bem-estar da populacao.
+              {description}
             </p>
-            <div className="flex gap-3">
-              <a 
-                href="https://www.facebook.com/camaradesume" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center hover:bg-gold hover:text-navy-dark transition-colors"
-              >
-                <Facebook className="w-5 h-5" />
-              </a>
-              <a 
-                href="https://www.instagram.com/camaradesume" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center hover:bg-gold hover:text-navy-dark transition-colors"
-              >
-                <Instagram className="w-5 h-5" />
-              </a>
-              <a 
-                href="https://www.youtube.com/@camaradesume" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center hover:bg-gold hover:text-navy-dark transition-colors"
-              >
-                <Youtube className="w-5 h-5" />
-              </a>
-            </div>
+            {socials.length > 0 && (
+              <div className="flex gap-3">
+                {socials.map((social, index) => (
+                  <a
+                    key={index}
+                    href={social.url!}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center hover:bg-gold hover:text-navy-dark transition-colors"
+                  >
+                    <social.icon className="w-5 h-5" />
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Quick Links */}
           <div>
-            <h4 className="font-bold text-lg mb-4">Links Uteis</h4>
+            <h4 className="font-bold text-lg mb-4">Links Úteis</h4>
             <ul className="space-y-2.5 text-sm">
-              <li><Link href="/transparencia" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Portal da Transparencia</Link></li>
-              <li><Link href="/e-sic" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">E-SIC</Link></li>
+              <li><Link href="/transparencia" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Portal da Transparência</Link></li>
+              <li><a href={esicUrl} target={esicUrl.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">E-SIC</a></li>
               <li><Link href="/ouvidoria" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Ouvidoria</Link></li>
-              <li><Link href="/licitacoes" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Licitacoes</Link></li>
+              <li><Link href="/licitacoes" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Licitações</Link></li>
               <li><Link href="/vereadores" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Vereadores</Link></li>
               <li><Link href="/atas" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Atas</Link></li>
             </ul>
@@ -80,12 +90,12 @@ export const Footer = ({ logoUrl }: FooterProps) => {
           <div>
             <h4 className="font-bold text-lg mb-4">Institucional</h4>
             <ul className="space-y-2.5 text-sm">
-              <li><Link href="/historia-da-camara" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">A Camara</Link></li>
+              <li><Link href="/historia-da-camara" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">A Câmara</Link></li>
               <li><Link href="/mesa-diretora" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Mesa Diretora</Link></li>
-              <li><Link href="/comissoes" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Comissoes</Link></li>
-              <li><Link href="/publicacoes-oficiais" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Regimento Interno</Link></li>
-              <li><Link href="/publicacoes-oficiais" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Leis Municipais</Link></li>
-              <li><Link href="/politica-de-privacidade" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Politica de Privacidade</Link></li>
+              <li><Link href="/comissoes" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Comissões</Link></li>
+              <li><Link href="/publicacoes-oficiais" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Publicações Oficiais</Link></li>
+              <li><Link href="/leis" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Leis Municipais</Link></li>
+              <li><Link href="/politica-de-privacidade" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Política de Privacidade</Link></li>
             </ul>
           </div>
 
@@ -93,22 +103,30 @@ export const Footer = ({ logoUrl }: FooterProps) => {
           <div>
             <h4 className="font-bold text-lg mb-4">Contato</h4>
             <ul className="space-y-3 text-sm">
-              <li className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-gold shrink-0 mt-0.5" />
-                <span className="opacity-80">Rua Luiz Grande, S/N, Centro<br />CEP: 58540-000 - Sume/PB</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <Phone className="w-5 h-5 text-gold shrink-0" />
-                <span className="opacity-80">(83) 3353-1974</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <Mail className="w-5 h-5 text-gold shrink-0" />
-                <span className="opacity-80 break-all">contato@camaradesume.pb.gov.br</span>
-              </li>
-              <li className="flex items-start gap-3">
-                <Clock className="w-5 h-5 text-gold shrink-0 mt-0.5" />
-                <span className="opacity-80">Atendimento das 7:00 as 13:00 horas</span>
-              </li>
+              {address && (
+                <li className="flex items-start gap-3">
+                  <MapPin className="w-5 h-5 text-gold shrink-0 mt-0.5" />
+                  <span className="opacity-80">{address}</span>
+                </li>
+              )}
+              {phone && (
+                <li className="flex items-center gap-3">
+                  <Phone className="w-5 h-5 text-gold shrink-0" />
+                  <span className="opacity-80">{phone}</span>
+                </li>
+              )}
+              {email && (
+                <li className="flex items-center gap-3">
+                  <Mail className="w-5 h-5 text-gold shrink-0" />
+                  <span className="opacity-80 break-all">{email}</span>
+                </li>
+              )}
+              {hours && (
+                <li className="flex items-start gap-3">
+                  <Clock className="w-5 h-5 text-gold shrink-0 mt-0.5" />
+                  <span className="opacity-80">{hours}</span>
+                </li>
+              )}
             </ul>
           </div>
         </div>
@@ -119,7 +137,7 @@ export const Footer = ({ logoUrl }: FooterProps) => {
         <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 py-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-2 text-xs opacity-70">
             <p>© Todos os direitos reservados.</p>
-            <p>Desenvolvido com transparencia e compromisso publico.</p>
+            <p>Desenvolvido com transparência e compromisso público.</p>
           </div>
         </div>
       </div>

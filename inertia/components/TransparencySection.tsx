@@ -11,6 +11,8 @@ interface TransparencyLink {
 
 interface TransparencySectionProps {
   links?: TransparencyLink[];
+  title?: string;
+  subtitle?: string;
 }
 
 const iconMap: Record<string, any> = {
@@ -31,7 +33,11 @@ const defaultLinks: TransparencyLink[] = [
   { id: 6, icon: "Shield", title: "Informações Institucionais", description: "Organograma, competências e estrutura", href: "/historia-da-camara" },
 ];
 
-export const TransparencySection = ({ links = defaultLinks }: TransparencySectionProps) => {
+export const TransparencySection = ({
+  links = defaultLinks,
+  title = "Transparência Pública",
+  subtitle,
+}: TransparencySectionProps) => {
   return (
     <section className="py-20 px-4 bg-background">
       <div className="container mx-auto">
@@ -40,10 +46,10 @@ export const TransparencySection = ({ links = defaultLinks }: TransparencySectio
             Portal da Transparência
           </span>
           <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
-            Transparência Pública
+            {title}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            Acesso à informação pública como direito fundamental do cidadão.
+            {subtitle || "Acesso à informação pública como direito fundamental do cidadão."}
           </p>
         </div>
 

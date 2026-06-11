@@ -32,6 +32,7 @@ export default function Appearance({ settings }: Props) {
     color_sky: getVal(appearance, 'color_sky'),
     header_title: getVal(appearance, 'header_title'),
     header_subtitle: getVal(appearance, 'header_subtitle'),
+    footer_description: getVal(footer, 'footer_description'),
     footer_address: getVal(footer, 'footer_address'),
     footer_phone: getVal(footer, 'footer_phone'),
     footer_email: getVal(footer, 'footer_email'),
@@ -152,6 +153,7 @@ export default function Appearance({ settings }: Props) {
 
         {/* Footer */}
         <Section icon={MapPin} title="Rodapé">
+          <TextField label="Descrição (texto abaixo da logo)" value={data.footer_description} onChange={(v) => setData('footer_description', v)} />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <TextField label="Endereço" value={data.footer_address} onChange={(v) => setData('footer_address', v)} />
             <TextField label="Telefone" value={data.footer_phone} onChange={(v) => setData('footer_phone', v)} />

@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { Link, router } from "@inertiajs/react";
 import { Menu, X, ChevronDown } from "lucide-react";
+import { useSiteSettings } from "~/hooks/use_site_settings";
+import { DynamicTheme } from "~/components/DynamicTheme";
+import { DynamicFavicon } from "~/components/DynamicFavicon";
 
 interface HeaderProps {
   logoUrl?: string | null;
@@ -36,6 +39,12 @@ const navItems = [
 export const Header = ({ logoUrl }: HeaderProps) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileExpandedItem, setMobileExpandedItem] = useState<string | null>(null);
+  const settings = useSiteSettings();
+
+  const resolvedLogo = logoUrl ?? settings.logo_url ?? null;
+  const headerTitle = settings.header_title || "CÂMARA MUNICIPAL DE SUMÉ";
+  const headerSubtitle = settings.header_subtitle || "Estado da Paraíba";
+  const [titleFirstWord, ...titleRest] = headerTitle.split(" ");
 
   const handleLinkClick = (href: string) => {
     setMobileMenuOpen(false);
@@ -45,6 +54,8 @@ export const Header = ({ logoUrl }: HeaderProps) => {
 
   return (
     <header className="relative z-50 bg-gradient-hero text-primary-foreground overflow-visible">
+      <DynamicTheme />
+      <DynamicFavicon />
       {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-1/2 -right-1/4 w-96 h-96 bg-gold/5 rounded-full blur-3xl" />
@@ -55,11 +66,11 @@ export const Header = ({ logoUrl }: HeaderProps) => {
       <div className="relative container mx-auto px-4 py-8">
         {/* Logo and Title */}
         <Link href="/" className="flex items-center justify-center gap-5 mb-8 animate-fade-in no-underline">
-          {logoUrl ? (
+          {resolvedLogo ? (
             /* Logo Image */
             <img 
-              src={logoUrl} 
-              alt="Câmara Municipal de Sumé" 
+              src={resolvedLogo} 
+              alt={headerTitle} 
               className="h-24 md:h-32 w-auto object-contain"
             />
           ) : (
@@ -68,16 +79,16 @@ export const Header = ({ logoUrl }: HeaderProps) => {
               <div className="relative group">
                 <div className="absolute inset-0 rounded-full bg-gold/20 blur-xl group-hover:bg-gold/30 transition-all duration-500" />
                 <div className="relative w-20 h-20 md:w-24 md:h-24 rounded-full glass flex items-center justify-center border-2 border-primary-foreground/20 group-hover:border-gold/50 transition-all duration-500 group-hover:scale-105">
-                  <div className="text-3xl md:text-4xl font-bold text-gradient-gold">C</div>
+                  <div className="text-3xl md:text-4xl font-bold text-gradient-gold">{titleFirstWord.charAt(0)}</div>
                 </div>
               </div>
               <div className="text-center md:text-left">
                 <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-primary-foreground">
-                  CÂMARA
+                  {titleFirstWord}
                 </h1>
-                <p className="text-2xl md:text-4xl text-gradient-gold">MUNICIPAL DE SUMÉ</p>
+                <p className="text-2xl md:text-4xl text-gradient-gold">{titleRest.join(" ")}</p>
                 <p className="text-xs md:text-sm opacity-60 mt-2 tracking-wider uppercase text-primary-foreground">
-                  Estado da Paraíba
+                  {headerSubtitle}
                 </p>
               </div>
             </>

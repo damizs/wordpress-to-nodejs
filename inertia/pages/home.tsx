@@ -105,6 +105,15 @@ export default function Home({
   siteSettings = {}
 }: HomeProps) {
   const logoUrl = siteSettings?.logo_url || null;
+
+  // Módulos da homepage: ativar/desativar pelo painel (Homepage > Visibilidade das Seções).
+  // Sem configuração explícita ('false'), a seção fica visível.
+  const visible = (section: string) => siteSettings?.[`section_${section}_visible`] !== 'false';
+  const setting = (key: string) => {
+    const value = siteSettings?.[key];
+    return value && value.trim() !== '' ? value : undefined;
+  };
+
   return (
     <>
       <GlobalEffects />
@@ -118,16 +127,61 @@ export default function Home({
         <Header logoUrl={logoUrl} />
         
         <main>
-          <NewsSection news={news} backgroundImage={newsBackgroundImage} />
-          <QuickAccessSection quickLinks={quickLinks} />
-          <ESicSection />
-          <TransparencySection />
-          <VereadoresSection vereadores={vereadores} legislatura={legislatura} />
-          <DiarioOficialSection publicacoes={publicacoes} latestGazette={latestGazette} />
-          <InstagramFeedSection posts={instagramPosts} instagramUrl={instagramProfileUrl || siteSettings?.instagram_url || undefined} />
-          <ConhecaSumeSection images={siteSettings?.city_images ? JSON.parse(siteSettings.city_images) : []} />
-          <CertificationsSection seals={seals} />
-          <SatisfactionSurvey />
+          {visible('news') && <NewsSection news={news} backgroundImage={newsBackgroundImage} />}
+          {visible('quickaccess') && (
+            <QuickAccessSection
+              quickLinks={quickLinks}
+              badge={setting('homepage_quickaccess_badge')}
+              title={setting('homepage_quickaccess_title')}
+              subtitle={setting('homepage_quickaccess_subtitle')}
+            />
+          )}
+          {visible('esic') && (
+            <ESicSection
+              title={setting('homepage_esic_title')}
+              subtitle={setting('homepage_esic_subtitle')}
+            />
+          )}
+          {visible('transparency') && (
+            <TransparencySection
+              title={setting('homepage_transparency_title')}
+              subtitle={setting('homepage_transparency_subtitle')}
+            />
+          )}
+          {visible('vereadores') && (
+            <VereadoresSection
+              vereadores={vereadores}
+              legislatura={legislatura}
+              title={setting('homepage_vereadores_title')}
+              subtitle={setting('homepage_vereadores_subtitle')}
+            />
+          )}
+          {visible('diario') && (
+            <DiarioOficialSection
+              publicacoes={publicacoes}
+              latestGazette={latestGazette}
+              title={setting('homepage_diario_title')}
+              subtitle={setting('homepage_diario_subtitle')}
+            />
+          )}
+          {visible('instagram') && (
+            <InstagramFeedSection posts={instagramPosts} instagramUrl={instagramProfileUrl || siteSettings?.instagram_url || undefined} />
+          )}
+          {visible('conheca') && (
+            <ConhecaSumeSection
+              images={siteSettings?.city_images ? JSON.parse(siteSettings.city_images) : []}
+              title={setting('homepage_conheca_title')}
+              subtitle={setting('homepage_conheca_subtitle')}
+            />
+          )}
+          {visible('seals') && (
+            <CertificationsSection
+              seals={seals}
+              title={setting('homepage_seals_title')}
+              subtitle={setting('homepage_seals_subtitle')}
+            />
+          )}
+          {visible('survey') && <SatisfactionSurvey />}
         </main>
         
         <Footer logoUrl={logoUrl} />

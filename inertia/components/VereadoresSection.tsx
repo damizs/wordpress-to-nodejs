@@ -15,9 +15,16 @@ interface Vereador {
 interface VereadoresSectionProps {
   vereadores?: Vereador[];
   legislatura?: string;
+  title?: string;
+  subtitle?: string;
 }
 
-export const VereadoresSection = ({ vereadores = [], legislatura = "2025-2028" }: VereadoresSectionProps) => {
+export const VereadoresSection = ({
+  vereadores = [],
+  legislatura = "2025-2028",
+  title = "Mesa Diretora e Vereadores",
+  subtitle,
+}: VereadoresSectionProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const itemsPerPage = 4;
   const maxIndex = Math.max(0, vereadores.length - itemsPerPage);
@@ -43,10 +50,10 @@ export const VereadoresSection = ({ vereadores = [], legislatura = "2025-2028" }
             Legislatura {legislatura}
           </span>
           <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
-            Mesa Diretora e Vereadores
+            {title}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            Composição da Mesa Diretora e parlamentares da Legislatura {legislatura}
+            {subtitle || `Composição da Mesa Diretora e parlamentares da Legislatura ${legislatura}`}
           </p>
         </div>
 

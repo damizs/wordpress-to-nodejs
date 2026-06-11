@@ -20,6 +20,8 @@ interface GazetteEntry {
 interface DiarioOficialSectionProps {
   publicacoes?: Publicacao[];
   latestGazette?: GazetteEntry | null;
+  title?: string;
+  subtitle?: string;
 }
 
 const formatDate = (value: string) => {
@@ -27,7 +29,12 @@ const formatDate = (value: string) => {
   return Number.isNaN(d.getTime()) ? value : d.toLocaleDateString("pt-BR");
 };
 
-export const DiarioOficialSection = ({ publicacoes = [], latestGazette = null }: DiarioOficialSectionProps) => {
+export const DiarioOficialSection = ({
+  publicacoes = [],
+  latestGazette = null,
+  title = "Diário Oficial",
+  subtitle,
+}: DiarioOficialSectionProps) => {
   return (
     <section className="py-20 px-4 bg-muted/30">
       <div className="container mx-auto">
@@ -36,10 +43,10 @@ export const DiarioOficialSection = ({ publicacoes = [], latestGazette = null }:
             Publicações Oficiais
           </span>
           <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
-            Diário Oficial
+            {title}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            Acesse as últimas publicações e atos oficiais da Câmara Municipal.
+            {subtitle || "Acesse as últimas publicações e atos oficiais da Câmara Municipal."}
           </p>
         </div>
 

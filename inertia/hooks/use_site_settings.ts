@@ -1,15 +1,14 @@
 import { usePage } from '@inertiajs/react'
 
-type PageProps = {
-  siteSettings?: Record<string, string | null>
-  [key: string]: any
+/** Settings globais compartilhados via Inertia (config/inertia.ts) */
+export function useSiteSettings(): Record<string, string | null> {
+  const props = usePage().props as { siteSettings?: Record<string, string | null> }
+  return props.siteSettings || {}
 }
 
-export function useSiteSettings() {
-  const { props } = usePage<PageProps>()
-  const s = props.siteSettings || {}
-
-  const get = (key: string, fallback: string = '') => s[key] || fallback
-
-  return { settings: s, get }
+/** Valor de um setting com fallback (retorna fallback quando vazio/ausente) */
+export function useSetting(key: string, fallback = ''): string {
+  const settings = useSiteSettings()
+  const value = settings[key]
+  return value && value.trim() !== '' ? value : fallback
 }

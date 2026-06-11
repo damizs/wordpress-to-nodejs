@@ -55,6 +55,12 @@ const APPEARANCE_KEYS: Record<
     type: 'json',
     label: 'Fotos da Cidade (Carrossel)',
   },
+  footer_description: {
+    group: 'footer',
+    defaultValue: 'Comprometida com a transparência e o bem-estar da população.',
+    type: 'text',
+    label: 'Descrição (texto abaixo da logo)',
+  },
   footer_address: {
     group: 'footer',
     defaultValue: 'Rua Antônio Vieira Lima, S/N, Centro, Sumé - PB',

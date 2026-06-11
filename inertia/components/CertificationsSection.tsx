@@ -10,9 +10,11 @@ interface Seal {
 
 interface CertificationsSectionProps {
   seals?: Seal[];
+  title?: string;
+  subtitle?: string;
 }
 
-export const CertificationsSection = ({ seals = [] }: CertificationsSectionProps) => {
+export const CertificationsSection = ({ seals = [], title, subtitle }: CertificationsSectionProps) => {
   if (seals.length === 0) {
     return (
       <section className="py-16 px-4 bg-gradient-to-r from-primary/5 via-gold/5 to-sky/5">
@@ -55,9 +57,9 @@ export const CertificationsSection = ({ seals = [] }: CertificationsSectionProps
           <span className="inline-block px-4 py-1.5 bg-white/10 rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
             Certificações
           </span>
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Compromisso com a Transparência</h2>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">{title || "Compromisso com a Transparência"}</h2>
           <p className="text-white/70 max-w-2xl mx-auto">
-            A Câmara Municipal de Sumé é reconhecida por seu compromisso com a transparência pública.
+            {subtitle || "A Câmara Municipal é reconhecida por seu compromisso com a transparência pública."}
           </p>
         </div>
         <div className={`grid gap-6 max-w-5xl mx-auto ${seals.length === 1 ? 'grid-cols-1 max-w-md' : seals.length === 2 ? 'grid-cols-1 md:grid-cols-2 max-w-3xl' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>

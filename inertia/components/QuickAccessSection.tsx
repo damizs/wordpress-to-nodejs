@@ -47,6 +47,9 @@ interface QuickLinkItem {
 
 interface QuickAccessSectionProps {
   quickLinks?: QuickLinkItem[];
+  badge?: string;
+  title?: string;
+  subtitle?: string;
 }
 
 const iconMap: Record<string, LucideIcon> = {
@@ -129,7 +132,12 @@ const defaultItems: QuickLinkItem[] = [
 
 const isExternal = (url: string) => /^https?:\/\//i.test(url);
 
-export const QuickAccessSection = ({ quickLinks = [] }: QuickAccessSectionProps) => {
+export const QuickAccessSection = ({
+  quickLinks = [],
+  badge = "Navegação Rápida",
+  title = "Acesso Rápido",
+  subtitle,
+}: QuickAccessSectionProps) => {
   const items = quickLinks.length > 0 ? quickLinks : defaultItems;
 
   return (
@@ -137,13 +145,13 @@ export const QuickAccessSection = ({ quickLinks = [] }: QuickAccessSectionProps)
       <div className="container mx-auto">
         <div className="text-center mb-14 animate-fade-in">
           <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
-            Navegação Rápida
+            {badge}
           </span>
           <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
-            Acesso Rápido
+            {title}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            Acompanhe as funções legislativa, fiscalizadora e deliberativa da Casa do Povo.
+            {subtitle || "Acompanhe as funções legislativa, fiscalizadora e deliberativa da Casa do Povo."}
           </p>
         </div>
 

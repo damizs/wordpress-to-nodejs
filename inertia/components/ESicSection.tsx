@@ -1,5 +1,6 @@
 import { Link } from "@inertiajs/react";
 import { FileSearch, Clock, CheckCircle, Users, ArrowRight } from "lucide-react";
+import { useSiteSettings } from "~/hooks/use_site_settings";
 
 const features = [
   { icon: FileSearch, title: "Solicite Informações", description: "Faça sua solicitação de forma simples e rápida" },
@@ -8,7 +9,14 @@ const features = [
   { icon: Users, title: "Atendimento Humanizado", description: "Equipe especializada pronta para ajudar" },
 ];
 
-export const ESicSection = () => {
+interface ESicSectionProps {
+  title?: string;
+  subtitle?: string;
+}
+
+export const ESicSection = ({ title = "e-SIC", subtitle }: ESicSectionProps) => {
+  const settings = useSiteSettings();
+  const esicUrl = settings.esic_new_url && settings.esic_new_url !== "#" ? settings.esic_new_url : "/transparencia";
   return (
     <section className="relative py-20 px-4 overflow-hidden">
       {/* Background */}
@@ -26,8 +34,8 @@ export const ESicSection = () => {
               Lei de Acesso à Informação
             </span>
             <h2 className="text-3xl md:text-5xl font-bold mb-6 leading-tight">
-              e-SIC<br />
-              <span className="text-gradient-gold">Serviço de Informação ao Cidadão</span>
+              {title}<br />
+              <span className="text-gradient-gold">{subtitle || "Serviço de Informação ao Cidadão"}</span>
             </h2>
             <p className="text-primary-foreground/80 text-lg mb-8 leading-relaxed">
               Acesse documentos, relatórios e informações públicas de forma simples e transparente. 
@@ -35,13 +43,15 @@ export const ESicSection = () => {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link
-                href="/e-sic"
+              <a
+                href={esicUrl}
+                target={esicUrl.startsWith("http") ? "_blank" : undefined}
+                rel="noopener noreferrer"
                 className="btn-modern inline-flex items-center justify-center gap-3 bg-gold text-navy-dark hover:bg-gold-light no-underline"
               >
                 Acessar e-SIC
                 <ArrowRight className="w-5 h-5" />
-              </Link>
+              </a>
               <Link
                 href="/perguntas-frequentes"
                 className="btn-modern inline-flex items-center justify-center gap-3 glass text-primary-foreground hover:bg-white/10 no-underline"
