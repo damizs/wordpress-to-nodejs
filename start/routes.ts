@@ -108,7 +108,9 @@ router
   .get('/:slug', [PublicDynamicInfoController, 'show'])
   .where(
     'slug',
-    /^(?!login|painel|api|health|noticias|vereadores|transparencia|mesa-diretora|comissoes|atas|pautas|atividades-legislativa|atividades-legislativas|publicacoes-oficiais|licitacoes|perguntas-frequentes|pesquisa-de-satisfacao|politica-de-privacidade|historia-da-camara|sobre|ouvidoria|diario-oficial|leis).*$/
+    // Anclado com $: bloqueia só o slug exato reservado, não slugs que começam igual
+    // (ex.: notícia antiga "vereadores-acompanham-..." deve passar pelo catch-all)
+    /^(?!(?:login|painel|api|health|noticias|vereadores|transparencia|mesa-diretora|comissoes|atas|pautas|atividades-legislativa|atividades-legislativas|publicacoes-oficiais|licitacoes|perguntas-frequentes|pesquisa-de-satisfacao|politica-de-privacidade|historia-da-camara|sobre|ouvidoria|diario-oficial|leis)$).+$/
   )
 
 // ========= API =========
