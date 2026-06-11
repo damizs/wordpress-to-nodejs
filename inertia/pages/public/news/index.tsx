@@ -88,6 +88,7 @@ export default function NewsIndex({ news, categories = [], filters = {} }: Props
         <Breadcrumb items={[{ label: "Notícias" }]} />
         
         <PageHero
+          badge="Fique por dentro"
           title="Notícias"
           subtitle="Acompanhe as últimas notícias da Câmara Municipal"
         />
@@ -148,13 +149,15 @@ export default function NewsIndex({ news, categories = [], filters = {} }: Props
             {/* Grid de Notícias */}
             {items.length > 0 ? (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {items.map((item) => (
+                {items.map((item, i) => (
                   <Link
                     key={item.id}
                     href={`/noticias/${item.slug}`}
                     className="group no-underline"
+                    data-reveal="up"
+                    data-reveal-delay={String(Math.min(i, 8) * 60)}
                   >
-                    <article className="bg-card rounded-xl overflow-hidden border border-border hover:border-primary/30 hover:shadow-lg transition-all duration-300 h-full flex flex-col">
+                    <article className="bg-card rounded-xl overflow-hidden border border-border hover:border-primary/30 hover:shadow-lg transition-all duration-300 h-full flex flex-col card-shine hover-lift">
                       {/* Imagem */}
                       <div className="relative h-48 overflow-hidden">
                         {getImage(item) ? (

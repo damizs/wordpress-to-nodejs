@@ -6,15 +6,23 @@ export default class PautasController {
   async index({ inertia, request }: HttpContext) {
     const page = request.input('page', 1)
     const year = request.input('ano', '')
+    const search = request.input('busca', '')
 
     let query = PlenarySession.query()
       .whereNotNull('agenda')
       .where('agenda', '!=', '')
       .orderBy('session_date', 'desc')
     if (year) query = query.where('year', year)
+    if (search) query = query.whereILike('title', `%${search}%`)
 
     const sessions = await query.paginate(page, 20)
     const siteSettings = await SiteSetting.allAsObject()
+
+    const yearRows = await PlenarySession.query()
+      .whereNotNull('agenda')
+      .where('agenda', '!=', '')
+      .distinct('year')
+      .orderBy('year', 'desc')
 
     return inertia.render('public/pautas/index', {
       pautas: sessions.all().map((s) => ({
@@ -27,8 +35,10 @@ export default class PautasController {
       pagination: {
         currentPage: sessions.currentPage,
         lastPage: sessions.lastPage,
+        total: sessions.total,
       },
-      filters: { year },
+      years: yearRows.map((r) => r.year).filter(Boolean),
+      filters: { year, search },
       siteSettings,
     })
   }

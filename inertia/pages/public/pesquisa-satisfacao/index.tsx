@@ -4,6 +4,7 @@ import { SeoHead } from "~/components/SeoHead";
 import { TopBar } from "~/components/TopBar";
 import { Header } from "~/components/Header";
 import { Breadcrumb } from "~/components/Breadcrumb";
+import { PageHero } from "~/components/PageHero";
 import { Footer } from "~/components/Footer";
 import { Star, Send, CheckCircle } from "lucide-react";
 
@@ -48,15 +49,11 @@ export default function PesquisaSatisfacaoIndex() {
       <SeoHead title="Pesquisa de Satisfação - Câmara Municipal de Sumé" description="Participe da nossa pesquisa de satisfação e ajude-nos a melhorar nossos serviços." url="/pesquisa-de-satisfacao" />
       <div className="min-h-screen bg-background">
         <TopBar /><Header /><Breadcrumb items={[{ label: "Pesquisa de Satisfação" }]} />
+        <PageHero badge="Sua Opinião" title="Pesquisa de Satisfação" subtitle="Avaliação contínua dos serviços prestados pela Câmara Municipal" centered />
         <main className="py-12">
           <div className="container mx-auto px-4">
             <div className="max-w-2xl mx-auto">
-              <div className="text-center mb-10">
-                <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase mb-3">Sua Opinião</span>
-                <h1 className="text-3xl md:text-4xl font-bold text-foreground">Pesquisa de Satisfação</h1>
-                <p className="mt-2 text-muted-foreground">Ajude-nos a melhorar nossos serviços</p>
-              </div>
-              <form onSubmit={handleSubmit} className="card-modern p-6 md:p-8 space-y-6">
+              <form onSubmit={handleSubmit} data-reveal="up" className="card-modern p-6 md:p-8 space-y-6">
                 <div>
                   <label className="block font-semibold text-foreground mb-3">Como você avalia nossos serviços?</label>
                   <div className="flex gap-2">

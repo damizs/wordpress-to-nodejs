@@ -2,6 +2,7 @@ import { SeoHead } from "~/components/SeoHead";
 import { TopBar } from "~/components/TopBar";
 import { Header } from "~/components/Header";
 import { Breadcrumb } from "~/components/Breadcrumb";
+import { PageHero } from "~/components/PageHero";
 import { Footer } from "~/components/Footer";
 import { Link } from "@inertiajs/react";
 import { Users } from "lucide-react";
@@ -29,12 +30,9 @@ export default function CommitteesIndex({ committees = [] }: Props) {
         <TopBar />
         <Header />
         <Breadcrumb items={[{ label: "Comissões Permanentes" }]} />
+        <PageHero badge="Legislativo" title="Comissões Permanentes" subtitle="Comissões técnicas da Câmara Municipal e suas atribuições" centered />
         <main className="py-12">
           <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase mb-3">Legislativo</span>
-              <h1 className="text-3xl md:text-4xl font-bold text-foreground">Comissões Permanentes</h1>
-            </div>
             {committees.length > 0 ? (
               <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
                 {committees.map((committee) => (

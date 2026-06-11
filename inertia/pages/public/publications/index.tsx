@@ -3,6 +3,7 @@ import { SeoHead } from "~/components/SeoHead";
 import { TopBar } from "~/components/TopBar";
 import { Header } from "~/components/Header";
 import { Breadcrumb } from "~/components/Breadcrumb";
+import { PageHero } from "~/components/PageHero";
 import { Footer } from "~/components/Footer";
 import { Calendar, FileText, Download } from "lucide-react";
 
@@ -15,12 +16,9 @@ export default function PublicationsIndex({ publications = [] }: Props) {
       <SeoHead title="Publicações Oficiais - Câmara Municipal de Sumé" description="Acesse as publicações oficiais da Câmara Municipal de Sumé." url="/publicacoes-oficiais" />
       <div className="min-h-screen bg-background">
         <TopBar /><Header /><Breadcrumb items={[{ label: "Publicações Oficiais" }]} />
+        <PageHero badge="Documentos" title="Publicações Oficiais" subtitle="Leis, decretos, portarias e demais atos oficiais da Câmara Municipal" centered />
         <main className="py-12">
           <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase mb-3">Documentos</span>
-              <h1 className="text-3xl md:text-4xl font-bold text-foreground">Publicações Oficiais</h1>
-            </div>
             {publications.length > 0 ? (
               <div className="max-w-3xl mx-auto space-y-4">
                 {publications.map((pub) => (

@@ -2,6 +2,7 @@ import { SeoHead } from "~/components/SeoHead";
 import { TopBar } from "~/components/TopBar";
 import { Header } from "~/components/Header";
 import { Breadcrumb } from "~/components/Breadcrumb";
+import { PageHero } from "~/components/PageHero";
 import { Footer } from "~/components/Footer";
 import { Building2, Calendar, Users, Award } from "lucide-react";
 
@@ -13,13 +14,10 @@ export default function HistoriaIndex({ content }: Props) {
       <SeoHead title="História da Câmara - Câmara Municipal de Sumé" description="Conheça a história da Câmara Municipal de Sumé e sua trajetória no Poder Legislativo." url="/historia-da-camara" />
       <div className="min-h-screen bg-background">
         <TopBar /><Header /><Breadcrumb items={[{ label: "História da Câmara" }]} />
+        <PageHero badge="Institucional" title="História da Câmara" subtitle="A trajetória do Poder Legislativo de Sumé ao longo dos anos" centered />
         <main className="py-12">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
-              <div className="text-center mb-12">
-                <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase mb-3">Institucional</span>
-                <h1 className="text-3xl md:text-4xl font-bold text-foreground">História da Câmara</h1>
-              </div>
               
               {/* Stats */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">

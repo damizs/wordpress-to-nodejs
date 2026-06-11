@@ -3,6 +3,7 @@ import { SeoHead } from "~/components/SeoHead";
 import { TopBar } from "~/components/TopBar";
 import { Header } from "~/components/Header";
 import { Breadcrumb } from "~/components/Breadcrumb";
+import { PageHero } from "~/components/PageHero";
 import { Footer } from "~/components/Footer";
 import { ExternalLink, FileText, DollarSign, Users, Building, FileCheck, Search } from "lucide-react";
 
@@ -39,60 +40,22 @@ export default function TransparenciaIndex({ sections = [] }: Props) {
         <TopBar />
         <Header />
         <Breadcrumb items={[{ label: "Transparência" }]} />
+        <PageHero
+          badge="Acesso à Informação"
+          title="Portal da Transparência"
+          subtitle="Em cumprimento à Lei de Acesso à Informação (Lei nº 12.527/2011), disponibilizamos informações sobre a gestão dos recursos públicos da Câmara Municipal."
+          centered
+        />
 
         <main className="py-12">
           <div className="container mx-auto px-4">
-            {/* Header */}
-            <div className="text-center mb-12">
-              <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase mb-3">
-                Acesso à Informação
-              </span>
-              <h1 className="text-3xl md:text-4xl font-bold text-foreground">Portal da Transparência</h1>
-              <p className="mt-3 text-muted-foreground max-w-2xl mx-auto">
-                Em cumprimento à Lei de Acesso à Informação (Lei nº 12.527/2011), disponibilizamos 
-                informações sobre a gestão dos recursos públicos da Câmara Municipal.
-              </p>
-            </div>
-
-            {/* Quick Stats */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-              <div className="card-modern p-6 text-center">
-                <div className="w-12 h-12 mx-auto rounded-xl bg-emerald-100 flex items-center justify-center mb-3">
-                  <FileCheck className="w-6 h-6 text-emerald-600" />
-                </div>
-                <p className="text-2xl font-bold text-foreground">100%</p>
-                <p className="text-sm text-muted-foreground">Conformidade LAI</p>
-              </div>
-              <div className="card-modern p-6 text-center">
-                <div className="w-12 h-12 mx-auto rounded-xl bg-blue-100 flex items-center justify-center mb-3">
-                  <FileText className="w-6 h-6 text-blue-600" />
-                </div>
-                <p className="text-2xl font-bold text-foreground">150+</p>
-                <p className="text-sm text-muted-foreground">Documentos</p>
-              </div>
-              <div className="card-modern p-6 text-center">
-                <div className="w-12 h-12 mx-auto rounded-xl bg-gold/20 flex items-center justify-center mb-3">
-                  <DollarSign className="w-6 h-6 text-gold" />
-                </div>
-                <p className="text-2xl font-bold text-foreground">Nota A</p>
-                <p className="text-sm text-muted-foreground">TCE-PB</p>
-              </div>
-              <div className="card-modern p-6 text-center">
-                <div className="w-12 h-12 mx-auto rounded-xl bg-purple-100 flex items-center justify-center mb-3">
-                  <Users className="w-6 h-6 text-purple-600" />
-                </div>
-                <p className="text-2xl font-bold text-foreground">24h</p>
-                <p className="text-sm text-muted-foreground">Atualização</p>
-              </div>
-            </div>
-
             {/* Sections */}
             {sections.length > 0 ? (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {sections.map((section) => {
+                {sections.map((section, i) => {
                   const Icon = iconMap[section.icon || 'FileText'] || FileText;
                   return (
-                    <div key={section.id} className="card-modern p-6">
+                    <div key={section.id} data-reveal="up" data-reveal-delay={String(Math.min(i, 6) * 60)} className="card-modern card-shine p-6 hover-lift">
                       <div className="flex items-center gap-3 mb-4">
                         <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
                           <Icon className="w-6 h-6 text-primary" />
@@ -140,7 +103,7 @@ export default function TransparenciaIndex({ sections = [] }: Props) {
             )}
 
             {/* E-SIC Link */}
-            <div className="mt-12 p-8 bg-gradient-hero rounded-3xl text-primary-foreground text-center">
+            <div data-reveal="zoom" className="mt-12 p-8 bg-gradient-hero rounded-3xl text-primary-foreground text-center">
               <h2 className="text-2xl font-bold mb-2">Não encontrou o que procura?</h2>
               <p className="opacity-80 mb-6">
                 Utilize o Sistema Eletrônico de Informação ao Cidadão para solicitar informações

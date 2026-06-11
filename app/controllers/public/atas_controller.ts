@@ -7,6 +7,7 @@ export default class AtasController {
     const page = request.input('page', 1)
     const year = request.input('ano', '')
     const type = request.input('tipo', '')
+    const search = request.input('busca', '')
 
     let query = PlenarySession.query()
       .whereNotNull('file_url')
@@ -14,9 +15,16 @@ export default class AtasController {
       .orderBy('session_date', 'desc')
     if (year) query = query.where('year', year)
     if (type) query = query.where('type', type)
+    if (search) query = query.whereILike('title', `%${search}%`)
 
     const sessions = await query.paginate(page, 20)
     const siteSettings = await SiteSetting.allAsObject()
+
+    const yearRows = await PlenarySession.query()
+      .whereNotNull('file_url')
+      .where('status', 'realizada')
+      .distinct('year')
+      .orderBy('year', 'desc')
 
     return inertia.render('public/atas/index', {
       atas: sessions.all().map((s) => ({
@@ -29,8 +37,10 @@ export default class AtasController {
       pagination: {
         currentPage: sessions.currentPage,
         lastPage: sessions.lastPage,
+        total: sessions.total,
       },
-      filters: { year, type },
+      years: yearRows.map((r) => r.year).filter(Boolean),
+      filters: { year, type, search },
       siteSettings,
     })
   }

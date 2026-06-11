@@ -2,6 +2,7 @@ import { SeoHead } from "~/components/SeoHead";
 import { TopBar } from "~/components/TopBar";
 import { Header } from "~/components/Header";
 import { Breadcrumb } from "~/components/Breadcrumb";
+import { PageHero } from "~/components/PageHero";
 import { Footer } from "~/components/Footer";
 import { MessageSquare, Phone, Mail, Clock, MapPin, Send, FileText, AlertCircle, ThumbsUp, HelpCircle } from "lucide-react";
 
@@ -18,14 +19,10 @@ export default function OuvidoriaIndex() {
       <SeoHead title="Ouvidoria - Câmara Municipal de Sumé" description="Entre em contato com a Ouvidoria da Câmara Municipal de Sumé. Faça denúncias, reclamações, sugestões ou elogios." url="/ouvidoria" />
       <div className="min-h-screen bg-background">
         <TopBar /><Header /><Breadcrumb items={[{ label: "Ouvidoria" }]} />
+        <PageHero badge="Cidadão" title="Ouvidoria" subtitle="Canal de comunicação direta entre o cidadão e a Câmara Municipal" centered />
         <main className="py-12">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
-              <div className="text-center mb-12">
-                <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase mb-3">Cidadão</span>
-                <h1 className="text-3xl md:text-4xl font-bold text-foreground">Ouvidoria</h1>
-                <p className="mt-2 text-muted-foreground max-w-xl mx-auto">Canal de comunicação direta entre o cidadão e a Câmara Municipal</p>
-              </div>
 
               {/* Channels */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">

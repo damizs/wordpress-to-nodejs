@@ -3,6 +3,7 @@ import { SeoHead } from "~/components/SeoHead";
 import { TopBar } from "~/components/TopBar";
 import { Header } from "~/components/Header";
 import { Breadcrumb } from "~/components/Breadcrumb";
+import { PageHero } from "~/components/PageHero";
 import { Footer } from "~/components/Footer";
 import { Calendar, FileText, Tag } from "lucide-react";
 
@@ -21,12 +22,9 @@ export default function LicitacoesIndex({ licitacoes = [] }: Props) {
       <SeoHead title="Licitações - Câmara Municipal de Sumé" description="Consulte os processos licitatórios da Câmara Municipal de Sumé." url="/licitacoes" />
       <div className="min-h-screen bg-background">
         <TopBar /><Header /><Breadcrumb items={[{ label: "Licitações" }]} />
+        <PageHero badge="Transparência" title="Licitações" subtitle="Processos licitatórios e contratações da Câmara Municipal, com documentos por fase do processo" centered />
         <main className="py-12">
           <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase mb-3">Transparência</span>
-              <h1 className="text-3xl md:text-4xl font-bold text-foreground">Licitações</h1>
-            </div>
             {licitacoes.length > 0 ? (
               <div className="max-w-4xl mx-auto space-y-4">
                 {licitacoes.map((lic) => (

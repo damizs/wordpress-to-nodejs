@@ -3,6 +3,7 @@ import { SeoHead } from "~/components/SeoHead";
 import { TopBar } from "~/components/TopBar";
 import { Header } from "~/components/Header";
 import { Breadcrumb } from "~/components/Breadcrumb";
+import { PageHero } from "~/components/PageHero";
 import { Footer } from "~/components/Footer";
 import { ChevronDown, HelpCircle } from "lucide-react";
 
@@ -16,13 +17,9 @@ export default function FaqIndex({ faqs = [] }: Props) {
       <SeoHead title="Perguntas Frequentes - Câmara Municipal de Sumé" description="Encontre respostas para as dúvidas mais comuns sobre a Câmara Municipal de Sumé." url="/perguntas-frequentes" />
       <div className="min-h-screen bg-background">
         <TopBar /><Header /><Breadcrumb items={[{ label: "Perguntas Frequentes" }]} />
+        <PageHero badge="Ajuda" title="Perguntas Frequentes" subtitle="Encontre respostas para as dúvidas mais comuns" centered />
         <main className="py-12">
           <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase mb-3">Ajuda</span>
-              <h1 className="text-3xl md:text-4xl font-bold text-foreground">Perguntas Frequentes</h1>
-              <p className="mt-2 text-muted-foreground max-w-xl mx-auto">Encontre respostas para as dúvidas mais comuns</p>
-            </div>
             {faqs.length > 0 ? (
               <div className="max-w-3xl mx-auto space-y-4">
                 {faqs.map((faq) => (

@@ -27,6 +27,7 @@ export default class DynamicInfoController {
 
     const page = request.input('page', 1)
     const year = request.input('ano', '')
+    const search = request.input('busca', '')
 
     let query = InformationRecord.query()
       .where('category', slug)
@@ -34,16 +35,24 @@ export default class DynamicInfoController {
       .orderBy('year', 'desc')
       .orderBy('created_at', 'desc')
     if (year) query = query.where('year', year)
+    if (search) query = query.whereILike('title', `%${search}%`)
 
-    const records = await query.paginate(page, 20)
+    const records = await query.paginate(page, 50)
     const allCategories = await SystemCategory.byType('information_record')
     const siteSettings = await SiteSetting.allAsObject()
+
+    const yearRows = await InformationRecord.query()
+      .where('category', slug)
+      .where('is_active', true)
+      .distinct('year')
+      .orderBy('year', 'desc')
 
     return inertia.render('public/information/dynamic', {
       records: records.serialize(),
       category: category.serialize(),
       allCategories: allCategories.map((c) => c.serialize()),
-      filters: { year },
+      years: yearRows.map((r) => r.year).filter(Boolean),
+      filters: { year, search },
       siteSettings,
     })
   }

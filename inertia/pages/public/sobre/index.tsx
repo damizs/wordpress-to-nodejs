@@ -2,6 +2,7 @@ import { SeoHead } from "~/components/SeoHead";
 import { TopBar } from "~/components/TopBar";
 import { Header } from "~/components/Header";
 import { Breadcrumb } from "~/components/Breadcrumb";
+import { PageHero } from "~/components/PageHero";
 import { Footer } from "~/components/Footer";
 import { Target, Eye, Heart } from "lucide-react";
 
@@ -13,13 +14,10 @@ export default function SobreIndex({ content }: Props) {
       <SeoHead title="Sobre - Câmara Municipal de Sumé" description="Conheça a Câmara Municipal de Sumé, sua missão, visão e valores." url="/sobre" />
       <div className="min-h-screen bg-background">
         <TopBar /><Header /><Breadcrumb items={[{ label: "Sobre" }]} />
+        <PageHero badge="Institucional" title="Sobre a Câmara" subtitle="Conheça a história, a estrutura e o papel do Poder Legislativo Municipal" centered />
         <main className="py-12">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
-              <div className="text-center mb-12">
-                <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase mb-3">Institucional</span>
-                <h1 className="text-3xl md:text-4xl font-bold text-foreground">Sobre a Câmara</h1>
-              </div>
 
               {/* Mission, Vision, Values */}
               <div className="grid md:grid-cols-3 gap-6 mb-12">

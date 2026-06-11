@@ -3,6 +3,7 @@ import { SeoHead } from "~/components/SeoHead";
 import { TopBar } from "~/components/TopBar";
 import { Header } from "~/components/Header";
 import { Breadcrumb } from "~/components/Breadcrumb";
+import { PageHero } from "~/components/PageHero";
 import { Footer } from "~/components/Footer";
 import { Mail, Phone, ArrowRight } from "lucide-react";
 
@@ -34,32 +35,27 @@ export default function VereadoresIndex({ vereadores = [], legislature }: Props)
         <TopBar />
         <Header />
         <Breadcrumb items={[{ label: "Vereadores" }]} />
+        <PageHero
+          badge="Poder Legislativo"
+          title="Vereadores"
+          subtitle={legislature ? `${legislature.name} (${legislature.year_start} - ${legislature.year_end})` : "Integrantes do Poder Legislativo Municipal"}
+          centered
+        />
 
         <main className="py-12">
           <div className="container mx-auto px-4">
-            {/* Header */}
-            <div className="text-center mb-12">
-              <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase mb-3">
-                Poder Legislativo
-              </span>
-              <h1 className="text-3xl md:text-4xl font-bold text-foreground">Vereadores</h1>
-              {legislature && (
-                <p className="mt-2 text-muted-foreground">
-                  {legislature.name} ({legislature.year_start} - {legislature.year_end})
-                </p>
-              )}
-            </div>
-
             {/* Grid */}
             {vereadores.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {vereadores.map((vereador) => (
+                {vereadores.map((vereador, i) => (
                   <Link
                     key={vereador.id}
                     href={`/vereadores/${vereador.slug}`}
                     className="group no-underline"
+                    data-reveal="up"
+                    data-reveal-delay={String(Math.min(i, 7) * 60)}
                   >
-                    <div className="card-modern overflow-hidden text-center">
+                    <div className="card-modern card-shine overflow-hidden text-center hover-lift">
                       {/* Photo */}
                       <div className="relative h-56 overflow-hidden bg-gradient-to-br from-primary/20 to-gold/20">
                         {vereador.photo ? (
