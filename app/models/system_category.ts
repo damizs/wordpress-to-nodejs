@@ -12,9 +12,6 @@ export default class SystemCategory extends BaseModel {
   @column.dateTime({ autoCreate: true, autoUpdate: true }) declare updatedAt: DateTime | null
 
   static async byType(type: string) {
-    return this.query()
-      .where('type', type)
-      .where('is_active', true)
-      .orderBy('display_order', 'asc')
+    return this.query().where('type', type).where('is_active', true).orderBy('display_order', 'asc')
   }
 }

@@ -26,7 +26,10 @@ export default class InformationRecordsController {
 
   async create({ inertia }: HttpContext) {
     const categories = await SystemCategory.byType('information_record')
-    return inertia.render('admin/information-records/form', { record: null, categories: categories.map((c) => c.serialize()) })
+    return inertia.render('admin/information-records/form', {
+      record: null,
+      categories: categories.map((c) => c.serialize()),
+    })
   }
 
   async store({ request, response, session }: HttpContext) {
@@ -45,7 +48,7 @@ export default class InformationRecordsController {
     await InformationRecord.create({
       title: data.title,
       category: data.category,
-      year: parseInt(data.year),
+      year: Number.parseInt(data.year),
       content: data.content || null,
       referenceDate: data.reference_date || null,
       fileUrl,
@@ -59,12 +62,22 @@ export default class InformationRecordsController {
   async edit({ params, inertia }: HttpContext) {
     const record = await InformationRecord.findOrFail(params.id)
     const categories = await SystemCategory.byType('information_record')
-    return inertia.render('admin/information-records/form', { record: record.serialize(), categories: categories.map((c) => c.serialize()) })
+    return inertia.render('admin/information-records/form', {
+      record: record.serialize(),
+      categories: categories.map((c) => c.serialize()),
+    })
   }
 
   async update({ params, request, response, session }: HttpContext) {
     const record = await InformationRecord.findOrFail(params.id)
-    const data = request.only(['title', 'category', 'year', 'content', 'reference_date', 'is_active'])
+    const data = request.only([
+      'title',
+      'category',
+      'year',
+      'content',
+      'reference_date',
+      'is_active',
+    ])
 
     const file = request.file('file', { size: '20mb', extnames: ['pdf'] })
     if (file) {
@@ -78,7 +91,7 @@ export default class InformationRecordsController {
     record.merge({
       title: data.title,
       category: data.category,
-      year: parseInt(data.year),
+      year: Number.parseInt(data.year),
       content: data.content || null,
       referenceDate: data.reference_date || null,
       isActive: data.is_active === 'true' || data.is_active === true,

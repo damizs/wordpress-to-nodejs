@@ -15,15 +15,17 @@ export default defineConfig(({ isSsrBuild }) => ({
     },
   },
   build: {
-    rollupOptions: isSsrBuild ? {} : {
-      output: {
-        manualChunks: {
-          'vendor-react': ['react', 'react-dom'],
-          'vendor-inertia': ['@inertiajs/react'],
-          'vendor-icons': ['lucide-react'],
+    rollupOptions: isSsrBuild
+      ? {}
+      : {
+          output: {
+            manualChunks: {
+              'vendor-react': ['react', 'react-dom'],
+              'vendor-inertia': ['@inertiajs/react'],
+              'vendor-icons': ['lucide-react'],
+            },
+          },
         },
-      },
-    },
     cssCodeSplit: true,
   },
 }))

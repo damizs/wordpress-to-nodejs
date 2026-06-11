@@ -17,7 +17,11 @@ export default class AtasController {
 
     const sessions = await query.paginate(page, 20)
     const siteSettings = await SiteSetting.allAsObject()
-    return inertia.render('public/atas/index', { sessions: sessions.serialize(), filters: { year, type }, siteSettings })
+    return inertia.render('public/atas/index', {
+      sessions: sessions.serialize(),
+      filters: { year, type },
+      siteSettings,
+    })
   }
 
   async show({ params, inertia }: HttpContext) {

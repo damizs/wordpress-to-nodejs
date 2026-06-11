@@ -31,16 +31,28 @@ export default class CommitteesController {
   }
 
   async store({ request, response, session }: HttpContext) {
-    const data = request.only(['name', 'slug', 'description', 'type', 'legislature_id', 'is_active'])
+    const data = request.only([
+      'name',
+      'slug',
+      'description',
+      'type',
+      'legislature_id',
+      'is_active',
+    ])
     if (!data.slug) {
-      data.slug = data.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+      data.slug = data.name
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '')
     }
     const committee = await Committee.create({
       name: data.name,
       slug: data.slug,
       description: data.description || null,
       type: data.type || 'permanente',
-      legislatureId: data.legislature_id ? parseInt(data.legislature_id) : null,
+      legislatureId: data.legislature_id ? Number.parseInt(data.legislature_id) : null,
       isActive: data.is_active === 'true' || data.is_active === true || data.is_active === 'on',
     })
 
@@ -51,7 +63,7 @@ export default class CommitteesController {
       for (const m of members) {
         await CommitteeMember.create({
           committeeId: committee.id,
-          councilorId: parseInt(m.councilor_id),
+          councilorId: Number.parseInt(m.councilor_id),
           role: m.role || 'membro',
         })
       }
@@ -81,13 +93,20 @@ export default class CommitteesController {
 
   async update({ params, request, response, session }: HttpContext) {
     const committee = await Committee.findOrFail(params.id)
-    const data = request.only(['name', 'slug', 'description', 'type', 'legislature_id', 'is_active'])
+    const data = request.only([
+      'name',
+      'slug',
+      'description',
+      'type',
+      'legislature_id',
+      'is_active',
+    ])
     committee.merge({
       name: data.name,
       slug: data.slug || committee.slug,
       description: data.description || null,
       type: data.type || 'permanente',
-      legislatureId: data.legislature_id ? parseInt(data.legislature_id) : null,
+      legislatureId: data.legislature_id ? Number.parseInt(data.legislature_id) : null,
       isActive: data.is_active === 'true' || data.is_active === true || data.is_active === 'on',
     })
     await committee.save()
@@ -100,7 +119,7 @@ export default class CommitteesController {
       for (const m of members) {
         await CommitteeMember.create({
           committeeId: committee.id,
-          councilorId: parseInt(m.councilor_id),
+          councilorId: Number.parseInt(m.councilor_id),
           role: m.role || 'membro',
         })
       }

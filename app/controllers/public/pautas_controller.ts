@@ -15,7 +15,11 @@ export default class PautasController {
 
     const sessions = await query.paginate(page, 20)
     const siteSettings = await SiteSetting.allAsObject()
-    return inertia.render('public/pautas/index', { sessions: sessions.serialize(), filters: { year }, siteSettings })
+    return inertia.render('public/pautas/index', {
+      sessions: sessions.serialize(),
+      filters: { year },
+      siteSettings,
+    })
   }
 
   async show({ params, inertia }: HttpContext) {

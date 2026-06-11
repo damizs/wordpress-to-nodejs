@@ -33,7 +33,7 @@ export default class BienniaController {
     }
     await Biennium.create({
       name: data.name,
-      legislatureId: parseInt(data.legislature_id),
+      legislatureId: Number.parseInt(data.legislature_id),
       startDate: data.start_date,
       endDate: data.end_date,
       isCurrent: isCurrent,
@@ -60,7 +60,7 @@ export default class BienniaController {
     }
     biennium.merge({
       name: data.name,
-      legislatureId: parseInt(data.legislature_id),
+      legislatureId: Number.parseInt(data.legislature_id),
       startDate: data.start_date,
       endDate: data.end_date,
       isCurrent: isCurrent,

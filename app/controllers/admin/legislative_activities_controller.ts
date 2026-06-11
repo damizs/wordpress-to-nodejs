@@ -11,10 +11,13 @@ export default class LegislativeActivitiesController {
 
     let query = LegislativeActivity.query().orderBy('year', 'desc').orderBy('created_at', 'desc')
     if (type) query = query.where('type', type)
-    if (year) query = query.where('year', parseInt(year))
-    if (search) query = query.where((q) => {
-      q.whereILike('summary', `%${search}%`).orWhereILike('number', `%${search}%`).orWhereILike('title', `%${search}%`)
-    })
+    if (year) query = query.where('year', Number.parseInt(year))
+    if (search)
+      query = query.where((q) => {
+        q.whereILike('summary', `%${search}%`)
+          .orWhereILike('number', `%${search}%`)
+          .orWhereILike('title', `%${search}%`)
+      })
 
     const activities = await query.paginate(page, 20)
     const types = await LegislativeActivity.query().distinct('type').orderBy('type')
@@ -34,9 +37,18 @@ export default class LegislativeActivitiesController {
 
   async store({ request, response, session }: HttpContext) {
     const data = request.only([
-      'title', 'type', 'number', 'year', 'summary', 'content', 'status', 'author', 'file_url', 'session_date',
+      'title',
+      'type',
+      'number',
+      'year',
+      'summary',
+      'content',
+      'status',
+      'author',
+      'file_url',
+      'session_date',
     ])
-    data.year = parseInt(data.year)
+    data.year = Number.parseInt(data.year)
     const slug = request.input('slug') || activitySlug(data.type, data.number, data.author)
 
     await LegislativeActivity.create({ ...data, slug, isActive: true })
@@ -52,10 +64,20 @@ export default class LegislativeActivitiesController {
   async update({ params, request, response, session }: HttpContext) {
     const activity = await LegislativeActivity.findOrFail(params.id)
     const data = request.only([
-      'title', 'type', 'number', 'year', 'summary', 'content', 'status', 'author', 'file_url', 'session_date',
+      'title',
+      'type',
+      'number',
+      'year',
+      'summary',
+      'content',
+      'status',
+      'author',
+      'file_url',
+      'session_date',
     ])
-    data.year = parseInt(data.year)
-    const slug = activity.slug || request.input('slug') || activitySlug(data.type, data.number, data.author)
+    data.year = Number.parseInt(data.year)
+    const slug =
+      activity.slug || request.input('slug') || activitySlug(data.type, data.number, data.author)
 
     activity.merge({ ...data, slug })
     await activity.save()

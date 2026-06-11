@@ -13,33 +13,24 @@ export default class HomeController {
     // Try to fetch seals, return empty array if table doesn't exist
     let seals: Seal[] = []
     try {
-      seals = await Seal.query()
-        .where('is_active', true)
-        .orderBy('sort_order', 'asc')
+      seals = await Seal.query().where('is_active', true).orderBy('sort_order', 'asc')
     } catch (e) {
       console.log('Seals table may not exist yet:', e.message)
     }
 
-    const [news, councilors, quickLinks, transparencySections, latestGazette, siteSettings] = await Promise.all([
-      News.query()
-        .where('status', 'published')
-        .orderBy('published_at', 'desc')
-        .limit(5)
-        .preload('category'),
-      Councilor.query()
-        .where('is_active', true)
-        .orderBy('display_order', 'asc'),
-      QuickLink.query()
-        .where('is_active', true)
-        .orderBy('display_order', 'asc'),
-      TransparencySection.query()
-        .where('is_active', true)
-        .orderBy('display_order', 'asc'),
-      OfficialGazetteEntry.query()
-        .orderBy('publication_date', 'desc')
-        .first(),
-      SiteSetting.allAsObject(),
-    ])
+    const [news, councilors, quickLinks, transparencySections, latestGazette, siteSettings] =
+      await Promise.all([
+        News.query()
+          .where('status', 'published')
+          .orderBy('published_at', 'desc')
+          .limit(5)
+          .preload('category'),
+        Councilor.query().where('is_active', true).orderBy('display_order', 'asc'),
+        QuickLink.query().where('is_active', true).orderBy('display_order', 'asc'),
+        TransparencySection.query().where('is_active', true).orderBy('display_order', 'asc'),
+        OfficialGazetteEntry.query().orderBy('publication_date', 'desc').first(),
+        SiteSetting.allAsObject(),
+      ])
 
     // Fetch transparency links for each section
     const sectionIds = transparencySections.map((s) => s.id)

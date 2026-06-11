@@ -25,7 +25,10 @@ export default class OfficialPublicationsController {
 
   async create({ inertia }: HttpContext) {
     const types = await SystemCategory.byType('publication')
-    return inertia.render('admin/publications/form', { publication: null, types: types.map((t) => t.serialize()) })
+    return inertia.render('admin/publications/form', {
+      publication: null,
+      types: types.map((t) => t.serialize()),
+    })
   }
 
   async store({ request, response, session }: HttpContext) {
@@ -59,7 +62,10 @@ export default class OfficialPublicationsController {
   async edit({ params, inertia }: HttpContext) {
     const publication = await OfficialPublication.findOrFail(params.id)
     const types = await SystemCategory.byType('publication')
-    return inertia.render('admin/publications/form', { publication: publication.serialize(), types: types.map((t) => t.serialize()) })
+    return inertia.render('admin/publications/form', {
+      publication: publication.serialize(),
+      types: types.map((t) => t.serialize()),
+    })
   }
 
   async update({ params, request, response, session }: HttpContext) {

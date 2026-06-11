@@ -46,7 +46,10 @@ export default class InstagramAutoImporterService {
    * Run automatic import - imports only today's posts
    */
   async runAutoImport(): Promise<ImportResult> {
-    console.log('Auto Import: Starting at', DateTime.now().setZone('America/Sao_Paulo').toFormat('dd/MM/yyyy HH:mm:ss'))
+    console.log(
+      'Auto Import: Starting at',
+      DateTime.now().setZone('America/Sao_Paulo').toFormat('dd/MM/yyyy HH:mm:ss')
+    )
 
     const enabled = await InstagramSetting.get('auto_import_enabled')
     if (enabled !== 'true' && enabled !== '1') {
@@ -80,7 +83,7 @@ export default class InstagramAutoImporterService {
 
       console.log(`Auto Import: Filtering posts from ${now.toFormat('dd/MM/yyyy')}`)
 
-      const newPosts = posts.filter(post => {
+      const newPosts = posts.filter((post) => {
         // Skip if already imported
         if (importedIds.includes(post.id)) {
           return false
@@ -125,12 +128,11 @@ export default class InstagramAutoImporterService {
         }
 
         // Small delay between imports
-        await new Promise(resolve => setTimeout(resolve, 2000))
+        await new Promise((resolve) => setTimeout(resolve, 2000))
       }
 
       console.log(`Auto Import: ${result.imported} post(s) imported, ${result.errors} error(s)`)
       return result
-
     } catch (error: any) {
       console.error('Auto Import Error:', error.message)
       throw error
@@ -140,7 +142,12 @@ export default class InstagramAutoImporterService {
   /**
    * Import a single post
    */
-  async importSinglePost(post: InstagramPost, userId?: number, customTitle?: string, customContent?: string): Promise<News | null> {
+  async importSinglePost(
+    post: InstagramPost,
+    userId?: number,
+    customTitle?: string,
+    customContent?: string
+  ): Promise<News | null> {
     const startTime = Date.now()
 
     try {
@@ -161,7 +168,7 @@ export default class InstagramAutoImporterService {
         if (!generated?.title) {
           throw new Error('Falha ao gerar conteúdo')
         }
-        
+
         title = generated.title
         content = generated.content
         tokensUsed = generated.tokensUsed
@@ -228,7 +235,6 @@ export default class InstagramAutoImporterService {
 
       console.log(`Imported: ${title} (ID: ${news.id})`)
       return news
-
     } catch (error: any) {
       const processingTime = Date.now() - startTime
 
@@ -239,7 +245,9 @@ export default class InstagramAutoImporterService {
         instagramUrl: `https://instagram.com/p/${post.shortcode}`,
         instagramCaption: post.caption,
         instagramImageUrl: post.displayUrl,
-        instagramPostDate: post.takenAtTimestamp ? DateTime.fromSeconds(post.takenAtTimestamp) : null,
+        instagramPostDate: post.takenAtTimestamp
+          ? DateTime.fromSeconds(post.takenAtTimestamp)
+          : null,
         importedBy: userId || null,
         status: 'error',
         errorMessage: error.message,

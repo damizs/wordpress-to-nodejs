@@ -6,7 +6,7 @@ export default class InstagramProxyController {
    */
   async image({ request, response }: HttpContext) {
     const url = request.input('url')
-    
+
     if (!url || !url.includes('cdninstagram.com')) {
       return response.status(400).send('URL inválida')
     }
@@ -14,7 +14,8 @@ export default class InstagramProxyController {
     try {
       const imageResponse = await fetch(url, {
         headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
           'Accept': 'image/webp,image/apng,image/*,*/*;q=0.8',
           'Referer': 'https://www.instagram.com/',
         },
@@ -30,7 +31,7 @@ export default class InstagramProxyController {
       response.header('Content-Type', contentType)
       response.header('Cache-Control', 'public, max-age=86400') // Cache 24h
       response.header('Access-Control-Allow-Origin', '*')
-      
+
       return response.send(Buffer.from(buffer))
     } catch (error: any) {
       console.error('Instagram proxy error:', error.message)

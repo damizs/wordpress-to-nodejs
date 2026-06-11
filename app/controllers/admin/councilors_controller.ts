@@ -38,18 +38,31 @@ export default class CouncilorsController {
 
   async store({ request, response, session }: HttpContext) {
     const data = request.only([
-      'name', 'full_name', 'parliamentary_name', 'slug', 'party',
-      'gender', 'marital_status', 'education_level',
-      'email', 'phone', 'bio', 'history', 'role',
-      'is_active', 'legislature_id', 'display_order',
+      'name',
+      'full_name',
+      'parliamentary_name',
+      'slug',
+      'party',
+      'gender',
+      'marital_status',
+      'education_level',
+      'email',
+      'phone',
+      'bio',
+      'history',
+      'role',
+      'is_active',
+      'legislature_id',
+      'display_order',
     ])
 
     data.is_active = data.is_active === 'true' || data.is_active === true
-    data.display_order = parseInt(data.display_order) || 0
+    data.display_order = Number.parseInt(data.display_order) || 0
 
     if (!data.slug) {
       data.slug = data.name
-        .toLowerCase().normalize('NFD')
+        .toLowerCase()
+        .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/(^-|-$)/g, '')
@@ -80,7 +93,7 @@ export default class CouncilorsController {
       history: data.history || null,
       role: data.role,
       isActive: data.is_active,
-      legislatureId: data.legislature_id ? parseInt(data.legislature_id) : null,
+      legislatureId: data.legislature_id ? Number.parseInt(data.legislature_id) : null,
       displayOrder: data.display_order,
       photoUrl,
     })
@@ -91,7 +104,7 @@ export default class CouncilorsController {
     if (bienniumId && position) {
       await CouncilorPosition.create({
         councilorId: councilor.id,
-        bienniumId: parseInt(bienniumId),
+        bienniumId: Number.parseInt(bienniumId),
         position,
       })
     }
@@ -123,10 +136,22 @@ export default class CouncilorsController {
   async update({ params, request, response, session }: HttpContext) {
     const councilor = await Councilor.findOrFail(params.id)
     const data = request.only([
-      'name', 'full_name', 'parliamentary_name', 'slug', 'party',
-      'gender', 'marital_status', 'education_level',
-      'email', 'phone', 'bio', 'history', 'role',
-      'is_active', 'legislature_id', 'display_order',
+      'name',
+      'full_name',
+      'parliamentary_name',
+      'slug',
+      'party',
+      'gender',
+      'marital_status',
+      'education_level',
+      'email',
+      'phone',
+      'bio',
+      'history',
+      'role',
+      'is_active',
+      'legislature_id',
+      'display_order',
     ])
 
     const photo = request.file('photo', { size: '2mb', extnames: ['png', 'jpg', 'jpeg', 'webp'] })
@@ -140,7 +165,8 @@ export default class CouncilorsController {
 
     if (!data.slug) {
       data.slug = data.name
-        .toLowerCase().normalize('NFD')
+        .toLowerCase()
+        .normalize('NFD')
         .replace(/[\u0300-\u036f]/g, '')
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/(^-|-$)/g, '')
@@ -161,8 +187,8 @@ export default class CouncilorsController {
       history: data.history || null,
       role: data.role,
       isActive: data.is_active === 'true' || data.is_active === true,
-      legislatureId: data.legislature_id ? parseInt(data.legislature_id) : null,
-      displayOrder: parseInt(data.display_order) || 0,
+      legislatureId: data.legislature_id ? Number.parseInt(data.legislature_id) : null,
+      displayOrder: Number.parseInt(data.display_order) || 0,
     })
     await councilor.save()
 
@@ -173,11 +199,11 @@ export default class CouncilorsController {
       // Remove old position for same biennium
       await CouncilorPosition.query()
         .where('councilor_id', councilor.id)
-        .where('biennium_id', parseInt(bienniumId))
+        .where('biennium_id', Number.parseInt(bienniumId))
         .delete()
       await CouncilorPosition.create({
         councilorId: councilor.id,
-        bienniumId: parseInt(bienniumId),
+        bienniumId: Number.parseInt(bienniumId),
         position,
       })
     }

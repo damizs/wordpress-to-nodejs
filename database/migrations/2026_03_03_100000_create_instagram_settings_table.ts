@@ -6,7 +6,7 @@ export default class extends BaseSchema {
   async up() {
     // Drop if exists (key-value format)
     this.schema.dropTableIfExists(this.tableName)
-    
+
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
       table.string('key', 100).notNullable().unique()

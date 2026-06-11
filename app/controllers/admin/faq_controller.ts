@@ -12,7 +12,10 @@ export default class FaqController {
 
   async create({ inertia }: HttpContext) {
     const categories = await SystemCategory.byType('faq')
-    return inertia.render('admin/faq/form', { item: null, categories: categories.map((c) => c.serialize()) })
+    return inertia.render('admin/faq/form', {
+      item: null,
+      categories: categories.map((c) => c.serialize()),
+    })
   }
 
   async store({ request, response, session }: HttpContext) {
@@ -22,7 +25,7 @@ export default class FaqController {
       question: data.question,
       answer: data.answer,
       category: data.category,
-      displayOrder: parseInt(data.display_order) || 0,
+      displayOrder: Number.parseInt(data.display_order) || 0,
       isActive: data.is_active === 'true' || data.is_active === true,
     })
 
@@ -33,7 +36,10 @@ export default class FaqController {
   async edit({ params, inertia }: HttpContext) {
     const item = await FaqItem.findOrFail(params.id)
     const categories = await SystemCategory.byType('faq')
-    return inertia.render('admin/faq/form', { item: item.serialize(), categories: categories.map((c) => c.serialize()) })
+    return inertia.render('admin/faq/form', {
+      item: item.serialize(),
+      categories: categories.map((c) => c.serialize()),
+    })
   }
 
   async update({ params, request, response, session }: HttpContext) {
@@ -44,7 +50,7 @@ export default class FaqController {
       question: data.question,
       answer: data.answer,
       category: data.category,
-      displayOrder: parseInt(data.display_order) || 0,
+      displayOrder: Number.parseInt(data.display_order) || 0,
       isActive: data.is_active === 'true' || data.is_active === true,
     })
     await item.save()

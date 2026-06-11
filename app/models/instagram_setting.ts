@@ -39,10 +39,13 @@ export default class InstagramSetting extends BaseModel {
    */
   static async getAll(): Promise<Record<string, string | null>> {
     const settings = await this.all()
-    return settings.reduce((acc, setting) => {
-      acc[setting.key] = setting.value
-      return acc
-    }, {} as Record<string, string | null>)
+    return settings.reduce(
+      (acc, setting) => {
+        acc[setting.key] = setting.value
+        return acc
+      },
+      {} as Record<string, string | null>
+    )
   }
 
   /**

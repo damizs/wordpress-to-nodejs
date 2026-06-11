@@ -13,22 +13,28 @@ import OfficialGazetteEntry from '#models/official_gazette_entry'
 export default class MainSeeder extends BaseSeeder {
   async run() {
     // Admin user
-    await User.updateOrCreate({ email: 'admin@camaradesume.pb.gov.br' }, {
-      fullName: 'Administrador',
-      email: 'admin@camaradesume.pb.gov.br',
-      password: 'Camara@2025!',
-      role: 'super_admin',
-      isActive: true,
-    })
+    await User.updateOrCreate(
+      { email: 'admin@camaradesume.pb.gov.br' },
+      {
+        fullName: 'Administrador',
+        email: 'admin@camaradesume.pb.gov.br',
+        password: 'Camara@2025!',
+        role: 'super_admin',
+        isActive: true,
+      }
+    )
 
     // Legislature
-    const leg = await Legislature.updateOrCreate({ number: 12 }, {
-      name: '12ª Legislatura',
-      number: 12,
-      startDate: '2025-01-01',
-      endDate: '2028-12-31',
-      isCurrent: true,
-    })
+    const leg = await Legislature.updateOrCreate(
+      { number: 12 },
+      {
+        name: '12ª Legislatura',
+        number: 12,
+        startDate: '2025-01-01',
+        endDate: '2028-12-31',
+        isCurrent: true,
+      }
+    )
 
     // Councilors
     const vereadores = [
@@ -44,38 +50,74 @@ export default class MainSeeder extends BaseSeeder {
       { name: 'José Carlos', party: 'PP', role: 'Vereador', slug: 'jose-carlos' },
       { name: 'Maria do Socorro', party: 'MDB', role: 'Vereadora', slug: 'maria-do-socorro' },
     ]
-    for (let i = 0; i < vereadores.length; i++) {
-      await Councilor.updateOrCreate({ slug: vereadores[i].slug }, {
-        ...vereadores[i], isActive: true, legislatureId: leg.id, displayOrder: i + 1,
-      })
+    for (const [i, vereadore] of vereadores.entries()) {
+      await Councilor.updateOrCreate(
+        { slug: vereadore.slug },
+        {
+          ...vereadore,
+          isActive: true,
+          legislatureId: leg.id,
+          displayOrder: i + 1,
+        }
+      )
     }
 
     // News categories
     const cats = ['Legislativo', 'Institucional', 'Comissões', 'Transparência', 'Eventos']
     const slugs = ['legislativo', 'institucional', 'comissoes', 'transparencia', 'eventos']
     const catModels: Record<string, any> = {}
-    for (let i = 0; i < cats.length; i++) {
-      catModels[cats[i]] = await NewsCategory.updateOrCreate({ slug: slugs[i] }, { name: cats[i], slug: slugs[i] })
+    for (const [i, cat] of cats.entries()) {
+      catModels[cat] = await NewsCategory.updateOrCreate(
+        { slug: slugs[i] },
+        { name: cat, slug: slugs[i] }
+      )
     }
 
     // News
     const newsData = [
-      { title: 'Câmara de Sumé aprova projeto de modernização da administração pública', excerpt: 'Projeto visa implementar sistema digital para gestão de processos legislativos.', category: 'Legislativo' },
-      { title: 'Sessão solene marca abertura dos trabalhos legislativos de 2025', excerpt: 'Vereadores definem prioridades para o ano legislativo.', category: 'Institucional' },
-      { title: 'Comissão de Finanças analisa proposta do orçamento municipal', excerpt: 'Audiência pública discute destinação de recursos para saúde e educação.', category: 'Comissões' },
-      { title: 'Portal da Transparência recebe atualização com novos indicadores', excerpt: 'Dados de receitas e despesas agora disponíveis em tempo real.', category: 'Transparência' },
-      { title: 'Câmara promove evento sobre inclusão digital para idosos', excerpt: 'Projeto capacita moradores da terceira idade no uso de tecnologia.', category: 'Eventos' },
+      {
+        title: 'Câmara de Sumé aprova projeto de modernização da administração pública',
+        excerpt: 'Projeto visa implementar sistema digital para gestão de processos legislativos.',
+        category: 'Legislativo',
+      },
+      {
+        title: 'Sessão solene marca abertura dos trabalhos legislativos de 2025',
+        excerpt: 'Vereadores definem prioridades para o ano legislativo.',
+        category: 'Institucional',
+      },
+      {
+        title: 'Comissão de Finanças analisa proposta do orçamento municipal',
+        excerpt: 'Audiência pública discute destinação de recursos para saúde e educação.',
+        category: 'Comissões',
+      },
+      {
+        title: 'Portal da Transparência recebe atualização com novos indicadores',
+        excerpt: 'Dados de receitas e despesas agora disponíveis em tempo real.',
+        category: 'Transparência',
+      },
+      {
+        title: 'Câmara promove evento sobre inclusão digital para idosos',
+        excerpt: 'Projeto capacita moradores da terceira idade no uso de tecnologia.',
+        category: 'Eventos',
+      },
     ]
     const admin = await User.findBy('email', 'admin@camaradesume.pb.gov.br')
-    for (let i = 0; i < newsData.length; i++) {
+    for (const [i, newsDatum] of newsData.entries()) {
       const slug = `noticia-${i + 1}-${Date.now()}`
-      await News.updateOrCreate({ title: newsData[i].title }, {
-        title: newsData[i].title, slug, excerpt: newsData[i].excerpt,
-        content: `<p>${newsData[i].excerpt}</p>`, status: 'published',
-        publishedAt: DateTime.fromJSDate(new Date(2025, 1, 10 - i)),
-        categoryId: catModels[newsData[i].category]?.id, authorId: admin?.id,
-        viewsCount: 0,
-      })
+      await News.updateOrCreate(
+        { title: newsDatum.title },
+        {
+          title: newsDatum.title,
+          slug,
+          excerpt: newsDatum.excerpt,
+          content: `<p>${newsDatum.excerpt}</p>`,
+          status: 'published',
+          publishedAt: DateTime.fromJSDate(new Date(2025, 1, 10 - i)),
+          categoryId: catModels[newsDatum.category]?.id,
+          authorId: admin?.id,
+          viewsCount: 0,
+        }
+      )
     }
 
     // Quick Links
@@ -95,21 +137,58 @@ export default class MainSeeder extends BaseSeeder {
 
     // Transparency sections + links
     const transSections = [
-      { title: 'Receitas e Despesas', slug: 'receitas-despesas', order: 1, links: ['Receitas', 'Despesas', 'Empenhos'] },
-      { title: 'Licitações e Contratos', slug: 'licitacoes-contratos', order: 2, links: ['Licitações', 'Contratos', 'Atas'] },
-      { title: 'Pessoal', slug: 'pessoal', order: 3, links: ['Servidores', 'Folha de Pagamento', 'Diárias'] },
-      { title: 'Legislação', slug: 'legislacao', order: 4, links: ['Leis Ordinárias', 'Decretos', 'Resoluções'] },
+      {
+        title: 'Receitas e Despesas',
+        slug: 'receitas-despesas',
+        order: 1,
+        links: ['Receitas', 'Despesas', 'Empenhos'],
+      },
+      {
+        title: 'Licitações e Contratos',
+        slug: 'licitacoes-contratos',
+        order: 2,
+        links: ['Licitações', 'Contratos', 'Atas'],
+      },
+      {
+        title: 'Pessoal',
+        slug: 'pessoal',
+        order: 3,
+        links: ['Servidores', 'Folha de Pagamento', 'Diárias'],
+      },
+      {
+        title: 'Legislação',
+        slug: 'legislacao',
+        order: 4,
+        links: ['Leis Ordinárias', 'Decretos', 'Resoluções'],
+      },
       { title: 'Planejamento', slug: 'planejamento', order: 5, links: ['PPA', 'LDO', 'LOA'] },
-      { title: 'Prestação de Contas', slug: 'prestacao-contas', order: 6, links: ['Relatórios', 'Pareceres TCE'] },
+      {
+        title: 'Prestação de Contas',
+        slug: 'prestacao-contas',
+        order: 6,
+        links: ['Relatórios', 'Pareceres TCE'],
+      },
     ]
     for (const sec of transSections) {
-      const section = await TransparencySection.updateOrCreate({ slug: sec.slug }, {
-        title: sec.title, slug: sec.slug, displayOrder: sec.order, isActive: true,
-      })
+      const section = await TransparencySection.updateOrCreate(
+        { slug: sec.slug },
+        {
+          title: sec.title,
+          slug: sec.slug,
+          displayOrder: sec.order,
+          isActive: true,
+        }
+      )
       for (let i = 0; i < sec.links.length; i++) {
         await TransparencyLink.updateOrCreate(
           { sectionId: section.id, title: sec.links[i] },
-          { sectionId: section.id, title: sec.links[i], url: '#', displayOrder: i + 1, isExternal: true }
+          {
+            sectionId: section.id,
+            title: sec.links[i],
+            url: '#',
+            displayOrder: i + 1,
+            isExternal: true,
+          }
         )
       }
     }
@@ -119,7 +198,11 @@ export default class MainSeeder extends BaseSeeder {
       const d = new Date(2025, 1, 10 - i * 7)
       await OfficialGazetteEntry.updateOrCreate(
         { editionNumber: `${100 + i}` },
-        { editionNumber: `${100 + i}`, publicationDate: d.toISOString().split('T')[0], description: `Diário Oficial - Edição ${100 + i}` }
+        {
+          editionNumber: `${100 + i}`,
+          publicationDate: d.toISOString().split('T')[0],
+          description: `Diário Oficial - Edição ${100 + i}`,
+        }
       )
     }
 

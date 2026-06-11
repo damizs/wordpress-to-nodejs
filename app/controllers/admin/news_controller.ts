@@ -20,9 +20,10 @@ export default class NewsController {
 
     if (status) query = query.where('status', status)
     if (category) query = query.where('category_id', category)
-    if (search) query = query.where((q) => {
-      q.whereILike('title', `%${search}%`).orWhereILike('excerpt', `%${search}%`)
-    })
+    if (search)
+      query = query.where((q) => {
+        q.whereILike('title', `%${search}%`).orWhereILike('excerpt', `%${search}%`)
+      })
 
     const news = await query.paginate(page, 15)
     const categories = await NewsCategory.query().orderBy('name', 'asc')
@@ -45,7 +46,14 @@ export default class NewsController {
 
   /** Store new news */
   async store({ request, response, auth, session }: HttpContext) {
-    const data = request.only(['title', 'excerpt', 'content', 'status', 'category_id', 'published_at'])
+    const data = request.only([
+      'title',
+      'excerpt',
+      'content',
+      'status',
+      'category_id',
+      'published_at',
+    ])
 
     // Generate slug
     let slug = string.slug(data.title, { lower: true })
@@ -73,7 +81,10 @@ export default class NewsController {
     })
 
     // Handle cover image
-    const cover = request.file('cover_image', { size: '5mb', extnames: ['jpg', 'jpeg', 'png', 'webp'] })
+    const cover = request.file('cover_image', {
+      size: '5mb',
+      extnames: ['jpg', 'jpeg', 'png', 'webp'],
+    })
     if (cover) {
       const uploadDir = join(app.publicPath(), 'uploads', 'news')
       if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true })
@@ -100,7 +111,14 @@ export default class NewsController {
   /** Update existing news */
   async update({ request, response, params, session }: HttpContext) {
     const news = await News.findOrFail(params.id)
-    const data = request.only(['title', 'excerpt', 'content', 'status', 'category_id', 'published_at'])
+    const data = request.only([
+      'title',
+      'excerpt',
+      'content',
+      'status',
+      'category_id',
+      'published_at',
+    ])
 
     news.title = data.title
     news.excerpt = data.excerpt || null
@@ -116,7 +134,10 @@ export default class NewsController {
     }
 
     // Handle cover image
-    const cover = request.file('cover_image', { size: '5mb', extnames: ['jpg', 'jpeg', 'png', 'webp'] })
+    const cover = request.file('cover_image', {
+      size: '5mb',
+      extnames: ['jpg', 'jpeg', 'png', 'webp'],
+    })
     if (cover) {
       const uploadDir = join(app.publicPath(), 'uploads', 'news')
       if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true })

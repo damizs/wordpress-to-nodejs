@@ -129,12 +129,12 @@ export default class InstagramController {
       const importedIds = await InstagramImportLog.getImportedIds()
 
       // Mark which posts are already imported
-      const postsWithStatus = posts.map(post => ({
+      const postsWithStatus = posts.map((post) => ({
         ...post,
         isImported: importedIds.includes(post.id),
       }))
 
-      const newCount = postsWithStatus.filter(p => !p.isImported).length
+      const newCount = postsWithStatus.filter((p) => !p.isImported).length
 
       return response.json({
         success: true,
@@ -155,7 +155,7 @@ export default class InstagramController {
     try {
       const { post, title, content } = request.only(['post', 'title', 'content'])
       const service = new InstagramAutoImporterService()
-      
+
       // Se título e conteúdo foram fornecidos, usar diretamente (sem chamar IA)
       const news = await service.importSinglePost(post, auth.user?.id, title, content)
 
@@ -187,9 +187,10 @@ export default class InstagramController {
         imported: result.imported,
         errors: result.errors,
         posts: result.posts,
-        message: result.imported > 0
-          ? `${result.imported} post(s) importado(s) com sucesso!`
-          : 'Nenhum post novo de hoje para importar',
+        message:
+          result.imported > 0
+            ? `${result.imported} post(s) importado(s) com sucesso!`
+            : 'Nenhum post novo de hoje para importar',
       })
     } catch (error: any) {
       return response.json({ success: false, error: error.message })
@@ -221,7 +222,7 @@ export default class InstagramController {
     try {
       const { caption } = request.only(['caption'])
 
-      const AIProcessorService = (await import('#services/ai_processor_service')).default
+      const { default: AIProcessorService } = await import('#services/ai_processor_service')
       const ai = new AIProcessorService()
       await ai.init()
       const result = await ai.processCaption(caption)

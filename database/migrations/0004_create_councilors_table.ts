@@ -14,11 +14,18 @@ export default class extends BaseSchema {
       t.text('bio').nullable()
       t.string('role').nullable()
       t.boolean('is_active').defaultTo(true)
-      t.integer('legislature_id').unsigned().references('id').inTable('legislatures').onDelete('SET NULL').nullable()
+      t.integer('legislature_id')
+        .unsigned()
+        .references('id')
+        .inTable('legislatures')
+        .onDelete('SET NULL')
+        .nullable()
       t.integer('display_order').defaultTo(0)
       t.timestamp('created_at').notNullable()
       t.timestamp('updated_at').nullable()
     })
   }
-  async down() { this.schema.dropTable(this.tableName) }
+  async down() {
+    this.schema.dropTable(this.tableName)
+  }
 }

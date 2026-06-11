@@ -16,7 +16,7 @@ export default class extends BaseSchema {
         return
       }
     }
-    
+
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id')
       table.string('key', 100).notNullable().unique()

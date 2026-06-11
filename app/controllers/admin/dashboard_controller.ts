@@ -11,10 +11,7 @@ export default class DashboardController {
       Councilor.query().where('is_active', true).count('* as total').first(),
     ])
 
-    const recentNews = await News.query()
-      .orderBy('created_at', 'desc')
-      .limit(5)
-      .preload('category')
+    const recentNews = await News.query().orderBy('created_at', 'desc').limit(5).preload('category')
 
     return inertia.render('admin/dashboard', {
       stats: {

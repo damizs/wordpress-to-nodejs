@@ -20,13 +20,18 @@ export default class SystemCategoriesController {
   async store({ request, response, session }: HttpContext) {
     const data = request.only(['type', 'name', 'slug', 'display_order', 'is_active'])
     if (!data.slug) {
-      data.slug = data.name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+      data.slug = data.name
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '')
     }
     await SystemCategory.create({
       type: data.type,
       name: data.name,
       slug: data.slug,
-      displayOrder: parseInt(data.display_order) || 0,
+      displayOrder: Number.parseInt(data.display_order) || 0,
       isActive: data.is_active === 'true' || data.is_active === true || data.is_active === 'on',
     })
     session.flash('success', 'Categoria cadastrada com sucesso!')
@@ -45,7 +50,7 @@ export default class SystemCategoriesController {
       type: data.type,
       name: data.name,
       slug: data.slug || category.slug,
-      displayOrder: parseInt(data.display_order) || 0,
+      displayOrder: Number.parseInt(data.display_order) || 0,
       isActive: data.is_active === 'true' || data.is_active === true || data.is_active === 'on',
     })
     await category.save()

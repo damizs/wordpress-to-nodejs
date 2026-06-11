@@ -30,7 +30,7 @@ export default class LegislaturesController {
 
     await Legislature.create({
       name: data.name,
-      number: parseInt(data.number),
+      number: Number.parseInt(data.number),
       startDate: data.start_date,
       endDate: data.end_date,
       isCurrent: data.is_current,
@@ -56,7 +56,7 @@ export default class LegislaturesController {
 
     legislature.merge({
       name: data.name,
-      number: parseInt(data.number),
+      number: Number.parseInt(data.number),
       startDate: data.start_date,
       endDate: data.end_date,
       isCurrent: isCurrent,

@@ -96,7 +96,8 @@ export default class WpMigrate extends BaseCommand {
     }
     mkdirSync(uploadsDir, { recursive: true })
     const tarPath = join(uploadsDir, 'wp-migration-images.tar.gz')
-    const url = 'https://github.com/damizs/wordpress-to-nodejs/releases/download/v1.0.0/wp-migration-images.tar.gz'
+    const url =
+      'https://github.com/damizs/wordpress-to-nodejs/releases/download/v1.0.0/wp-migration-images.tar.gz'
     this.logger.info('Downloading assets (~127MB)...')
     try {
       execSync(`curl -sL "${url}" -o "${tarPath}"`, { stdio: 'inherit', timeout: 600000 })
@@ -116,7 +117,13 @@ export default class WpMigrate extends BaseCommand {
     this.logger.info('\n━━━ Legislature & Biennium ━━━')
     const leg = await Legislature.updateOrCreate(
       { name: '11ª LEGISLATURA - 2025/2028' },
-      { name: '11ª LEGISLATURA - 2025/2028', number: 11, startDate: '2025-01-01', endDate: '2028-12-31', isCurrent: true }
+      {
+        name: '11ª LEGISLATURA - 2025/2028',
+        number: 11,
+        startDate: '2025-01-01',
+        endDate: '2028-12-31',
+        isCurrent: true,
+      }
     )
     // Deactivate others
     await Legislature.query().whereNot('id', leg.id).update({ isCurrent: false })
@@ -127,7 +134,13 @@ export default class WpMigrate extends BaseCommand {
   async ensureBiennium(legislature: Legislature): Promise<Biennium> {
     const bien = await Biennium.updateOrCreate(
       { name: 'BIÊNIO 2025/2026' },
-      { name: 'BIÊNIO 2025/2026', legislatureId: legislature.id, startDate: '2025-01-01', endDate: '2026-12-31', isCurrent: true }
+      {
+        name: 'BIÊNIO 2025/2026',
+        legislatureId: legislature.id,
+        startDate: '2025-01-01',
+        endDate: '2026-12-31',
+        isCurrent: true,
+      }
     )
     await Biennium.query().whereNot('id', bien.id).update({ isCurrent: false })
     this.logger.success(`  Biennium: ${bien.name} (ID ${bien.id})`)
@@ -140,25 +153,39 @@ export default class WpMigrate extends BaseCommand {
   async importNews(newsData: any[]) {
     this.logger.info(`\n━━━ News: ${newsData.length} items ━━━`)
     const category = await NewsCategory.updateOrCreate(
-      { slug: 'noticias' }, { name: 'Notícias', slug: 'noticias' }
+      { slug: 'noticias' },
+      { name: 'Notícias', slug: 'noticias' }
     )
     const admin = await User.findBy('email', 'admin@camaradesume.pb.gov.br')
-    if (this.force) { await News.query().delete(); this.logger.info('  Cleared') }
+    if (this.force) {
+      await News.query().delete()
+      this.logger.info('  Cleared')
+    }
 
-    let ok = 0, skip = 0
+    let ok = 0
+    let skip = 0
     for (const n of newsData) {
-      if (!this.force && await News.findBy('slug', n.slug)) { skip++; continue }
+      if (!this.force && (await News.findBy('slug', n.slug))) {
+        skip++
+        continue
+      }
       try {
         await News.create({
-          title: n.title, slug: n.slug,
+          title: n.title,
+          slug: n.slug,
           excerpt: n.excerpt || null,
           content: this.cleanContent(n.content),
           coverImageUrl: n.new_cover ? `${this.wpDir}/${n.new_cover}` : null,
-          status: 'published', publishedAt: DateTime.fromSQL(n.date),
-          categoryId: category.id, authorId: admin?.id || null, viewsCount: 0,
+          status: 'published',
+          publishedAt: DateTime.fromSQL(n.date),
+          categoryId: category.id,
+          authorId: admin?.id || null,
+          viewsCount: 0,
         })
         ok++
-      } catch { this.logger.warning(`  FAIL: ${n.title.substring(0, 50)}`) }
+      } catch {
+        this.logger.warning(`  FAIL: ${n.title.substring(0, 50)}`)
+      }
     }
     this.logger.success(`  News: ${ok} imported, ${skip} skipped`)
   }
@@ -168,11 +195,16 @@ export default class WpMigrate extends BaseCommand {
   // ═══════════════════════════════════════
   async importVereadores(vereadoresData: any[], legislature: Legislature) {
     this.logger.info(`\n━━━ Vereadores: ${vereadoresData.length} items ━━━`)
-    if (this.force) { await CouncilorPosition.query().delete(); await CommitteeMember.query().delete(); await Councilor.query().delete(); this.logger.info('  Cleared') }
+    if (this.force) {
+      await CouncilorPosition.query().delete()
+      await CommitteeMember.query().delete()
+      await Councilor.query().delete()
+      this.logger.info('  Cleared')
+    }
 
-    let ok = 0, upd = 0
-    for (let i = 0; i < vereadoresData.length; i++) {
-      const v = vereadoresData[i]
+    let ok = 0
+    let upd = 0
+    for (const [i, v] of vereadoresData.entries()) {
       const photoUrl = v.new_photo ? `${this.wpDir}/${v.new_photo}` : null
       const fields = {
         name: v.name,
@@ -196,8 +228,12 @@ export default class WpMigrate extends BaseCommand {
         await existing.save()
         upd++
       } else {
-        try { await Councilor.create(fields); ok++ }
-        catch { this.logger.warning(`  FAIL: ${v.name}`) }
+        try {
+          await Councilor.create(fields)
+          ok++
+        } catch {
+          this.logger.warning(`  FAIL: ${v.name}`)
+        }
       }
     }
     this.logger.success(`  Vereadores: ${ok} imported, ${upd} updated`)
@@ -244,16 +280,22 @@ export default class WpMigrate extends BaseCommand {
   // ═══════════════════════════════════════
   async importComissoes(comissoesData: any[], legislature: Legislature) {
     this.logger.info(`\n━━━ Comissões: ${comissoesData.length} ━━━`)
-    if (this.force) { await CommitteeMember.query().delete(); await Committee.query().delete(); this.logger.info('  Cleared') }
+    if (this.force) {
+      await CommitteeMember.query().delete()
+      await Committee.query().delete()
+      this.logger.info('  Cleared')
+    }
 
-    let comOk = 0, memOk = 0
+    let comOk = 0
+    let memOk = 0
     for (const c of comissoesData) {
       const slug = this.slugify(c.name)
       let committee = await Committee.findBy('slug', slug)
 
       if (!committee) {
         committee = await Committee.create({
-          name: c.name, slug,
+          name: c.name,
+          slug,
           description: c.description || null,
           type: 'permanente',
           legislatureId: legislature.id,
@@ -293,17 +335,33 @@ export default class WpMigrate extends BaseCommand {
   // ═══════════════════════════════════════
   async importFaqs(faqsData: any[]) {
     this.logger.info(`\n━━━ FAQs: ${faqsData.length} items ━━━`)
-    if (this.force) { await FaqItem.query().delete() }
+    if (this.force) {
+      await FaqItem.query().delete()
+    }
 
-    let ok = 0, skip = 0
-    for (let i = 0; i < faqsData.length; i++) {
-      const faq = faqsData[i]
-      if (!this.force && await FaqItem.findBy('question', faq.question)) { skip++; continue }
-      const answer = faq.answer.replace(/<\/?p>/g, '').replace(/<br\s*\/?>/g, '\n').trim()
+    let ok = 0
+    let skip = 0
+    for (const [i, faq] of faqsData.entries()) {
+      if (!this.force && (await FaqItem.findBy('question', faq.question))) {
+        skip++
+        continue
+      }
+      const answer = faq.answer
+        .replace(/<\/?p>/g, '')
+        .replace(/<br\s*\/?>/g, '\n')
+        .trim()
       try {
-        await FaqItem.create({ question: faq.question, answer, category: this.categorizeFaq(faq.question), displayOrder: i + 1, isActive: true })
+        await FaqItem.create({
+          question: faq.question,
+          answer,
+          category: this.categorizeFaq(faq.question),
+          displayOrder: i + 1,
+          isActive: true,
+        })
         ok++
-      } catch { this.logger.warning(`  FAIL: ${faq.question.substring(0, 40)}`) }
+      } catch {
+        this.logger.warning(`  FAIL: ${faq.question.substring(0, 40)}`)
+      }
     }
     this.logger.success(`  FAQs: ${ok} imported, ${skip} skipped`)
   }
@@ -313,7 +371,9 @@ export default class WpMigrate extends BaseCommand {
   // ═══════════════════════════════════════
   async importSurveyQuestions(questions: any[]) {
     this.logger.info(`\n━━━ Survey Questions: ${questions.length} ━━━`)
-    if (this.force) { await SurveyQuestion.query().delete() }
+    if (this.force) {
+      await SurveyQuestion.query().delete()
+    }
 
     let ok = 0
     for (const q of questions) {
@@ -327,7 +387,9 @@ export default class WpMigrate extends BaseCommand {
           displayOrder: q.number,
         })
         ok++
-      } catch { this.logger.warning(`  FAIL: Q${q.number}`) }
+      } catch {
+        this.logger.warning(`  FAIL: Q${q.number}`)
+      }
     }
     this.logger.success(`  Survey Questions: ${ok} imported`)
   }
@@ -337,30 +399,59 @@ export default class WpMigrate extends BaseCommand {
   // ═══════════════════════════════════════
   async importQuickLinks(links: any[]) {
     this.logger.info(`\n━━━ Quick Links: ${links.length} items ━━━`)
-    if (this.force) { await QuickLink.query().delete() }
+    if (this.force) {
+      await QuickLink.query().delete()
+    }
 
     const iconMap: Record<string, string> = {
-      'fas fa-video': 'Video', 'fas fa-users': 'Users', 'fas fa-building': 'Building2',
-      'fas fa-landmark': 'Landmark', 'fas fa-user-tie': 'UserCheck', 'fas fa-award': 'Award',
-      'fas fa-file-alt': 'FileText', 'fas fa-table': 'Table', 'fas fa-hard-hat': 'HardHat',
-      'fas fa-dollar-sign': 'DollarSign', 'fas fa-coins': 'Coins', 'fas fa-user-graduate': 'GraduationCap',
-      'fas fa-id-badge': 'BadgeCheck', 'fas fa-clipboard-list': 'ClipboardList', 'fas fa-handshake': 'Handshake',
-      'fas fa-file-signature': 'FileSignature', 'fas fa-sitemap': 'Network', 'fas fa-chart-pie': 'PieChart',
-      'fas fa-envelope-open-text': 'MailOpen', 'fas fa-clipboard-check': 'ClipboardCheck',
-      'fas fa-chart-line': 'TrendingUp', 'fas fa-book-open': 'BookOpen',
-      'fas fa-exclamation-circle': 'AlertCircle', 'fas fa-gavel': 'Gavel',
-      'fas fa-search': 'Search', 'fas fa-calendar': 'Calendar', 'fas fa-file-contract': 'FileText',
+      'fas fa-video': 'Video',
+      'fas fa-users': 'Users',
+      'fas fa-building': 'Building2',
+      'fas fa-landmark': 'Landmark',
+      'fas fa-user-tie': 'UserCheck',
+      'fas fa-award': 'Award',
+      'fas fa-file-alt': 'FileText',
+      'fas fa-table': 'Table',
+      'fas fa-hard-hat': 'HardHat',
+      'fas fa-dollar-sign': 'DollarSign',
+      'fas fa-coins': 'Coins',
+      'fas fa-user-graduate': 'GraduationCap',
+      'fas fa-id-badge': 'BadgeCheck',
+      'fas fa-clipboard-list': 'ClipboardList',
+      'fas fa-handshake': 'Handshake',
+      'fas fa-file-signature': 'FileSignature',
+      'fas fa-sitemap': 'Network',
+      'fas fa-chart-pie': 'PieChart',
+      'fas fa-envelope-open-text': 'MailOpen',
+      'fas fa-clipboard-check': 'ClipboardCheck',
+      'fas fa-chart-line': 'TrendingUp',
+      'fas fa-book-open': 'BookOpen',
+      'fas fa-exclamation-circle': 'AlertCircle',
+      'fas fa-gavel': 'Gavel',
+      'fas fa-search': 'Search',
+      'fas fa-calendar': 'Calendar',
+      'fas fa-file-contract': 'FileText',
     }
 
     let ok = 0
-    for (let i = 0; i < links.length; i++) {
-      const l = links[i]
+    for (const [i, l] of links.entries()) {
       if (!l.active) continue
-      let url = l.url.replace('https://camaradesume.pb.gov.br/', '/').replace('http://camaradesume.pb.gov.br/', '/')
+      let url = l.url
+        .replace('https://camaradesume.pb.gov.br/', '/')
+        .replace('http://camaradesume.pb.gov.br/', '/')
       try {
-        await QuickLink.create({ title: l.title, url, icon: iconMap[l.icon] || 'Link', color: l.color, displayOrder: i + 1, isActive: true })
+        await QuickLink.create({
+          title: l.title,
+          url,
+          icon: iconMap[l.icon] || 'Link',
+          color: l.color,
+          displayOrder: i + 1,
+          isActive: true,
+        })
         ok++
-      } catch { /* skip */ }
+      } catch {
+        /* skip */
+      }
     }
     this.logger.success(`  Quick Links: ${ok} imported`)
   }
@@ -372,61 +463,110 @@ export default class WpMigrate extends BaseCommand {
     this.logger.info(`\n━━━ Matérias: ${materias.length} items ━━━`)
 
     const legislativeTypes = new Set([
-      'REQUERIMENTO', 'RESOLUÇÃO LEGISLATIVA', 'PROJETO DE LEI LEGISLATIVO',
-      'INDICACAO', 'EMENDA', 'DECRETO LEGISLATIVO', 'PROJETO DE RESOLUÇÃO',
+      'REQUERIMENTO',
+      'RESOLUÇÃO LEGISLATIVA',
+      'PROJETO DE LEI LEGISLATIVO',
+      'INDICACAO',
+      'EMENDA',
+      'DECRETO LEGISLATIVO',
+      'PROJETO DE RESOLUÇÃO',
     ])
     const licitacaoTypes = new Set([
-      'Aviso de Licitação', 'Extrato de Contrato', 'Termo de Adjudicação',
-      'Extrato de Dispensa de Licitação', 'Demais Atos de Licitação',
-      'Extrato de inexigibilidade', 'Extrato de Aditivo', 'Aviso de Habilitação',
-      'Extrato de Ratificação', 'Edital de Licitação', 'Termo de Homologação',
-      'Aditivo', 'RESULTADO',
+      'Aviso de Licitação',
+      'Extrato de Contrato',
+      'Termo de Adjudicação',
+      'Extrato de Dispensa de Licitação',
+      'Demais Atos de Licitação',
+      'Extrato de inexigibilidade',
+      'Extrato de Aditivo',
+      'Aviso de Habilitação',
+      'Extrato de Ratificação',
+      'Edital de Licitação',
+      'Termo de Homologação',
+      'Aditivo',
+      'RESULTADO',
     ])
 
     if (this.force) {
       await LegislativeActivity.query().delete()
       await Licitacao.query().delete()
       // Only delete matéria-sourced publications
-      await OfficialPublication.query().whereIn('type', ['Portaria', 'Ata Administrativa', 'Edital', 'Decreto', 'Ato Administrativo', 'Outros']).delete()
+      await OfficialPublication.query()
+        .whereIn('type', [
+          'Portaria',
+          'Ata Administrativa',
+          'Edital',
+          'Decreto',
+          'Ato Administrativo',
+          'Outros',
+        ])
+        .delete()
     }
 
-    let legOk = 0, licOk = 0, pubOk = 0
+    let legOk = 0
+    let licOk = 0
+    let pubOk = 0
     for (const m of materias) {
       const content = this.cleanContent(m.conteudo)
-      const year = m.dt_publicacao ? parseInt(m.dt_publicacao.substring(0, 4)) : 2025
+      const year = m.dt_publicacao ? Number.parseInt(m.dt_publicacao.substring(0, 4)) : 2025
       const slug = this.slugify(`${m.tipo}-${m.codigo}`)
 
       if (legislativeTypes.has(m.tipo)) {
         try {
           await LegislativeActivity.create({
-            title: m.titulo, slug, type: m.tipo, number: m.codigo,
-            year, summary: m.titulo, content, status: 'aprovado', isActive: true,
+            title: m.titulo,
+            slug,
+            type: m.tipo,
+            number: m.codigo,
+            year,
+            summary: m.titulo,
+            content,
+            status: 'aprovado',
+            isActive: true,
           })
           legOk++
-        } catch { /* skip */ }
+        } catch {
+          /* skip */
+        }
       } else if (licitacaoTypes.has(m.tipo)) {
         try {
           await Licitacao.create({
-            title: m.titulo, slug, number: m.codigo, modality: m.tipo,
-            status: 'concluida', object: m.titulo, content, year, isActive: true,
+            title: m.titulo,
+            slug,
+            number: m.codigo,
+            modality: m.tipo,
+            status: 'concluida',
+            object: m.titulo,
+            content,
+            year,
+            isActive: true,
           })
           licOk++
-        } catch { /* skip */ }
+        } catch {
+          /* skip */
+        }
       } else {
         const typeMap: Record<string, string> = {
-          'Portaria': 'Portaria', 'Ata': 'Ata Administrativa',
-          'EDITAL': 'Edital', 'Decreto': 'Decreto',
+          'Portaria': 'Portaria',
+          'Ata': 'Ata Administrativa',
+          'EDITAL': 'Edital',
+          'Decreto': 'Decreto',
           'Atos Administrativos': 'Ato Administrativo',
           'Outros Atos Administrativos': 'Ato Administrativo',
         }
         try {
           await OfficialPublication.create({
-            title: m.titulo, slug, type: typeMap[m.tipo] || 'Outros',
-            number: m.codigo, publicationDate: m.dt_publicacao || `${year}-01-01`,
+            title: m.titulo,
+            slug,
+            type: typeMap[m.tipo] || 'Outros',
+            number: m.codigo,
+            publicationDate: m.dt_publicacao || `${year}-01-01`,
             description: content.substring(0, 500) || null,
           })
           pubOk++
-        } catch { /* skip */ }
+        } catch {
+          /* skip */
+        }
       }
     }
     this.logger.success(`  Legislative: ${legOk}, Licitações: ${licOk}, Publications: ${pubOk}`)
@@ -452,11 +592,18 @@ export default class WpMigrate extends BaseCommand {
 
       try {
         await OfficialPublication.create({
-          title: p.title, slug: p.slug !== 'closed' ? p.slug : this.slugify(p.title),
-          type, number: numMatch, publicationDate: p.date, fileUrl, description: p.content || null,
+          title: p.title,
+          slug: p.slug !== 'closed' ? p.slug : this.slugify(p.title),
+          type,
+          number: numMatch,
+          publicationDate: p.date,
+          fileUrl,
+          description: p.content || null,
         })
         ok++
-      } catch { this.logger.warning(`  FAIL: ${p.title.substring(0, 50)}`) }
+      } catch {
+        this.logger.warning(`  FAIL: ${p.title.substring(0, 50)}`)
+      }
     }
     this.logger.success(`  Publicações: ${ok} imported`)
   }
@@ -466,7 +613,9 @@ export default class WpMigrate extends BaseCommand {
   // ═══════════════════════════════════════
   async importAtas(atas: any[], attachments: Record<string, string>) {
     this.logger.info(`\n━━━ Atas/Sessões: ${atas.length} items ━━━`)
-    if (this.force) { await PlenarySession.query().delete() }
+    if (this.force) {
+      await PlenarySession.query().delete()
+    }
 
     let ok = 0
     for (const a of atas) {
@@ -476,16 +625,23 @@ export default class WpMigrate extends BaseCommand {
       const fileUrl = fileName ? `${this.wpDir}/pdfs/atas/${fileName}` : null
       const lower = a.title.toLowerCase()
       let type: 'ordinaria' | 'extraordinaria' | 'solene' | 'especial' = 'ordinaria'
-      if (lower.includes('extraordinári') || lower.includes('extraordinari')) type = 'extraordinaria'
+      if (lower.includes('extraordinári') || lower.includes('extraordinari'))
+        type = 'extraordinaria'
 
       try {
         await PlenarySession.create({
-          title: a.title, slug: this.slugify(a.title), type,
-          sessionDate: a.date, year: parseInt(a.date.substring(0, 4)),
-          status: 'realizada', fileUrl,
+          title: a.title,
+          slug: this.slugify(a.title),
+          type,
+          sessionDate: a.date,
+          year: Number.parseInt(a.date.substring(0, 4)),
+          status: 'realizada',
+          fileUrl,
         })
         ok++
-      } catch { this.logger.warning(`  FAIL: ${a.title.substring(0, 50)}`) }
+      } catch {
+        this.logger.warning(`  FAIL: ${a.title.substring(0, 50)}`)
+      }
     }
     this.logger.success(`  Sessions: ${ok} imported`)
   }
@@ -495,20 +651,60 @@ export default class WpMigrate extends BaseCommand {
   // ═══════════════════════════════════════
   async importTransparencia(items: any[]) {
     this.logger.info(`\n━━━ Transparência: ${items.length} items ━━━`)
-    if (this.force) { await TransparencyLink.query().delete(); await TransparencySection.query().delete() }
+    if (this.force) {
+      await TransparencyLink.query().delete()
+      await TransparencySection.query().delete()
+    }
 
     const sections: Record<string, string[]> = {
-      'Despesas e Receitas': [], 'Pessoal e Servidores': [],
-      'Licitações e Contratos': [], 'Gestão e Planejamento': [],
-      'Legislação e Normas': [], 'Outros': [],
+      'Despesas e Receitas': [],
+      'Pessoal e Servidores': [],
+      'Licitações e Contratos': [],
+      'Gestão e Planejamento': [],
+      'Legislação e Normas': [],
+      'Outros': [],
     }
     const sectionMap = (title: string): string => {
       const l = title.toLowerCase()
-      if (l.includes('despesa') || l.includes('receita') || l.includes('orçament') || l.includes('diária') || l.includes('covid') || l.includes('pagamento') || l.includes('extra')) return 'Despesas e Receitas'
-      if (l.includes('servidor') || l.includes('folha') || l.includes('cedido') || l.includes('comissiona') || l.includes('efetivo') || l.includes('lotação') || l.includes('remuneração')) return 'Pessoal e Servidores'
-      if (l.includes('contrato') || l.includes('licitaç') || l.includes('convenio') || l.includes('convênio')) return 'Licitações e Contratos'
-      if (l.includes('rgf') || l.includes('gestão') || l.includes('planej') || l.includes('prestação') || l.includes('pca') || l.includes('parecer') || l.includes('carta')) return 'Gestão e Planejamento'
-      if (l.includes('lei') || l.includes('regulament') || l.includes('lai')) return 'Legislação e Normas'
+      if (
+        l.includes('despesa') ||
+        l.includes('receita') ||
+        l.includes('orçament') ||
+        l.includes('diária') ||
+        l.includes('covid') ||
+        l.includes('pagamento') ||
+        l.includes('extra')
+      )
+        return 'Despesas e Receitas'
+      if (
+        l.includes('servidor') ||
+        l.includes('folha') ||
+        l.includes('cedido') ||
+        l.includes('comissiona') ||
+        l.includes('efetivo') ||
+        l.includes('lotação') ||
+        l.includes('remuneração')
+      )
+        return 'Pessoal e Servidores'
+      if (
+        l.includes('contrato') ||
+        l.includes('licitaç') ||
+        l.includes('convenio') ||
+        l.includes('convênio')
+      )
+        return 'Licitações e Contratos'
+      if (
+        l.includes('rgf') ||
+        l.includes('gestão') ||
+        l.includes('planej') ||
+        l.includes('prestação') ||
+        l.includes('pca') ||
+        l.includes('parecer') ||
+        l.includes('carta')
+      )
+        return 'Gestão e Planejamento'
+      if (l.includes('lei') || l.includes('regulament') || l.includes('lai'))
+        return 'Legislação e Normas'
       return 'Outros'
     }
     for (const t of items) {
@@ -516,28 +712,40 @@ export default class WpMigrate extends BaseCommand {
       sections[sectionMap(t.title)].push(t.title)
     }
     const icons: Record<string, string> = {
-      'Despesas e Receitas': 'DollarSign', 'Pessoal e Servidores': 'Users',
-      'Licitações e Contratos': 'FileText', 'Gestão e Planejamento': 'BarChart3',
-      'Legislação e Normas': 'Scale', 'Outros': 'FolderOpen',
+      'Despesas e Receitas': 'DollarSign',
+      'Pessoal e Servidores': 'Users',
+      'Licitações e Contratos': 'FileText',
+      'Gestão e Planejamento': 'BarChart3',
+      'Legislação e Normas': 'Scale',
+      'Outros': 'FolderOpen',
     }
 
-    let secOk = 0, linkOk = 0, order = 1
+    let secOk = 0
+    let linkOk = 0
+    let order = 1
     for (const [secName, titles] of Object.entries(sections)) {
       if (titles.length === 0) continue
       const section = await TransparencySection.create({
-        title: secName, slug: this.slugify(secName), icon: icons[secName] || 'Link',
-        displayOrder: order++, isActive: true,
+        title: secName,
+        slug: this.slugify(secName),
+        icon: icons[secName] || 'Link',
+        displayOrder: order++,
+        isActive: true,
       })
       secOk++
-      for (let i = 0; i < titles.length; i++) {
+      for (const [i, title] of titles.entries()) {
         try {
           await TransparencyLink.create({
-            sectionId: section.id, title: titles[i],
-            url: `/transparencia/${this.slugify(titles[i])}`,
-            displayOrder: i + 1, isExternal: false,
+            sectionId: section.id,
+            title: title,
+            url: `/transparencia/${this.slugify(title)}`,
+            displayOrder: i + 1,
+            isExternal: false,
           })
           linkOk++
-        } catch { /* skip */ }
+        } catch {
+          /* skip */
+        }
       }
     }
     this.logger.success(`  Sections: ${secOk}, Links: ${linkOk}`)
@@ -548,17 +756,27 @@ export default class WpMigrate extends BaseCommand {
   // ═══════════════════════════════════════
   async importInformationRecords(registros: any[], anexos: any[]) {
     this.logger.info(`\n━━━ Information Records: ${registros.length} items ━━━`)
-    if (this.force) { await InformationRecord.query().delete() }
+    if (this.force) {
+      await InformationRecord.query().delete()
+    }
 
     const catMap: Record<string, string> = {
-      'estagiarios': 'Estagiários', 'terceirizados': 'Terceirizados',
-      'concursos': 'Concursos', 'estrutura': 'Estrutura Organizacional',
-      'diarias': 'Diárias', 'convenios': 'Convênios e Transferências',
-      'acordos-firmados': 'Acordos Firmados', 'plano-contratacoes': 'Plano de Contratações',
-      'obras': 'Obras', 'prestacao-contas': 'Prestação de Contas',
-      'relatorio-gestao': 'Relatório de Gestão', 'apreciacao-contas': 'Apreciação de Contas',
-      'rgf': 'RGF', 'plano-estrategico': 'Plano Estratégico',
-      'parecer-contas': 'Parecer de Contas', 'carta-servicos': 'Carta de Serviços',
+      'estagiarios': 'Estagiários',
+      'terceirizados': 'Terceirizados',
+      'concursos': 'Concursos',
+      'estrutura': 'Estrutura Organizacional',
+      'diarias': 'Diárias',
+      'convenios': 'Convênios e Transferências',
+      'acordos-firmados': 'Acordos Firmados',
+      'plano-contratacoes': 'Plano de Contratações',
+      'obras': 'Obras',
+      'prestacao-contas': 'Prestação de Contas',
+      'relatorio-gestao': 'Relatório de Gestão',
+      'apreciacao-contas': 'Apreciação de Contas',
+      'rgf': 'RGF',
+      'plano-estrategico': 'Plano Estratégico',
+      'parecer-contas': 'Parecer de Contas',
+      'carta-servicos': 'Carta de Serviços',
       'verbas-indenizatorias': 'Verbas Indenizatórias',
     }
 
@@ -569,12 +787,18 @@ export default class WpMigrate extends BaseCommand {
       const fileUrl = fileName ? `${this.wpDir}/pdfs/pntp/${fileName}` : null
       try {
         await InformationRecord.create({
-          title: r.titulo, category: catMap[r.secao] || r.secao,
-          year: r.ano || 2026, content: r.conteudo || null,
-          fileUrl, isActive: r.ativo, displayOrder: r.ordem,
+          title: r.titulo,
+          category: catMap[r.secao] || r.secao,
+          year: r.ano || 2026,
+          content: r.conteudo || null,
+          fileUrl,
+          isActive: r.ativo,
+          displayOrder: r.ordem,
         })
         ok++
-      } catch { this.logger.warning(`  FAIL: ${r.titulo.substring(0, 50)}`) }
+      } catch {
+        this.logger.warning(`  FAIL: ${r.titulo.substring(0, 50)}`)
+      }
     }
     this.logger.success(`  Information Records: ${ok} imported`)
   }
@@ -601,7 +825,9 @@ export default class WpMigrate extends BaseCommand {
         .map((p) => p.trim())
         .filter((p) => p.length > 0)
         .map((p) => {
-          const ytMatch = p.match(/https?:\/\/(www\.)?(youtube\.com\/(?:watch\?v=|live\/)|youtu\.be\/)([\w-]+)/)
+          const ytMatch = p.match(
+            /https?:\/\/(www\.)?(youtube\.com\/(?:watch\?v=|live\/)|youtu\.be\/)([\w-]+)/
+          )
           if (ytMatch) {
             return `<div class="aspect-video my-4"><iframe src="https://www.youtube.com/embed/${ytMatch[3]}" frameborder="0" allowfullscreen class="w-full h-full rounded-xl"></iframe></div>`
           }
@@ -612,14 +838,49 @@ export default class WpMigrate extends BaseCommand {
     return text
   }
   private slugify(t: string): string {
-    return t.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').substring(0, 80)
+    return t
+      .normalize('NFKD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '')
+      .substring(0, 80)
   }
   private categorizeFaq(q: string): string {
     const l = q.toLowerCase()
-    if (l.includes('informação') || l.includes('informaç') || l.includes('prazo') || l.includes('cobrar') || l.includes('recusa') || l.includes('acesso') || l.includes('obrigado') || l.includes('anônimo')) return 'LAI'
-    if (l.includes('transparência') || l.includes('gasto') || l.includes('salário') || l.includes('licitaç') || l.includes('contrato')) return 'Transparência'
-    if (l.includes('sessão') || l.includes('sessões') || l.includes('plenár') || l.includes('acompanhar')) return 'Sessões'
-    if (l.includes('participar') || l.includes('sugest') || l.includes('reclam') || l.includes('pedido')) return 'Participação'
+    if (
+      l.includes('informação') ||
+      l.includes('informaç') ||
+      l.includes('prazo') ||
+      l.includes('cobrar') ||
+      l.includes('recusa') ||
+      l.includes('acesso') ||
+      l.includes('obrigado') ||
+      l.includes('anônimo')
+    )
+      return 'LAI'
+    if (
+      l.includes('transparência') ||
+      l.includes('gasto') ||
+      l.includes('salário') ||
+      l.includes('licitaç') ||
+      l.includes('contrato')
+    )
+      return 'Transparência'
+    if (
+      l.includes('sessão') ||
+      l.includes('sessões') ||
+      l.includes('plenár') ||
+      l.includes('acompanhar')
+    )
+      return 'Sessões'
+    if (
+      l.includes('participar') ||
+      l.includes('sugest') ||
+      l.includes('reclam') ||
+      l.includes('pedido')
+    )
+      return 'Participação'
     return 'Sobre a Câmara'
   }
 }

@@ -46,13 +46,14 @@ export default class AIProcessorService {
 
   async init(): Promise<void> {
     if (!this.provider) {
-      this.provider = await InstagramSetting.get('ai_provider', 'gemini') || 'gemini'
+      this.provider = (await InstagramSetting.get('ai_provider', 'gemini')) || 'gemini'
     }
     if (!this.apiKey) {
-      this.apiKey = await InstagramSetting.get('ai_api_key') || ''
+      this.apiKey = (await InstagramSetting.get('ai_api_key')) || ''
     }
     if (!this.model) {
-      this.model = await InstagramSetting.get('ai_model', 'gemini-2.0-flash') || 'gemini-2.0-flash'
+      this.model =
+        (await InstagramSetting.get('ai_model', 'gemini-2.0-flash')) || 'gemini-2.0-flash'
     }
   }
 
@@ -78,7 +79,7 @@ export default class AIProcessorService {
   }
 
   private async buildPrompt(caption: string): Promise<string> {
-    const customPrompt = await InstagramSetting.get('ai_prompt') || DEFAULT_PROMPT
+    const customPrompt = (await InstagramSetting.get('ai_prompt')) || DEFAULT_PROMPT
     return customPrompt.replace('{CAPTION}', caption)
   }
 
@@ -87,19 +88,19 @@ export default class AIProcessorService {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${this.apiKey}`,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         model: this.model,
         messages: [
           { role: 'system', content: 'You are a helpful assistant that outputs JSON.' },
-          { role: 'user', content: prompt }
+          { role: 'user', content: prompt },
         ],
-        response_format: { type: 'json_object' }
-      })
+        response_format: { type: 'json_object' },
+      }),
     })
 
-    const data = await response.json() as any
+    const data = (await response.json()) as any
 
     if (!response.ok) {
       throw new Error(data?.error?.message || `OpenAI error: ${response.status}`)
@@ -113,7 +114,7 @@ export default class AIProcessorService {
     return {
       title: result.titulo || result.title || '',
       content: result.conteudo || result.content || '',
-      tokensUsed: usage
+      tokensUsed: usage,
     }
   }
 
@@ -123,18 +124,16 @@ export default class AIProcessorService {
       headers: {
         'x-api-key': this.apiKey,
         'anthropic-version': '2023-06-01',
-        'content-type': 'application/json'
+        'content-type': 'application/json',
       },
       body: JSON.stringify({
         model: this.model,
         max_tokens: 1024,
-        messages: [
-          { role: 'user', content: prompt }
-        ]
-      })
+        messages: [{ role: 'user', content: prompt }],
+      }),
     })
 
-    const data = await response.json() as any
+    const data = (await response.json()) as any
 
     if (!response.ok) {
       throw new Error(data?.error?.message || `Claude error: ${response.status}`)
@@ -155,7 +154,7 @@ export default class AIProcessorService {
     return {
       title: result.titulo || result.title || '',
       content: result.conteudo || result.content || '',
-      tokensUsed: usage
+      tokensUsed: usage,
     }
   }
 
@@ -165,16 +164,18 @@ export default class AIProcessorService {
     const response = await fetch(url, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        contents: [{
-          parts: [{ text: prompt }]
-        }]
-      })
+        contents: [
+          {
+            parts: [{ text: prompt }],
+          },
+        ],
+      }),
     })
 
-    const data = await response.json() as any
+    const data = (await response.json()) as any
 
     if (!response.ok) {
       throw new Error(data?.error?.message || `Gemini error: ${response.status}`)
@@ -198,7 +199,7 @@ export default class AIProcessorService {
     return {
       title: result.titulo || result.title || '',
       content: result.conteudo || result.content || '',
-      tokensUsed: 0
+      tokensUsed: 0,
     }
   }
 

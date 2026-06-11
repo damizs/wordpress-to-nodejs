@@ -27,7 +27,8 @@ export default class InstagramScraperService {
       throw new Error('URL do perfil inválida.')
     }
 
-    const maxPosts = limit ?? parseInt(await InstagramSetting.get('posts_fetch_count', '50') || '50')
+    const maxPosts =
+      limit ?? Number.parseInt((await InstagramSetting.get('posts_fetch_count', '50')) || '50')
     const username = this.extractUsername(profileUrl)
     this.lastError = ''
 
@@ -57,7 +58,11 @@ export default class InstagramScraperService {
   /**
    * Busca posts via RapidAPI Instagram Scraper
    */
-  private async scrapeWithRapidapi(username: string, apiKey: string, max: number): Promise<InstagramPost[]> {
+  private async scrapeWithRapidapi(
+    username: string,
+    apiKey: string,
+    max: number
+  ): Promise<InstagramPost[]> {
     const seenIds = new Set<string>()
     const allPosts: InstagramPost[] = []
     let cursor: string | null = null
@@ -69,7 +74,7 @@ export default class InstagramScraperService {
 
       const params = new URLSearchParams({
         username_or_id: username,
-        count: '50'
+        count: '50',
       })
 
       if (cursor) {
@@ -85,8 +90,8 @@ export default class InstagramScraperService {
           method: 'GET',
           headers: {
             'X-RapidAPI-Key': apiKey,
-            'X-RapidAPI-Host': 'instagram-public-bulk-scraper.p.rapidapi.com'
-          }
+            'X-RapidAPI-Host': 'instagram-public-bulk-scraper.p.rapidapi.com',
+          },
         })
 
         if (response.status === 401 || response.status === 403) {
@@ -120,7 +125,7 @@ export default class InstagramScraperService {
         // Processar items (com deduplicação)
         for (const item of items) {
           if (allPosts.length >= max) break
-          
+
           const post = this.parseRapidapiItem(item)
           if (post && !seenIds.has(post.id)) {
             seenIds.add(post.id)
@@ -129,8 +134,12 @@ export default class InstagramScraperService {
         }
 
         // Extrair cursor para próxima página
-        cursor = data?.data?.next_cursor || data?.data?.end_cursor || 
-                 data?.next_cursor || data?.end_cursor || null
+        cursor =
+          data?.data?.next_cursor ||
+          data?.data?.end_cursor ||
+          data?.next_cursor ||
+          data?.end_cursor ||
+          null
 
         const hasMore = data?.data?.more_available || data?.more_available || false
 
@@ -141,9 +150,8 @@ export default class InstagramScraperService {
 
         // Delay entre requisições
         if (allPosts.length < max && cursor) {
-          await new Promise(resolve => setTimeout(resolve, 300))
+          await new Promise((resolve) => setTimeout(resolve, 300))
         }
-
       } catch (error: any) {
         console.error(`Instagram Scraper: Erro na iteração ${iteration}: ${error.message}`)
         throw error
@@ -178,7 +186,7 @@ export default class InstagramScraperService {
 
     // Extrair imagem (tentar várias fontes)
     let imageUrl = ''
-    
+
     // Prioridade 1: display_uri
     if (item.display_uri) {
       imageUrl = item.display_uri
@@ -210,7 +218,7 @@ export default class InstagramScraperService {
     } else if (item.taken_at_timestamp) {
       timestamp = Number(item.taken_at_timestamp)
     }
-    
+
     // Validar timestamp (deve estar entre 2020 e 2030)
     const minTimestamp = 1577836800 // 2020-01-01
     const maxTimestamp = 1893456000 // 2030-01-01
@@ -227,7 +235,7 @@ export default class InstagramScraperService {
       displayUrl: imageUrl,
       caption,
       takenAtTimestamp: timestamp,
-      isVideo
+      isVideo,
     }
   }
 

@@ -27,13 +27,23 @@ export default class PlenarySessionsController {
 
   async create({ inertia }: HttpContext) {
     const sessionTypes = await SystemCategory.byType('session_type')
-    return inertia.render('admin/plenary-sessions/form', { session: null, sessionTypes: sessionTypes.map((t) => t.serialize()) })
+    return inertia.render('admin/plenary-sessions/form', {
+      session: null,
+      sessionTypes: sessionTypes.map((t) => t.serialize()),
+    })
   }
 
   async store({ request, response, session }: HttpContext) {
     const data = request.only([
-      'title', 'type', 'session_date', 'year', 'start_time',
-      'status', 'agenda', 'minutes', 'video_url',
+      'title',
+      'type',
+      'session_date',
+      'year',
+      'start_time',
+      'status',
+      'agenda',
+      'minutes',
+      'video_url',
     ])
 
     let fileUrl: string | null = null
@@ -51,7 +61,7 @@ export default class PlenarySessionsController {
       slug: sessionSlug(data.title, data.session_date),
       type: data.type || 'ordinaria',
       sessionDate: data.session_date,
-      year: data.year ? parseInt(data.year) : new Date(data.session_date).getFullYear(),
+      year: data.year ? Number.parseInt(data.year) : new Date(data.session_date).getFullYear(),
       startTime: data.start_time || null,
       status: data.status || 'realizada',
       agenda: data.agenda || null,
@@ -67,14 +77,24 @@ export default class PlenarySessionsController {
   async edit({ params, inertia }: HttpContext) {
     const plenarySession = await PlenarySession.findOrFail(params.id)
     const sessionTypes = await SystemCategory.byType('session_type')
-    return inertia.render('admin/plenary-sessions/form', { session: plenarySession.serialize(), sessionTypes: sessionTypes.map((t) => t.serialize()) })
+    return inertia.render('admin/plenary-sessions/form', {
+      session: plenarySession.serialize(),
+      sessionTypes: sessionTypes.map((t) => t.serialize()),
+    })
   }
 
   async update({ params, request, response, session }: HttpContext) {
     const plenarySession = await PlenarySession.findOrFail(params.id)
     const data = request.only([
-      'title', 'type', 'session_date', 'year', 'start_time',
-      'status', 'agenda', 'minutes', 'video_url',
+      'title',
+      'type',
+      'session_date',
+      'year',
+      'start_time',
+      'status',
+      'agenda',
+      'minutes',
+      'video_url',
     ])
 
     const file = request.file('file', { size: '20mb', extnames: ['pdf'] })
@@ -91,7 +111,7 @@ export default class PlenarySessionsController {
       slug: plenarySession.slug || sessionSlug(data.title, data.session_date),
       type: data.type || 'ordinaria',
       sessionDate: data.session_date,
-      year: data.year ? parseInt(data.year) : new Date(data.session_date).getFullYear(),
+      year: data.year ? Number.parseInt(data.year) : new Date(data.session_date).getFullYear(),
       startTime: data.start_time || null,
       status: data.status || 'realizada',
       agenda: data.agenda || null,

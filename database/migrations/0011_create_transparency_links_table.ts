@@ -5,7 +5,11 @@ export default class extends BaseSchema {
   async up() {
     this.schema.createTable(this.tableName, (t) => {
       t.increments('id')
-      t.integer('section_id').unsigned().references('id').inTable('transparency_sections').onDelete('CASCADE')
+      t.integer('section_id')
+        .unsigned()
+        .references('id')
+        .inTable('transparency_sections')
+        .onDelete('CASCADE')
       t.string('title').notNullable()
       t.string('url').notNullable()
       t.string('icon').nullable()
@@ -15,5 +19,7 @@ export default class extends BaseSchema {
       t.timestamp('updated_at').nullable()
     })
   }
-  async down() { this.schema.dropTable(this.tableName) }
+  async down() {
+    this.schema.dropTable(this.tableName)
+  }
 }

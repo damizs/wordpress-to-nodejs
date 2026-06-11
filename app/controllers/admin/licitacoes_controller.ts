@@ -30,8 +30,16 @@ export default class LicitacoesController {
 
   async store({ request, response, session }: HttpContext) {
     const data = request.only([
-      'title', 'number', 'modality', 'status', 'object', 'content',
-      'estimated_value', 'opening_date', 'closing_date', 'year',
+      'title',
+      'number',
+      'modality',
+      'status',
+      'object',
+      'content',
+      'estimated_value',
+      'opening_date',
+      'closing_date',
+      'year',
     ])
 
     let fileUrl: string | null = null
@@ -44,7 +52,8 @@ export default class LicitacoesController {
       fileUrl = `/uploads/licitacoes/${fileName}`
     }
 
-    const slug = request.input('slug') || generateSlug(`${data.title}${data.number ? '-' + data.number : ''}`)
+    const slug =
+      request.input('slug') || generateSlug(`${data.title}${data.number ? '-' + data.number : ''}`)
 
     await Licitacao.create({
       title: data.title,
@@ -54,10 +63,10 @@ export default class LicitacoesController {
       status: data.status || 'aberta',
       object: data.object || null,
       content: data.content || null,
-      estimatedValue: data.estimated_value ? parseFloat(data.estimated_value) : null,
+      estimatedValue: data.estimated_value ? Number.parseFloat(data.estimated_value) : null,
       openingDate: data.opening_date || null,
       closingDate: data.closing_date || null,
-      year: data.year ? parseInt(data.year) : new Date().getFullYear(),
+      year: data.year ? Number.parseInt(data.year) : new Date().getFullYear(),
       fileUrl,
       isActive: true,
     })
@@ -74,8 +83,17 @@ export default class LicitacoesController {
   async update({ params, request, response, session }: HttpContext) {
     const licitacao = await Licitacao.findOrFail(params.id)
     const data = request.only([
-      'title', 'number', 'modality', 'status', 'object', 'content',
-      'estimated_value', 'opening_date', 'closing_date', 'year', 'is_active',
+      'title',
+      'number',
+      'modality',
+      'status',
+      'object',
+      'content',
+      'estimated_value',
+      'opening_date',
+      'closing_date',
+      'year',
+      'is_active',
     ])
 
     const file = request.file('file', { size: '20mb', extnames: ['pdf'] })
@@ -94,10 +112,10 @@ export default class LicitacoesController {
       status: data.status || 'aberta',
       object: data.object || null,
       content: data.content || null,
-      estimatedValue: data.estimated_value ? parseFloat(data.estimated_value) : null,
+      estimatedValue: data.estimated_value ? Number.parseFloat(data.estimated_value) : null,
       openingDate: data.opening_date || null,
       closingDate: data.closing_date || null,
-      year: data.year ? parseInt(data.year) : null,
+      year: data.year ? Number.parseInt(data.year) : null,
       isActive: data.is_active === 'true' || data.is_active === true,
     })
     await licitacao.save()

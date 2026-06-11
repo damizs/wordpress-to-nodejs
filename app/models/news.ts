@@ -19,6 +19,8 @@ export default class News extends BaseModel {
   @column() declare viewsCount: number
   @column.dateTime({ autoCreate: true }) declare createdAt: DateTime
   @column.dateTime({ autoCreate: true, autoUpdate: true }) declare updatedAt: DateTime | null
-  @belongsTo(() => NewsCategory, { foreignKey: 'categoryId' }) declare category: BelongsTo<typeof NewsCategory>
+  @belongsTo(() => NewsCategory, { foreignKey: 'categoryId' }) declare category: BelongsTo<
+    typeof NewsCategory
+  >
   @belongsTo(() => User, { foreignKey: 'authorId' }) declare author: BelongsTo<typeof User>
 }

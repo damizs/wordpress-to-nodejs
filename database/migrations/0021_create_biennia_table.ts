@@ -6,7 +6,12 @@ export default class extends BaseSchema {
     this.schema.createTable(this.tableName, (t) => {
       t.increments('id')
       t.string('name').notNullable() // "2025/2026"
-      t.integer('legislature_id').unsigned().references('id').inTable('legislatures').onDelete('CASCADE').notNullable()
+      t.integer('legislature_id')
+        .unsigned()
+        .references('id')
+        .inTable('legislatures')
+        .onDelete('CASCADE')
+        .notNullable()
       t.date('start_date').notNullable()
       t.date('end_date').notNullable()
       t.boolean('is_current').defaultTo(false)
@@ -14,5 +19,7 @@ export default class extends BaseSchema {
       t.timestamp('updated_at').nullable()
     })
   }
-  async down() { this.schema.dropTable(this.tableName) }
+  async down() {
+    this.schema.dropTable(this.tableName)
+  }
 }

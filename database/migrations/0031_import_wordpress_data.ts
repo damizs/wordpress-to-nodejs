@@ -6,8 +6,8 @@ import { fileURLToPath } from 'node:url'
 export default class extends BaseSchema {
   async up() {
     // Read the WordPress migration SQL file
-    const __dirname = dirname(fileURLToPath(import.meta.url))
-    const sqlPath = join(__dirname, '..', 'wordpress_migration.sql')
+    const currentDir = dirname(fileURLToPath(import.meta.url))
+    const sqlPath = join(currentDir, '..', 'wordpress_migration.sql')
     let sql: string
 
     try {

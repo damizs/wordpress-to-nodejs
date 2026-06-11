@@ -15,9 +15,7 @@ export default class CouncilorsController {
     // Load positions for mesa diretora
     const councilorIds = councilors.map((c) => c.id)
     const positions = councilorIds.length
-      ? await CouncilorPosition.query()
-          .whereIn('councilor_id', councilorIds)
-          .preload('biennium')
+      ? await CouncilorPosition.query().whereIn('councilor_id', councilorIds).preload('biennium')
       : []
 
     const siteSettings = await SiteSetting.allAsObject()
@@ -33,9 +31,7 @@ export default class CouncilorsController {
   }
 
   async show({ params, inertia }: HttpContext) {
-    const councilor = await Councilor.query()
-      .where('slug', params.slug)
-      .firstOrFail()
+    const councilor = await Councilor.query().where('slug', params.slug).firstOrFail()
 
     const positions = await CouncilorPosition.query()
       .where('councilor_id', councilor.id)

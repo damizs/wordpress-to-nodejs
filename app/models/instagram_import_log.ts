@@ -91,9 +91,7 @@ export default class InstagramImportLog extends BaseModel {
    * Get all imported Instagram IDs
    */
   static async getImportedIds(): Promise<string[]> {
-    const logs = await this.query()
-      .whereNotNull('news_id')
-      .select('instagram_id')
-    return logs.map(log => log.instagramId)
+    const logs = await this.query().whereNotNull('news_id').select('instagram_id')
+    return logs.map((log) => log.instagramId)
   }
 }

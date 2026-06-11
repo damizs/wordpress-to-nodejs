@@ -24,16 +24,32 @@ export default class TransparencyController {
   }
 
   async storeSection({ request, response, session }: HttpContext) {
-    const data = request.only(['title', 'slug', 'icon', 'description', 'display_order', 'is_active'])
+    const data = request.only([
+      'title',
+      'slug',
+      'icon',
+      'description',
+      'display_order',
+      'is_active',
+    ])
     if (!data.slug) {
-      data.slug = data.title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+      data.slug = data.title
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '')
     }
     data.is_active = data.is_active === 'true' || data.is_active === true
-    data.display_order = parseInt(data.display_order) || 0
+    data.display_order = Number.parseInt(data.display_order) || 0
 
     await TransparencySection.create({
-      title: data.title, slug: data.slug, icon: data.icon,
-      description: data.description, displayOrder: data.display_order, isActive: data.is_active,
+      title: data.title,
+      slug: data.slug,
+      icon: data.icon,
+      description: data.description,
+      displayOrder: data.display_order,
+      isActive: data.is_active,
     })
     session.flash('success', 'Seção criada!')
     return response.redirect().toPath('/painel/transparencia')
@@ -46,12 +62,19 @@ export default class TransparencyController {
 
   async updateSection({ params, request, response, session }: HttpContext) {
     const section = await TransparencySection.findOrFail(params.id)
-    const data = request.only(['title', 'slug', 'icon', 'description', 'display_order', 'is_active'])
+    const data = request.only([
+      'title',
+      'slug',
+      'icon',
+      'description',
+      'display_order',
+      'is_active',
+    ])
     section.title = data.title
     section.slug = data.slug || section.slug
     section.icon = data.icon
     section.description = data.description
-    section.displayOrder = parseInt(data.display_order) || 0
+    section.displayOrder = Number.parseInt(data.display_order) || 0
     section.isActive = data.is_active === 'true' || data.is_active === true
     await section.save()
     session.flash('success', 'Seção atualizada!')
@@ -69,15 +92,20 @@ export default class TransparencyController {
   // --- Links ---
   async createLink({ params, inertia }: HttpContext) {
     const section = await TransparencySection.findOrFail(params.sectionId)
-    return inertia.render('admin/transparency/link-form', { section: section.serialize(), link: null })
+    return inertia.render('admin/transparency/link-form', {
+      section: section.serialize(),
+      link: null,
+    })
   }
 
   async storeLink({ params, request, response, session }: HttpContext) {
     const data = request.only(['title', 'url', 'icon', 'display_order', 'is_external'])
     await TransparencyLink.create({
-      sectionId: parseInt(params.sectionId),
-      title: data.title, url: data.url, icon: data.icon,
-      displayOrder: parseInt(data.display_order) || 0,
+      sectionId: Number.parseInt(params.sectionId),
+      title: data.title,
+      url: data.url,
+      icon: data.icon,
+      displayOrder: Number.parseInt(data.display_order) || 0,
       isExternal: data.is_external === 'true' || data.is_external === true,
     })
     session.flash('success', 'Link adicionado!')
@@ -87,7 +115,10 @@ export default class TransparencyController {
   async editLink({ params, inertia }: HttpContext) {
     const link = await TransparencyLink.findOrFail(params.id)
     const section = await TransparencySection.findOrFail(link.sectionId)
-    return inertia.render('admin/transparency/link-form', { section: section.serialize(), link: link.serialize() })
+    return inertia.render('admin/transparency/link-form', {
+      section: section.serialize(),
+      link: link.serialize(),
+    })
   }
 
   async updateLink({ params, request, response, session }: HttpContext) {
@@ -96,7 +127,7 @@ export default class TransparencyController {
     link.title = data.title
     link.url = data.url
     link.icon = data.icon
-    link.displayOrder = parseInt(data.display_order) || 0
+    link.displayOrder = Number.parseInt(data.display_order) || 0
     link.isExternal = data.is_external === 'true' || data.is_external === true
     await link.save()
     session.flash('success', 'Link atualizado!')

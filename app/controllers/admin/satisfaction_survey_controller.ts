@@ -14,7 +14,8 @@ export default class AdminSatisfactionSurveyController {
     const surveys = await query.paginate(page, 20)
 
     // Stats
-    const stats = await db.from('satisfaction_surveys')
+    const stats = await db
+      .from('satisfaction_surveys')
       .select(
         db.raw('COUNT(*) as total'),
         db.raw('COALESCE(AVG(rating_geral), 0) as avg_geral'),
@@ -22,7 +23,7 @@ export default class AdminSatisfactionSurveyController {
         db.raw('COALESCE(AVG(rating_transparencia), 0) as avg_transparencia'),
         db.raw('COALESCE(AVG(rating_legislativo), 0) as avg_legislativo'),
         db.raw('COALESCE(AVG(rating_infraestrutura), 0) as avg_infraestrutura'),
-        db.raw("COUNT(*) FILTER (WHERE is_read = false) as unread"),
+        db.raw('COUNT(*) FILTER (WHERE is_read = false) as unread')
       )
       .first()
 

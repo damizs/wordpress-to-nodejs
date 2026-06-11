@@ -11,7 +11,10 @@ const BASE_URL = 'https://node.camaradesume.pb.gov.br'
 export default class SeoController {
   async sitemap({ response }: HttpContext) {
     const [news, councilors, sessions, publications, activities, licitacoes] = await Promise.all([
-      News.query().where('status', 'published').orderBy('published_at', 'desc').select('slug', 'updated_at', 'published_at'),
+      News.query()
+        .where('status', 'published')
+        .orderBy('published_at', 'desc')
+        .select('slug', 'updated_at', 'published_at'),
       Councilor.query().where('is_active', true).select('slug', 'updated_at'),
       PlenarySession.query().whereNotNull('slug').select('slug', 'updated_at'),
       OfficialPublication.query().whereNotNull('slug').select('slug', 'updated_at'),

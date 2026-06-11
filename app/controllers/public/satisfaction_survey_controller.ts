@@ -6,11 +6,34 @@ import db from '@adonisjs/lucid/services/db'
 export default class SatisfactionSurveyController {
   // Default questions
   private defaultQuestions = [
-    { id: 1, numero: 1, texto: 'Como você avalia a atuação da Câmara Municipal na fiscalização do Poder Executivo?' },
-    { id: 2, numero: 2, texto: 'Qual seu nível de satisfação com a transparência das atividades da Câmara Municipal?' },
-    { id: 3, numero: 3, texto: 'Como você avalia o trabalho dos vereadores na proposição de leis e projetos em benefício da população?' },
-    { id: 4, numero: 4, texto: 'Qual seu nível de satisfação com as informações disponíveis no site da Câmara Municipal?' },
-    { id: 5, numero: 5, texto: 'Ao ser atendido(a) na Câmara Municipal, o(a) funcionário(a) demonstra interesse em resolver seu problema?' },
+    {
+      id: 1,
+      numero: 1,
+      texto: 'Como você avalia a atuação da Câmara Municipal na fiscalização do Poder Executivo?',
+    },
+    {
+      id: 2,
+      numero: 2,
+      texto: 'Qual seu nível de satisfação com a transparência das atividades da Câmara Municipal?',
+    },
+    {
+      id: 3,
+      numero: 3,
+      texto:
+        'Como você avalia o trabalho dos vereadores na proposição de leis e projetos em benefício da população?',
+    },
+    {
+      id: 4,
+      numero: 4,
+      texto:
+        'Qual seu nível de satisfação com as informações disponíveis no site da Câmara Municipal?',
+    },
+    {
+      id: 5,
+      numero: 5,
+      texto:
+        'Ao ser atendido(a) na Câmara Municipal, o(a) funcionário(a) demonstra interesse em resolver seu problema?',
+    },
   ]
 
   async index({ inertia }: HttpContext) {
@@ -35,10 +58,17 @@ export default class SatisfactionSurveyController {
 
     return inertia.render('pesquisa-satisfacao', {
       questions: this.defaultQuestions,
-      serviceTypes: ['Atendimento Presencial', 'Portal de Transparência', 'Serviços Online', 'Ouvidoria', 'Outro'],
+      serviceTypes: [
+        'Atendimento Presencial',
+        'Portal de Transparência',
+        'Serviços Online',
+        'Ouvidoria',
+        'Outro',
+      ],
       siteSettings,
       currentYear,
-      availableYears: years.length > 0 ? years : [currentYear, currentYear - 1, currentYear - 2, currentYear - 3],
+      availableYears:
+        years.length > 0 ? years : [currentYear, currentYear - 1, currentYear - 2, currentYear - 3],
       monthlyStats,
     })
   }
@@ -67,16 +97,19 @@ export default class SatisfactionSurveyController {
 
     // Calculate average from answers
     const answers = data.answers || {}
-    const values = Object.values(answers).map(v => Number(v)).filter(v => !isNaN(v))
-    const avgRating = values.length > 0 ? Math.round(values.reduce((a, b) => a + b, 0) / values.length) : 3
+    const values = Object.values(answers)
+      .map((v) => Number(v))
+      .filter((v) => !Number.isNaN(v))
+    const avgRating =
+      values.length > 0 ? Math.round(values.reduce((a, b) => a + b, 0) / values.length) : 3
 
     try {
       await SatisfactionSurvey.create({
         cpf: data.cpf || null,
-        ratingAtendimento: answers[5] ? parseInt(answers[5]) : null,
-        ratingTransparencia: answers[2] ? parseInt(answers[2]) : null,
-        ratingLegislativo: answers[3] ? parseInt(answers[3]) : null,
-        ratingInfraestrutura: answers[4] ? parseInt(answers[4]) : null,
+        ratingAtendimento: answers[5] ? Number.parseInt(answers[5]) : null,
+        ratingTransparencia: answers[2] ? Number.parseInt(answers[2]) : null,
+        ratingLegislativo: answers[3] ? Number.parseInt(answers[3]) : null,
+        ratingInfraestrutura: answers[4] ? Number.parseInt(answers[4]) : null,
         ratingGeral: avgRating,
         suggestions: data.suggestion || null,
         ipAddress: request.ip(),
@@ -86,12 +119,15 @@ export default class SatisfactionSurveyController {
       console.log('Error saving survey:', e)
     }
 
-    session.flash('success', 'Obrigado pela sua participação! Sua opinião é muito importante para nós.')
+    session.flash(
+      'success',
+      'Obrigado pela sua participação! Sua opinião é muito importante para nós.'
+    )
     return response.redirect().toPath('/pesquisa-de-satisfacao')
   }
 
   async report({ request, response }: HttpContext) {
-    const year = parseInt(request.input('year', new Date().getFullYear()))
+    const year = Number.parseInt(request.input('year', new Date().getFullYear()))
     const monthlyStats = await this._getMonthlyStats(year)
     const totals = await this._getYearTotals(year)
     return response.json({ year, monthlyStats, totals })
@@ -106,7 +142,8 @@ export default class SatisfactionSurveyController {
     }))
 
     try {
-      const result = await db.rawQuery(`
+      const result = await db.rawQuery(
+        `
         SELECT
           EXTRACT(MONTH FROM created_at)::int as month,
           COUNT(*)::int as responses,
@@ -115,12 +152,14 @@ export default class SatisfactionSurveyController {
         WHERE EXTRACT(YEAR FROM created_at) = ?
         GROUP BY month
         ORDER BY month
-      `, [year])
+      `,
+        [year]
+      )
 
       for (const row of result.rows) {
         const m = months[row.month - 1]
         m.responses = row.responses
-        m.average = parseFloat(row.average) || 0
+        m.average = Number.parseFloat(row.average) || 0
       }
     } catch (e) {
       // Table might not exist
@@ -131,16 +170,19 @@ export default class SatisfactionSurveyController {
 
   private async _getYearTotals(year: number) {
     try {
-      const result = await db.rawQuery(`
+      const result = await db.rawQuery(
+        `
         SELECT
           COUNT(*)::int as total,
           ROUND(AVG(rating_geral), 1) as average
         FROM satisfaction_surveys
         WHERE EXTRACT(YEAR FROM created_at) = ?
-      `, [year])
+      `,
+        [year]
+      )
 
       const row = result.rows[0] || { total: 0, average: 0 }
-      return { total: row.total || 0, average: parseFloat(row.average) || 0 }
+      return { total: row.total || 0, average: Number.parseFloat(row.average) || 0 }
     } catch (e) {
       return { total: 0, average: 0 }
     }

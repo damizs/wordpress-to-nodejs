@@ -14,12 +14,22 @@ export default class LicitacoesController {
 
     const licitacoes = await query.paginate(page, 20)
     const siteSettings = await SiteSetting.allAsObject()
-    return inertia.render('public/licitacoes/index', { licitacoes: licitacoes.serialize(), filters: { status, modality }, siteSettings })
+    return inertia.render('public/licitacoes/index', {
+      licitacoes: licitacoes.serialize(),
+      filters: { status, modality },
+      siteSettings,
+    })
   }
 
   async show({ params, inertia }: HttpContext) {
-    const licitacao = await Licitacao.query().where('slug', params.slug).where('is_active', true).firstOrFail()
+    const licitacao = await Licitacao.query()
+      .where('slug', params.slug)
+      .where('is_active', true)
+      .firstOrFail()
     const siteSettings = await SiteSetting.allAsObject()
-    return inertia.render('public/licitacoes/show', { licitacao: licitacao.serialize(), siteSettings })
+    return inertia.render('public/licitacoes/show', {
+      licitacao: licitacao.serialize(),
+      siteSettings,
+    })
   }
 }

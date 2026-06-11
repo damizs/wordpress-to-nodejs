@@ -19,6 +19,9 @@ export default class TransparencyController {
     }))
 
     const siteSettings = await SiteSetting.allAsObject()
-    return inertia.render('public/transparency/index', { sections: sectionsWithLinks, siteSettings })
+    return inertia.render('public/transparency/index', {
+      sections: sectionsWithLinks,
+      siteSettings,
+    })
   }
 }

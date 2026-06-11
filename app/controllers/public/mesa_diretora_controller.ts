@@ -15,7 +15,9 @@ export default class MesaDiretoraController {
       const posRecords = await CouncilorPosition.query()
         .where('biennium_id', currentBiennium.id)
         .preload('councilor')
-        .orderByRaw("CASE position WHEN 'Presidente' THEN 1 WHEN 'Vice-Presidente' THEN 2 WHEN '1º Secretário' THEN 3 WHEN '2º Secretário' THEN 4 ELSE 5 END")
+        .orderByRaw(
+          "CASE position WHEN 'Presidente' THEN 1 WHEN 'Vice-Presidente' THEN 2 WHEN '1º Secretário' THEN 3 WHEN '2º Secretário' THEN 4 ELSE 5 END"
+        )
       positions = posRecords.map((p) => ({
         ...p.serialize(),
         councilor_name: p.councilor?.name || '',

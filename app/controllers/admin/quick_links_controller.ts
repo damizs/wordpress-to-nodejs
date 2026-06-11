@@ -16,7 +16,7 @@ export default class QuickLinksController {
   async store({ request, response, session }: HttpContext) {
     const data = request.only(['title', 'url', 'icon', 'color', 'display_order', 'is_active'])
     data.is_active = data.is_active === 'true' || data.is_active === true
-    data.display_order = parseInt(data.display_order) || 0
+    data.display_order = Number.parseInt(data.display_order) || 0
 
     await QuickLink.create({
       title: data.title,
@@ -43,7 +43,7 @@ export default class QuickLinksController {
     link.url = data.url
     link.icon = data.icon
     link.color = data.color
-    link.displayOrder = parseInt(data.display_order) || 0
+    link.displayOrder = Number.parseInt(data.display_order) || 0
     link.isActive = data.is_active === 'true' || data.is_active === true
     await link.save()
 
@@ -62,8 +62,10 @@ export default class QuickLinksController {
   async reorder({ request, response }: HttpContext) {
     const { ids } = request.only(['ids'])
     if (Array.isArray(ids)) {
-      for (let i = 0; i < ids.length; i++) {
-        await QuickLink.query().where('id', ids[i]).update({ display_order: i + 1 })
+      for (const [i, id] of ids.entries()) {
+        await QuickLink.query()
+          .where('id', id)
+          .update({ display_order: i + 1 })
       }
     }
     return response.json({ success: true })
