@@ -71,6 +71,20 @@ const pageRedirects: Record<string, string> = {
   'despesas-mensais': '/transparencia',
   'empenhos-detalhados': '/transparencia',
   'duodecimos': '/transparencia',
+  // Páginas utilitárias do WP (plugins de ticket/login) sem equivalente
+  'log-in': '/login',
+  'register': '/',
+  'account-2': '/',
+  'edit-profile': '/',
+  'user': '/',
+  'dashboard': '/',
+  'restricao': '/',
+  'envia-sms': '/',
+  'meus-tickets': '/',
+  'enviar-ticket': '/',
+  'atendimento': '/ouvidoria',
+  'segue_atendimento': '/ouvidoria',
+  'thank-you': '/',
 }
 
 export function registerLegacyRedirects() {
