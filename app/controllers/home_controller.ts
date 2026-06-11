@@ -128,7 +128,15 @@ export default class HomeController {
       legislatura,
       quickLinks: quickLinks.map((q) => q.serialize()),
       transparencySections: sectionsWithLinks,
-      latestGazette: latestGazette?.serialize() ?? null,
+      latestGazette: latestGazette
+        ? {
+            id: latestGazette.id,
+            editionNumber: latestGazette.editionNumber,
+            publicationDate: latestGazette.publicationDate,
+            description: latestGazette.description,
+            fileUrl: latestGazette.fileUrl,
+          }
+        : null,
       siteSettings,
       newsBackgroundImage: siteSettings.news_background_image || null,
       seals: seals.map((s) => ({
