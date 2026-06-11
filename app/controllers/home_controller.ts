@@ -83,10 +83,21 @@ export default class HomeController {
       featured: index === 0, // First news is featured
     }))
 
-    const formatDate = (value: string | null) =>
-      value ? DateTime.fromISO(value).toFormat('dd/MM/yyyy') : ''
+    // Datas vindas do Postgres podem chegar como Date (coluna date) ou string ISO
+    const formatDate = (value: unknown) => {
+      if (!value) return ''
+      const dt =
+        value instanceof Date ? DateTime.fromJSDate(value) : DateTime.fromISO(String(value))
+      return dt.isValid ? dt.toFormat('dd/MM/yyyy') : ''
+    }
 
-    const vereadores = councilors.map((c) => ({
+    // Homepage mostra só os vereadores da legislatura atual (evita mesas duplicadas)
+    const currentCouncilors = currentLegislature
+      ? councilors.filter((c) => c.legislatureId === currentLegislature.id)
+      : []
+    const councilorsToShow = currentCouncilors.length > 0 ? currentCouncilors : councilors
+
+    const vereadores = councilorsToShow.map((c) => ({
       id: c.id,
       nome: c.name,
       apelido: c.parliamentaryName || c.party || '',
@@ -114,10 +125,15 @@ export default class HomeController {
       date: log.instagramPostDate?.toFormat('dd/MM/yyyy') || '',
     }))
 
-    const legislatura =
-      currentLegislature?.startDate && currentLegislature?.endDate
-        ? `${String(currentLegislature.startDate).substring(0, 4)}-${String(currentLegislature.endDate).substring(0, 4)}`
-        : undefined
+    // Extrai o ano de Date ou string ISO (String(Date) daria "Wed Jan ...")
+    const yearOf = (value: unknown) => {
+      if (value instanceof Date) return String(value.getFullYear())
+      const match = String(value ?? '').match(/\d{4}/)
+      return match ? match[0] : ''
+    }
+    const startYear = yearOf(currentLegislature?.startDate)
+    const endYear = yearOf(currentLegislature?.endDate)
+    const legislatura = startYear && endYear ? `${startYear}-${endYear}` : undefined
 
     return inertia.render('home', {
       news: mappedNews,

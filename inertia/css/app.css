@@ -53,8 +53,9 @@
     --sky: 200 85% 55%;
 
     /* Modern Gradients */
-    --gradient-navy: linear-gradient(135deg, hsl(207, 85%, 10%) 0%, hsl(207, 78%, 22%) 50%, hsl(207, 70%, 28%) 100%);
-    --gradient-hero: linear-gradient(180deg, hsl(207, 85%, 8%) 0%, hsl(207, 78%, 18%) 50%, hsl(207, 65%, 25%) 100%);
+    /* Seguem o tema dinâmico (--navy* é sobrescrito pela Aparência do painel) */
+    --gradient-navy: linear-gradient(135deg, hsl(var(--navy-dark)) 0%, hsl(var(--navy)) 50%, hsl(var(--navy-light)) 100%);
+    --gradient-hero: linear-gradient(180deg, hsl(var(--navy-dark)) 0%, hsl(var(--navy)) 60%, hsl(var(--navy-light)) 100%);
     --gradient-gold: linear-gradient(135deg, hsl(45, 93%, 47%) 0%, hsl(38, 100%, 55%) 100%);
     --gradient-overlay: linear-gradient(180deg, rgba(10, 61, 98, 0.95) 0%, rgba(10, 61, 98, 0.8) 100%);
     --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);

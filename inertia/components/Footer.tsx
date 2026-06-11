@@ -15,10 +15,10 @@ export const Footer = ({ logoUrl }: FooterProps) => {
   const description =
     settings.footer_description ||
     "Comprometida com a transparência e o bem-estar da população.";
-  const address = settings.footer_address || "";
-  const phone = settings.footer_phone || "";
-  const email = settings.footer_email || "";
-  const hours = settings.footer_hours || "";
+  const address = settings.footer_address || "Rua Antônio Vieira Lima, S/N, Centro, Sumé - PB";
+  const phone = settings.footer_phone || "(83) 3353-1175";
+  const email = settings.footer_email || "contato@camaradesume.pb.gov.br";
+  const hours = settings.footer_hours || "Seg a Sex, 8h às 14h";
   const esicUrl = settings.esic_new_url && settings.esic_new_url !== "#" ? settings.esic_new_url : "/transparencia";
 
   const socials = [
@@ -136,7 +136,7 @@ export const Footer = ({ logoUrl }: FooterProps) => {
       <div className="border-t border-primary-foreground/10">
         <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 py-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-2 text-xs opacity-70">
-            <p>© Todos os direitos reservados.</p>
+            <p>© {new Date().getFullYear()} {headerTitle}. Todos os direitos reservados.</p>
             <p>Desenvolvido com transparência e compromisso público.</p>
           </div>
         </div>
