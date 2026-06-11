@@ -1,15 +1,39 @@
 import { Head, useForm, Link } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Save, ArrowLeft } from 'lucide-react'
+import { Save, ArrowLeft, Users } from 'lucide-react'
+
+interface CouncilorOption {
+  id: number
+  name: string
+  party: string | null
+  photo: string | null
+}
 
 interface Props {
   activity: any | null
+  councilors?: CouncilorOption[]
+  authorIds?: number[]
 }
 
 const TYPES = ['Projeto de Lei', 'Requerimento', 'Projeto de Resolução', 'Indicação', 'Veto', 'Portaria', 'Moção', 'Emenda']
 const STATUSES = ['Em tramitação', 'Aprovado', 'Rejeitado', 'Arquivado', 'Sancionado', 'Vetado']
 
-export default function ActivityForm({ activity }: Props) {
+/** Remove os nomes dos vereadores vinculados do texto livre (o backend junta tudo de novo ao salvar) */
+function extraAuthorText(author: string, councilors: CouncilorOption[], selectedIds: number[]): string {
+  let text = author
+  for (const c of councilors) {
+    if (selectedIds.includes(c.id)) {
+      text = text.replace(c.name, '')
+    }
+  }
+  return text
+    .split(',')
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .join(', ')
+}
+
+export default function ActivityForm({ activity, councilors = [], authorIds = [] }: Props) {
   const isEditing = !!activity
   const { data, setData, post, put, processing } = useForm({
     type: activity?.type || 'Projeto de Lei',
@@ -18,10 +42,20 @@ export default function ActivityForm({ activity }: Props) {
     summary: activity?.summary || '',
     content: activity?.content || '',
     status: activity?.status || 'Em tramitação',
-    author: activity?.author || '',
+    author: extraAuthorText(activity?.author || '', councilors, authorIds),
+    author_ids: authorIds,
     file_url: activity?.file_url || '',
     session_date: activity?.session_date || '',
   })
+
+  const toggleAuthor = (id: number) => {
+    setData(
+      'author_ids',
+      data.author_ids.includes(id)
+        ? data.author_ids.filter((a) => a !== id)
+        : [...data.author_ids, id]
+    )
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -76,18 +110,13 @@ export default function ActivityForm({ activity }: Props) {
               className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none resize-none" />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-600 mb-1">Situação</label>
               <select value={data.status} onChange={(e) => setData('status', e.target.value)}
                 className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none">
                 {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
               </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Autor</label>
-              <input type="text" value={data.author} onChange={(e) => setData('author', e.target.value)}
-                placeholder="Nome do vereador" className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none" />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-600 mb-1">Data da Sessão</label>
@@ -100,6 +129,64 @@ export default function ActivityForm({ activity }: Props) {
             <label className="block text-sm font-medium text-gray-600 mb-1">URL do Arquivo (PDF)</label>
             <input type="text" value={data.file_url} onChange={(e) => setData('file_url', e.target.value)}
               placeholder="https://..." className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none" />
+          </div>
+        </div>
+
+        {/* Autores */}
+        <div className="bg-white rounded-xl border border-gray-100 p-6 space-y-4">
+          <div className="flex items-center gap-2">
+            <Users className="w-4 h-4 text-navy" />
+            <h2 className="font-semibold text-gray-800">Autores</h2>
+          </div>
+          <p className="text-xs text-gray-500 -mt-2">
+            Selecione os vereadores autores. As matérias aparecem automaticamente na página individual de cada um.
+          </p>
+
+          {councilors.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+              {councilors.map((c) => {
+                const selected = data.author_ids.includes(c.id)
+                return (
+                  <button
+                    type="button"
+                    key={c.id}
+                    onClick={() => toggleAuthor(c.id)}
+                    className={`flex items-center gap-2.5 px-3 py-2 rounded-lg border text-left transition-all ${
+                      selected
+                        ? 'border-navy bg-navy/5 ring-1 ring-navy/30'
+                        : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
+                    }`}
+                  >
+                    {c.photo ? (
+                      <img src={c.photo} alt="" className="w-8 h-8 rounded-full object-cover shrink-0" />
+                    ) : (
+                      <span className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-xs font-bold text-gray-500 shrink-0">
+                        {c.name.charAt(0)}
+                      </span>
+                    )}
+                    <span className="min-w-0">
+                      <span className={`block text-sm font-medium truncate ${selected ? 'text-navy' : 'text-gray-700'}`}>
+                        {c.name}
+                      </span>
+                      {c.party && <span className="block text-[11px] text-gray-400">{c.party}</span>}
+                    </span>
+                    <span
+                      className={`ml-auto w-4 h-4 rounded border flex items-center justify-center shrink-0 ${
+                        selected ? 'bg-navy border-navy' : 'border-gray-300'
+                      }`}
+                    >
+                      {selected && <span className="text-white text-[10px] leading-none">✓</span>}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+          )}
+
+          <div>
+            <label className="block text-sm font-medium text-gray-600 mb-1">Outros autores (texto livre)</label>
+            <input type="text" value={data.author} onChange={(e) => setData('author', e.target.value)}
+              placeholder="Ex.: Poder Executivo, Mesa Diretora..." className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none" />
           </div>
         </div>
 

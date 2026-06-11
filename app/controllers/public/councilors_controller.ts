@@ -1,7 +1,9 @@
 import type { HttpContext } from '@adonisjs/core/http'
+import { DateTime } from 'luxon'
 import Councilor from '#models/councilor'
 import Legislature from '#models/legislature'
 import CouncilorPosition from '#models/councilor_position'
+import CommitteeMember from '#models/committee_member'
 import LegislativeActivity from '#models/legislative_activity'
 import SiteSetting from '#models/site_setting'
 
@@ -48,25 +50,76 @@ export default class CouncilorsController {
   }
 
   async show({ params, inertia, response }: HttpContext) {
-    const councilor = await Councilor.query().where('slug', params.slug).first()
+    const councilor = await Councilor.query()
+      .where('slug', params.slug)
+      .preload('legislature')
+      .first()
     if (!councilor) return response.redirect().status(301).toPath('/vereadores')
 
-    const positions = await CouncilorPosition.query()
-      .where('councilor_id', councilor.id)
-      .preload('biennium')
-
-    const activities = await LegislativeActivity.query()
-      .if(councilor.name, (q) =>
-        q.where((sub) => {
-          sub.whereILike('author', `%${councilor.name}%`)
-          if (councilor.parliamentaryName) {
-            sub.orWhereILike('author', `%${councilor.parliamentaryName}%`)
-          }
+    const [positions, committeeMemberships, activities, totalGeral] = await Promise.all([
+      CouncilorPosition.query().where('councilor_id', councilor.id).preload('biennium'),
+      CommitteeMember.query()
+        .where('councilor_id', councilor.id)
+        .preload('committee', (q) => q.preload('legislature')),
+      // Matérias do vereador: vínculo direto (pivot) OU autor por nome (dados legados do WP)
+      LegislativeActivity.query()
+        .where('is_active', true)
+        .where((q) => {
+          q.whereHas('authors', (sub) => sub.where('councilors.id', councilor.id))
+          q.orWhere((sub) => {
+            sub.whereILike('author', `%${councilor.name}%`)
+            if (councilor.parliamentaryName) {
+              sub.orWhereILike('author', `%${councilor.parliamentaryName}%`)
+            }
+          })
         })
-      )
-      .orderBy('year', 'desc')
-      .orderBy('created_at', 'desc')
-      .limit(10)
+        .orderBy('year', 'desc')
+        .orderBy('created_at', 'desc'),
+      LegislativeActivity.query().where('is_active', true).count('* as total'),
+    ])
+
+    const totalMateriasPortal = Number(totalGeral[0]?.$extras.total ?? 0)
+
+    // Datas: session_date pode vir como Date ou string ISO
+    const activityDate = (a: LegislativeActivity): DateTime | null => {
+      const raw = a.sessionDate as unknown
+      if (raw) {
+        const dt = raw instanceof Date ? DateTime.fromJSDate(raw) : DateTime.fromISO(String(raw))
+        if (dt.isValid) return dt
+      }
+      return a.createdAt ?? null
+    }
+
+    // Estatísticas
+    const currentYear = DateTime.now().year
+    const yearOf = (value: unknown) => {
+      if (value instanceof Date) return value.getFullYear()
+      const match = String(value ?? '').match(/\d{4}/)
+      return match ? Number(match[0]) : null
+    }
+    const legStart = yearOf(councilor.legislature?.startDate)
+    const legEnd = yearOf(councilor.legislature?.endDate)
+
+    const materiasExercicio = activities.filter(
+      (a) => (a.year ?? activityDate(a)?.year) === currentYear
+    ).length
+    const materiasLegislatura =
+      legStart && legEnd
+        ? activities.filter((a) => {
+            const y = a.year ?? activityDate(a)?.year
+            return y !== null && y !== undefined && y >= legStart && y <= legEnd
+          }).length
+        : activities.length
+
+    // Distribuição por tipo (gráficos)
+    const byTypeMap = new Map<string, number>()
+    for (const a of activities) {
+      const key = a.type || 'Outros'
+      byTypeMap.set(key, (byTypeMap.get(key) ?? 0) + 1)
+    }
+    const byType = [...byTypeMap.entries()]
+      .map(([type, count]) => ({ type, count }))
+      .sort((x, y) => y.count - x.count)
 
     const siteSettings = await SiteSetting.allAsObject()
 
@@ -74,6 +127,7 @@ export default class CouncilorsController {
       vereador: {
         id: councilor.id,
         name: councilor.parliamentaryName || councilor.name,
+        fullName: councilor.fullName || councilor.name,
         slug: councilor.slug,
         party: councilor.party,
         photo: councilor.photoUrl,
@@ -82,12 +136,47 @@ export default class CouncilorsController {
         phone: councilor.phone,
         biography: councilor.bio || councilor.history || null,
       },
-      activities: activities.map((a) => ({
-        id: a.id,
-        slug: a.slug,
-        title: a.title || `${a.type} nº ${a.number}/${a.year}`,
-        date: a.sessionDate || a.createdAt?.toISODate() || null,
-        type: a.type,
+      activities: activities.slice(0, 10).map((a) => {
+        const d = activityDate(a)
+        return {
+          id: a.id,
+          slug: a.slug,
+          title: a.title || `${a.type} nº ${a.number}/${a.year}`,
+          summary: a.summary,
+          date: d ? d.toFormat('dd/MM/yyyy') : null,
+          type: a.type,
+          status: a.status,
+          fileUrl: a.fileUrl,
+        }
+      }),
+      stats: {
+        totalMaterias: activities.length,
+        totalMateriasPortal,
+        materiasExercicio,
+        materiasLegislatura,
+        exercicioAtual: currentYear,
+        legislatura: legStart && legEnd ? `${legStart}/${legEnd}` : null,
+        byType,
+      },
+      mandatos: positions.map((p) => ({
+        id: p.id,
+        position: p.position,
+        biennium: p.biennium
+          ? { name: p.biennium.name ?? null, isCurrent: p.biennium.isCurrent ?? false }
+          : null,
+      })),
+      comissoes: committeeMemberships.map((m) => ({
+        id: m.id,
+        role: m.role,
+        committee: m.committee
+          ? {
+              name: m.committee.name,
+              slug: m.committee.slug,
+              type: m.committee.type,
+              isActive: m.committee.isActive,
+              legislature: m.committee.legislature?.name ?? null,
+            }
+          : null,
       })),
       siteSettings,
     })

@@ -1,8 +1,9 @@
 import { DateTime } from 'luxon'
-import { BaseModel, column, belongsTo, hasMany } from '@adonisjs/lucid/orm'
-import type { BelongsTo, HasMany } from '@adonisjs/lucid/types/relations'
+import { BaseModel, column, belongsTo, hasMany, manyToMany } from '@adonisjs/lucid/orm'
+import type { BelongsTo, HasMany, ManyToMany } from '@adonisjs/lucid/types/relations'
 import Legislature from './legislature.js'
 import CouncilorPosition from './councilor_position.js'
+import LegislativeActivity from './legislative_activity.js'
 
 export default class Councilor extends BaseModel {
   @column({ isPrimary: true }) declare id: number
@@ -28,4 +29,11 @@ export default class Councilor extends BaseModel {
 
   @belongsTo(() => Legislature) declare legislature: BelongsTo<typeof Legislature>
   @hasMany(() => CouncilorPosition) declare positions: HasMany<typeof CouncilorPosition>
+
+  @manyToMany(() => LegislativeActivity, {
+    pivotTable: 'legislative_activity_authors',
+    pivotForeignKey: 'councilor_id',
+    pivotRelatedForeignKey: 'legislative_activity_id',
+  })
+  declare authoredActivities: ManyToMany<typeof LegislativeActivity>
 }
