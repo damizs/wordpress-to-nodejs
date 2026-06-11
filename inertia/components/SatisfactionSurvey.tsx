@@ -5,7 +5,7 @@ export const SatisfactionSurvey = () => {
   return (
     <section className="py-12 px-4 bg-background">
       <div className="container mx-auto">
-        <div className="bg-white rounded-2xl shadow-lg p-8 flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="bg-white rounded-2xl shadow-lg p-8 flex flex-col md:flex-row items-center justify-between gap-6 border-glow" data-reveal="zoom">
           {/* Icon and Text */}
           <div className="flex items-center gap-5">
             <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">

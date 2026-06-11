@@ -29,11 +29,11 @@ export const InstagramFeedSection = ({ posts = [], instagramUrl }: InstagramFeed
   return (
     <section className="py-20 px-4 section-gradient">
       <div className="container mx-auto">
-        <div className="text-center mb-14 animate-fade-in">
+        <div className="text-center mb-14" data-reveal>
           <span className="inline-block px-4 py-1.5 bg-gradient-to-r from-purple-500/10 to-pink-500/10 text-purple-600 rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
             Redes Sociais
           </span>
-          <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
+          <h2 className="heading-accent text-3xl md:text-5xl font-bold text-foreground mb-4">
             Siga-nos no Instagram
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
@@ -44,8 +44,8 @@ export const InstagramFeedSection = ({ posts = [], instagramUrl }: InstagramFeed
         {posts.length > 0 ? (
           <>
             {/* Profile header */}
-            <div className="flex items-center justify-center gap-3 mb-10 animate-fade-in">
-              <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 p-[3px]">
+            <div className="flex items-center justify-center gap-3 mb-10" data-reveal>
+              <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 p-[3px] animate-pulse-glow">
                 <div className="w-full h-full rounded-full bg-primary flex items-center justify-center">
                   <Instagram className="w-6 h-6 text-primary-foreground" />
                 </div>
@@ -64,7 +64,7 @@ export const InstagramFeedSection = ({ posts = [], instagramUrl }: InstagramFeed
             </div>
 
             {/* Carousel */}
-            <div className="relative px-8">
+            <div className="relative px-8" data-reveal>
               <div className="overflow-hidden">
                 <div
                   className="flex gap-6 transition-transform duration-500 ease-out"

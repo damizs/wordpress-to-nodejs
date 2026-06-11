@@ -4,6 +4,8 @@ import { Menu, X, ChevronDown } from "lucide-react";
 import { useSiteSettings } from "~/hooks/use_site_settings";
 import { DynamicTheme } from "~/components/DynamicTheme";
 import { DynamicFavicon } from "~/components/DynamicFavicon";
+import { ScrollReveal } from "~/components/ScrollReveal";
+import { BackToTop } from "~/components/BackToTop";
 
 interface HeaderProps {
   logoUrl?: string | null;
@@ -56,6 +58,8 @@ export const Header = ({ logoUrl }: HeaderProps) => {
     <header className="relative z-50 bg-gradient-hero text-primary-foreground overflow-visible">
       <DynamicTheme />
       <DynamicFavicon />
+      <ScrollReveal />
+      <BackToTop />
       {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-1/2 -right-1/4 w-96 h-96 bg-gold/5 rounded-full blur-3xl" />

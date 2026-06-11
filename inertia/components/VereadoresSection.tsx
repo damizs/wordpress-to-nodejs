@@ -1,6 +1,6 @@
 import { Link } from "@inertiajs/react";
 import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface Vereador {
   id: number;
@@ -26,6 +26,7 @@ export const VereadoresSection = ({
   subtitle,
 }: VereadoresSectionProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
   const itemsPerPage = 4;
   const maxIndex = Math.max(0, vereadores.length - itemsPerPage);
 
@@ -37,6 +38,15 @@ export const VereadoresSection = ({
     setCurrentIndex((prev) => Math.min(maxIndex, prev + 1));
   };
 
+  // Autoplay: avança a cada 5s e volta ao início; pausa no hover
+  useEffect(() => {
+    if (isPaused || maxIndex === 0) return;
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [isPaused, maxIndex]);
+
   if (vereadores.length === 0) {
     return null;
   }
@@ -45,11 +55,11 @@ export const VereadoresSection = ({
     <section className="py-20 px-4 section-gradient">
       <div className="container mx-auto">
         {/* Header */}
-        <div className="text-center mb-14 animate-fade-in">
+        <div className="text-center mb-14" data-reveal>
           <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
             Legislatura {legislatura}
           </span>
-          <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
+          <h2 className="heading-accent text-3xl md:text-5xl font-bold text-foreground mb-4">
             {title}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
@@ -58,7 +68,12 @@ export const VereadoresSection = ({
         </div>
 
         {/* Carousel */}
-        <div className="relative px-8">
+        <div
+          className="relative px-8"
+          data-reveal
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+        >
           <div className="overflow-hidden rounded-2xl">
             <div 
               className="flex transition-transform duration-700 ease-out gap-6"
@@ -67,7 +82,7 @@ export const VereadoresSection = ({
               {vereadores.map((vereador, index) => (
                 <div 
                   key={vereador.id} 
-                  className="min-w-[calc(25%-18px)] sm:min-w-[calc(50%-12px)] lg:min-w-[calc(25%-18px)] animate-fade-in"
+                  className="min-w-[calc(25%-18px)] sm:min-w-[calc(50%-12px)] lg:min-w-[calc(25%-18px)]"
                 >
                   <Link href={`/vereadores/${vereador.slug}`} className="no-underline">
                     <div className="card-modern overflow-hidden group">

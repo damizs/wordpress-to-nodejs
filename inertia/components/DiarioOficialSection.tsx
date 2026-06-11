@@ -38,11 +38,11 @@ export const DiarioOficialSection = ({
   return (
     <section className="py-20 px-4 bg-muted/30">
       <div className="container mx-auto">
-        <div className="text-center mb-14 animate-fade-in">
+        <div className="text-center mb-14" data-reveal>
           <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
             Publicações Oficiais
           </span>
-          <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
+          <h2 className="heading-accent text-3xl md:text-5xl font-bold text-foreground mb-4">
             {title}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
@@ -51,9 +51,9 @@ export const DiarioOficialSection = ({
         </div>
 
         {latestGazette && (
-          <div className="max-w-3xl mx-auto mb-12 animate-fade-in">
-            <div className="card-modern p-8 flex flex-col sm:flex-row items-center gap-6">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-navy-light flex items-center justify-center shrink-0 shadow-lg">
+          <div className="max-w-3xl mx-auto mb-12" data-reveal="zoom">
+            <div className="card-modern border-glow p-8 flex flex-col sm:flex-row items-center gap-6">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-navy-light flex items-center justify-center shrink-0 shadow-lg animate-float">
                 <Newspaper className="w-8 h-8 text-primary-foreground" />
               </div>
               <div className="flex-1 text-center sm:text-left">
@@ -88,11 +88,12 @@ export const DiarioOficialSection = ({
             {publicacoes.slice(0, 6).map((pub, index) => (
               <div 
                 key={pub.id}
-                className="card-modern p-6 animate-fade-in"
-                style={{ animationDelay: `${index * 100}ms` }}
+                className="group card-modern card-shine p-6"
+                data-reveal
+                data-reveal-delay={index * 70}
               >
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <div className="icon-pop w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
                     <FileText className="w-6 h-6 text-primary" />
                   </div>
                   <div className="flex-1 min-w-0">

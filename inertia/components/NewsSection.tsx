@@ -28,11 +28,11 @@ export const NewsSection = ({ news = [], backgroundImage }: NewsSectionProps) =>
     <section className="relative bg-gradient-hero overflow-hidden">
       {/* Background Image */}
       {backgroundImage && (
-        <div className="absolute inset-0">
+        <div className="absolute inset-0 overflow-hidden">
           <img 
             src={backgroundImage} 
             alt="" 
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover animate-ken-burns"
           />
           <div className="absolute inset-0 bg-navy-dark/85" />
         </div>

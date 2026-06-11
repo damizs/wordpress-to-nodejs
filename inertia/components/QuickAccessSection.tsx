@@ -143,11 +143,11 @@ export const QuickAccessSection = ({
   return (
     <section className="py-20 px-4 section-gradient">
       <div className="container mx-auto">
-        <div className="text-center mb-14 animate-fade-in">
+        <div className="text-center mb-14" data-reveal>
           <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
             {badge}
           </span>
-          <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
+          <h2 className="heading-accent text-3xl md:text-5xl font-bold text-foreground mb-4">
             {title}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
@@ -160,11 +160,11 @@ export const QuickAccessSection = ({
             const IconComponent = iconMap[item.icon || ""] || FileText;
             const gradient =
               colorMap[item.color || ""] || fallbackGradients[index % fallbackGradients.length];
-            const cardClass = "group card-modern p-6 animate-fade-in no-underline";
-            const cardStyle = { animationDelay: `${index * 50}ms` };
+            const cardClass = "group card-modern card-shine p-6 no-underline";
+            const cardStyle = {};
             const inner = (
               <>
-                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center mb-5 shadow-lg group-hover:scale-110 group-hover:shadow-xl transition-all duration-500`}>
+                <div className={`icon-pop w-14 h-14 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center mb-5 shadow-lg group-hover:shadow-xl`}>
                   <IconComponent className="w-7 h-7 text-white" />
                 </div>
                 <h3 className="font-bold text-foreground text-sm group-hover:text-primary transition-colors duration-300">
@@ -180,11 +180,20 @@ export const QuickAccessSection = ({
                 rel="noopener noreferrer"
                 className={cardClass}
                 style={cardStyle}
+                data-reveal
+                data-reveal-delay={index * 60}
               >
                 {inner}
               </a>
             ) : (
-              <Link key={item.id ?? index} href={item.url} className={cardClass} style={cardStyle}>
+              <Link
+                key={item.id ?? index}
+                href={item.url}
+                className={cardClass}
+                style={cardStyle}
+                data-reveal
+                data-reveal-delay={index * 60}
+              >
                 {inner}
               </Link>
             );

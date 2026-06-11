@@ -41,11 +41,11 @@ export const TransparencySection = ({
   return (
     <section className="py-20 px-4 bg-background">
       <div className="container mx-auto">
-        <div className="text-center mb-14 animate-fade-in">
+        <div className="text-center mb-14" data-reveal>
           <span className="inline-block px-4 py-1.5 bg-gold/10 text-gold rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
             Portal da Transparência
           </span>
-          <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
+          <h2 className="heading-accent text-3xl md:text-5xl font-bold text-foreground mb-4">
             {title}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
@@ -60,11 +60,12 @@ export const TransparencySection = ({
               <Link
                 key={link.id}
                 href={link.href}
-                className="group card-modern p-6 animate-fade-in no-underline"
-                style={{ animationDelay: `${index * 100}ms` }}
+                className="group card-modern card-shine p-6 no-underline"
+                data-reveal
+                data-reveal-delay={index * 70}
               >
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-gold/20 to-gold/5 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <div className="icon-pop w-12 h-12 rounded-xl bg-gradient-to-br from-gold/20 to-gold/5 flex items-center justify-center">
                     <IconComponent className="w-6 h-6 text-gold" />
                   </div>
                   <div className="flex-1">

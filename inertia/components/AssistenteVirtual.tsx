@@ -288,7 +288,7 @@ export const AssistenteVirtual = () => {
       {/* Botão flutuante */}
       <button
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-6 right-6 w-14 h-14 rounded-full bg-gradient-to-r from-primary to-navy-light text-white shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center z-50 ${isOpen ? "hidden" : ""}`}
+        className={`fixed bottom-6 right-6 w-14 h-14 rounded-full bg-gradient-to-r from-primary to-navy-light text-white shadow-lg hover:shadow-xl hover:scale-110 animate-pulse-glow transition-all duration-300 flex items-center justify-center z-50 ${isOpen ? "hidden" : ""}`}
       >
         <MessageCircle className="w-6 h-6" />
       </button>

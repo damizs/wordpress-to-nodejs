@@ -53,18 +53,23 @@ export const CertificationsSection = ({ seals = [], title, subtitle }: Certifica
   return (
     <section className="py-20 px-4 bg-gradient-navy text-white">
       <div className="container mx-auto">
-        <div className="text-center mb-12">
+        <div className="text-center mb-12" data-reveal>
           <span className="inline-block px-4 py-1.5 bg-white/10 rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
             Certificações
           </span>
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">{title || "Compromisso com a Transparência"}</h2>
+          <h2 className="heading-accent text-3xl md:text-4xl font-bold mb-4">{title || "Compromisso com a Transparência"}</h2>
           <p className="text-white/70 max-w-2xl mx-auto">
             {subtitle || "A Câmara Municipal é reconhecida por seu compromisso com a transparência pública."}
           </p>
         </div>
         <div className={`grid gap-6 max-w-5xl mx-auto ${seals.length === 1 ? 'grid-cols-1 max-w-md' : seals.length === 2 ? 'grid-cols-1 md:grid-cols-2 max-w-3xl' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
-          {seals.map((seal) => (
-            <div key={seal.id} className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:bg-white/10 transition-all duration-300 group">
+          {seals.map((seal, index) => (
+            <div
+              key={seal.id}
+              className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:bg-white/10 hover-lift transition-all duration-300 group"
+              data-reveal="zoom"
+              data-reveal-delay={index * 100}
+            >
               <div className="flex justify-center mb-6">
                 {seal.imageUrl ? (
                   <img src={seal.imageUrl} alt={seal.title} className="h-40 w-auto object-contain group-hover:scale-105 transition-transform duration-300" />

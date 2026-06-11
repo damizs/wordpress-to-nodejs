@@ -68,7 +68,8 @@ export const ConhecaSumeSection = ({ images, title, subtitle }: ConhecaSumeSecti
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Image Carousel */}
             <div 
-              className="relative animate-fade-in"
+              className="relative"
+              data-reveal="left"
               onMouseEnter={() => setIsPaused(true)}
               onMouseLeave={() => setIsPaused(false)}
             >
@@ -140,7 +141,7 @@ export const ConhecaSumeSection = ({ images, title, subtitle }: ConhecaSumeSecti
             </div>
 
             {/* Content */}
-            <div className="animate-fade-in" style={{ animationDelay: "200ms" }}>
+            <div data-reveal="right" data-reveal-delay={120}>
               <span className="inline-block px-4 py-1.5 bg-gold/10 text-gold rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
                 Conheça Nossa Cidade
               </span>

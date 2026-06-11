@@ -29,7 +29,7 @@ export const ESicSection = ({ title = "e-SIC", subtitle }: ESicSectionProps) => 
       <div className="relative container mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Content */}
-          <div className="text-primary-foreground animate-fade-in">
+          <div className="text-primary-foreground" data-reveal="left">
             <span className="inline-block px-4 py-1.5 bg-gold/20 text-gold rounded-full text-xs font-semibold tracking-wider uppercase mb-6">
               Lei de Acesso à Informação
             </span>
@@ -66,10 +66,11 @@ export const ESicSection = ({ title = "e-SIC", subtitle }: ESicSectionProps) => 
             {features.map((feature, index) => (
               <div 
                 key={index}
-                className="glass rounded-2xl p-6 animate-fade-in"
-                style={{ animationDelay: `${index * 100}ms` }}
+                className="group glass rounded-2xl p-6 hover-lift hover:bg-white/15 transition-colors"
+                data-reveal
+                data-reveal-delay={index * 90}
               >
-                <div className="w-12 h-12 rounded-xl bg-gold/20 flex items-center justify-center mb-4">
+                <div className="icon-pop w-12 h-12 rounded-xl bg-gold/20 flex items-center justify-center mb-4">
                   <feature.icon className="w-6 h-6 text-gold" />
                 </div>
                 <h3 className="font-bold text-primary-foreground mb-2">{feature.title}</h3>
