@@ -51,10 +51,40 @@ interface Seal {
   linkUrl: string | null;
 }
 
+interface QuickLinkItem {
+  id: number;
+  title: string;
+  url: string;
+  icon: string | null;
+  color: string | null;
+}
+
+interface InstagramPost {
+  id: number;
+  title: string;
+  excerpt: string;
+  image: string | null;
+  slug: string | null;
+  instagramUrl: string | null;
+  date: string;
+}
+
+interface GazetteEntry {
+  id: number;
+  editionNumber: string;
+  publicationDate: string;
+  description: string | null;
+  fileUrl: string | null;
+}
+
 interface HomeProps {
   news?: NewsItem[];
   vereadores?: Vereador[];
   publicacoes?: Publicacao[];
+  instagramPosts?: InstagramPost[];
+  instagramProfileUrl?: string | null;
+  quickLinks?: QuickLinkItem[];
+  latestGazette?: GazetteEntry | null;
   legislatura?: string;
   newsBackgroundImage?: string | null;
   seals?: Seal[];
@@ -65,6 +95,10 @@ export default function Home({
   news = [], 
   vereadores = [], 
   publicacoes = [],
+  instagramPosts = [],
+  instagramProfileUrl = null,
+  quickLinks = [],
+  latestGazette = null,
   legislatura = "2025-2028",
   newsBackgroundImage = null,
   seals = [],
@@ -85,12 +119,12 @@ export default function Home({
         
         <main>
           <NewsSection news={news} backgroundImage={newsBackgroundImage} />
-          <QuickAccessSection />
+          <QuickAccessSection quickLinks={quickLinks} />
           <ESicSection />
           <TransparencySection />
           <VereadoresSection vereadores={vereadores} legislatura={legislatura} />
-          <DiarioOficialSection publicacoes={publicacoes} />
-          <InstagramFeedSection />
+          <DiarioOficialSection publicacoes={publicacoes} latestGazette={latestGazette} />
+          <InstagramFeedSection posts={instagramPosts} instagramUrl={instagramProfileUrl || siteSettings?.instagram_url || undefined} />
           <ConhecaSumeSection images={siteSettings?.city_images ? JSON.parse(siteSettings.city_images) : []} />
           <CertificationsSection seals={seals} />
           <SatisfactionSurvey />

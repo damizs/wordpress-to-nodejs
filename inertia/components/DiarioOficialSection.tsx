@@ -1,5 +1,5 @@
 import { Link } from "@inertiajs/react";
-import { FileText, Download, Calendar, ArrowRight } from "lucide-react";
+import { FileText, Download, Calendar, ArrowRight, Newspaper } from "lucide-react";
 
 interface Publicacao {
   id: number;
@@ -9,11 +9,25 @@ interface Publicacao {
   arquivo: string | null;
 }
 
-interface DiarioOficialSectionProps {
-  publicacoes?: Publicacao[];
+interface GazetteEntry {
+  id: number;
+  editionNumber: string;
+  publicationDate: string;
+  description: string | null;
+  fileUrl: string | null;
 }
 
-export const DiarioOficialSection = ({ publicacoes = [] }: DiarioOficialSectionProps) => {
+interface DiarioOficialSectionProps {
+  publicacoes?: Publicacao[];
+  latestGazette?: GazetteEntry | null;
+}
+
+const formatDate = (value: string) => {
+  const d = new Date(value);
+  return Number.isNaN(d.getTime()) ? value : d.toLocaleDateString("pt-BR");
+};
+
+export const DiarioOficialSection = ({ publicacoes = [], latestGazette = null }: DiarioOficialSectionProps) => {
   return (
     <section className="py-20 px-4 bg-muted/30">
       <div className="container mx-auto">
@@ -28,6 +42,39 @@ export const DiarioOficialSection = ({ publicacoes = [] }: DiarioOficialSectionP
             Acesse as últimas publicações e atos oficiais da Câmara Municipal.
           </p>
         </div>
+
+        {latestGazette && (
+          <div className="max-w-3xl mx-auto mb-12 animate-fade-in">
+            <div className="card-modern p-8 flex flex-col sm:flex-row items-center gap-6">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-navy-light flex items-center justify-center shrink-0 shadow-lg">
+                <Newspaper className="w-8 h-8 text-primary-foreground" />
+              </div>
+              <div className="flex-1 text-center sm:text-left">
+                <span className="text-xs text-muted-foreground uppercase tracking-wide">
+                  Última Edição
+                </span>
+                <h3 className="font-bold text-foreground text-xl mb-1">
+                  Diário Oficial — Edição {latestGazette.editionNumber}
+                </h3>
+                <p className="text-sm text-muted-foreground flex items-center justify-center sm:justify-start gap-1.5">
+                  <Calendar className="w-4 h-4" />
+                  {formatDate(latestGazette.publicationDate)}
+                </p>
+              </div>
+              {latestGazette.fileUrl && (
+                <a
+                  href={latestGazette.fileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-modern inline-flex items-center gap-2 bg-gradient-gold text-accent-foreground shadow-lg hover:shadow-glow no-underline shrink-0"
+                >
+                  <Download className="w-5 h-5" />
+                  Baixar edição
+                </a>
+              )}
+            </div>
+          </div>
+        )}
 
         {publicacoes.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -69,10 +116,12 @@ export const DiarioOficialSection = ({ publicacoes = [] }: DiarioOficialSectionP
             ))}
           </div>
         ) : (
-          <div className="text-center py-12">
-            <FileText className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
-            <p className="text-muted-foreground">Nenhuma publicação disponível no momento.</p>
-          </div>
+          !latestGazette && (
+            <div className="text-center py-12">
+              <FileText className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
+              <p className="text-muted-foreground">Nenhuma publicação disponível no momento.</p>
+            </div>
+          )
         )}
 
         <div className="text-center mt-12">

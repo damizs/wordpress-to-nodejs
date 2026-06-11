@@ -1,29 +1,52 @@
 import { Link } from "@inertiajs/react";
-import { 
-  Play, 
-  Users, 
-  FileText, 
-  BookOpen, 
-  UserCheck, 
-  ScrollText, 
-  MessageCircle, 
-  Scale, 
-  Eye, 
+import {
+  Play,
+  Users,
+  FileText,
+  BookOpen,
+  UserCheck,
+  ScrollText,
+  MessageCircle,
+  Scale,
+  Eye,
   Calendar,
   ArrowRight,
+  Video,
+  Building2,
+  Landmark,
+  Award,
+  Table,
+  HardHat,
+  DollarSign,
+  Coins,
+  GraduationCap,
+  BadgeCheck,
+  ClipboardList,
+  Handshake,
+  FileSignature,
+  Network,
+  PieChart,
+  MailOpen,
+  ClipboardCheck,
+  TrendingUp,
+  AlertCircle,
+  Gavel,
+  Search,
+  Shield,
+  Link as LinkIcon,
   type LucideIcon
 } from "lucide-react";
 
-interface QuickAccessItem {
-  icon: string;
+interface QuickLinkItem {
+  id?: number;
   title: string;
-  description: string;
-  color: string;
-  href: string;
+  url: string;
+  icon: string | null;
+  color: string | null;
 }
 
 interface QuickAccessSectionProps {
-  items?: QuickAccessItem[];
+  quickLinks?: QuickLinkItem[];
 }
 
 const iconMap: Record<string, LucideIcon> = {
@@ -37,22 +60,78 @@ const iconMap: Record<string, LucideIcon> = {
   Scale,
   Eye,
   Calendar,
+  Video,
+  Building2,
+  Landmark,
+  Award,
+  Table,
+  HardHat,
+  DollarSign,
+  Coins,
+  GraduationCap,
+  BadgeCheck,
+  ClipboardList,
+  Handshake,
+  FileSignature,
+  Network,
+  PieChart,
+  MailOpen,
+  ClipboardCheck,
+  TrendingUp,
+  AlertCircle,
+  Gavel,
+  Search,
+  Shield,
+  Link: LinkIcon,
 };
 
-const defaultItems: QuickAccessItem[] = [
-  { icon: "Play", title: "Sessões Plenárias", description: "Acompanhe as sessões ordinárias e extraordinárias", color: "from-red-500 to-rose-600", href: "/atas" },
-  { icon: "Users", title: "Mesa Diretora", description: "Presidente, vice e demais membros da Mesa", color: "from-blue-500 to-indigo-600", href: "/mesa-diretora" },
-  { icon: "FileText", title: "Comissões", description: "Comissões técnicas e suas atribuições", color: "from-green-500 to-emerald-600", href: "/comissoes" },
-  { icon: "BookOpen", title: "Regimento Interno", description: "Normas de funcionamento da Casa Legislativa", color: "from-amber-500 to-orange-600", href: "/publicacoes-oficiais" },
-  { icon: "UserCheck", title: "Vereadores", description: "Integrantes do Poder Legislativo Municipal", color: "from-teal-500 to-cyan-600", href: "/vereadores" },
-  { icon: "ScrollText", title: "Atas e Resumos", description: "Documentos oficiais das sessões realizadas", color: "from-purple-500 to-violet-600", href: "/atas" },
-  { icon: "MessageCircle", title: "Ouvidoria", description: "Atendimento de demandas do público", color: "from-pink-500 to-rose-600", href: "/ouvidoria" },
-  { icon: "Scale", title: "Leis Municipais", description: "Normas e regulamentos da cidade", color: "from-sky-500 to-blue-600", href: "/publicacoes-oficiais" },
-  { icon: "Eye", title: "Transparência", description: "Portal de acesso a informações públicas", color: "from-emerald-500 to-green-600", href: "/transparencia" },
-  { icon: "Calendar", title: "Pautas", description: "Pauta das próximas sessões parlamentares", color: "from-indigo-500 to-purple-600", href: "/pautas" },
+// Cores vindas do banco (quick_links.color) -> gradientes do design system
+const colorMap: Record<string, string> = {
+  navy: "from-blue-700 to-indigo-800",
+  blue: "from-blue-500 to-indigo-600",
+  gold: "from-amber-500 to-orange-600",
+  sky: "from-sky-500 to-blue-600",
+  emerald: "from-emerald-500 to-green-600",
+  green: "from-green-500 to-emerald-600",
+  red: "from-red-500 to-rose-600",
+  rose: "from-pink-500 to-rose-600",
+  purple: "from-purple-500 to-violet-600",
+  indigo: "from-indigo-500 to-purple-600",
+  teal: "from-teal-500 to-cyan-600",
+  orange: "from-amber-500 to-orange-600",
+};
+
+const fallbackGradients = [
+  "from-red-500 to-rose-600",
+  "from-blue-500 to-indigo-600",
+  "from-green-500 to-emerald-600",
+  "from-amber-500 to-orange-600",
+  "from-teal-500 to-cyan-600",
+  "from-purple-500 to-violet-600",
+  "from-pink-500 to-rose-600",
+  "from-sky-500 to-blue-600",
+  "from-emerald-500 to-green-600",
+  "from-indigo-500 to-purple-600",
 ];
 
-export const QuickAccessSection = ({ items = defaultItems }: QuickAccessSectionProps) => {
+const defaultItems: QuickLinkItem[] = [
+  { title: "Sessões Plenárias", url: "/atas", icon: "Play", color: "red" },
+  { title: "Mesa Diretora", url: "/mesa-diretora", icon: "Users", color: "blue" },
+  { title: "Comissões", url: "/comissoes", icon: "FileText", color: "green" },
+  { title: "Regimento Interno", url: "/publicacoes-oficiais", icon: "BookOpen", color: "gold" },
+  { title: "Vereadores", url: "/vereadores", icon: "UserCheck", color: "teal" },
+  { title: "Atas e Resumos", url: "/atas", icon: "ScrollText", color: "purple" },
+  { title: "Ouvidoria", url: "/ouvidoria", icon: "MessageCircle", color: "rose" },
+  { title: "Leis Municipais", url: "/publicacoes-oficiais", icon: "Scale", color: "sky" },
+  { title: "Transparência", url: "/transparencia", icon: "Eye", color: "emerald" },
+  { title: "Pautas", url: "/pautas", icon: "Calendar", color: "indigo" },
+];
+
+const isExternal = (url: string) => /^https?:\/\//i.test(url);
+
+export const QuickAccessSection = ({ quickLinks = [] }: QuickAccessSectionProps) => {
+  const items = quickLinks.length > 0 ? quickLinks : defaultItems;
+
   return (
     <section className="py-20 px-4 section-gradient">
       <div className="container mx-auto">
@@ -70,23 +149,35 @@ export const QuickAccessSection = ({ items = defaultItems }: QuickAccessSectionP
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
           {items.map((item, index) => {
-            const IconComponent = iconMap[item.icon] || FileText;
-            return (
-              <Link
-                key={index}
-                href={item.href}
-                className="group card-modern p-6 animate-fade-in no-underline"
-                style={{ animationDelay: `${index * 50}ms` }}
-              >
-                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${item.color} flex items-center justify-center mb-5 shadow-lg group-hover:scale-110 group-hover:shadow-xl transition-all duration-500`}>
+            const IconComponent = iconMap[item.icon || ""] || FileText;
+            const gradient =
+              colorMap[item.color || ""] || fallbackGradients[index % fallbackGradients.length];
+            const cardClass = "group card-modern p-6 animate-fade-in no-underline";
+            const cardStyle = { animationDelay: `${index * 50}ms` };
+            const inner = (
+              <>
+                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center mb-5 shadow-lg group-hover:scale-110 group-hover:shadow-xl transition-all duration-500`}>
                   <IconComponent className="w-7 h-7 text-white" />
                 </div>
-                <h3 className="font-bold text-foreground text-sm mb-2 group-hover:text-primary transition-colors duration-300">
+                <h3 className="font-bold text-foreground text-sm group-hover:text-primary transition-colors duration-300">
                   {item.title}
                 </h3>
-                <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                  {item.description}
-                </p>
+              </>
+            );
+            return isExternal(item.url) ? (
+              <a
+                key={item.id ?? index}
+                href={item.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={cardClass}
+                style={cardStyle}
+              >
+                {inner}
+              </a>
+            ) : (
+              <Link key={item.id ?? index} href={item.url} className={cardClass} style={cardStyle}>
+                {inner}
               </Link>
             );
           })}
