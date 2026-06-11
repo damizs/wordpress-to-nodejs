@@ -35,8 +35,12 @@ export default class CouncilorsController {
       legislature: currentLegislature
         ? {
             name: currentLegislature.name,
-            year_start: currentLegislature.startDate?.substring(0, 4) || '',
-            year_end: currentLegislature.endDate?.substring(0, 4) || '',
+            year_start: currentLegislature.startDate
+              ? String(currentLegislature.startDate).substring(0, 4)
+              : '',
+            year_end: currentLegislature.endDate
+              ? String(currentLegislature.endDate).substring(0, 4)
+              : '',
           }
         : null,
       siteSettings,

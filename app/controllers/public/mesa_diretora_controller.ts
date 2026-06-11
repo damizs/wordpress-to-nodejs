@@ -34,8 +34,12 @@ export default class MesaDiretoraController {
       biennium: currentBiennium
         ? {
             name: currentBiennium.name,
-            year_start: currentBiennium.startDate?.substring(0, 4) || '',
-            year_end: currentBiennium.endDate?.substring(0, 4) || '',
+            year_start: currentBiennium.startDate
+              ? String(currentBiennium.startDate).substring(0, 4)
+              : '',
+            year_end: currentBiennium.endDate
+              ? String(currentBiennium.endDate).substring(0, 4)
+              : '',
           }
         : null,
       legislature_name: currentBiennium?.legislature?.name || '',
