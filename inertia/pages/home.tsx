@@ -77,6 +77,12 @@ interface GazetteEntry {
   fileUrl: string | null;
 }
 
+interface InfoCategory {
+  id: number;
+  name: string;
+  slug: string;
+}
+
 interface HomeProps {
   news?: NewsItem[];
   vereadores?: Vereador[];
@@ -88,6 +94,7 @@ interface HomeProps {
   legislatura?: string;
   newsBackgroundImage?: string | null;
   seals?: Seal[];
+  infoCategories?: InfoCategory[];
   siteSettings?: Record<string, string | null>;
 }
 
@@ -102,6 +109,7 @@ export default function Home({
   legislatura = "2025-2028",
   newsBackgroundImage = null,
   seals = [],
+  infoCategories = [],
   siteSettings = {}
 }: HomeProps) {
   const logoUrl = siteSettings?.logo_url || null;
@@ -144,6 +152,7 @@ export default function Home({
           )}
           {visible('transparency') && (
             <TransparencySection
+              categories={infoCategories}
               title={setting('homepage_transparency_title')}
               subtitle={setting('homepage_transparency_subtitle')}
             />

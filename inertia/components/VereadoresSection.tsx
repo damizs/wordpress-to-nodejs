@@ -88,7 +88,7 @@ export const VereadoresSection = ({
                     <div className="card-modern overflow-hidden group">
                       <div className="relative aspect-[3/4] overflow-hidden">
                         {vereador.ativo && (
-                          <span className="absolute top-4 left-4 z-10 px-3 py-1.5 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-xs font-bold rounded-full shadow-lg">
+                          <span className="absolute top-3 left-3 z-10 px-2.5 py-1 bg-navy-dark/90 text-white text-[10px] font-bold tracking-wide rounded-md shadow-lg">
                             EM EXERCÍCIO
                           </span>
                         )}

@@ -1,97 +1,165 @@
 import { Link } from "@inertiajs/react";
-import { FileText, Users, DollarSign, FileSearch, Building, Shield, ArrowRight } from "lucide-react";
+import { useEffect, useState } from "react";
+import {
+  Award, ChevronLeft, ChevronRight, ExternalLink, FileText, HardHat, Plane,
+  Coins, GraduationCap, Users, ClipboardList, Gavel, BarChart3, BookOpen,
+  Briefcase, Building, Scale, FolderOpen,
+} from "lucide-react";
+import { useSiteSettings } from "~/hooks/use_site_settings";
 
-interface TransparencyLink {
+interface InfoCategory {
   id: number;
-  icon: string;
-  title: string;
-  description: string;
-  href: string;
+  name: string;
+  slug: string;
 }
 
 interface TransparencySectionProps {
-  links?: TransparencyLink[];
+  categories?: InfoCategory[];
   title?: string;
   subtitle?: string;
 }
 
-const iconMap: Record<string, any> = {
-  FileText,
-  Users,
-  DollarSign,
-  FileSearch,
-  Building,
-  Shield,
-};
+/** Ícone + cor por palavra-chave da categoria (padrão do portal WP) */
+function categoryVisual(name: string): { icon: any; color: string } {
+  const t = name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  if (t.includes("obra")) return { icon: HardHat, color: "bg-sky-500" };
+  if (t.includes("diaria")) return { icon: Plane, color: "bg-yellow-500" };
+  if (t.includes("verba")) return { icon: Coins, color: "bg-emerald-500" };
+  if (t.includes("estagiario")) return { icon: GraduationCap, color: "bg-purple-500" };
+  if (t.includes("terceirizado")) return { icon: Briefcase, color: "bg-orange-500" };
+  if (t.includes("servidor") || t.includes("pessoal")) return { icon: Users, color: "bg-blue-500" };
+  if (t.includes("concurso") || t.includes("seletivo")) return { icon: ClipboardList, color: "bg-rose-500" };
+  if (t.includes("julgamento") || t.includes("apreciacao")) return { icon: Gavel, color: "bg-indigo-500" };
+  if (t.includes("prestacao") || t.includes("contas") || t.includes("relatorio")) return { icon: BarChart3, color: "bg-green-600" };
+  if (t.includes("carta")) return { icon: BookOpen, color: "bg-pink-500" };
+  if (t.includes("patrimonio") || t.includes("imovel")) return { icon: Building, color: "bg-teal-500" };
+  if (t.includes("lei") || t.includes("norma")) return { icon: Scale, color: "bg-cyan-600" };
+  if (t.includes("dados")) return { icon: FolderOpen, color: "bg-violet-500" };
+  return { icon: FileText, color: "bg-primary" };
+}
 
-const defaultLinks: TransparencyLink[] = [
-  { id: 1, icon: "FileText", title: "Receitas e Despesas", description: "Acompanhe a execução orçamentária em tempo real", href: "/transparencia" },
-  { id: 2, icon: "Users", title: "Servidores", description: "Quadro de pessoal e remunerações", href: "/transparencia" },
-  { id: 3, icon: "DollarSign", title: "Licitações", description: "Processos licitatórios e contratos", href: "/licitacoes" },
-  { id: 4, icon: "FileSearch", title: "Contratos", description: "Contratos e convênios vigentes", href: "/transparencia" },
-  { id: 5, icon: "Building", title: "Diárias e Passagens", description: "Despesas com viagens e deslocamentos", href: "/transparencia" },
-  { id: 6, icon: "Shield", title: "Informações Institucionais", description: "Organograma, competências e estrutura", href: "/historia-da-camara" },
-];
+function useItemsPerPage() {
+  const [count, setCount] = useState(4);
+  useEffect(() => {
+    const update = () => setCount(window.innerWidth < 640 ? 1 : window.innerWidth < 1024 ? 2 : 4);
+    update();
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
+  }, []);
+  return count;
+}
 
 export const TransparencySection = ({
-  links = defaultLinks,
-  title = "Transparência Pública",
+  categories = [],
+  title = "Acesso à Informação",
   subtitle,
 }: TransparencySectionProps) => {
+  const settings = useSiteSettings();
+  const radarUrl = settings.radar_atricon_url || "https://radardatransparencia.atricon.org.br/";
+  const itemsPerPage = useItemsPerPage();
+  const [page, setPage] = useState(0);
+  const totalPages = Math.max(1, Math.ceil(categories.length / itemsPerPage));
+
+  useEffect(() => {
+    if (page >= totalPages) setPage(0);
+  }, [totalPages, page]);
+
+  const visible = categories.slice(page * itemsPerPage, page * itemsPerPage + itemsPerPage);
+
   return (
-    <section className="py-20 px-4 bg-background">
+    <section className="py-20 px-4 section-gradient">
       <div className="container mx-auto">
-        <div className="text-center mb-14" data-reveal>
-          <span className="inline-block px-4 py-1.5 bg-gold/10 text-gold rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
+        <div className="text-center mb-12" data-reveal>
+          <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
             Portal da Transparência
           </span>
           <h2 className="heading-accent text-3xl md:text-5xl font-bold text-foreground mb-4">
             {title}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            {subtitle || "Acesso à informação pública como direito fundamental do cidadão."}
+            {subtitle || "Acesse todas as informações sobre carta de serviço, obras, estagiários e muito mais"}
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {links.map((link, index) => {
-            const IconComponent = iconMap[link.icon] || FileText;
-            return (
-              <Link
-                key={link.id}
-                href={link.href}
-                className="group card-modern card-shine p-6 no-underline"
-                data-reveal
-                data-reveal-delay={index * 70}
-              >
-                <div className="flex items-start gap-4">
-                  <div className="icon-pop w-12 h-12 rounded-xl bg-gradient-to-br from-gold/20 to-gold/5 flex items-center justify-center">
-                    <IconComponent className="w-6 h-6 text-gold" />
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-bold text-foreground mb-2 group-hover:text-primary transition-colors">
-                      {link.title}
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      {link.description}
-                    </p>
-                  </div>
-                  <ArrowRight className="w-5 h-5 text-muted-foreground/30 group-hover:text-primary group-hover:translate-x-1 transition-all" />
-                </div>
-              </Link>
-            );
-          })}
+        {/* Radar da Transparência ATRICON */}
+        <div
+          data-reveal="zoom"
+          className="bg-gradient-hero rounded-3xl p-8 md:p-10 mb-10 flex flex-col md:flex-row items-center gap-6 text-primary-foreground shadow-xl"
+        >
+          <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center shrink-0 shadow-lg">
+            <Award className="w-10 h-10 text-primary" />
+          </div>
+          <div className="flex-1 text-center md:text-left">
+            <h3 className="text-2xl font-bold mb-1.5">Radar da Transparência</h3>
+            <p className="text-primary-foreground/80 text-sm md:text-base">
+              Acompanhe nossa avaliação no Radar da Transparência ATRICON. Comprometidos com a
+              transparência e a prestação de contas à população.
+            </p>
+          </div>
+          <a
+            href={radarUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 bg-white text-primary rounded-xl text-sm font-semibold no-underline hover:bg-gold hover:text-navy-dark transition-colors"
+          >
+            Acessar Radar
+            <ExternalLink className="w-4 h-4" />
+          </a>
         </div>
 
-        <div className="text-center mt-12">
-          <Link
-            href="/transparencia"
-            className="btn-modern inline-flex items-center gap-3 bg-gradient-to-r from-gold to-gold-light text-navy-dark shadow-lg hover:shadow-glow hover:gap-4 no-underline"
-          >
-            Acessar Portal Completo
-            <ArrowRight className="w-5 h-5" />
-          </Link>
-        </div>
+        {/* Carrossel de categorias (páginas PNTP) */}
+        {categories.length > 0 && (
+          <div className="relative" data-reveal>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 px-12">
+              {visible.map((cat) => {
+                const { icon: Icon, color } = categoryVisual(cat.name);
+                return (
+                  <Link
+                    key={cat.id}
+                    href={`/${cat.slug}`}
+                    className="card-modern card-shine p-6 flex flex-col items-center text-center gap-4 no-underline hover-lift min-h-[150px] justify-center"
+                  >
+                    <div className={`w-14 h-14 rounded-full ${color} flex items-center justify-center shadow-md`}>
+                      <Icon className="w-7 h-7 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-foreground text-sm mb-1">{cat.name}</h3>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+
+            {totalPages > 1 && (
+              <>
+                <button
+                  onClick={() => setPage((p) => (p - 1 + totalPages) % totalPages)}
+                  aria-label="Anterior"
+                  className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:opacity-90 transition-opacity"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => setPage((p) => (p + 1) % totalPages)}
+                  aria-label="Próximo"
+                  className="absolute right-0 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:opacity-90 transition-opacity"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+                <div className="flex justify-center gap-1.5 mt-8">
+                  {Array.from({ length: totalPages }).map((_, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setPage(i)}
+                      aria-label={`Página ${i + 1}`}
+                      className={`h-2 rounded-full transition-all ${i === page ? "bg-primary w-5" : "bg-border w-2 hover:bg-muted-foreground/40"}`}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        )}
       </div>
     </section>
   );

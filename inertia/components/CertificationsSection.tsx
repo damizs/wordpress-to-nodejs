@@ -66,24 +66,24 @@ export const CertificationsSection = ({ seals = [], title, subtitle }: Certifica
           {seals.map((seal, index) => (
             <div
               key={seal.id}
-              className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:bg-white/10 hover-lift transition-all duration-300 group"
+              className="bg-white rounded-2xl p-8 shadow-xl hover-lift transition-all duration-300 group"
               data-reveal="zoom"
               data-reveal-delay={index * 100}
             >
               <div className="flex justify-center mb-6">
                 {seal.imageUrl ? (
-                  <img src={seal.imageUrl} alt={seal.title} className="h-40 w-auto object-contain group-hover:scale-105 transition-transform duration-300" />
+                  <img src={seal.imageUrl} alt={seal.title} className="h-36 w-auto object-contain group-hover:scale-105 transition-transform duration-300" />
                 ) : (
-                  <div className="w-32 h-32 rounded-full bg-gold/20 flex items-center justify-center">
-                    <Award className="w-16 h-16 text-gold" />
+                  <div className="w-28 h-28 rounded-full bg-gold/15 flex items-center justify-center">
+                    <Award className="w-14 h-14 text-gold" />
                   </div>
                 )}
               </div>
-              <h3 className="text-xl font-bold text-center mb-2">{seal.title}</h3>
-              {seal.description && <p className="text-white/60 text-sm text-center mb-4">{seal.description}</p>}
+              <h3 className="text-lg font-bold text-center mb-2 text-gray-900">{seal.title}</h3>
+              {seal.description && <p className="text-gray-500 text-sm text-center mb-5">{seal.description}</p>}
               {seal.linkUrl && (
                 <div className="text-center">
-                  <a href={seal.linkUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 bg-white text-navy rounded-lg text-sm font-medium hover:bg-gold hover:text-navy-dark transition-colors">
+                  <a href={seal.linkUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:border-primary hover:text-primary transition-colors no-underline">
                     Saiba Mais
                     <ExternalLink className="w-4 h-4" />
                   </a>

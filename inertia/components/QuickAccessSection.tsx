@@ -88,34 +88,55 @@ const iconMap: Record<string, LucideIcon> = {
   Link: LinkIcon,
 };
 
-// Cores vindas do banco (quick_links.color) -> gradientes do design system
+// Cores vindas do banco (quick_links.color) -> círculos coloridos (padrão do portal WP)
 const colorMap: Record<string, string> = {
-  navy: "from-blue-700 to-indigo-800",
-  blue: "from-blue-500 to-indigo-600",
-  gold: "from-amber-500 to-orange-600",
-  sky: "from-sky-500 to-blue-600",
-  emerald: "from-emerald-500 to-green-600",
-  green: "from-green-500 to-emerald-600",
-  red: "from-red-500 to-rose-600",
-  rose: "from-pink-500 to-rose-600",
-  purple: "from-purple-500 to-violet-600",
-  indigo: "from-indigo-500 to-purple-600",
-  teal: "from-teal-500 to-cyan-600",
-  orange: "from-amber-500 to-orange-600",
+  navy: "bg-blue-800",
+  blue: "bg-blue-500",
+  gold: "bg-amber-500",
+  sky: "bg-sky-500",
+  emerald: "bg-emerald-500",
+  green: "bg-green-500",
+  red: "bg-red-500",
+  rose: "bg-pink-500",
+  purple: "bg-purple-500",
+  indigo: "bg-indigo-500",
+  teal: "bg-teal-500",
+  orange: "bg-orange-500",
 };
 
-const fallbackGradients = [
-  "from-red-500 to-rose-600",
-  "from-blue-500 to-indigo-600",
-  "from-green-500 to-emerald-600",
-  "from-amber-500 to-orange-600",
-  "from-teal-500 to-cyan-600",
-  "from-purple-500 to-violet-600",
-  "from-pink-500 to-rose-600",
-  "from-sky-500 to-blue-600",
-  "from-emerald-500 to-green-600",
-  "from-indigo-500 to-purple-600",
+const fallbackColors = [
+  "bg-red-500",
+  "bg-purple-500",
+  "bg-sky-500",
+  "bg-emerald-500",
+  "bg-green-500",
+  "bg-pink-500",
+  "bg-blue-500",
+  "bg-amber-500",
+  "bg-orange-500",
+  "bg-indigo-500",
 ];
+
+// Descrições curtas exibidas abaixo do título (igual ao portal WP)
+const descriptionMap: Record<string, string> = {
+  "sessões plenárias": "Acompanhe as sessões ordinárias e extraordinárias",
+  "mesa diretora": "Presidente, vice e demais membros da Mesa",
+  "comissões": "Comissões técnicas e suas atribuições",
+  "regimento interno": "Normas de funcionamento da Casa legislativa",
+  "vereadores": "Integrantes do Poder Legislativo Municipal",
+  "atas e resumos": "Documentos oficiais das sessões realizadas",
+  "ouvidoria": "Comunicação entre o cidadão e o Poder Legislativo",
+  "leis municipais": "Normas e regulamentos da cidade",
+  "transparência": "Portal de acesso a informações públicas",
+  "ordem do dia": "Pauta das próximas sessões parlamentares",
+  "lei orgânica": "Lei Orgânica do Município",
+  "e-sic": "Serviço de Informações ao Cidadão",
+  "pautas": "Pauta das próximas sessões parlamentares",
+  "diário oficial": "Publicações e atos oficiais do município",
+  "licitações": "Processos licitatórios e contratos",
+  "a câmara": "História e estrutura do Poder Legislativo",
+  "contra cheque": "Acesso ao contracheque dos servidores",
+};
 
 const defaultItems: QuickLinkItem[] = [
   { title: "Sessões Plenárias", url: "/atas", icon: "Play", color: "red" },
@@ -158,18 +179,22 @@ export const QuickAccessSection = ({
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
           {items.map((item, index) => {
             const IconComponent = iconMap[item.icon || ""] || FileText;
-            const gradient =
-              colorMap[item.color || ""] || fallbackGradients[index % fallbackGradients.length];
-            const cardClass = "group card-modern card-shine p-6 no-underline";
+            const color = colorMap[item.color || ""] || fallbackColors[index % fallbackColors.length];
+            const description = descriptionMap[item.title.toLowerCase().trim()];
+            const cardClass =
+              "group card-modern card-shine p-6 no-underline flex flex-col items-center text-center";
             const cardStyle = {};
             const inner = (
               <>
-                <div className={`icon-pop w-14 h-14 rounded-2xl bg-gradient-to-br ${gradient} flex items-center justify-center mb-5 shadow-lg group-hover:shadow-xl`}>
+                <div className={`icon-pop w-14 h-14 rounded-full ${color} flex items-center justify-center mb-4 shadow-lg group-hover:shadow-xl`}>
                   <IconComponent className="w-7 h-7 text-white" />
                 </div>
                 <h3 className="font-bold text-foreground text-sm group-hover:text-primary transition-colors duration-300">
                   {item.title}
                 </h3>
+                {description && (
+                  <p className="text-xs text-muted-foreground mt-2 leading-snug">{description}</p>
+                )}
               </>
             );
             return isExternal(item.url) ? (
@@ -205,7 +230,7 @@ export const QuickAccessSection = ({
             href="/transparencia"
             className="btn-modern inline-flex items-center gap-3 bg-gradient-to-r from-primary to-navy-light text-primary-foreground shadow-lg hover:shadow-xl hover:gap-4 no-underline"
           >
-            Acessar Portal Completo
+            Acessar portal transparência
             <ArrowRight className="w-5 h-5" />
           </Link>
         </div>

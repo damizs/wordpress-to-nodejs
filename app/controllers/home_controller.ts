@@ -12,6 +12,7 @@ import InstagramImportLog from '#models/instagram_import_log'
 import InstagramSetting from '#models/instagram_setting'
 import SiteSetting from '#models/site_setting'
 import Seal from '#models/seal'
+import SystemCategory from '#models/system_category'
 
 export default class HomeController {
   async index({ inertia }: HttpContext) {
@@ -46,6 +47,7 @@ export default class HomeController {
       publications,
       currentLegislature,
       siteSettings,
+      infoCategories,
     ] = await Promise.all([
       News.query()
         .where('status', 'published')
@@ -59,6 +61,7 @@ export default class HomeController {
       OfficialPublication.query().orderBy('publication_date', 'desc').limit(6),
       Legislature.query().where('is_current', true).first(),
       SiteSetting.allAsObject(),
+      SystemCategory.byType('information_record'),
     ])
 
     // Fetch transparency links for each section
@@ -154,6 +157,7 @@ export default class HomeController {
           }
         : null,
       siteSettings,
+      infoCategories: infoCategories.map((c) => ({ id: c.id, name: c.name, slug: c.slug })),
       newsBackgroundImage: siteSettings.news_background_image || null,
       seals: seals.map((s) => ({
         id: s.id,

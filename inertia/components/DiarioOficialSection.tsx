@@ -1,5 +1,5 @@
 import { Link } from "@inertiajs/react";
-import { FileText, Download, Calendar, ArrowRight, Newspaper } from "lucide-react";
+import { BookOpen, Download, Calendar, ArrowRight, Newspaper } from "lucide-react";
 
 interface Publicacao {
   id: number;
@@ -35,112 +35,96 @@ export const DiarioOficialSection = ({
   title = "Diário Oficial",
   subtitle,
 }: DiarioOficialSectionProps) => {
+  if (publicacoes.length === 0 && !latestGazette) return null;
+
   return (
     <section className="py-20 px-4 bg-muted/30">
-      <div className="container mx-auto">
-        <div className="text-center mb-14" data-reveal>
-          <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
-            Publicações Oficiais
-          </span>
-          <h2 className="heading-accent text-3xl md:text-5xl font-bold text-foreground mb-4">
+      <div className="container mx-auto max-w-4xl">
+        <div className="text-center mb-10" data-reveal>
+          <h2 className="heading-accent text-3xl md:text-4xl font-bold text-foreground mb-3">
             {title}
           </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            {subtitle || "Acesse as últimas publicações e atos oficiais da Câmara Municipal."}
+          <p className="text-muted-foreground max-w-2xl mx-auto">
+            {subtitle || "Fique sempre atualizado com as publicações e informações oficiais do município"}
           </p>
         </div>
 
-        {latestGazette && (
-          <div className="max-w-3xl mx-auto mb-12" data-reveal="zoom">
-            <div className="card-modern border-glow p-8 flex flex-col sm:flex-row items-center gap-6">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-navy-light flex items-center justify-center shrink-0 shadow-lg animate-float">
-                <Newspaper className="w-8 h-8 text-primary-foreground" />
-              </div>
-              <div className="flex-1 text-center sm:text-left">
-                <span className="text-xs text-muted-foreground uppercase tracking-wide">
-                  Última Edição
-                </span>
-                <h3 className="font-bold text-foreground text-xl mb-1">
-                  Diário Oficial — Edição {latestGazette.editionNumber}
-                </h3>
-                <p className="text-sm text-muted-foreground flex items-center justify-center sm:justify-start gap-1.5">
-                  <Calendar className="w-4 h-4" />
-                  {formatDate(latestGazette.publicationDate)}
-                </p>
-              </div>
-              {latestGazette.fileUrl && (
+        {/* Card principal com cabeçalho navy (padrão do portal) */}
+        <div data-reveal className="rounded-2xl overflow-hidden shadow-xl bg-card border border-border/60">
+          <div className="bg-gradient-hero px-6 py-4 flex items-center justify-between text-primary-foreground">
+            <div className="flex items-center gap-3">
+              <BookOpen className="w-5 h-5" />
+              <h3 className="font-bold">Diário Oficial</h3>
+            </div>
+            <Link
+              href="/publicacoes-oficiais"
+              className="text-xs font-semibold px-3 py-1.5 rounded-full bg-white/15 hover:bg-white/25 text-primary-foreground no-underline transition-colors"
+            >
+              Ver publicações
+            </Link>
+          </div>
+
+          <div className="divide-y divide-border/60">
+            {publicacoes.slice(0, 8).map((pub) =>
+              pub.arquivo ? (
                 <a
-                  href={latestGazette.fileUrl}
+                  key={pub.id}
+                  href={pub.arquivo}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn-modern inline-flex items-center gap-2 bg-gradient-gold text-accent-foreground shadow-lg hover:shadow-glow no-underline shrink-0"
+                  className="flex items-center gap-4 px-6 py-3.5 no-underline hover:bg-muted/60 transition-colors group"
                 >
-                  <Download className="w-5 h-5" />
-                  Baixar edição
+                  <span className="text-sm font-semibold text-primary shrink-0 w-24">{pub.data}</span>
+                  <span className="text-sm text-foreground flex-1 truncate group-hover:text-primary transition-colors">
+                    {pub.titulo}
+                  </span>
+                  <Download className="w-4 h-4 text-muted-foreground/50 group-hover:text-primary shrink-0 transition-colors" />
                 </a>
-              )}
-            </div>
-          </div>
-        )}
-
-        {publicacoes.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {publicacoes.slice(0, 6).map((pub, index) => (
-              <div 
-                key={pub.id}
-                className="group card-modern card-shine p-6"
-                data-reveal
-                data-reveal-delay={index * 70}
-              >
-                <div className="flex items-start gap-4">
-                  <div className="icon-pop w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                    <FileText className="w-6 h-6 text-primary" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <span className="inline-block px-2 py-1 bg-gold/10 text-gold text-xs font-medium rounded mb-2">
-                      {pub.tipo}
-                    </span>
-                    <h3 className="font-bold text-foreground mb-2 line-clamp-2">
-                      {pub.titulo}
-                    </h3>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Calendar className="w-4 h-4" />
-                      <span>{pub.data}</span>
-                    </div>
-                  </div>
+              ) : (
+                <div key={pub.id} className="flex items-center gap-4 px-6 py-3.5">
+                  <span className="text-sm font-semibold text-primary shrink-0 w-24">{pub.data}</span>
+                  <span className="text-sm text-foreground flex-1 truncate">{pub.titulo}</span>
+                  <span className="text-[11px] text-muted-foreground shrink-0">{pub.tipo}</span>
                 </div>
-                {pub.arquivo && (
-                  <a 
-                    href={pub.arquivo}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-4 flex items-center justify-center gap-2 py-2 px-4 bg-primary/5 hover:bg-primary/10 text-primary rounded-lg transition-colors no-underline"
-                  >
-                    <Download className="w-4 h-4" />
-                    <span className="text-sm font-medium">Baixar PDF</span>
-                  </a>
-                )}
-              </div>
-            ))}
+              )
+            )}
           </div>
-        ) : (
-          !latestGazette && (
-            <div className="text-center py-12">
-              <FileText className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
-              <p className="text-muted-foreground">Nenhuma publicação disponível no momento.</p>
-            </div>
-          )
-        )}
-
-        <div className="text-center mt-12">
-          <Link
-            href="/publicacoes-oficiais"
-            className="btn-modern inline-flex items-center gap-3 bg-gradient-to-r from-primary to-navy-light text-primary-foreground shadow-lg hover:shadow-xl hover:gap-4 no-underline"
-          >
-            Ver todas as publicações
-            <ArrowRight className="w-5 h-5" />
-          </Link>
         </div>
+
+        {/* Última edição */}
+        {latestGazette && (
+          <div data-reveal="zoom" className="mt-6 card-modern p-6 flex flex-col sm:flex-row items-center gap-5">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-hero flex items-center justify-center shrink-0 shadow-lg">
+              <Newspaper className="w-7 h-7 text-primary-foreground" />
+            </div>
+            <div className="flex-1 text-center sm:text-left">
+              <h4 className="font-bold text-foreground">Diário Oficial do Município</h4>
+              <p className="text-sm text-muted-foreground flex items-center justify-center sm:justify-start gap-1.5">
+                <Calendar className="w-4 h-4" />
+                Última edição: {latestGazette.editionNumber} — {formatDate(latestGazette.publicationDate)}
+              </p>
+            </div>
+            {latestGazette.fileUrl ? (
+              <a
+                href={latestGazette.fileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-xl text-sm font-semibold no-underline hover:opacity-90 transition-opacity"
+              >
+                <Download className="w-4 h-4" />
+                Baixar última edição
+              </a>
+            ) : (
+              <Link
+                href="/diario-oficial"
+                className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground rounded-xl text-sm font-semibold no-underline hover:opacity-90 transition-opacity"
+              >
+                Acessar Diário Oficial
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            )}
+          </div>
+        )}
       </div>
     </section>
   );
