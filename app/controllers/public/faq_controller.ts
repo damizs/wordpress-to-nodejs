@@ -13,7 +13,12 @@ export default class FaqController {
     const siteSettings = await SiteSetting.allAsObject()
 
     return inertia.render('public/faq/index', {
-      items: items.map((i) => i.serialize()),
+      faqs: items.map((i) => ({
+        id: i.id,
+        question: i.question,
+        answer: i.answer,
+        category: i.category,
+      })),
       categories: categories.map((c) => c.serialize()),
       siteSettings,
     })

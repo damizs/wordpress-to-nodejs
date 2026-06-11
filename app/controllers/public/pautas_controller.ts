@@ -15,8 +15,19 @@ export default class PautasController {
 
     const sessions = await query.paginate(page, 20)
     const siteSettings = await SiteSetting.allAsObject()
+
     return inertia.render('public/pautas/index', {
-      sessions: sessions.serialize(),
+      pautas: sessions.all().map((s) => ({
+        id: s.id,
+        title: s.title,
+        slug: s.slug,
+        date: s.sessionDate,
+        session_type: s.type,
+      })),
+      pagination: {
+        currentPage: sessions.currentPage,
+        lastPage: sessions.lastPage,
+      },
       filters: { year },
       siteSettings,
     })
@@ -25,6 +36,16 @@ export default class PautasController {
   async show({ params, inertia }: HttpContext) {
     const session = await PlenarySession.query().where('slug', params.slug).firstOrFail()
     const siteSettings = await SiteSetting.allAsObject()
-    return inertia.render('public/pautas/show', { session: session.serialize(), siteSettings })
+    return inertia.render('public/pautas/show', {
+      pauta: {
+        id: session.id,
+        title: session.title,
+        slug: session.slug,
+        date: session.sessionDate,
+        time: session.startTime,
+        content: session.agenda,
+      },
+      siteSettings,
+    })
   }
 }

@@ -17,8 +17,19 @@ export default class AtasController {
 
     const sessions = await query.paginate(page, 20)
     const siteSettings = await SiteSetting.allAsObject()
+
     return inertia.render('public/atas/index', {
-      sessions: sessions.serialize(),
+      atas: sessions.all().map((s) => ({
+        id: s.id,
+        title: s.title,
+        slug: s.slug,
+        date: s.sessionDate,
+        file_url: s.fileUrl,
+      })),
+      pagination: {
+        currentPage: sessions.currentPage,
+        lastPage: sessions.lastPage,
+      },
       filters: { year, type },
       siteSettings,
     })
@@ -27,6 +38,16 @@ export default class AtasController {
   async show({ params, inertia }: HttpContext) {
     const session = await PlenarySession.query().where('slug', params.slug).firstOrFail()
     const siteSettings = await SiteSetting.allAsObject()
-    return inertia.render('public/atas/show', { session: session.serialize(), siteSettings })
+    return inertia.render('public/atas/show', {
+      ata: {
+        id: session.id,
+        title: session.title,
+        slug: session.slug,
+        date: session.sessionDate,
+        content: session.minutes,
+        file_url: session.fileUrl,
+      },
+      siteSettings,
+    })
   }
 }

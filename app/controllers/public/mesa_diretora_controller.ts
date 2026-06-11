@@ -10,7 +10,7 @@ export default class MesaDiretoraController {
       .preload('legislature')
       .first()
 
-    let positions: any[] = []
+    let members: any[] = []
     if (currentBiennium) {
       const posRecords = await CouncilorPosition.query()
         .where('biennium_id', currentBiennium.id)
@@ -18,21 +18,27 @@ export default class MesaDiretoraController {
         .orderByRaw(
           "CASE position WHEN 'Presidente' THEN 1 WHEN 'Vice-Presidente' THEN 2 WHEN '1º Secretário' THEN 3 WHEN '2º Secretário' THEN 4 ELSE 5 END"
         )
-      positions = posRecords.map((p) => ({
-        ...p.serialize(),
-        councilor_name: p.councilor?.name || '',
-        councilor_parliamentary_name: p.councilor?.parliamentaryName || p.councilor?.name || '',
-        councilor_party: p.councilor?.party || '',
-        councilor_photo: p.councilor?.photoUrl || null,
-        councilor_slug: p.councilor?.slug || '',
+      members = posRecords.map((p) => ({
+        id: p.id,
+        name: p.councilor?.parliamentaryName || p.councilor?.name || '',
+        slug: p.councilor?.slug || '',
+        photo: p.councilor?.photoUrl || null,
+        party: p.councilor?.party || '',
+        role: p.position,
       }))
     }
 
     const siteSettings = await SiteSetting.allAsObject()
     return inertia.render('public/mesa-diretora/index', {
-      biennium: currentBiennium?.serialize() || null,
+      members,
+      biennium: currentBiennium
+        ? {
+            name: currentBiennium.name,
+            year_start: currentBiennium.startDate?.substring(0, 4) || '',
+            year_end: currentBiennium.endDate?.substring(0, 4) || '',
+          }
+        : null,
       legislature_name: currentBiennium?.legislature?.name || '',
-      positions,
       siteSettings,
     })
   }

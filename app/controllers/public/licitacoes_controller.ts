@@ -15,7 +15,19 @@ export default class LicitacoesController {
     const licitacoes = await query.paginate(page, 20)
     const siteSettings = await SiteSetting.allAsObject()
     return inertia.render('public/licitacoes/index', {
-      licitacoes: licitacoes.serialize(),
+      licitacoes: licitacoes.all().map((l) => ({
+        id: l.id,
+        title: l.title,
+        slug: l.slug,
+        number: l.number,
+        modality: l.modality,
+        date: l.openingDate || l.createdAt?.toISODate() || null,
+        status: l.status,
+      })),
+      pagination: {
+        currentPage: licitacoes.currentPage,
+        lastPage: licitacoes.lastPage,
+      },
       filters: { status, modality },
       siteSettings,
     })

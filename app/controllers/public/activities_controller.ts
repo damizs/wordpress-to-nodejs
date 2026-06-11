@@ -15,7 +15,18 @@ export default class ActivitiesController {
     const activities = await query.paginate(page, 20)
     const siteSettings = await SiteSetting.allAsObject()
     return inertia.render('public/activities/index', {
-      activities: activities.serialize(),
+      activities: activities.all().map((a) => ({
+        id: a.id,
+        title: a.title || `${a.type} nº ${a.number}/${a.year}`,
+        slug: a.slug,
+        date: a.sessionDate || a.createdAt?.toISODate() || null,
+        type: a.type,
+        author: a.author ? { name: a.author } : null,
+      })),
+      pagination: {
+        currentPage: activities.currentPage,
+        lastPage: activities.lastPage,
+      },
       filters: { type, year },
       siteSettings,
     })

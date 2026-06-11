@@ -15,7 +15,18 @@ export default class PublicationsController {
     const publications = await query.paginate(page, 20)
     const siteSettings = await SiteSetting.allAsObject()
     return inertia.render('public/publications/index', {
-      publications: publications.serialize(),
+      publications: publications.all().map((p) => ({
+        id: p.id,
+        title: p.title,
+        slug: p.slug,
+        date: p.publicationDate,
+        type: p.type,
+        file_url: p.fileUrl,
+      })),
+      pagination: {
+        currentPage: publications.currentPage,
+        lastPage: publications.lastPage,
+      },
       filters: { type, search },
       siteSettings,
     })

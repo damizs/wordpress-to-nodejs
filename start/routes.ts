@@ -20,6 +20,7 @@ const PublicSatisfactionSurveyController = () =>
   import('#controllers/public/satisfaction_survey_controller')
 const PublicPrivacyPolicyController = () => import('#controllers/public/privacy_policy_controller')
 const StaticPagesController = () => import('#controllers/public/static_pages_controller')
+const PublicDiarioOficialController = () => import('#controllers/public/diario_oficial_controller')
 const SeoController = () => import('#controllers/seo_controller')
 
 // Lazy imports - Admin
@@ -93,12 +94,17 @@ router.get('/politica-de-privacidade', [PublicPrivacyPolicyController, 'index'])
 router.get('/historia-da-camara', [StaticPagesController, 'historia'])
 router.get('/sobre', [StaticPagesController, 'sobre'])
 router.get('/ouvidoria', [StaticPagesController, 'ouvidoria'])
+router.get('/diario-oficial', [PublicDiarioOficialController, 'index'])
+// Leis municipais ficam no portal da prefeitura (mesmo destino do site WordPress antigo)
+router.get('/leis', ({ response }) =>
+  response.redirect('https://www.sume.pb.gov.br/portal-da-transparencia/leis-municipais/')
+)
 // Dynamic info pages: /estagiarios, /terceirizados, /verbas, etc.
 router
   .get('/:slug', [PublicDynamicInfoController, 'show'])
   .where(
     'slug',
-    /^(?!login|painel|api|health|noticias|vereadores|transparencia|mesa-diretora|comissoes|atas|pautas|atividades-legislativa|atividades-legislativas|publicacoes-oficiais|licitacoes|perguntas-frequentes|pesquisa-de-satisfacao|politica-de-privacidade|historia-da-camara|sobre|ouvidoria).*$/
+    /^(?!login|painel|api|health|noticias|vereadores|transparencia|mesa-diretora|comissoes|atas|pautas|atividades-legislativa|atividades-legislativas|publicacoes-oficiais|licitacoes|perguntas-frequentes|pesquisa-de-satisfacao|politica-de-privacidade|historia-da-camara|sobre|ouvidoria|diario-oficial|leis).*$/
   )
 
 // ========= API =========
