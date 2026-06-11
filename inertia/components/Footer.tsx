@@ -30,7 +30,7 @@ export const Footer = ({ logoUrl }: FooterProps) => {
   return (
     <footer className="bg-gradient-navy text-primary-foreground">
       {/* Main Footer */}
-      <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 py-12">
+      <div className="container mx-auto py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           {/* Logo & Description */}
           <div>
@@ -137,7 +137,7 @@ export const Footer = ({ logoUrl }: FooterProps) => {
 
       {/* Bottom Bar */}
       <div className="border-t border-primary-foreground/10">
-        <div className="max-w-7xl mx-auto px-6 md:px-12 lg:px-16 py-4">
+        <div className="container mx-auto py-4">
           <div className="flex flex-col md:flex-row items-center justify-between gap-2 text-xs opacity-70">
             <p>© {new Date().getFullYear()} {headerTitle}. Todos os direitos reservados.</p>
             <p>Desenvolvido com transparência e compromisso público.</p>
