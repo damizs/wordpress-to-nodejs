@@ -31,6 +31,7 @@ export default class SeoController {
       { url: '/mesa-diretora', priority: '0.7', changefreq: 'yearly' },
       { url: '/comissoes', priority: '0.7', changefreq: 'yearly' },
       { url: '/atas', priority: '0.8', changefreq: 'weekly' },
+      { url: '/votacoes', priority: '0.7', changefreq: 'weekly' },
       { url: '/pautas', priority: '0.7', changefreq: 'weekly' },
       { url: '/atividades-legislativa', priority: '0.8', changefreq: 'weekly' },
       { url: '/publicacoes-oficiais', priority: '0.8', changefreq: 'weekly' },

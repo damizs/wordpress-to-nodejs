@@ -51,6 +51,7 @@ async function runAutoChecks(): Promise<Record<string, { ok: boolean; detail: st
     surveys,
     transparencySections,
     mesaPositions,
+    votacoes,
   ] = await Promise.all([
     tableCount('councilors', (q) => q.where('is_active', true)),
     tableCount('official_publications'),
@@ -65,6 +66,7 @@ async function runAutoChecks(): Promise<Record<string, { ok: boolean; detail: st
     tableCount('satisfaction_surveys'),
     tableCount('transparency_sections', (q) => q.where('is_active', true)),
     tableCount('councilor_positions'),
+    tableCount('nominal_votings', (q) => q.where('is_published', true)),
   ])
 
   const has = (n: number) => n > 0
@@ -113,6 +115,12 @@ async function runAutoChecks(): Promise<Record<string, { ok: boolean; detail: st
     committees: { ok: has(committees), detail: `${committees} comissões ativas` },
     activities: { ok: has(activities), detail: `${activities} atividades legislativas` },
     survey: { ok: has(surveys), detail: `${surveys} respostas de pesquisa de satisfação` },
+    votacoes: {
+      ok: has(votacoes),
+      detail: has(votacoes)
+        ? `${votacoes} votações nominais publicadas em /votacoes`
+        : 'Cadastre ou importe votações nominais no painel (Votações Nominais)',
+    },
   }
 }
 

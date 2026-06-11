@@ -22,6 +22,8 @@ const PublicSatisfactionSurveyController = () =>
 const PublicPrivacyPolicyController = () => import('#controllers/public/privacy_policy_controller')
 const StaticPagesController = () => import('#controllers/public/static_pages_controller')
 const PublicDiarioOficialController = () => import('#controllers/public/diario_oficial_controller')
+const PublicNominalVotingsController = () =>
+  import('#controllers/public/nominal_votings_controller')
 const SeoController = () => import('#controllers/seo_controller')
 
 // Lazy imports - Admin
@@ -54,6 +56,8 @@ const AdminInstagramController = () => import('#controllers/admin/instagram_cont
 const InstagramProxyController = () => import('#controllers/admin/instagram_proxy_controller')
 const AdminUsersController = () => import('#controllers/admin/users_controller')
 const AdminRolesController = () => import('#controllers/admin/roles_controller')
+const AdminNominalVotingsController = () =>
+  import('#controllers/admin/nominal_votings_controller')
 
 // ========= HEALTH CHECK =========
 router.get('/health', async () => ({ status: 'ok', timestamp: new Date().toISOString() }))
@@ -97,6 +101,7 @@ router.get('/historia-da-camara', [StaticPagesController, 'historia'])
 router.get('/sobre', [StaticPagesController, 'sobre'])
 router.get('/ouvidoria', [StaticPagesController, 'ouvidoria'])
 router.get('/diario-oficial', [PublicDiarioOficialController, 'index'])
+router.get('/votacoes', [PublicNominalVotingsController, 'index'])
 // Leis municipais ficam no portal da prefeitura (mesmo destino do site WordPress antigo)
 router.get('/leis', ({ response }) =>
   response.redirect('https://www.sume.pb.gov.br/portal-da-transparencia/leis-municipais/')
@@ -111,7 +116,7 @@ router
     'slug',
     // Anclado com $: bloqueia só o slug exato reservado, não slugs que começam igual
     // (ex.: notícia antiga "vereadores-acompanham-..." deve passar pelo catch-all)
-    /^(?!(?:login|painel|api|health|noticias|vereadores|transparencia|mesa-diretora|comissoes|atas|pautas|atividades-legislativa|atividades-legislativas|publicacoes-oficiais|licitacoes|perguntas-frequentes|pesquisa-de-satisfacao|politica-de-privacidade|historia-da-camara|sobre|ouvidoria|diario-oficial|leis)$).+$/
+    /^(?!(?:login|painel|api|health|noticias|vereadores|transparencia|mesa-diretora|comissoes|atas|pautas|atividades-legislativa|atividades-legislativas|publicacoes-oficiais|licitacoes|perguntas-frequentes|pesquisa-de-satisfacao|politica-de-privacidade|historia-da-camara|sobre|ouvidoria|diario-oficial|votacoes|leis)$).+$/
   )
 
 // ========= API =========
@@ -315,6 +320,21 @@ router
         router.delete('/sessoes/:id', [AdminPlenarySessionsController, 'destroy'])
       })
       .use(middleware.can(['sessao.gerenciar']))
+
+    // Votações Nominais
+    router
+      .group(() => {
+        router.get('/votacoes', [AdminNominalVotingsController, 'index'])
+        router.get('/votacoes/criar', [AdminNominalVotingsController, 'create'])
+        router.post('/votacoes', [AdminNominalVotingsController, 'store'])
+        router.get('/votacoes/importar', [AdminNominalVotingsController, 'importPage'])
+        router.post('/votacoes/importar/extrair', [AdminNominalVotingsController, 'extract'])
+        router.post('/votacoes/importar/salvar', [AdminNominalVotingsController, 'storeBatch'])
+        router.get('/votacoes/:id/editar', [AdminNominalVotingsController, 'edit'])
+        router.put('/votacoes/:id', [AdminNominalVotingsController, 'update'])
+        router.delete('/votacoes/:id', [AdminNominalVotingsController, 'destroy'])
+      })
+      .use(middleware.can(['votacao.gerenciar']))
 
     // Publicações Oficiais
     router

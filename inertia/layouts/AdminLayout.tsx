@@ -3,7 +3,7 @@ import { FlashMessages } from '~/components/FlashMessages'
 import {
   LayoutDashboard, Newspaper, Palette, ChevronLeft, ChevronRight, ChevronDown,
   LogOut, Menu, X, User, Home, Users, FileText, Link2, Shield, UserCog,
-  ScrollText, Settings, Monitor, HelpCircle, BookOpen, Info, Tags, Calendar, Users2, Gavel, ClipboardCheck, Instagram, Image, Award, Radar,
+  ScrollText, Settings, Monitor, HelpCircle, BookOpen, Info, Tags, Calendar, Users2, Gavel, ClipboardCheck, Instagram, Image, Award, Radar, Vote,
 } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 
@@ -38,6 +38,7 @@ const navItems: NavItem[] = [
   { label: 'Comissões', href: '/painel/comissoes', icon: Users2, permissions: ['legislativo.gerenciar'] },
   { label: 'Ativ. Legislativas', href: '/painel/atividades', icon: ScrollText, permissions: ['atividade.gerenciar'] },
   { label: 'Sessões / Atas', href: '/painel/sessoes', icon: FileText, permissions: ['sessao.gerenciar'] },
+  { label: 'Votações Nominais', href: '/painel/votacoes', icon: Vote, permissions: ['votacao.gerenciar'] },
   { label: 'Publicações', href: '/painel/publicacoes', icon: FileText, permissions: ['publicacao.gerenciar'] },
   { label: 'FAQ', href: '/painel/faq', icon: HelpCircle, permissions: ['faq.gerenciar'] },
   { label: 'Pesquisa Satisfação', href: '/painel/pesquisa-satisfacao', icon: ClipboardCheck, permissions: ['pesquisa.gerenciar'] },

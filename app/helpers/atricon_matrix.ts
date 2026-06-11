@@ -883,8 +883,9 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
     title: 'Divulga lista sobre as votações nominais?',
     classification: 'recomendada',
     verification: [D, A, H, G, F],
-    hint: 'Lista nominal de votação dos projetos (votações unânimes dispensam a lista).',
-    route: '/atividades-legislativas',
+    hint: 'Lista nominal de votação dos projetos (votações unânimes dispensam a lista). Use o módulo Votações Nominais do painel — cadastro manual ou importação das atas via IA.',
+    route: '/votacoes',
+    autoCheck: 'votacoes',
   },
   {
     code: '20.8',
