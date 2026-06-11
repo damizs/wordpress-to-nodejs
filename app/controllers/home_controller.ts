@@ -13,6 +13,8 @@ import InstagramSetting from '#models/instagram_setting'
 import SiteSetting from '#models/site_setting'
 import Seal from '#models/seal'
 import SystemCategory from '#models/system_category'
+import LegislativeActivity from '#models/legislative_activity'
+import PlenarySession from '#models/plenary_session'
 
 export default class HomeController {
   async index({ inertia }: HttpContext) {
@@ -48,6 +50,8 @@ export default class HomeController {
       currentLegislature,
       siteSettings,
       infoCategories,
+      activities,
+      sessions,
     ] = await Promise.all([
       News.query()
         .where('status', 'published')
@@ -62,6 +66,11 @@ export default class HomeController {
       Legislature.query().where('is_current', true).first(),
       SiteSetting.allAsObject(),
       SystemCategory.byType('information_record'),
+      LegislativeActivity.query()
+        .where('is_active', true)
+        .orderBy('created_at', 'desc')
+        .limit(600),
+      PlenarySession.query().select('id', 'session_date', 'year', 'status'),
     ])
 
     // Fetch transparency links for each section
@@ -128,6 +137,86 @@ export default class HomeController {
       date: log.instagramPostDate?.toFormat('dd/MM/yyyy') || '',
     }))
 
+    // ===== Seção "Legislativo em números" =====
+    const toDateTime = (value: unknown): DateTime | null => {
+      if (!value) return null
+      if (DateTime.isDateTime(value)) return value
+      const dt =
+        value instanceof Date ? DateTime.fromJSDate(value) : DateTime.fromISO(String(value))
+      return dt.isValid ? dt : null
+    }
+    const activityDate = (a: LegislativeActivity): DateTime | null =>
+      toDateTime(a.sessionDate) ?? a.createdAt ?? null
+
+    // Gráfico: matérias por semana nas últimas 24 semanas
+    const WEEKS = 24
+    const currentWeekStart = DateTime.now().startOf('week')
+    const weekly = Array.from({ length: WEEKS }, (_, i) => {
+      const start = currentWeekStart.minus({ weeks: WEEKS - 1 - i })
+      return { label: start.setLocale('pt-BR').toFormat('dd/MMM'), count: 0 }
+    })
+    for (const a of activities) {
+      const d = activityDate(a)
+      if (!d) continue
+      const diff = Math.floor(currentWeekStart.diff(d.startOf('week'), 'weeks').weeks)
+      if (diff >= 0 && diff < WEEKS) weekly[WEEKS - 1 - diff].count++
+    }
+
+    // Últimas matérias (timeline)
+    const ultimasMaterias = activities
+      .map((a) => ({ a, d: activityDate(a) }))
+      .sort((x, y) => (y.d?.toMillis() ?? 0) - (x.d?.toMillis() ?? 0))
+      .slice(0, 10)
+      .map(({ a, d }) => ({
+        id: a.id,
+        titulo: a.title || `${a.type}: ${a.number}/${a.year}`,
+        data: d ? d.toFormat('dd/MM/yyyy') : '',
+        url: a.fileUrl || (a.slug ? `/atividades-legislativas/${a.slug}` : '/atividades-legislativas'),
+      }))
+
+    // Produção por vereador (autor da matéria casado com o nome do vereador)
+    const normalizeName = (s: string) =>
+      s
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .trim()
+    const legislativoVereadores = councilorsToShow.map((c) => {
+      const keys = [c.name, c.parliamentaryName]
+        .filter((k): k is string => Boolean(k))
+        .map(normalizeName)
+        .filter((k) => k.length > 3)
+      const materias = activities.filter((a) => {
+        if (!a.author) return false
+        const author = normalizeName(a.author)
+        return keys.some((k) => author.includes(k) || k.includes(author))
+      }).length
+      return {
+        id: c.id,
+        nome: c.parliamentaryName || c.name,
+        cargo: c.role || 'Vereador(a)',
+        foto: c.photoUrl,
+        slug: c.slug,
+        materias,
+      }
+    })
+
+    const currentYear = DateTime.now().year
+    const totalMateriasAno = activities.filter((a) => activityDate(a)?.year === currentYear).length
+    const totalSessoesAno = sessions.filter((s) => {
+      if (s.year) return s.year === currentYear
+      return toDateTime(s.sessionDate)?.year === currentYear
+    }).length
+
+    const legislativo = {
+      weekly,
+      materias: ultimasMaterias,
+      vereadores: legislativoVereadores,
+      totalMateriasAno,
+      totalSessoesAno,
+      ano: currentYear,
+    }
+
     // Extrai o ano de Date ou string ISO (String(Date) daria "Wed Jan ...")
     const yearOf = (value: unknown) => {
       if (value instanceof Date) return String(value.getFullYear())
@@ -141,6 +230,7 @@ export default class HomeController {
     return inertia.render('home', {
       news: mappedNews,
       vereadores,
+      legislativo,
       publicacoes,
       instagramPosts,
       instagramProfileUrl,

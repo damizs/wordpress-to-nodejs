@@ -9,6 +9,7 @@ export default class HomepageController {
       'homepage_esic',
       'homepage_transparency',
       'homepage_vereadores',
+      'homepage_legislativo',
       'homepage_diario',
       'homepage_instagram',
       'homepage_conheca',
@@ -29,15 +30,18 @@ export default class HomepageController {
   async update({ request, response, session }: HttpContext) {
     const fields = request.all()
 
-    // Filter only known setting keys and update them
+    // Filter only known setting keys and upsert them
+    // (upsert garante que chaves novas, como section_legislativo_visible, sejam criadas)
     for (const [key, value] of Object.entries(fields)) {
       if (key.startsWith('homepage_') || key.startsWith('section_')) {
-        await SiteSetting.query()
-          .where('key', key)
-          .update({
-            value: typeof value === 'string' ? value : JSON.stringify(value),
-            updated_at: new Date(),
-          })
+        const group = key.startsWith('section_')
+          ? 'homepage_sections'
+          : `homepage_${key.split('_')[1]}`
+        await SiteSetting.setValue(
+          key,
+          typeof value === 'string' || value === null ? value : JSON.stringify(value),
+          group
+        )
       }
     }
 

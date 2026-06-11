@@ -8,6 +8,7 @@ import { QuickAccessSection } from "~/components/QuickAccessSection";
 import { ESicSection } from "~/components/ESicSection";
 import { TransparencySection } from "~/components/TransparencySection";
 import { VereadoresSection } from "~/components/VereadoresSection";
+import { LegislativoSection } from "~/components/LegislativoSection";
 import { DiarioOficialSection } from "~/components/DiarioOficialSection";
 import { InstagramFeedSection } from "~/components/InstagramFeedSection";
 import { ConhecaSumeSection } from "~/components/ConhecaSumeSection";
@@ -83,9 +84,19 @@ interface InfoCategory {
   slug: string;
 }
 
+interface LegislativoData {
+  weekly: { label: string; count: number }[];
+  materias: { id: number; titulo: string; data: string; url: string }[];
+  vereadores: { id: number; nome: string; cargo: string; foto: string | null; slug: string; materias: number }[];
+  totalMateriasAno: number;
+  totalSessoesAno: number;
+  ano: number;
+}
+
 interface HomeProps {
   news?: NewsItem[];
   vereadores?: Vereador[];
+  legislativo?: LegislativoData | null;
   publicacoes?: Publicacao[];
   instagramPosts?: InstagramPost[];
   instagramProfileUrl?: string | null;
@@ -101,6 +112,7 @@ interface HomeProps {
 export default function Home({ 
   news = [], 
   vereadores = [], 
+  legislativo = null,
   publicacoes = [],
   instagramPosts = [],
   instagramProfileUrl = null,
@@ -163,6 +175,13 @@ export default function Home({
               legislatura={legislatura}
               title={setting('homepage_vereadores_title')}
               subtitle={setting('homepage_vereadores_subtitle')}
+            />
+          )}
+          {visible('legislativo') && (
+            <LegislativoSection
+              data={legislativo}
+              title={setting('homepage_legislativo_title')}
+              subtitle={setting('homepage_legislativo_subtitle')}
             />
           )}
           {visible('diario') && (
