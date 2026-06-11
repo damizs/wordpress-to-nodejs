@@ -109,9 +109,8 @@ export default function TransparenciaIndex({ sections = [] }: Props) {
     return sections
       .map((s) => ({
         ...s,
-        links: s.links.filter(
-          (l) => normalize(l.title).includes(q) || normalize(s.title).includes(q)
-        ),
+        // Filtra item a item pelo título do link (o título da seção não "libera" a seção inteira)
+        links: s.links.filter((l) => normalize(l.title).includes(q)),
       }))
       .filter((s) => s.links.length > 0);
   }, [sections, query]);
@@ -142,10 +141,10 @@ export default function TransparenciaIndex({ sections = [] }: Props) {
         <main className="py-12">
           <div className="container mx-auto px-4">
             <div className="lg:flex lg:items-start lg:gap-10">
-              {/* Sidebar de navegação (padrão dos portais) */}
-              <aside className="hidden lg:block w-[280px] shrink-0 sticky top-24">
+              {/* Sidebar de navegação (padrão dos portais) — fixa, com rolagem própria */}
+              <aside className="hidden lg:block w-[280px] shrink-0 sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto overscroll-contain rounded-2xl [scrollbar-width:thin]">
                 <nav className="bg-card rounded-2xl shadow-md border border-border/60 overflow-hidden">
-                  {sections.map((section) => {
+                  {filtered.map((section) => {
                     const Icon = iconMap[section.icon || ""] || FolderOpen;
                     return (
                       <div key={section.id} className="border-b border-border/60 last:border-b-0">
