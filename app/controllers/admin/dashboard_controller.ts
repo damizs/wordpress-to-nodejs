@@ -57,6 +57,18 @@ export default class DashboardController {
 
     if (can('pntp.gerenciar')) {
       stats.pntpRecords = await count(InformationRecord.query().where('is_active', true))
+      // Pendências do Radar ATRICON: total de critérios menos os avaliados como ok
+      const { ATRICON_CRITERIA } = await import('#helpers/atricon_matrix')
+      const AtriconStatus = (await import('#models/atricon_status')).default
+      const saved = await AtriconStatus.all()
+      const okCodes = new Set(
+        saved
+          .filter((s) => ['atendido', 'externo', 'nao_se_aplica'].includes(s.status))
+          .map((s) => s.criterionCode)
+      )
+      stats.atriconPending = ATRICON_CRITERIA.filter(
+        (c) => !okCodes.has(c.code) && !c.external
+      ).length
     }
 
     if (can('publicacao.gerenciar')) {

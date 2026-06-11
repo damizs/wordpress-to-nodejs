@@ -44,6 +44,7 @@ const AdminPublicationsController = () =>
 const AdminFaqController = () => import('#controllers/admin/faq_controller')
 const AdminInformationRecordsController = () =>
   import('#controllers/admin/information_records_controller')
+const AdminAtriconController = () => import('#controllers/admin/atricon_controller')
 const AdminCategoriesController = () => import('#controllers/admin/system_categories_controller')
 const AdminLicitacoesController = () => import('#controllers/admin/licitacoes_controller')
 const AdminSatisfactionSurveyController = () =>
@@ -338,6 +339,15 @@ router
         router.delete('/faq/:id', [AdminFaqController, 'destroy'])
       })
       .use(middleware.can(['faq.gerenciar']))
+
+    // Radar ATRICON (PNTP)
+    router
+      .group(() => {
+        router.get('/atricon', [AdminAtriconController, 'index'])
+        router.get('/atricon/relatorio', [AdminAtriconController, 'report'])
+        router.put('/atricon/:code', [AdminAtriconController, 'updateStatus'])
+      })
+      .use(middleware.can(['pntp.gerenciar']))
 
     // Acesso à Informação (PNTP)
     router

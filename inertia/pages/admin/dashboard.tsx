@@ -2,7 +2,7 @@ import { Head, Link, usePage } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
 import {
   Newspaper, FileText, Users, ArrowRight, Clock, Gavel, ScrollText,
-  ShoppingCart, FolderOpen, MessageSquare, Plus, CalendarDays,
+  ShoppingCart, FolderOpen, MessageSquare, Plus, CalendarDays, Radar,
 } from 'lucide-react'
 
 interface Props {
@@ -31,6 +31,7 @@ export default function Dashboard({ stats, recentNews, upcomingSessions, userNam
     { key: 'councilors', label: 'Vereadores Ativos', icon: Users, color: 'bg-violet-500', href: '/painel/vereadores' },
     { key: 'openLicitacoes', label: 'Licitações Abertas', icon: ShoppingCart, color: 'bg-orange-500', href: '/painel/licitacoes' },
     { key: 'pntpRecords', label: 'Registros PNTP', icon: FolderOpen, color: 'bg-cyan-600', href: '/painel/acesso-informacao' },
+    { key: 'atriconPending', label: 'Pendências ATRICON', icon: Radar, color: 'bg-purple-600', href: '/painel/atricon' },
     { key: 'publications', label: 'Publicações Oficiais', icon: ScrollText, color: 'bg-rose-500', href: '/painel/publicacoes' },
     { key: 'surveyResponses', label: 'Respostas da Pesquisa', icon: MessageSquare, color: 'bg-teal-500', href: '/painel/pesquisa-satisfacao' },
   ].filter((c) => stats[c.key] !== undefined)

@@ -3,7 +3,7 @@ import { FlashMessages } from '~/components/FlashMessages'
 import {
   LayoutDashboard, Newspaper, Palette, ChevronLeft, ChevronRight, ChevronDown,
   LogOut, Menu, X, User, Home, Users, FileText, Link2, Shield, UserCog,
-  ScrollText, Settings, Monitor, HelpCircle, BookOpen, Info, Tags, Calendar, Users2, Gavel, ClipboardCheck, Instagram, Image, Award,
+  ScrollText, Settings, Monitor, HelpCircle, BookOpen, Info, Tags, Calendar, Users2, Gavel, ClipboardCheck, Instagram, Image, Award, Radar,
 } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 
@@ -44,6 +44,7 @@ const navItems: NavItem[] = [
   { label: 'Transparência', href: '/painel/transparencia', icon: Shield, permissions: ['transparencia.gerenciar'] },
   { label: 'Licitações', href: '/painel/licitacoes', icon: Gavel, permissions: ['licitacao.gerenciar'] },
   { label: 'Acesso à Informação', href: '/painel/acesso-informacao', icon: Info, permissions: ['pntp.gerenciar'] },
+  { label: 'Radar ATRICON', href: '/painel/atricon', icon: Radar, permissions: ['pntp.gerenciar'] },
   { label: 'Links Rápidos', href: '/painel/links-rapidos', icon: Link2, permissions: ['site.gerenciar'] },
   { label: 'Categorias', href: '/painel/categorias', icon: Tags, permissions: ['site.gerenciar'] },
   { label: 'Aparência', href: '/painel/aparencia', icon: Palette, permissions: ['site.gerenciar'] },
