@@ -3,11 +3,7 @@ import Councilor from '#models/councilor'
 import Legislature from '#models/legislature'
 import Biennium from '#models/biennium'
 import CouncilorPosition from '#models/councilor_position'
-import app from '@adonisjs/core/services/app'
-import { cuid } from '@adonisjs/core/helpers'
-import { mkdir } from 'node:fs/promises'
-import { join } from 'node:path'
-import { existsSync } from 'node:fs'
+import { processCouncilorPhoto } from '#helpers/councilor_photo'
 
 export default class CouncilorsController {
   async index({ inertia }: HttpContext) {
@@ -69,13 +65,10 @@ export default class CouncilorsController {
     }
 
     let photoUrl: string | null = null
-    const photo = request.file('photo', { size: '2mb', extnames: ['png', 'jpg', 'jpeg', 'webp'] })
-    if (photo) {
-      const uploadDir = join(app.publicPath(), 'uploads', 'vereadores')
-      if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true })
-      const fileName = `vereador-${cuid()}.${photo.extname}`
-      await photo.move(uploadDir, { name: fileName })
-      photoUrl = `/uploads/vereadores/${fileName}`
+    const photo = request.file('photo', { size: '10mb', extnames: ['png', 'jpg', 'jpeg', 'webp'] })
+    if (photo?.tmpPath) {
+      // Padroniza: corte 3:4 (600x800) + WebP
+      photoUrl = await processCouncilorPhoto(photo.tmpPath)
     }
 
     const councilor = await Councilor.create({
@@ -154,13 +147,10 @@ export default class CouncilorsController {
       'display_order',
     ])
 
-    const photo = request.file('photo', { size: '2mb', extnames: ['png', 'jpg', 'jpeg', 'webp'] })
-    if (photo) {
-      const uploadDir = join(app.publicPath(), 'uploads', 'vereadores')
-      if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true })
-      const fileName = `vereador-${cuid()}.${photo.extname}`
-      await photo.move(uploadDir, { name: fileName })
-      councilor.photoUrl = `/uploads/vereadores/${fileName}`
+    const photo = request.file('photo', { size: '10mb', extnames: ['png', 'jpg', 'jpeg', 'webp'] })
+    if (photo?.tmpPath) {
+      // Padroniza: corte 3:4 (600x800) + WebP
+      councilor.photoUrl = await processCouncilorPhoto(photo.tmpPath)
     }
 
     if (!data.slug) {
