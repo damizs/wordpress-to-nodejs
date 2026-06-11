@@ -1,5 +1,4 @@
-@import '@fontsource-variable/dm-sans';
-@import '@fontsource-variable/playfair-display';
+@import '@fontsource-variable/inter';
 
 @tailwind base;
 @tailwind components;
@@ -96,11 +95,11 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'DM Sans Variable', 'DM Sans', sans-serif;
+    font-family: 'Inter Variable', 'Inter', Verdana, Geneva, sans-serif;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Playfair Display Variable', 'Playfair Display', serif;
+    font-family: 'Inter Variable', 'Inter', Verdana, Geneva, sans-serif;
     @apply font-bold tracking-tight;
   }
 

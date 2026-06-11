@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['DM Sans Variable', 'DM Sans', 'sans-serif'],
-        serif: ['Playfair Display Variable', 'Playfair Display', 'serif'],
+        sans: ['Inter Variable', 'Inter', 'Verdana', 'Geneva', 'sans-serif'],
+        serif: ['Inter Variable', 'Inter', 'Verdana', 'Geneva', 'sans-serif'],
       },
       colors: {
         border: 'hsl(var(--border))',
