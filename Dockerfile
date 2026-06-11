@@ -9,7 +9,7 @@ COPY package.json package-lock.json ./
 RUN npm ci
 
 COPY . .
-RUN node ace build --ignore-ts-errors
+RUN node ace build
 
 # ---- Production Stage ----
 FROM node:20-alpine AS production
@@ -31,9 +31,10 @@ RUN apk add --no-cache curl imagemagick jpegoptim optipng libwebp-tools
 # Ensure uploads directory exists for volume mount
 RUN mkdir -p /app/public/uploads
 
-# Copy startup script
+# Copy startup + one-off scripts
 COPY startup.sh /app/startup.sh
-RUN chmod +x /app/startup.sh
+COPY scripts/ /app/scripts/
+RUN chmod +x /app/startup.sh /app/scripts/*.sh
 
 EXPOSE 3333
 
