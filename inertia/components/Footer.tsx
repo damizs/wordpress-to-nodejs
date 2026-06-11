@@ -75,33 +75,36 @@ export const Footer = ({ logoUrl }: FooterProps) => {
 
           {/* Quick Links */}
           <div>
-            <h4 className="font-bold text-lg mb-4">Links Úteis</h4>
+            <h4 className="font-bold text-sm uppercase tracking-wider mb-1.5">Links Úteis</h4>
+            <div className="w-8 h-0.5 bg-gold rounded-full mb-4" />
             <ul className="space-y-2.5 text-sm">
-              <li><Link href="/transparencia" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Portal da Transparência</Link></li>
-              <li><a href={esicUrl} target={esicUrl.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">E-SIC</a></li>
-              <li><Link href="/ouvidoria" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Ouvidoria</Link></li>
-              <li><Link href="/licitacoes" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Licitações</Link></li>
-              <li><Link href="/vereadores" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Vereadores</Link></li>
-              <li><Link href="/atas" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Atas</Link></li>
+              <li><Link href="/transparencia" className="inline-block opacity-75 hover:opacity-100 hover:text-gold hover:translate-x-1 transition-all duration-200 no-underline">Portal da Transparência</Link></li>
+              <li><a href={esicUrl} target={esicUrl.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer" className="inline-block opacity-75 hover:opacity-100 hover:text-gold hover:translate-x-1 transition-all duration-200 no-underline">E-SIC</a></li>
+              <li><Link href="/ouvidoria" className="inline-block opacity-75 hover:opacity-100 hover:text-gold hover:translate-x-1 transition-all duration-200 no-underline">Ouvidoria</Link></li>
+              <li><Link href="/licitacoes" className="inline-block opacity-75 hover:opacity-100 hover:text-gold hover:translate-x-1 transition-all duration-200 no-underline">Licitações</Link></li>
+              <li><Link href="/vereadores" className="inline-block opacity-75 hover:opacity-100 hover:text-gold hover:translate-x-1 transition-all duration-200 no-underline">Vereadores</Link></li>
+              <li><Link href="/atas" className="inline-block opacity-75 hover:opacity-100 hover:text-gold hover:translate-x-1 transition-all duration-200 no-underline">Atas</Link></li>
             </ul>
           </div>
 
           {/* Institutional */}
           <div>
-            <h4 className="font-bold text-lg mb-4">Institucional</h4>
+            <h4 className="font-bold text-sm uppercase tracking-wider mb-1.5">Institucional</h4>
+            <div className="w-8 h-0.5 bg-gold rounded-full mb-4" />
             <ul className="space-y-2.5 text-sm">
-              <li><Link href="/historia-da-camara" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">A Câmara</Link></li>
-              <li><Link href="/mesa-diretora" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Mesa Diretora</Link></li>
-              <li><Link href="/comissoes" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Comissões</Link></li>
-              <li><Link href="/publicacoes-oficiais" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Publicações Oficiais</Link></li>
-              <li><Link href="/leis" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Leis Municipais</Link></li>
-              <li><Link href="/politica-de-privacidade" className="opacity-80 hover:opacity-100 hover:text-gold transition-colors no-underline">Política de Privacidade</Link></li>
+              <li><Link href="/historia-da-camara" className="inline-block opacity-75 hover:opacity-100 hover:text-gold hover:translate-x-1 transition-all duration-200 no-underline">A Câmara</Link></li>
+              <li><Link href="/mesa-diretora" className="inline-block opacity-75 hover:opacity-100 hover:text-gold hover:translate-x-1 transition-all duration-200 no-underline">Mesa Diretora</Link></li>
+              <li><Link href="/comissoes" className="inline-block opacity-75 hover:opacity-100 hover:text-gold hover:translate-x-1 transition-all duration-200 no-underline">Comissões</Link></li>
+              <li><Link href="/publicacoes-oficiais" className="inline-block opacity-75 hover:opacity-100 hover:text-gold hover:translate-x-1 transition-all duration-200 no-underline">Publicações Oficiais</Link></li>
+              <li><Link href="/leis" className="inline-block opacity-75 hover:opacity-100 hover:text-gold hover:translate-x-1 transition-all duration-200 no-underline">Leis Municipais</Link></li>
+              <li><Link href="/politica-de-privacidade" className="inline-block opacity-75 hover:opacity-100 hover:text-gold hover:translate-x-1 transition-all duration-200 no-underline">Política de Privacidade</Link></li>
             </ul>
           </div>
 
           {/* Contact */}
           <div>
-            <h4 className="font-bold text-lg mb-4">Contato</h4>
+            <h4 className="font-bold text-sm uppercase tracking-wider mb-1.5">Contato</h4>
+            <div className="w-8 h-0.5 bg-gold rounded-full mb-4" />
             <ul className="space-y-3 text-sm">
               {address && (
                 <li className="flex items-start gap-3">

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, router } from "@inertiajs/react";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { useSiteSettings } from "~/hooks/use_site_settings";
@@ -41,12 +41,21 @@ const navItems = [
 export const Header = ({ logoUrl }: HeaderProps) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileExpandedItem, setMobileExpandedItem] = useState<string | null>(null);
+  const [scrolled, setScrolled] = useState(false);
   const settings = useSiteSettings();
 
   const resolvedLogo = logoUrl ?? settings.logo_url ?? null;
   const headerTitle = settings.header_title || "CÂMARA MUNICIPAL DE SUMÉ";
   const headerSubtitle = settings.header_subtitle || "Estado da Paraíba";
   const [titleFirstWord, ...titleRest] = headerTitle.split(" ");
+
+  // Barra de navegação compacta que aparece ao rolar a página
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 320);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const handleLinkClick = (href: string) => {
     setMobileMenuOpen(false);
@@ -60,6 +69,54 @@ export const Header = ({ logoUrl }: HeaderProps) => {
       <DynamicFavicon />
       <ScrollReveal />
       <BackToTop />
+
+      {/* Navegação compacta fixa (aparece ao rolar) */}
+      <div
+        className={`fixed top-0 left-0 right-0 z-[60] hidden md:block transition-all duration-300 ${
+          scrolled ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0 pointer-events-none"
+        }`}
+      >
+        <div className="glass-dark shadow-lg">
+          <div className="container mx-auto px-4 h-14 flex items-center justify-between gap-4">
+            <Link href="/" className="flex items-center gap-2.5 no-underline min-w-0">
+              {resolvedLogo ? (
+                <img src={resolvedLogo} alt={headerTitle} className="h-9 w-auto object-contain" />
+              ) : (
+                <span className="w-8 h-8 rounded-full bg-gold flex items-center justify-center text-navy-dark font-extrabold text-sm shrink-0">
+                  {titleFirstWord.charAt(0)}
+                </span>
+              )}
+              <span className="text-sm font-bold text-white truncate">{headerTitle}</span>
+            </Link>
+            <ul className="flex items-center gap-0.5">
+              {navItems.map((item, index) => (
+                <li key={index} className="relative group">
+                  <Link
+                    href={item.href}
+                    className="flex items-center gap-1 px-3 py-2 text-[13px] font-medium rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors no-underline"
+                  >
+                    {item.label}
+                    {item.hasDropdown && <ChevronDown className="w-3.5 h-3.5 opacity-60 group-hover:rotate-180 transition-transform duration-300" />}
+                  </Link>
+                  {item.hasDropdown && item.subItems && (
+                    <div className="invisible group-hover:visible opacity-0 group-hover:opacity-100 absolute top-full right-0 mt-1 min-w-[220px] rounded-xl shadow-xl z-[9999] transition-all duration-200 py-2 bg-background text-foreground border border-border">
+                      {item.subItems.map((sub, subIndex) => (
+                        <Link
+                          key={subIndex}
+                          href={sub.href}
+                          className="block w-full text-left px-4 py-2.5 text-sm hover:bg-muted hover:text-primary transition-colors duration-200 no-underline"
+                        >
+                          {sub.label}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
       {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-1/2 -right-1/4 w-96 h-96 bg-gold/5 rounded-full blur-3xl" />
