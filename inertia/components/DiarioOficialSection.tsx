@@ -38,10 +38,10 @@ export const DiarioOficialSection = ({
   if (publicacoes.length === 0 && !latestGazette) return null;
 
   return (
-    <section className="py-20 px-4 bg-muted/30">
+    <section className="py-14 lg:py-20 px-4 bg-muted/40">
       <div className="container mx-auto max-w-4xl">
         <div className="text-center mb-10" data-reveal>
-          <h2 className="heading-accent text-3xl md:text-4xl font-bold text-foreground mb-3">
+          <h2 className="heading-accent text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-3">
             {title}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">

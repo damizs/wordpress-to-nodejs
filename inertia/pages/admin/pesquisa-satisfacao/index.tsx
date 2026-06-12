@@ -1,15 +1,34 @@
-import { Head, Link, router } from '@inertiajs/react'
+import { Head, router } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Star, Eye, Trash2 } from 'lucide-react'
+import { useState } from 'react'
+import { Star, Eye, Trash2, ClipboardList, MailOpen } from 'lucide-react'
+import {
+  Badge,
+  ConfirmDelete,
+  IconButton,
+  IconLink,
+  Pagination,
+  RowActions,
+  Select,
+  StatCard,
+  Table,
+  TableEmpty,
+  TBody,
+  TD,
+  TH,
+  THead,
+  Toolbar,
+  TR,
+} from '~/components/admin/ui'
 
 interface Props { surveys: any; stats: any; filters: { isRead: string } }
 
-function StatCard({ label, value, suffix }: { label: string; value: number; suffix?: string }) {
+function RatingValue({ value }: { value: number }) {
   return (
-    <div className="bg-white rounded-xl border border-gray-100 p-4">
-      <p className="text-xs text-gray-400 mb-1">{label}</p>
-      <p className="text-2xl font-bold text-gray-800">{value}<span className="text-sm text-gray-400 font-normal">{suffix}</span></p>
-    </div>
+    <>
+      {value}
+      <span className="text-sm text-muted-foreground font-normal">/5</span>
+    </>
   )
 }
 
@@ -17,81 +36,101 @@ function Stars({ rating }: { rating: number }) {
   return (
     <div className="flex gap-0.5">
       {[1, 2, 3, 4, 5].map((s) => (
-        <Star key={s} className={`w-3.5 h-3.5 ${rating >= s ? 'fill-amber-400 text-amber-400' : 'text-gray-200'}`} />
+        <Star key={s} className={`w-3.5 h-3.5 ${rating >= s ? 'fill-amber-400 text-amber-400' : 'text-border'}`} />
       ))}
     </div>
   )
 }
 
 export default function PesquisaSatisfacaoAdmin({ surveys, stats, filters }: Props) {
+  const [deleteTarget, setDeleteTarget] = useState<{ id: number; label: string } | null>(null)
+
+  const baseUrl = `/painel/pesquisa-satisfacao${filters.isRead ? `?lido=${filters.isRead}` : ''}`
+
   return (
     <AdminLayout title="Pesquisa de Satisfação">
       <Head title="Pesquisa de Satisfação - Painel" />
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 mb-6">
-        <StatCard label="Total de respostas" value={stats.total} />
-        <StatCard label="Não lidas" value={stats.unread} />
-        <StatCard label="Média Geral" value={stats.avg_geral} suffix="/5" />
-        <StatCard label="Atendimento" value={stats.avg_atendimento} suffix="/5" />
-        <StatCard label="Transparência" value={stats.avg_transparencia} suffix="/5" />
-        <StatCard label="Legislativo" value={stats.avg_legislativo} suffix="/5" />
-        <StatCard label="Infraestrutura" value={stats.avg_infraestrutura} suffix="/5" />
+        <StatCard label="Total de respostas" value={stats.total} icon={ClipboardList} />
+        <StatCard label="Não lidas" value={stats.unread} icon={MailOpen} />
+        <StatCard label="Média Geral" value={<RatingValue value={stats.avg_geral} />} icon={Star} />
+        <StatCard label="Atendimento" value={<RatingValue value={stats.avg_atendimento} />} icon={Star} />
+        <StatCard label="Transparência" value={<RatingValue value={stats.avg_transparencia} />} icon={Star} />
+        <StatCard label="Legislativo" value={<RatingValue value={stats.avg_legislativo} />} icon={Star} />
+        <StatCard label="Infraestrutura" value={<RatingValue value={stats.avg_infraestrutura} />} icon={Star} />
       </div>
 
       {/* Filter */}
-      <div className="flex gap-3 mb-4">
-        <select value={filters.isRead} onChange={(e) => router.get('/painel/pesquisa-satisfacao', { lido: e.target.value }, { preserveState: true })}
-          className="px-3 py-2 border border-gray-200 rounded-lg text-sm">
-          <option value="">Todas</option>
-          <option value="false">Não lidas</option>
-          <option value="true">Lidas</option>
-        </select>
-      </div>
+      <Toolbar>
+        <div className="sm:w-48">
+          <Select
+            value={filters.isRead}
+            onChange={(e) => router.get('/painel/pesquisa-satisfacao', { lido: e.target.value }, { preserveState: true })}
+          >
+            <option value="">Todas</option>
+            <option value="false">Não lidas</option>
+            <option value="true">Lidas</option>
+          </Select>
+        </div>
+      </Toolbar>
 
       {/* Table */}
-      <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-gray-50 text-left">
-              <th className="px-6 py-3 text-xs font-medium text-gray-500">Nome</th>
-              <th className="px-6 py-3 text-xs font-medium text-gray-500">Geral</th>
-              <th className="px-6 py-3 text-xs font-medium text-gray-500">Data</th>
-              <th className="px-6 py-3 text-xs font-medium text-gray-500">Status</th>
-              <th className="px-6 py-3 text-xs font-medium text-gray-500 text-right">Ações</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-50">
-            {surveys.data?.map((s: any) => (
-              <tr key={s.id} className={`hover:bg-gray-50/50 ${!s.is_read ? 'bg-blue-50/30' : ''}`}>
-                <td className="px-6 py-3">
-                  <div className="text-sm font-medium text-gray-800">{s.name || <span className="text-gray-400 italic">Anônimo</span>}</div>
-                  {s.email && <div className="text-xs text-gray-400">{s.email}</div>}
-                </td>
-                <td className="px-6 py-3"><Stars rating={s.rating_geral} /></td>
-                <td className="px-6 py-3 text-sm text-gray-500">{new Date(s.created_at).toLocaleDateString('pt-BR')}</td>
-                <td className="px-6 py-3">
-                  {!s.is_read ? (
-                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">Nova</span>
-                  ) : (
-                    <span className="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">Lida</span>
-                  )}
-                </td>
-                <td className="px-6 py-3 text-right">
-                  <div className="flex items-center justify-end gap-2">
-                    <Link href={`/painel/pesquisa-satisfacao/${s.id}`} className="p-1.5 text-gray-400 hover:text-navy"><Eye className="w-4 h-4" /></Link>
-                    <button onClick={() => { if (confirm('Excluir?')) router.delete(`/painel/pesquisa-satisfacao/${s.id}`) }}
-                      className="p-1.5 text-gray-400 hover:text-red-500"><Trash2 className="w-4 h-4" /></button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-            {(!surveys.data || surveys.data.length === 0) && (
-              <tr><td colSpan={5} className="px-6 py-8 text-center text-sm text-gray-400">Nenhuma resposta recebida ainda.</td></tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+      <Table
+        footer={
+          surveys.meta ? (
+            <Pagination meta={surveys.meta} baseUrl={baseUrl} itemLabel="resposta" />
+          ) : undefined
+        }
+      >
+        <THead>
+          <TH>Nome</TH>
+          <TH>Geral</TH>
+          <TH>Data</TH>
+          <TH>Status</TH>
+          <TH className="text-right">Ações</TH>
+        </THead>
+        <TBody>
+          {surveys.data?.map((s: any) => (
+            <TR key={s.id} className={!s.is_read ? 'bg-sky/5' : ''}>
+              <TD>
+                <div className="text-sm font-medium text-foreground">{s.name || <span className="text-muted-foreground italic">Anônimo</span>}</div>
+                {s.email && <div className="text-xs text-muted-foreground">{s.email}</div>}
+              </TD>
+              <TD><Stars rating={s.rating_geral} /></TD>
+              <TD className="text-muted-foreground">{new Date(s.created_at).toLocaleDateString('pt-BR')}</TD>
+              <TD>
+                {!s.is_read ? <Badge tone="info">Nova</Badge> : <Badge tone="neutral">Lida</Badge>}
+              </TD>
+              <TD>
+                <RowActions>
+                  <IconLink href={`/painel/pesquisa-satisfacao/${s.id}`} tone="view" title="Ver resposta">
+                    <Eye className="w-4 h-4" />
+                  </IconLink>
+                  <IconButton
+                    tone="delete"
+                    title="Excluir"
+                    onClick={() => setDeleteTarget({ id: s.id, label: s.name || 'Anônimo' })}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </IconButton>
+                </RowActions>
+              </TD>
+            </TR>
+          ))}
+          {(!surveys.data || surveys.data.length === 0) && (
+            <TableEmpty colSpan={5}>Nenhuma resposta recebida ainda.</TableEmpty>
+          )}
+        </TBody>
+      </Table>
+
+      <ConfirmDelete
+        target={deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        deleteUrl={(id) => `/painel/pesquisa-satisfacao/${id}`}
+        entity="resposta"
+      />
     </AdminLayout>
   )
 }

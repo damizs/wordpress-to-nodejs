@@ -2,13 +2,13 @@ import { Award, Shield, CheckCircle } from "lucide-react";
 
 export const TransparencySealSection = () => {
   return (
-    <section className="py-16 px-4 bg-gradient-to-r from-primary/5 via-gold/5 to-sky/5">
+    <section className="py-14 lg:py-20 px-4 bg-background">
       <div className="container mx-auto">
         <div className="flex flex-col md:flex-row items-center justify-center gap-8">
           {/* Selo */}
           <div className="flex items-center gap-4 animate-fade-in">
             <div className="relative">
-              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-gold to-gold-light flex items-center justify-center shadow-glow">
+              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-gold to-gold-light flex items-center justify-center shadow-md">
                 <Award className="w-12 h-12 text-navy-dark" />
               </div>
               <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-green-500 flex items-center justify-center border-4 border-background">

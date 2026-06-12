@@ -1,7 +1,8 @@
 import { Head, Link, useForm } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { ArrowLeft, Save } from 'lucide-react'
+import { ArrowLeft, Save, ShieldCheck, User } from 'lucide-react'
 import type { FormEvent } from 'react'
+import { Button, Card, CardHeader, Field, Input } from '~/components/admin/ui'
 
 interface RoleOption {
   id: number
@@ -50,67 +51,67 @@ export default function UserForm({ user, roles }: { user: UserData | null; roles
     <AdminLayout title={isEdit ? 'Editar Usuário' : 'Novo Usuário'}>
       <Head title={`${isEdit ? 'Editar' : 'Novo'} Usuário - Painel`} />
 
-      <Link href="/painel/usuarios" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-navy mb-6">
+      <Link
+        href="/painel/usuarios"
+        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-navy mb-6 transition-colors"
+      >
         <ArrowLeft className="w-4 h-4" /> Voltar para usuários
       </Link>
 
       <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
-        <div className="bg-white rounded-xl border border-gray-100 p-6 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Nome completo *</label>
-            <input
-              type="text"
-              value={data.full_name}
-              onChange={(e) => setData('full_name', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-navy/20"
-              required
-            />
-            {errors.full_name && <p className="text-xs text-red-500 mt-1">{errors.full_name}</p>}
-          </div>
+        <Card>
+          <CardHeader title="Dados do usuário" icon={User} />
+          <div className="space-y-4">
+            <Field label="Nome completo" required error={errors.full_name}>
+              <Input
+                type="text"
+                value={data.full_name}
+                onChange={(e) => setData('full_name', e.target.value)}
+                required
+              />
+            </Field>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">E-mail *</label>
-            <input
-              type="email"
-              value={data.email}
-              onChange={(e) => setData('email', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-navy/20"
-              required
-            />
-            {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
-          </div>
+            <Field label="E-mail" required error={errors.email}>
+              <Input
+                type="email"
+                value={data.email}
+                onChange={(e) => setData('email', e.target.value)}
+                required
+              />
+            </Field>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Senha {isEdit ? '(deixe em branco para manter a atual)' : '*'}
-            </label>
-            <input
-              type="password"
-              value={data.password}
-              onChange={(e) => setData('password', e.target.value)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-navy/20"
+            <Field
+              label={`Senha ${isEdit ? '(deixe em branco para manter a atual)' : ''}`.trim()}
               required={!isEdit}
-              minLength={8}
-            />
-            {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password}</p>}
+              error={errors.password}
+            >
+              <Input
+                type="password"
+                value={data.password}
+                onChange={(e) => setData('password', e.target.value)}
+                required={!isEdit}
+                minLength={8}
+              />
+            </Field>
+
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={data.is_active}
+                onChange={(e) => setData('is_active', e.target.checked)}
+                className="w-4 h-4 rounded border-border accent-[hsl(var(--navy))]"
+              />
+              <span className="text-sm text-foreground">Usuário ativo</span>
+            </label>
           </div>
+        </Card>
 
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={data.is_active}
-              onChange={(e) => setData('is_active', e.target.checked)}
-              className="w-4 h-4 rounded border-gray-300 text-navy focus:ring-navy/20"
-            />
-            <span className="text-sm text-gray-700">Usuário ativo</span>
-          </label>
-        </div>
-
-        <div className="bg-white rounded-xl border border-gray-100 p-6">
-          <h3 className="text-sm font-semibold text-gray-800 mb-1">Papéis</h3>
-          <p className="text-xs text-gray-400 mb-4">
-            O usuário só acessa as áreas do painel cobertas pelos papéis marcados. Pode combinar mais de um.
-          </p>
+        <Card>
+          <CardHeader
+            title="Papéis"
+            description="O usuário só acessa as áreas do painel cobertas pelos papéis marcados. Pode combinar mais de um."
+            icon={ShieldCheck}
+          />
           <div className="space-y-2">
             {roles.map((role) => (
               <label
@@ -118,31 +119,29 @@ export default function UserForm({ user, roles }: { user: UserData | null; roles
                 className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-colors ${
                   data.role_ids.includes(role.id)
                     ? 'border-navy/30 bg-navy/5'
-                    : 'border-gray-100 hover:bg-gray-50'
+                    : 'border-border hover:bg-muted/40'
                 }`}
               >
                 <input
                   type="checkbox"
                   checked={data.role_ids.includes(role.id)}
                   onChange={() => toggleRole(role.id)}
-                  className="w-4 h-4 mt-0.5 rounded border-gray-300 text-navy focus:ring-navy/20"
+                  className="w-4 h-4 mt-0.5 rounded border-border accent-[hsl(var(--navy))]"
                 />
                 <div>
-                  <p className="text-sm font-medium text-gray-800">{role.name}</p>
-                  {role.description && <p className="text-xs text-gray-400 mt-0.5">{role.description}</p>}
+                  <p className="text-sm font-medium text-foreground">{role.name}</p>
+                  {role.description && (
+                    <p className="text-xs text-muted-foreground mt-0.5">{role.description}</p>
+                  )}
                 </div>
               </label>
             ))}
           </div>
-        </div>
+        </Card>
 
-        <button
-          type="submit"
-          disabled={processing}
-          className="flex items-center gap-2 px-5 py-2.5 bg-navy text-white rounded-xl hover:bg-navy-dark transition-colors text-sm font-medium disabled:opacity-50"
-        >
+        <Button type="submit" loading={processing}>
           <Save className="w-4 h-4" /> {isEdit ? 'Salvar Alterações' : 'Criar Usuário'}
-        </button>
+        </Button>
       </form>
     </AdminLayout>
   )

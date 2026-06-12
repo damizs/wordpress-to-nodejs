@@ -59,17 +59,12 @@
     --gradient-overlay: linear-gradient(180deg, rgba(10, 61, 98, 0.95) 0%, rgba(10, 61, 98, 0.8) 100%);
     --gradient-glass: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
     --gradient-card: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(210 25% 98%) 100%);
-    --gradient-mesh: radial-gradient(at 40% 20%, hsl(207, 78%, 21%, 0.15) 0px, transparent 50%),
-                     radial-gradient(at 80% 0%, hsl(45, 93%, 47%, 0.1) 0px, transparent 50%),
-                     radial-gradient(at 0% 50%, hsl(200, 85%, 55%, 0.1) 0px, transparent 50%);
 
     /* Modern Shadows */
     --shadow-sm: 0 2px 8px -2px hsl(207, 78%, 21%, 0.08);
     --shadow-md: 0 8px 24px -8px hsl(207, 78%, 21%, 0.12);
     --shadow-lg: 0 20px 50px -15px hsl(207, 78%, 21%, 0.2);
     --shadow-xl: 0 25px 60px -20px hsl(207, 78%, 21%, 0.25);
-    --shadow-glow: 0 0 40px hsl(45, 93%, 47%, 0.4);
-    --shadow-glow-blue: 0 0 40px hsl(207, 78%, 50%, 0.3);
     --shadow-inner: inset 0 2px 4px 0 hsl(207, 78%, 21%, 0.06);
 
     /* Sidebar */
@@ -81,6 +76,151 @@
     --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-border: 207 65% 35%;
     --sidebar-ring: 45 93% 47%;
+  }
+
+  /* ===== Modo escuro (classe .dark no <html>, aplicada antes do paint pelo
+     script inline do inertia_layout.edge) ===== */
+  html.dark {
+    --background: 212 45% 8%;
+    --foreground: 210 30% 96%;
+
+    --card: 212 40% 12%;
+    --card-foreground: 210 30% 96%;
+
+    --popover: 212 40% 12%;
+    --popover-foreground: 210 30% 96%;
+
+    /* Navy claro o bastante p/ manter AA com texto branco (botões bg-primary) */
+    --primary: 207 65% 45%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 212 35% 18%;
+    --secondary-foreground: 210 30% 94%;
+
+    --muted: 212 32% 16%;
+    --muted-foreground: 212 18% 72%;
+
+    --accent: 45 93% 47%;
+    --accent-foreground: 212 45% 12%;
+
+    --destructive: 0 72% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 212 30% 22%;
+    --input: 212 30% 22%;
+    --ring: 45 93% 47%;
+
+    /* Gradientes mais profundos para não estourar sobre o fundo escuro */
+    --gradient-navy: linear-gradient(135deg, hsl(212 50% 5%) 0%, hsl(var(--navy-dark)) 55%, hsl(var(--navy)) 100%);
+    --gradient-hero: linear-gradient(180deg, hsl(212 50% 5%) 0%, hsl(var(--navy-dark)) 60%, hsl(var(--navy)) 100%);
+    --gradient-overlay: linear-gradient(180deg, rgba(4, 16, 28, 0.95) 0%, rgba(4, 16, 28, 0.85) 100%);
+    --gradient-card: linear-gradient(180deg, hsl(212 40% 12%) 0%, hsl(212 42% 10%) 100%);
+
+    --shadow-sm: 0 2px 8px -2px rgb(0 0 0 / 0.45);
+    --shadow-md: 0 8px 24px -8px rgb(0 0 0 / 0.55);
+    --shadow-lg: 0 20px 50px -15px rgb(0 0 0 / 0.65);
+    --shadow-xl: 0 25px 60px -20px rgb(0 0 0 / 0.7);
+    --shadow-inner: inset 0 2px 4px 0 rgb(0 0 0 / 0.4);
+  }
+
+  /* Textos `text-primary` precisam de mais luminosidade no escuro (contraste AA);
+     botões bg-primary continuam com o --primary médio acima. */
+  html.dark .text-primary {
+    color: hsl(207 80% 70%);
+  }
+  html.dark .hover\:text-primary:hover {
+    color: hsl(207 80% 70%);
+  }
+
+  html.dark .glass-card {
+    background: rgba(13, 27, 42, 0.7);
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+
+  html.dark ::-webkit-scrollbar-thumb {
+    background: hsl(210 20% 45% / 0.5);
+  }
+
+  /* ===== Alto contraste (classe .high-contrast no <html>) ===== */
+  html.high-contrast {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 0%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 0%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 0%;
+    --primary: 0 0% 0%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 100%;
+    --secondary-foreground: 0 0% 0%;
+    --muted: 0 0% 94%;
+    --muted-foreground: 0 0% 0%;
+    --accent: 0 0% 0%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 100% 30%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 0 0% 0%;
+    --input: 0 0% 0%;
+    --ring: 0 0% 0%;
+    --navy: 0 0% 0%;
+    --navy-dark: 0 0% 0%;
+    --navy-light: 0 0% 0%;
+    --gradient-navy: linear-gradient(0deg, #000 0%, #000 100%);
+    --gradient-hero: linear-gradient(0deg, #000 0%, #000 100%);
+    --gradient-overlay: linear-gradient(0deg, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.95) 100%);
+    --gradient-card: linear-gradient(0deg, hsl(var(--card)) 0%, hsl(var(--card)) 100%);
+    --shadow-sm: none;
+    --shadow-md: none;
+    --shadow-lg: none;
+    --shadow-xl: none;
+    --shadow-inner: none;
+  }
+
+  /* Alto contraste combinado com modo escuro: preto puro / branco puro */
+  html.dark.high-contrast {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+    --card: 0 0% 0%;
+    --card-foreground: 0 0% 100%;
+    --popover: 0 0% 0%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 0 0% 100%;
+    --primary-foreground: 0 0% 0%;
+    --secondary: 0 0% 0%;
+    --secondary-foreground: 0 0% 100%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 100%;
+    --accent: 55 100% 65%;
+    --accent-foreground: 0 0% 0%;
+    --border: 0 0% 100%;
+    --input: 0 0% 100%;
+    --ring: 0 0% 100%;
+    --gold: 55 100% 65%;
+    --gold-light: 55 100% 75%;
+  }
+
+  html.dark.high-contrast .text-primary {
+    color: hsl(0 0% 100%);
+  }
+
+  /* Links sempre sublinhados e foco reforçado no alto contraste (e-MAG) */
+  html.high-contrast a {
+    text-decoration: underline !important;
+  }
+  html.high-contrast :focus-visible {
+    outline: 3px solid currentColor;
+    outline-offset: 2px;
+  }
+
+  /* ===== Escala de fonte (A- / A / A+) — todo o layout usa rem ===== */
+  html {
+    font-size: 100%;
+  }
+  html[data-font-scale='2'] {
+    font-size: 112.5%;
+  }
+  html[data-font-scale='3'] {
+    font-size: 125%;
   }
 }
 
@@ -204,18 +344,6 @@ html.js-anim [data-reveal].no-transition {
     background: var(--gradient-gold);
   }
 
-  .bg-gradient-mesh {
-    background: var(--gradient-mesh);
-  }
-
-  .shadow-glow {
-    box-shadow: var(--shadow-glow);
-  }
-
-  .shadow-glow-blue {
-    box-shadow: var(--shadow-glow-blue);
-  }
-
   /* Glassmorphism */
   .glass {
     background: rgba(255, 255, 255, 0.1);
@@ -254,26 +382,6 @@ html.js-anim [data-reveal].no-transition {
     transform: translateY(-4px);
   }
 
-  /* Floating animation */
-  @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-10px); }
-  }
-
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
-  }
-
-  /* Pulse glow */
-  @keyframes pulse-glow {
-    0%, 100% { box-shadow: 0 0 20px hsl(45, 93%, 47%, 0.3); }
-    50% { box-shadow: 0 0 40px hsl(45, 93%, 47%, 0.5); }
-  }
-
-  .animate-pulse-glow {
-    animation: pulse-glow 3s ease-in-out infinite;
-  }
-
   /* Button modern */
   .btn-modern {
     @apply relative overflow-hidden px-6 py-3 rounded-xl font-medium;
@@ -295,38 +403,7 @@ html.js-anim [data-reveal].no-transition {
     transform: scale(0.98);
   }
 
-  /* Section background */
-  .section-gradient {
-    @apply relative;
-    background: var(--gradient-mesh), hsl(var(--background));
-  }
-
   /* ===== Polish pack ===== */
-
-  /* Brilho que varre o card no hover */
-  .card-shine {
-    position: relative;
-    overflow: hidden;
-  }
-
-  .card-shine::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      105deg,
-      transparent 40%,
-      rgba(255, 255, 255, 0.35) 50%,
-      transparent 60%
-    );
-    transform: translateX(-110%);
-    transition: transform 0.7s ease;
-    pointer-events: none;
-  }
-
-  .card-shine:hover::after {
-    transform: translateX(110%);
-  }
 
   /* Elevação suave para qualquer elemento interativo */
   .hover-lift {
@@ -335,16 +412,6 @@ html.js-anim [data-reveal].no-transition {
 
   .hover-lift:hover {
     transform: translateY(-6px);
-  }
-
-  /* Zoom lento estilo documentário para imagens de destaque */
-  @keyframes ken-burns {
-    0% { transform: scale(1); }
-    100% { transform: scale(1.08); }
-  }
-
-  .animate-ken-burns {
-    animation: ken-burns 18s ease-in-out infinite alternate;
   }
 
   /* Sublinhado animado para links */
@@ -389,49 +456,4 @@ html.js-anim [data-reveal].no-transition {
     background: var(--gradient-gold);
   }
 
-  /* Ícone que "respira" no hover do card pai */
-  .group:hover .icon-pop {
-    transform: scale(1.15) rotate(-6deg);
-  }
-
-  .icon-pop {
-    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-
-  /* Borda gradiente animada (para destaques) */
-  @keyframes border-flow {
-    0%, 100% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-  }
-
-  .border-glow {
-    position: relative;
-    background-clip: padding-box;
-  }
-
-  .border-glow::before {
-    content: '';
-    position: absolute;
-    inset: -1.5px;
-    z-index: -1;
-    border-radius: inherit;
-    background: linear-gradient(120deg, hsl(var(--gold)), hsl(var(--sky)), hsl(var(--gold)));
-    background-size: 250% 250%;
-    animation: border-flow 6s ease infinite;
-    opacity: 0;
-    transition: opacity 0.4s ease;
-  }
-
-  .border-glow:hover::before {
-    opacity: 1;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .animate-ken-burns,
-    .animate-float,
-    .animate-pulse-glow,
-    .border-glow::before {
-      animation: none !important;
-    }
-  }
 }

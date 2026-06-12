@@ -29,6 +29,18 @@ const APPEARANCE_KEYS: Record<
     type: 'color',
     label: 'Cor Secundária (Sky)',
   },
+  theme_preset: {
+    group: 'appearance',
+    defaultValue: 'navy',
+    type: 'text',
+    label: 'Tema (preset de cores)',
+  },
+  campaign_mode: {
+    group: 'appearance',
+    defaultValue: 'auto',
+    type: 'text',
+    label: 'Campanha Sazonal (auto | off | chave da campanha)',
+  },
   header_title: {
     group: 'appearance',
     defaultValue: 'CÂMARA MUNICIPAL DE SUMÉ',

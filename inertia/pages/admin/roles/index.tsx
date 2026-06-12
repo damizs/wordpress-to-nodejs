@@ -1,6 +1,22 @@
-import { Head, Link, router } from '@inertiajs/react'
+import { Head } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Plus, Pencil, Trash2, ShieldCheck, Lock } from 'lucide-react'
+import { Pencil, Trash2, ShieldCheck, Lock } from 'lucide-react'
+import { useState } from 'react'
+import {
+  Badge,
+  ConfirmDelete,
+  CreateButton,
+  IconButton,
+  IconLink,
+  RowActions,
+  Table,
+  TableEmpty,
+  TBody,
+  TD,
+  TH,
+  THead,
+  TR,
+} from '~/components/admin/ui'
 
 interface RoleItem {
   id: number
@@ -11,53 +27,71 @@ interface RoleItem {
 }
 
 export default function RolesIndex({ roles }: { roles: RoleItem[] }) {
-  function handleDelete(role: RoleItem) {
-    if (confirm(`Excluir o papel "${role.name}"? Usuários com este papel perderão as permissões dele.`)) {
-      router.delete(`/painel/papeis/${role.id}`)
-    }
-  }
+  const [deleteTarget, setDeleteTarget] = useState<{ id: number; label: string } | null>(null)
 
   return (
     <AdminLayout title="Papéis e Permissões">
       <Head title="Papéis - Painel" />
 
       <div className="flex items-center justify-between mb-6">
-        <p className="text-sm text-gray-500">{roles.length} papel(éis)</p>
-        <Link href="/painel/papeis/criar"
-          className="flex items-center gap-2 px-4 py-2.5 bg-navy text-white rounded-xl hover:bg-navy-dark transition-colors text-sm font-medium">
-          <Plus className="w-4 h-4" /> Novo Papel
-        </Link>
+        <p className="text-sm text-muted-foreground">{roles.length} papel(éis)</p>
+        <CreateButton href="/painel/papeis/criar">Novo Papel</CreateButton>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-100 divide-y divide-gray-50">
-        {roles.map((role) => (
-          <div key={role.id} className="flex items-center justify-between px-4 py-3 hover:bg-gray-50/50">
-            <div className="flex-1 min-w-0 mr-4">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-navy flex-shrink-0" />
-                <p className="text-sm font-medium text-gray-800 truncate">{role.name}</p>
-                {role.isSystem && (
-                  <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-gold/10 text-gold-dark">
-                    <Lock className="w-3 h-3" /> Sistema
-                  </span>
+      <Table>
+        <THead>
+          <TH>Papel</TH>
+          <TH>Permissões</TH>
+          <TH className="text-right">Ações</TH>
+        </THead>
+        <TBody>
+          {roles.map((role) => (
+            <TR key={role.id}>
+              <TD>
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-navy flex-shrink-0" />
+                  <p className="text-sm font-medium text-foreground truncate">{role.name}</p>
+                  {role.isSystem && (
+                    <Badge tone="gold">
+                      <Lock className="w-3 h-3" /> Sistema
+                    </Badge>
+                  )}
+                </div>
+                {role.description && (
+                  <p className="text-xs text-muted-foreground truncate mt-0.5">
+                    {role.description}
+                  </p>
                 )}
-              </div>
-              {role.description && <p className="text-xs text-gray-400 truncate mt-0.5">{role.description}</p>}
-              <p className="text-xs text-gray-400 mt-0.5">{role.permissionCount} permissão(ões)</p>
-            </div>
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <Link href={`/painel/papeis/${role.id}/editar`} className="p-2 rounded-lg hover:bg-blue-50 text-gray-400 hover:text-blue-600 transition-colors">
-                <Pencil className="w-4 h-4" />
-              </Link>
-              {!role.isSystem && (
-                <button onClick={() => handleDelete(role)} className="p-2 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors">
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              )}
-            </div>
-          </div>
-        ))}
-      </div>
+              </TD>
+              <TD className="text-muted-foreground">{role.permissionCount} permissão(ões)</TD>
+              <TD>
+                <RowActions>
+                  <IconLink tone="edit" href={`/painel/papeis/${role.id}/editar`} title="Editar">
+                    <Pencil className="w-4 h-4" />
+                  </IconLink>
+                  {!role.isSystem && (
+                    <IconButton
+                      tone="delete"
+                      onClick={() => setDeleteTarget({ id: role.id, label: role.name })}
+                      title="Excluir"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </IconButton>
+                  )}
+                </RowActions>
+              </TD>
+            </TR>
+          ))}
+          {roles.length === 0 && <TableEmpty colSpan={3}>Nenhum papel cadastrado</TableEmpty>}
+        </TBody>
+      </Table>
+
+      <ConfirmDelete
+        target={deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        deleteUrl={(id) => `/painel/papeis/${id}`}
+        entity="papel"
+      />
     </AdminLayout>
   )
 }

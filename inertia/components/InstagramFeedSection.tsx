@@ -1,6 +1,6 @@
 import { Link } from "@inertiajs/react";
 import { Instagram, ExternalLink, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface InstagramPost {
   id: number;
@@ -22,18 +22,43 @@ const DEFAULT_PROFILE = "https://www.instagram.com/camaradesume";
 export const InstagramFeedSection = ({ posts = [], instagramUrl }: InstagramFeedSectionProps) => {
   const profileUrl = instagramUrl || DEFAULT_PROFILE;
   const handle = "@" + (profileUrl.replace(/\/+$/, "").split("/").pop() || "instagram");
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const itemsPerPage = 4;
-  const maxIndex = Math.max(0, posts.length - itemsPerPage);
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const [canPrev, setCanPrev] = useState(false);
+  const [canNext, setCanNext] = useState(false);
+
+  const updateEdges = useCallback(() => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    setCanPrev(el.scrollLeft > 1);
+    setCanNext(el.scrollLeft < el.scrollWidth - el.clientWidth - 1);
+  }, []);
+
+  useEffect(() => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    updateEdges();
+    el.addEventListener("scroll", updateEdges, { passive: true });
+    window.addEventListener("resize", updateEdges);
+    return () => {
+      el.removeEventListener("scroll", updateEdges);
+      window.removeEventListener("resize", updateEdges);
+    };
+  }, [updateEdges, posts.length]);
+
+  const scrollByPage = useCallback((direction: 1 | -1) => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    el.scrollBy({ left: direction * el.clientWidth * 0.9, behavior: "smooth" });
+  }, []);
 
   return (
-    <section className="py-20 px-4 section-gradient">
+    <section className="py-14 lg:py-20 px-4 bg-background">
       <div className="container mx-auto">
         <div className="text-center mb-14" data-reveal>
           <span className="inline-block px-4 py-1.5 bg-gradient-to-r from-purple-500/10 to-pink-500/10 text-purple-600 rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
             Redes Sociais
           </span>
-          <h2 className="heading-accent text-3xl md:text-5xl font-bold text-foreground mb-4">
+          <h2 className="heading-accent text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-4">
             Siga-nos no Instagram
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
@@ -45,7 +70,7 @@ export const InstagramFeedSection = ({ posts = [], instagramUrl }: InstagramFeed
           <>
             {/* Profile header */}
             <div className="flex items-center justify-center gap-3 mb-10" data-reveal>
-              <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 p-[3px] animate-pulse-glow">
+              <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 p-[3px]">
                 <div className="w-full h-full rounded-full bg-primary flex items-center justify-center">
                   <Instagram className="w-6 h-6 text-primary-foreground" />
                 </div>
@@ -65,71 +90,69 @@ export const InstagramFeedSection = ({ posts = [], instagramUrl }: InstagramFeed
 
             {/* Carousel */}
             <div className="relative px-8" data-reveal>
-              <div className="overflow-hidden">
-                <div
-                  className="flex gap-6 transition-transform duration-500 ease-out"
-                  style={{ transform: `translateX(calc(-${currentIndex} * (25% + 6px)))` }}
-                >
-                  {posts.map((post) => {
-                    const card = (
-                      <div className="bg-card rounded-xl overflow-hidden border border-border shadow-sm hover:shadow-lg transition-all group h-full">
-                        <div className="relative aspect-square overflow-hidden bg-muted">
-                          {post.image ? (
-                            <img
-                              src={post.image}
-                              alt={post.title}
-                              loading="lazy"
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                            />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                              <Instagram className="w-12 h-12 text-muted-foreground/30" />
-                            </div>
-                          )}
-                        </div>
-                        <div className="p-4">
-                          <h4 className="font-bold text-foreground text-sm mb-1 line-clamp-2">
-                            {post.title}
-                          </h4>
-                          <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
-                            <Calendar className="w-3.5 h-3.5" />
-                            {post.date}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                    return (
-                      <div
-                        key={post.id}
-                        className="min-w-[calc(50%-12px)] lg:min-w-[calc(25%-18px)] animate-fade-in"
-                      >
-                        {post.slug ? (
-                          <Link href={`/noticias/${post.slug}`} className="no-underline block h-full">
-                            {card}
-                          </Link>
+              <div
+                ref={scrollerRef}
+                className="flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              >
+                {posts.map((post) => {
+                  const card = (
+                    <div className="bg-card rounded-xl overflow-hidden border border-border shadow-sm hover:shadow-lg transition-all group h-full">
+                      <div className="relative aspect-square overflow-hidden bg-muted">
+                        {post.image ? (
+                          <img
+                            src={post.image}
+                            alt={post.title}
+                            loading="lazy"
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
                         ) : (
-                          <a
-                            href={post.instagramUrl || profileUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="no-underline block h-full"
-                          >
-                            {card}
-                          </a>
+                          <div className="w-full h-full flex items-center justify-center">
+                            <Instagram className="w-12 h-12 text-muted-foreground/30" />
+                          </div>
                         )}
                       </div>
-                    );
-                  })}
-                </div>
+                      <div className="p-4">
+                        <h4 className="font-bold text-foreground text-sm mb-1 line-clamp-2">
+                          {post.title}
+                        </h4>
+                        <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
+                          <Calendar className="w-3.5 h-3.5" />
+                          {post.date}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                  return (
+                    <div
+                      key={post.id}
+                      className="snap-start shrink-0 w-[85%] sm:w-[45%] lg:w-[23.5%] animate-fade-in"
+                    >
+                      {post.slug ? (
+                        <Link href={`/noticias/${post.slug}`} className="no-underline block h-full">
+                          {card}
+                        </Link>
+                      ) : (
+                        <a
+                          href={post.instagramUrl || profileUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="no-underline block h-full"
+                        >
+                          {card}
+                        </a>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
 
-              {posts.length > itemsPerPage && (
+              {posts.length > 1 && (
                 <>
                   <button
                     type="button"
                     aria-label="Posts anteriores"
-                    onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
-                    disabled={currentIndex === 0}
+                    onClick={() => scrollByPage(-1)}
+                    disabled={!canPrev}
                     className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-card border border-border shadow-lg flex items-center justify-center hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     <ChevronLeft className="w-5 h-5 text-foreground" />
@@ -137,8 +160,8 @@ export const InstagramFeedSection = ({ posts = [], instagramUrl }: InstagramFeed
                   <button
                     type="button"
                     aria-label="Próximos posts"
-                    onClick={() => setCurrentIndex((prev) => Math.min(maxIndex, prev + 1))}
-                    disabled={currentIndex >= maxIndex}
+                    onClick={() => scrollByPage(1)}
+                    disabled={!canNext}
                     className="absolute right-0 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-card border border-border shadow-lg flex items-center justify-center hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     <ChevronRight className="w-5 h-5 text-foreground" />

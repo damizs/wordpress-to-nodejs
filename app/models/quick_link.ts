@@ -10,6 +10,10 @@ export default class QuickLink extends BaseModel {
   @column() declare color: string | null
   @column() declare displayOrder: number
   @column() declare isActive: boolean
+  /** Como o link abre no site público: 'nova_aba' | 'modal' */
+  @column() declare openMode: string
+  /** No modal, esconde cabeçalho/rodapé de páginas internas (?embed=1) */
+  @column() declare hideChrome: boolean
   @column.dateTime({ autoCreate: true }) declare createdAt: DateTime
   @column.dateTime({ autoCreate: true, autoUpdate: true }) declare updatedAt: DateTime | null
 }

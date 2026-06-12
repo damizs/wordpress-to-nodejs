@@ -32,7 +32,7 @@ export const NewsSection = ({ news = [], backgroundImage }: NewsSectionProps) =>
           <img 
             src={backgroundImage} 
             alt="" 
-            className="w-full h-full object-cover animate-ken-burns"
+            className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-navy-dark/85" />
         </div>
@@ -47,7 +47,7 @@ export const NewsSection = ({ news = [], backgroundImage }: NewsSectionProps) =>
       )}
 
       {/* Main Content */}
-      <div className="relative container mx-auto px-4 py-16 lg:py-20">
+      <div className="relative container mx-auto px-4 py-14 lg:py-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
           {/* Featured News */}
           {featuredNews && (

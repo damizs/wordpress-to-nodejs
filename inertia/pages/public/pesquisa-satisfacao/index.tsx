@@ -30,9 +30,9 @@ export default function PesquisaSatisfacaoIndex() {
         <div className="min-h-screen bg-background">
           <TopBar /><Header /><Breadcrumb items={[{ label: "Pesquisa de Satisfação" }]} />
           <main className="py-20">
-            <div className="container mx-auto px-4 text-center">
-              <div className="w-20 h-20 mx-auto rounded-full bg-emerald-100 flex items-center justify-center mb-6">
-                <CheckCircle className="w-10 h-10 text-emerald-600" />
+            <div className="container text-center">
+              <div className="w-20 h-20 mx-auto rounded-full bg-emerald-500/10 flex items-center justify-center mb-6">
+                <CheckCircle className="w-10 h-10 text-emerald-600 dark:text-emerald-400" />
               </div>
               <h1 className="text-3xl font-bold text-foreground mb-4">Obrigado pela sua participação!</h1>
               <p className="text-muted-foreground">Sua opinião é muito importante para melhorarmos nossos serviços.</p>
@@ -50,8 +50,9 @@ export default function PesquisaSatisfacaoIndex() {
       <div className="min-h-screen bg-background">
         <TopBar /><Header /><Breadcrumb items={[{ label: "Pesquisa de Satisfação" }]} />
         <PageHero badge="Sua Opinião" title="Pesquisa de Satisfação" subtitle="Avaliação contínua dos serviços prestados pela Câmara Municipal" centered />
-        <main className="py-12">
-          <div className="container mx-auto px-4">
+        <main>
+          <section className="py-10 lg:py-14">
+            <div className="container">
             <div className="max-w-2xl mx-auto">
               <form onSubmit={handleSubmit} data-reveal="up" className="card-modern p-6 md:p-8 space-y-6">
                 <div>
@@ -63,7 +64,7 @@ export default function PesquisaSatisfacaoIndex() {
                       </button>
                     ))}
                   </div>
-                  {errors.rating && <p className="text-sm text-red-500 mt-1">{errors.rating}</p>}
+                  {errors.rating && <p className="text-sm text-destructive mt-1">{errors.rating}</p>}
                 </div>
                 <div>
                   <label className="block font-semibold text-foreground mb-2">Tipo de serviço utilizado</label>
@@ -85,7 +86,8 @@ export default function PesquisaSatisfacaoIndex() {
                 </button>
               </form>
             </div>
-          </div>
+            </div>
+          </section>
         </main>
         <Footer />
       </div>

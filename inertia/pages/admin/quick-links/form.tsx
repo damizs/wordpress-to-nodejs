@@ -1,6 +1,7 @@
 import { Head, useForm, Link } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
 import { Save, ArrowLeft } from 'lucide-react'
+import { Button, Card, Field, Input, Select } from '~/components/admin/ui'
 
 const ICONS = [
   'Scale', 'Users', 'Play', 'BookOpen', 'Shield', 'FileText', 'Phone', 'Building2',
@@ -30,6 +31,8 @@ export default function QuickLinkForm({ link }: { link: any | null }) {
     color: link?.color || 'from-blue-500 to-indigo-600',
     display_order: link?.display_order || 0,
     is_active: link?.is_active ?? true,
+    open_mode: link?.open_mode || 'nova_aba',
+    hide_chrome: link?.hide_chrome ?? true,
   })
 
   function handleSubmit(e: React.FormEvent) {
@@ -45,59 +48,87 @@ export default function QuickLinkForm({ link }: { link: any | null }) {
     <AdminLayout title={isEditing ? 'Editar Link' : 'Novo Link'}>
       <Head title={`${isEditing ? 'Editar' : 'Novo'} Link Rápido - Painel`} />
 
-      <Link href="/painel/links-rapidos" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 mb-4">
+      <Link
+        href="/painel/links-rapidos"
+        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4"
+      >
         <ArrowLeft className="w-4 h-4" /> Voltar
       </Link>
 
       <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
-        <div className="bg-white rounded-xl border border-gray-100 p-6 space-y-4">
+        <Card>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Título *</label>
-              <input type="text" value={data.title} onChange={(e) => setData('title', e.target.value)} required
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">URL *</label>
-              <input type="text" value={data.url} onChange={(e) => setData('url', e.target.value)} required
-                placeholder="/vereadores ou https://..." className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Ícone</label>
-              <select value={data.icon} onChange={(e) => setData('icon', e.target.value)}
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none">
+            <Field label="Título" required>
+              <Input type="text" value={data.title} onChange={(e) => setData('title', e.target.value)} required />
+            </Field>
+            <Field label="URL" required>
+              <Input
+                type="text"
+                value={data.url}
+                onChange={(e) => setData('url', e.target.value)}
+                required
+                placeholder="/vereadores ou https://..."
+              />
+            </Field>
+            <Field label="Ícone">
+              <Select value={data.icon} onChange={(e) => setData('icon', e.target.value)}>
                 {ICONS.map((i) => <option key={i} value={i}>{i}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Cor do Gradiente</label>
-              <select value={data.color} onChange={(e) => setData('color', e.target.value)}
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none">
+              </Select>
+            </Field>
+            <Field label="Cor do Gradiente">
+              <Select value={data.color} onChange={(e) => setData('color', e.target.value)}>
                 {COLORS.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Ordem</label>
-              <input type="number" value={data.display_order} onChange={(e) => setData('display_order', parseInt(e.target.value) || 0)}
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none" />
-            </div>
+              </Select>
+            </Field>
+            <Field label="Ordem">
+              <Input
+                type="number"
+                value={data.display_order}
+                onChange={(e) => setData('display_order', parseInt(e.target.value) || 0)}
+              />
+            </Field>
+            <Field label="Abertura do link" hint="No modal, o visitante também pode abrir em outra aba">
+              <Select value={data.open_mode} onChange={(e) => setData('open_mode', e.target.value)}>
+                <option value="nova_aba">Nova aba</option>
+                <option value="modal">Modal popup</option>
+              </Select>
+            </Field>
+            {data.open_mode === 'modal' && (
+              <div className="flex items-end">
+                <div className="flex items-center gap-2 pb-2">
+                  <input
+                    type="checkbox"
+                    id="hide_chrome"
+                    checked={data.hide_chrome === true || data.hide_chrome === 'true'}
+                    onChange={(e) => setData('hide_chrome', e.target.checked)}
+                    className="w-4 h-4 rounded border-border text-navy"
+                  />
+                  <label htmlFor="hide_chrome" className="text-sm text-muted-foreground">
+                    Ocultar cabeçalho e rodapé (links do portal)
+                  </label>
+                </div>
+              </div>
+            )}
             <div className="flex items-end">
               <div className="flex items-center gap-2 pb-2">
-                <input type="checkbox" id="is_active" checked={data.is_active === true || data.is_active === 'true'}
+                <input
+                  type="checkbox"
+                  id="is_active"
+                  checked={data.is_active === true || data.is_active === 'true'}
                   onChange={(e) => setData('is_active', e.target.checked)}
-                  className="w-4 h-4 rounded border-gray-300 text-navy focus:ring-navy" />
-                <label htmlFor="is_active" className="text-sm text-gray-600">Ativo</label>
+                  className="w-4 h-4 rounded border-border text-navy"
+                />
+                <label htmlFor="is_active" className="text-sm text-muted-foreground">Ativo</label>
               </div>
             </div>
           </div>
-        </div>
+        </Card>
 
         <div className="flex justify-end">
-          <button type="submit" disabled={processing}
-            className="flex items-center gap-2 px-6 py-3 bg-navy text-white rounded-xl hover:bg-navy-dark transition-colors disabled:opacity-50 font-medium">
+          <Button type="submit" loading={processing}>
             <Save className="w-4 h-4" />
             {processing ? 'Salvando...' : isEditing ? 'Atualizar' : 'Cadastrar'}
-          </button>
+          </Button>
         </div>
       </form>
     </AdminLayout>

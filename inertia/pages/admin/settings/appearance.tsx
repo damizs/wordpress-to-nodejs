@@ -1,7 +1,19 @@
 import { Head, useForm } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Palette, Type, MapPin, Share2, Shield, Save, Upload } from 'lucide-react'
+import {
+  Palette,
+  Type,
+  MapPin,
+  Share2,
+  Shield,
+  Save,
+  Upload,
+  Sparkles,
+  type LucideIcon,
+} from 'lucide-react'
 import { useState, useRef } from 'react'
+import { Button, Card, CardHeader, Field, Input, Select } from '~/components/admin/ui'
+import { CAMPAIGNS, THEME_PRESETS, getCampaign, resolveActiveCampaign } from '~/lib/campaigns'
 
 interface SettingItem {
   key: string
@@ -27,6 +39,8 @@ export default function Appearance({ settings }: Props) {
   const { appearance, footer, social, esic } = settings
 
   const { data, setData, post, processing } = useForm<Record<string, any>>({
+    theme_preset: getVal(appearance, 'theme_preset') || 'navy',
+    campaign_mode: getVal(appearance, 'campaign_mode') || 'auto',
     color_navy: getVal(appearance, 'color_navy'),
     color_gold: getVal(appearance, 'color_gold'),
     color_sky: getVal(appearance, 'color_sky'),
@@ -81,6 +95,16 @@ export default function Appearance({ settings }: Props) {
       <Head title="Aparência - Painel" />
 
       <form onSubmit={handleSubmit} className="max-w-4xl space-y-6">
+        {/* Theme presets & seasonal campaigns */}
+        <Section icon={Sparkles} title="Tema & Campanhas">
+          <ThemeAndCampaigns
+            themePreset={data.theme_preset}
+            campaignMode={data.campaign_mode}
+            onThemeChange={(v) => setData('theme_preset', v)}
+            onCampaignChange={(v) => setData('campaign_mode', v)}
+          />
+        </Section>
+
         {/* Colors */}
         <Section icon={Palette} title="Cores do Site">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -110,44 +134,45 @@ export default function Appearance({ settings }: Props) {
               onChange={(f) => handleFileChange('favicon_url', f)}
             />
           </div>
-          
+
           {/* News Background */}
           <div className="mt-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">Imagem de Fundo - Seção Notícias</label>
-            <p className="text-xs text-gray-500 mb-3">Imagem que aparece atrás dos cards de notícias na página inicial</p>
-            <div className="flex items-start gap-4">
-              {newsBackgroundPreview ? (
-                <div className="relative w-64 h-36 rounded-lg overflow-hidden border border-gray-200">
-                  <img src={newsBackgroundPreview} alt="Background" className="w-full h-full object-cover" />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setNewsBackgroundPreview(null)
-                      setData('news_background_image', null)
-                    }}
-                    className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full hover:bg-red-600"
+            <Field label="Imagem de Fundo - Seção Notícias">
+              <p className="text-xs text-muted-foreground mb-3">Imagem que aparece atrás dos cards de notícias na página inicial</p>
+              <div className="flex items-start gap-4">
+                {newsBackgroundPreview ? (
+                  <div className="relative w-64 h-36 rounded-lg overflow-hidden border border-border">
+                    <img src={newsBackgroundPreview} alt="Background" className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setNewsBackgroundPreview(null)
+                        setData('news_background_image', null)
+                      }}
+                      className="absolute top-2 right-2 p-1 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90 transition-colors"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ) : (
+                  <div
+                    onClick={() => newsBackgroundRef.current?.click()}
+                    className="w-64 h-36 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-navy/50 transition-colors"
                   >
-                    ✕
-                  </button>
-                </div>
-              ) : (
-                <div 
-                  onClick={() => newsBackgroundRef.current?.click()}
-                  className="w-64 h-36 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-navy/50 transition-colors"
-                >
-                  <Upload className="w-8 h-8 text-gray-400 mb-2" />
-                  <span className="text-sm text-gray-500">Clique para enviar</span>
-                  <span className="text-xs text-gray-400">JPG, PNG ou WebP</span>
-                </div>
-              )}
-              <input
-                ref={newsBackgroundRef}
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                className="hidden"
-                onChange={(e) => handleFileChange('news_background_image', e.target.files?.[0] || null)}
-              />
-            </div>
+                    <Upload className="w-8 h-8 text-muted-foreground mb-2" />
+                    <span className="text-sm text-muted-foreground">Clique para enviar</span>
+                    <span className="text-xs text-muted-foreground/70">JPG, PNG ou WebP</span>
+                  </div>
+                )}
+                <input
+                  ref={newsBackgroundRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="hidden"
+                  onChange={(e) => handleFileChange('news_background_image', e.target.files?.[0] || null)}
+                />
+              </div>
+            </Field>
           </div>
         </Section>
 
@@ -183,14 +208,10 @@ export default function Appearance({ settings }: Props) {
 
         {/* Submit */}
         <div className="flex justify-end pt-4">
-          <button
-            type="submit"
-            disabled={processing}
-            className="flex items-center gap-2 px-6 py-3 bg-navy text-white rounded-xl hover:bg-navy-dark transition-colors disabled:opacity-50 font-medium"
-          >
-            <Save className="w-4 h-4" />
+          <Button type="submit" loading={processing}>
+            {!processing && <Save className="w-4 h-4" />}
             {processing ? 'Salvando...' : 'Salvar Configurações'}
-          </button>
+          </Button>
         </div>
       </form>
     </AdminLayout>
@@ -199,52 +220,204 @@ export default function Appearance({ settings }: Props) {
 
 // ---- Sub-components ----
 
-function Section({ icon: Icon, title, children }: { icon: any; title: string; children: React.ReactNode }) {
+function ThemeAndCampaigns({
+  themePreset,
+  campaignMode,
+  onThemeChange,
+  onCampaignChange,
+}: {
+  themePreset: string
+  campaignMode: string
+  onThemeChange: (v: string) => void
+  onCampaignChange: (v: string) => void
+}) {
+  const isForced = campaignMode !== 'auto' && campaignMode !== 'off'
+  const [forcedKey, setForcedKey] = useState(isForced ? campaignMode : CAMPAIGNS[0].key)
+
+  const currentMonth = new Date().getMonth() + 1
+  const autoCampaign = resolveActiveCampaign('auto', currentMonth)
+  const previewCampaign = isForced
+    ? getCampaign(campaignMode)
+    : campaignMode === 'auto'
+      ? autoCampaign
+      : null
+
   return (
-    <div className="bg-white rounded-xl border border-gray-100 p-5">
-      <div className="flex items-center gap-2 mb-4">
-        <Icon className="w-5 h-5 text-navy" />
-        <h2 className="font-semibold text-gray-800">{title}</h2>
-      </div>
-      {children}
+    <div className="space-y-6">
+      {/* Theme presets */}
+      <Field
+        label="Tema do site"
+        hint="Preset de cores institucional. Em 'Navy (padrão)' valem as cores customizadas abaixo."
+      >
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+          {THEME_PRESETS.map((preset) => {
+            const selected = (themePreset || 'navy') === preset.key
+            return (
+              <button
+                key={preset.key}
+                type="button"
+                onClick={() => onThemeChange(preset.key)}
+                aria-pressed={selected}
+                className={`rounded-lg border p-3 text-left transition-all ${
+                  selected
+                    ? 'border-navy ring-2 ring-navy/25 bg-navy/5'
+                    : 'border-border bg-card hover:border-navy/40'
+                }`}
+              >
+                <div className="flex items-center gap-1 mb-2">
+                  <span className="w-6 h-6 rounded-md border border-black/10" style={{ background: preset.navy }} />
+                  <span className="w-6 h-6 rounded-md border border-black/10" style={{ background: preset.gold }} />
+                  <span className="w-6 h-6 rounded-md border border-black/10" style={{ background: preset.sky }} />
+                </div>
+                <span className={`block text-xs font-semibold ${selected ? 'text-navy' : 'text-foreground'}`}>
+                  {preset.label}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+      </Field>
+
+      {/* Seasonal campaigns */}
+      <Field
+        label="Campanhas sazonais"
+        hint="Campanhas de conscientização (Outubro Rosa, Novembro Azul...) recolorem o site e exibem uma faixa com o laço da causa. Elas têm prioridade sobre o tema."
+      >
+        <div className="space-y-2.5">
+          <label className="flex items-start gap-2.5 cursor-pointer">
+            <input
+              type="radio"
+              name="campaign_mode_choice"
+              checked={campaignMode === 'auto'}
+              onChange={() => onCampaignChange('auto')}
+              className="mt-0.5 accent-[hsl(var(--navy))]"
+            />
+            <span className="text-sm text-foreground">
+              <span className="font-semibold">Automático</span>
+              <span className="text-muted-foreground"> — ativa sozinha no mês correspondente</span>
+            </span>
+          </label>
+
+          <label className="flex items-start gap-2.5 cursor-pointer">
+            <input
+              type="radio"
+              name="campaign_mode_choice"
+              checked={campaignMode === 'off'}
+              onChange={() => onCampaignChange('off')}
+              className="mt-0.5 accent-[hsl(var(--navy))]"
+            />
+            <span className="text-sm text-foreground">
+              <span className="font-semibold">Desativado</span>
+              <span className="text-muted-foreground"> — nunca exibir campanhas</span>
+            </span>
+          </label>
+
+          <label className="flex items-start gap-2.5 cursor-pointer">
+            <input
+              type="radio"
+              name="campaign_mode_choice"
+              checked={isForced}
+              onChange={() => onCampaignChange(forcedKey)}
+              className="mt-0.5 accent-[hsl(var(--navy))]"
+            />
+            <span className="text-sm text-foreground">
+              <span className="font-semibold">Forçar campanha específica</span>
+              <span className="text-muted-foreground"> — fica ativa independente do mês</span>
+            </span>
+          </label>
+
+          {isForced && (
+            <div className="pl-6 max-w-xs">
+              <Select
+                value={campaignMode}
+                onChange={(e) => {
+                  setForcedKey(e.target.value)
+                  onCampaignChange(e.target.value)
+                }}
+              >
+                {CAMPAIGNS.map((c) => (
+                  <option key={c.key} value={c.key}>
+                    {c.label}
+                  </option>
+                ))}
+              </Select>
+            </div>
+          )}
+        </div>
+      </Field>
+
+      {/* Preview */}
+      {campaignMode !== 'off' && (
+        previewCampaign ? (
+          <div
+            className="rounded-lg border border-border p-4 flex items-center gap-4 text-white"
+            style={{
+              background: `linear-gradient(90deg, ${previewCampaign.colors.navy}, ${previewCampaign.colors.sky})`,
+            }}
+          >
+            <span className="shrink-0 w-10 h-10 rounded-full bg-white/95 shadow flex items-center justify-center [&>svg]:w-6 [&>svg]:h-6">
+              {previewCampaign.emblem}
+            </span>
+            <div className="min-w-0">
+              <p className="text-sm font-bold uppercase tracking-wide">{previewCampaign.label}</p>
+              <p className="text-xs opacity-90">{previewCampaign.message}</p>
+            </div>
+            <div className="ml-auto flex items-center gap-1 shrink-0">
+              <span className="w-5 h-5 rounded border border-white/40" style={{ background: previewCampaign.colors.navy }} />
+              <span className="w-5 h-5 rounded border border-white/40" style={{ background: previewCampaign.colors.gold }} />
+              <span className="w-5 h-5 rounded border border-white/40" style={{ background: previewCampaign.colors.sky }} />
+            </div>
+          </div>
+        ) : (
+          <p className="text-xs text-muted-foreground rounded-lg border border-dashed border-border px-4 py-3">
+            Nenhuma campanha ativa no mês atual — o site segue com o tema selecionado.
+          </p>
+        )
+      )}
     </div>
+  )
+}
+
+function Section({ icon, title, children }: { icon: LucideIcon; title: string; children: React.ReactNode }) {
+  return (
+    <Card>
+      <CardHeader icon={icon} title={title} />
+      {children}
+    </Card>
   )
 }
 
 function TextField({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string }) {
   return (
-    <div>
-      <label className="block text-sm font-medium text-gray-600 mb-1">{label}</label>
-      <input
+    <Field label={label}>
+      <Input
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none transition-all"
       />
-    </div>
+    </Field>
   )
 }
 
 function ColorField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
   return (
-    <div>
-      <label className="block text-sm font-medium text-gray-600 mb-1">{label}</label>
+    <Field label={label}>
       <div className="flex items-center gap-3">
         <input
           type="color"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="w-10 h-10 rounded-lg border border-gray-200 cursor-pointer"
+          className="w-10 h-10 shrink-0 rounded-lg border border-border bg-card cursor-pointer"
         />
-        <input
+        <Input
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="flex-1 px-3 py-2.5 border border-gray-200 rounded-lg text-sm font-mono focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none"
+          className="flex-1 font-mono"
         />
       </div>
-    </div>
+    </Field>
   )
 }
 
@@ -255,20 +428,19 @@ function FileField({ label, preview, inputRef, onChange }: {
   onChange: (f: File | null) => void
 }) {
   return (
-    <div>
-      <label className="block text-sm font-medium text-gray-600 mb-1">{label}</label>
+    <Field label={label}>
       <div
         onClick={() => inputRef.current?.click()}
-        className="flex items-center gap-3 px-3 py-3 border-2 border-dashed border-gray-200 rounded-lg cursor-pointer hover:border-navy/30 transition-colors"
+        className="flex items-center gap-3 px-3 py-3 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-navy/30 transition-colors"
       >
         {preview ? (
           <img src={preview} alt={label} className="w-10 h-10 object-contain rounded" />
         ) : (
-          <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center">
-            <Upload className="w-5 h-5 text-gray-400" />
+          <div className="w-10 h-10 bg-muted rounded flex items-center justify-center">
+            <Upload className="w-5 h-5 text-muted-foreground" />
           </div>
         )}
-        <span className="text-sm text-gray-500">Clique para selecionar</span>
+        <span className="text-sm text-muted-foreground">Clique para selecionar</span>
       </div>
       <input
         ref={inputRef}
@@ -277,6 +449,6 @@ function FileField({ label, preview, inputRef, onChange }: {
         className="hidden"
         onChange={(e) => onChange(e.target.files?.[0] || null)}
       />
-    </div>
+    </Field>
   )
 }

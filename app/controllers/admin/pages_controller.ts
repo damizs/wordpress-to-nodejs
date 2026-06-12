@@ -1,0 +1,195 @@
+import type { HttpContext } from '@adonisjs/core/http'
+import { DateTime } from 'luxon'
+import Page, { type PageBlock } from '#models/page'
+import { generateSlug } from '#helpers/slug'
+
+/**
+ * Slugs que nunca podem ser usados por uma Página: colidem com rotas
+ * registradas do portal (ou com o próprio painel/api).
+ */
+const RESERVED_SLUGS = new Set([
+  'noticias',
+  'transparencia',
+  'licitacoes',
+  'vereadores',
+  'atas',
+  'pautas',
+  'painel',
+  'ouvidoria',
+  'comissoes',
+  'votacoes',
+  'publicacoes-oficiais',
+  'diario-oficial',
+  'perguntas-frequentes',
+  'sobre',
+  'historia-da-camara',
+  'mesa-diretora',
+  'politica-de-privacidade',
+  'pesquisa-de-satisfacao',
+  'atividades-legislativas',
+  'atividades-legislativa',
+  'leis',
+  'login',
+  'api',
+  'health',
+])
+
+const BLOCK_TYPES = new Set([
+  'heading',
+  'text',
+  'image',
+  'documents',
+  'accordion',
+  'callout',
+  'buttons',
+  'video',
+])
+
+/** Garante que `blocks` vindo do form é um array de blocos com tipos conhecidos. */
+function sanitizeBlocks(raw: unknown): PageBlock[] | null {
+  let value = raw
+  if (typeof value === 'string') {
+    try {
+      value = JSON.parse(value)
+    } catch {
+      return null
+    }
+  }
+  if (!Array.isArray(value)) return null
+  const blocks = value.filter(
+    (b): b is PageBlock =>
+      b !== null && typeof b === 'object' && BLOCK_TYPES.has((b as { type?: string }).type ?? '')
+  )
+  return blocks.length > 0 ? blocks : null
+}
+
+export default class PagesController {
+  async index({ inertia, request }: HttpContext) {
+    const page = request.input('page', 1)
+    const search = request.input('search', '')
+
+    let query = Page.query().orderBy('updated_at', 'desc')
+    if (search) {
+      query = query.where((q) => {
+        q.whereILike('title', `%${search}%`).orWhereILike('slug', `%${search}%`)
+      })
+    }
+
+    const pages = await query.paginate(page, 15)
+    return inertia.render('admin/pages/index', {
+      pages: pages.serialize(),
+      filters: { search },
+    })
+  }
+
+  async create({ inertia }: HttpContext) {
+    return inertia.render('admin/pages/form', { page: null })
+  }
+
+  async store(ctx: HttpContext) {
+    const { request, response, session } = ctx
+    const result = await this.validate(ctx, null)
+    if (!result) return response.redirect().back()
+
+    const { slug, data } = result
+    const isPublished = this.toBool(data.is_published)
+
+    await Page.create({
+      title: data.title,
+      slug,
+      content: data.content || '',
+      blocks: sanitizeBlocks(request.input('blocks')),
+      heroSubtitle: data.hero_subtitle || null,
+      metaDescription: data.meta_description || null,
+      isPublished,
+      publishedAt: isPublished ? DateTime.now() : null,
+    })
+
+    session.flash('success', 'Página criada com sucesso!')
+    return response.redirect('/painel/paginas')
+  }
+
+  async edit({ params, inertia }: HttpContext) {
+    const page = await Page.findOrFail(params.id)
+    return inertia.render('admin/pages/form', { page: page.serialize() })
+  }
+
+  async update(ctx: HttpContext) {
+    const { params, request, response, session } = ctx
+    const page = await Page.findOrFail(params.id)
+    const result = await this.validate(ctx, page.id)
+    if (!result) return response.redirect().back()
+
+    const { slug, data } = result
+    const isPublished = this.toBool(data.is_published)
+
+    page.title = data.title
+    page.slug = slug
+    page.content = data.content || ''
+    page.blocks = sanitizeBlocks(request.input('blocks'))
+    page.heroSubtitle = data.hero_subtitle || null
+    page.metaDescription = data.meta_description || null
+    if (isPublished && !page.isPublished) page.publishedAt = DateTime.now()
+    if (isPublished && !page.publishedAt) page.publishedAt = DateTime.now()
+    page.isPublished = isPublished
+    await page.save()
+
+    session.flash('success', 'Página atualizada!')
+    return response.redirect('/painel/paginas')
+  }
+
+  async destroy({ params, response, session }: HttpContext) {
+    const page = await Page.findOrFail(params.id)
+    await page.delete()
+    session.flash('success', 'Página excluída!')
+    return response.redirect('/painel/paginas')
+  }
+
+  /* ============================== privados ============================== */
+
+  private toBool(value: unknown): boolean {
+    return value === true || value === 'true' || value === '1' || value === 1
+  }
+
+  /**
+   * Valida título e slug (auto a partir do título, único, fora da lista de
+   * rotas reservadas). Em caso de erro, flasha em `errors` (Inertia mantém o
+   * estado do formulário) e retorna null.
+   */
+  private async validate({ request, session }: HttpContext, ignoreId: number | null) {
+    const data = request.only([
+      'title',
+      'slug',
+      'content',
+      'hero_subtitle',
+      'meta_description',
+      'is_published',
+    ])
+
+    const errors: Record<string, string> = {}
+
+    if (!data.title || !String(data.title).trim()) {
+      errors.title = 'Informe o título da página.'
+    }
+
+    const slug = generateSlug(String(data.slug || data.title || ''))
+    if (!slug) {
+      errors.slug = 'Não foi possível gerar um slug válido.'
+    } else if (RESERVED_SLUGS.has(slug)) {
+      errors.slug = `O slug "${slug}" é reservado por uma rota do portal. Escolha outro.`
+    } else {
+      let existsQuery = Page.query().where('slug', slug)
+      if (ignoreId) existsQuery = existsQuery.whereNot('id', ignoreId)
+      if (await existsQuery.first()) {
+        errors.slug = `Já existe uma página com o slug "${slug}".`
+      }
+    }
+
+    if (Object.keys(errors).length > 0) {
+      session.flashErrors(errors)
+      return null
+    }
+
+    return { slug, data }
+  }
+}

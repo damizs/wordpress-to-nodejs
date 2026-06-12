@@ -1,14 +1,28 @@
 import { useEffect, useState } from "react";
-import { Link, router } from "@inertiajs/react";
-import { Menu, X, ChevronDown } from "lucide-react";
+import { Link, router, usePage } from "@inertiajs/react";
+import { Menu, X, ChevronDown, Sun, Moon } from "lucide-react";
 import { useSiteSettings } from "~/hooks/use_site_settings";
 import { DynamicTheme } from "~/components/DynamicTheme";
 import { DynamicFavicon } from "~/components/DynamicFavicon";
 import { ScrollReveal } from "~/components/ScrollReveal";
 import { BackToTop } from "~/components/BackToTop";
+import { AccessibilityBar, useDarkMode } from "~/components/AccessibilityBar";
+import CampaignBanner from "~/components/CampaignBanner";
 
 interface HeaderProps {
   logoUrl?: string | null;
+}
+
+interface NavSubItem {
+  label: string;
+  href: string;
+}
+
+interface NavItem {
+  label: string;
+  href: string;
+  hasDropdown?: boolean;
+  subItems?: NavSubItem[];
 }
 
 const camaraSubItems = [
@@ -29,7 +43,7 @@ const cidadaoSubItems = [
   { label: "Política de Privacidade", href: "/politica-de-privacidade" },
 ];
 
-const navItems = [
+const defaultNavItems: NavItem[] = [
   { label: "Início", href: "/" },
   { label: "A Câmara", href: "/historia-da-camara", hasDropdown: true, subItems: camaraSubItems },
   { label: "Transparência", href: "/transparencia" },
@@ -38,11 +52,39 @@ const navItems = [
   { label: "Cidadão", href: "/ouvidoria", hasDropdown: true, subItems: cidadaoSubItems },
 ];
 
+/** Menu editável no painel (/painel/menus); cai no padrão se a setting estiver vazia */
+function parseNavItems(raw: string | null | undefined): NavItem[] {
+  if (!raw) return defaultNavItems;
+  try {
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed) || parsed.length === 0) return defaultNavItems;
+    return parsed
+      .filter((i: any) => i && i.label && i.href)
+      .map((i: any) => ({
+        label: String(i.label),
+        href: String(i.href),
+        hasDropdown: Array.isArray(i.children) && i.children.length > 0,
+        subItems: Array.isArray(i.children)
+          ? i.children
+              .filter((c: any) => c && c.label && c.href)
+              .map((c: any) => ({ label: String(c.label), href: String(c.href) }))
+          : undefined,
+      }));
+  } catch {
+    return defaultNavItems;
+  }
+}
+
 export const Header = ({ logoUrl }: HeaderProps) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileExpandedItem, setMobileExpandedItem] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
+  const [dark, toggleDark] = useDarkMode();
   const settings = useSiteSettings();
+  const navItems = parseNavItems(settings.header_menu);
+  // Modo embed (?embed=1): página renderizada dentro de um modal/iframe — sem cabeçalho
+  const { url: currentUrl } = usePage();
+  const isEmbed = /[?&]embed=1/.test(currentUrl);
 
   const resolvedLogo = logoUrl ?? settings.logo_url ?? null;
   const headerTitle = settings.header_title || "CÂMARA MUNICIPAL DE SUMÉ";
@@ -57,14 +99,36 @@ export const Header = ({ logoUrl }: HeaderProps) => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Alvo do skip-link: as páginas públicas definem cada uma o próprio <main>,
+  // então o id "conteudo" é aplicado aqui ao <main> da página atual.
+  useEffect(() => {
+    const main = document.querySelector("main");
+    if (main) {
+      if (!main.id) main.id = "conteudo";
+      if (!main.hasAttribute("tabindex")) main.setAttribute("tabindex", "-1");
+    }
+  }, []);
+
   const handleLinkClick = (href: string) => {
     setMobileMenuOpen(false);
     setMobileExpandedItem(null);
     router.visit(href);
   };
 
+  if (isEmbed) return null;
+
   return (
     <header className="relative z-50 bg-gradient-hero text-primary-foreground overflow-visible">
+      {/* Skip-link: visível apenas ao receber foco (teclado) — requisito e-MAG */}
+      <a
+        href="#conteudo"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:bg-gold focus:text-navy-dark focus:px-4 focus:py-2 focus:rounded-lg focus:font-semibold focus:no-underline focus:shadow-lg"
+      >
+        Pular para o conteúdo
+      </a>
+
+      <AccessibilityBar />
+      <CampaignBanner />
       <DynamicTheme />
       <DynamicFavicon />
       <ScrollReveal />
@@ -113,6 +177,18 @@ export const Header = ({ logoUrl }: HeaderProps) => {
                   )}
                 </li>
               ))}
+              <li>
+                <button
+                  type="button"
+                  onClick={toggleDark}
+                  aria-pressed={dark}
+                  aria-label={dark ? "Desativar modo escuro" : "Ativar modo escuro"}
+                  title={dark ? "Modo claro" : "Modo escuro"}
+                  className="flex items-center justify-center p-2 ml-1 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+                >
+                  {dark ? <Sun className="w-4 h-4" aria-hidden="true" /> : <Moon className="w-4 h-4" aria-hidden="true" />}
+                </button>
+              </li>
             </ul>
           </div>
         </div>

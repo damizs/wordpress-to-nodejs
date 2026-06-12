@@ -3,9 +3,9 @@ import { Link } from "@inertiajs/react";
 
 export const SatisfactionSurvey = () => {
   return (
-    <section className="py-12 px-4 bg-background">
+    <section className="py-14 lg:py-20 px-4 bg-muted/40">
       <div className="container mx-auto">
-        <div className="bg-white rounded-2xl shadow-lg p-8 flex flex-col md:flex-row items-center justify-between gap-6 border-glow" data-reveal="zoom">
+        <div className="bg-card border border-border/60 rounded-2xl shadow-sm p-8 flex flex-col md:flex-row items-center justify-between gap-6" data-reveal="zoom">
           {/* Icon and Text */}
           <div className="flex items-center gap-5">
             <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">

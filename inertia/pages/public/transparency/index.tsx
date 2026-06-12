@@ -6,6 +6,7 @@ import { Header } from "~/components/Header";
 import { Breadcrumb } from "~/components/Breadcrumb";
 import { PageHero } from "~/components/PageHero";
 import { Footer } from "~/components/Footer";
+import { LinkModal } from "~/components/LinkModal";
 import {
   Search, ExternalLink, FileText, DollarSign, Users, Building, FileCheck,
   TrendingUp, TrendingDown, Wallet, Plane, HeartPulse, Gavel, FileSignature,
@@ -18,6 +19,8 @@ interface TransparencyLink {
   url: string;
   icon?: string | null;
   is_external: boolean;
+  open_mode?: string | null;
+  hide_chrome?: boolean | null;
 }
 
 interface TransparencySection {
@@ -70,7 +73,13 @@ function normalize(text: string) {
   return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
-function CardLink({ link }: { link: TransparencyLink }) {
+function CardLink({
+  link,
+  onOpenModal,
+}: {
+  link: TransparencyLink;
+  onOpenModal: (link: TransparencyLink) => void;
+}) {
   const Icon = pickLinkIcon(link);
   const className =
     "group flex flex-col items-center text-center gap-3 p-5 rounded-2xl bg-card border-2 border-border/70 no-underline transition-all duration-300 hover:-translate-y-1 hover:border-primary hover:shadow-lg min-h-[150px]";
@@ -89,6 +98,13 @@ function CardLink({ link }: { link: TransparencyLink }) {
       )}
     </>
   );
+  if (link.open_mode === "modal") {
+    return (
+      <button type="button" onClick={() => onOpenModal(link)} className={className}>
+        {inner}
+      </button>
+    );
+  }
   return link.is_external ? (
     <a href={link.url} target="_blank" rel="noopener noreferrer" className={className}>
       {inner}
@@ -102,6 +118,7 @@ function CardLink({ link }: { link: TransparencyLink }) {
 
 export default function TransparenciaIndex({ sections = [] }: Props) {
   const [query, setQuery] = useState("");
+  const [modalLink, setModalLink] = useState<TransparencyLink | null>(null);
 
   const filtered = useMemo(() => {
     const q = normalize(query.trim());
@@ -138,8 +155,9 @@ export default function TransparenciaIndex({ sections = [] }: Props) {
           centered
         />
 
-        <main className="py-12">
-          <div className="container mx-auto px-4">
+        <main>
+          <section className="py-10 lg:py-14">
+            <div className="container">
             <div className="lg:flex lg:items-start lg:gap-10">
               {/* Sidebar de navegação (padrão dos portais) — fixa, com rolagem própria */}
               <aside className="hidden lg:block w-[280px] shrink-0 sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto overscroll-contain rounded-2xl [scrollbar-width:thin]">
@@ -159,7 +177,16 @@ export default function TransparenciaIndex({ sections = [] }: Props) {
                         </a>
                         <div className="py-2 pl-11 pr-4">
                           {section.links.map((link) =>
-                            link.is_external ? (
+                            link.open_mode === "modal" ? (
+                              <button
+                                key={link.id}
+                                type="button"
+                                onClick={() => setModalLink(link)}
+                                className="block w-full text-left py-1.5 px-2 rounded-md text-[13px] text-muted-foreground transition-all hover:text-primary hover:bg-muted hover:pl-3"
+                              >
+                                {link.title}
+                              </button>
+                            ) : link.is_external ? (
                               <a
                                 key={link.id}
                                 href={link.url}
@@ -235,7 +262,7 @@ export default function TransparenciaIndex({ sections = [] }: Props) {
 
                         <div className="grid gap-4 grid-cols-2 sm:grid-cols-[repeat(auto-fill,minmax(170px,1fr))]">
                           {section.links.map((link) => (
-                            <CardLink key={link.id} link={link} />
+                            <CardLink key={link.id} link={link} onOpenModal={setModalLink} />
                           ))}
                         </div>
                       </section>
@@ -276,10 +303,12 @@ export default function TransparenciaIndex({ sections = [] }: Props) {
                 </div>
               </div>
             </div>
-          </div>
+            </div>
+          </section>
         </main>
 
         <Footer />
+        <LinkModal link={modalLink} onClose={() => setModalLink(null)} />
       </div>
     </>
   );

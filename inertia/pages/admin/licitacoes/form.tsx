@@ -2,6 +2,18 @@ import { Head, useForm, Link, router } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
 import { Save, ArrowLeft, Upload, Plus, Trash2, FileText, CheckCircle2, Circle } from 'lucide-react'
 import { useState } from 'react'
+import {
+  Badge,
+  Button,
+  Card,
+  CardHeader,
+  ConfirmDelete,
+  Field,
+  IconButton,
+  Input,
+  Select,
+  Textarea,
+} from '~/components/admin/ui'
 
 interface LicitacaoDoc {
   id: number
@@ -27,6 +39,7 @@ export default function LicitacaoForm({ licitacao, documents, documentTypes, mod
   const isEditing = !!licitacao
   const [newDocs, setNewDocs] = useState<NewDocRow[]>([])
   const [submitting, setSubmitting] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState<{ id: number; label: string } | null>(null)
 
   const { data, setData } = useForm({
     title: licitacao?.title || '',
@@ -79,89 +92,68 @@ export default function LicitacaoForm({ licitacao, documents, documentTypes, mod
     }
   }
 
-  function deleteDocument(id: number) {
-    if (confirm('Remover este documento?')) {
-      router.delete(`/painel/licitacoes/documentos/${id}`, { preserveScroll: true })
-    }
-  }
-
-  const inputClass =
-    'w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none'
-
   return (
     <AdminLayout title={isEditing ? 'Editar Licitação' : 'Nova Licitação'}>
       <Head title={`${isEditing ? 'Editar' : 'Nova'} Licitação - Painel`} />
-      <Link href="/painel/licitacoes" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 mb-4">
+      <Link href="/painel/licitacoes" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4">
         <ArrowLeft className="w-4 h-4" /> Voltar
       </Link>
       <form onSubmit={handleSubmit} className="max-w-4xl space-y-6">
-        <div className="bg-white rounded-xl border border-gray-100 p-6 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1">Título *</label>
-            <input type="text" value={data.title} onChange={(e) => setData('title', e.target.value)} required className={inputClass} />
-          </div>
+        <Card className="space-y-4">
+          <Field label="Título" required>
+            <Input type="text" value={data.title} onChange={(e) => setData('title', e.target.value)} required />
+          </Field>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Número</label>
-              <input type="text" value={data.number} onChange={(e) => setData('number', e.target.value)} className={inputClass} />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Modalidade</label>
-              <select value={data.modality} onChange={(e) => setData('modality', e.target.value)} className={inputClass}>
+            <Field label="Número">
+              <Input type="text" value={data.number} onChange={(e) => setData('number', e.target.value)} />
+            </Field>
+            <Field label="Modalidade">
+              <Select value={data.modality} onChange={(e) => setData('modality', e.target.value)}>
                 <option value="pregao">Pregão</option>
                 <option value="concorrencia">Concorrência</option>
                 <option value="dispensa">Dispensa</option>
                 <option value="inexigibilidade">Inexigibilidade</option>
                 <option value="tomada_precos">Tomada de Preços</option>
                 <option value="convite">Convite</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Status</label>
-              <select value={data.status} onChange={(e) => setData('status', e.target.value)} className={inputClass}>
+              </Select>
+            </Field>
+            <Field label="Status">
+              <Select value={data.status} onChange={(e) => setData('status', e.target.value)}>
                 <option value="aberta">Aberta</option>
                 <option value="em_andamento">Em andamento</option>
                 <option value="encerrada">Encerrada</option>
                 <option value="deserta">Deserta</option>
                 <option value="revogada">Revogada</option>
                 <option value="suspensa">Suspensa</option>
-              </select>
-            </div>
+              </Select>
+            </Field>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1">Objeto da Licitação</label>
-            <textarea value={data.object} onChange={(e) => setData('object', e.target.value)} rows={3} className={inputClass} />
-          </div>
+          <Field label="Objeto da Licitação">
+            <Textarea value={data.object} onChange={(e) => setData('object', e.target.value)} rows={3} />
+          </Field>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Valor Estimado (R$)</label>
-              <input type="number" step="0.01" value={data.estimated_value} onChange={(e) => setData('estimated_value', e.target.value)} className={inputClass} />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Data Abertura</label>
-              <input type="date" value={data.opening_date} onChange={(e) => setData('opening_date', e.target.value)} className={inputClass} />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Data Encerramento</label>
-              <input type="date" value={data.closing_date} onChange={(e) => setData('closing_date', e.target.value)} className={inputClass} />
-            </div>
+            <Field label="Valor Estimado (R$)">
+              <Input type="number" step="0.01" value={data.estimated_value} onChange={(e) => setData('estimated_value', e.target.value)} />
+            </Field>
+            <Field label="Data Abertura">
+              <Input type="date" value={data.opening_date} onChange={(e) => setData('opening_date', e.target.value)} />
+            </Field>
+            <Field label="Data Encerramento">
+              <Input type="date" value={data.closing_date} onChange={(e) => setData('closing_date', e.target.value)} />
+            </Field>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1">Conteúdo / Detalhes</label>
-            <textarea value={data.content} onChange={(e) => setData('content', e.target.value)} rows={4} className={inputClass} />
-          </div>
-        </div>
+          <Field label="Conteúdo / Detalhes">
+            <Textarea value={data.content} onChange={(e) => setData('content', e.target.value)} rows={4} />
+          </Field>
+        </Card>
 
         {/* ===== Documentos do Processo ===== */}
-        <div className="bg-white rounded-xl border border-gray-100 p-6 space-y-5">
-          <div>
-            <h2 className="font-semibold text-gray-800 flex items-center gap-2">
-              <FileText className="w-5 h-5 text-navy" /> Documentos do Processo
-            </h2>
-            <p className="text-xs text-gray-400 mt-1">
-              Sem limite de arquivos. O checklist abaixo mostra as fases sugeridas para a modalidade selecionada.
-            </p>
-          </div>
+        <Card className="space-y-5">
+          <CardHeader
+            title="Documentos do Processo"
+            description="Sem limite de arquivos. O checklist abaixo mostra as fases sugeridas para a modalidade selecionada."
+            icon={FileText}
+          />
 
           {/* Checklist da modalidade */}
           <div className="flex flex-wrap gap-2">
@@ -175,8 +167,8 @@ export default function LicitacaoForm({ licitacao, documents, documentTypes, mod
                   title={`Adicionar arquivo em ${documentTypes[type]}`}
                   className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
                     done
-                      ? 'bg-green-50 border-green-200 text-green-700'
-                      : 'bg-gray-50 border-gray-200 text-gray-500 hover:border-navy/40 hover:text-navy'
+                      ? 'bg-emerald-600/10 border-emerald-600/25 text-emerald-700'
+                      : 'bg-muted border-border text-muted-foreground hover:border-navy/40 hover:text-navy'
                   }`}
                 >
                   {done ? <CheckCircle2 className="w-3.5 h-3.5" /> : <Circle className="w-3.5 h-3.5" />}
@@ -189,18 +181,23 @@ export default function LicitacaoForm({ licitacao, documents, documentTypes, mod
           {/* Documentos já enviados */}
           {documents.length > 0 && (
             <div className="space-y-2">
-              <h3 className="text-sm font-medium text-gray-600">Enviados ({documents.length})</h3>
+              <h3 className="text-sm font-medium text-muted-foreground">Enviados ({documents.length})</h3>
               {documents.map((doc) => (
-                <div key={doc.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
-                  <span className="px-2 py-1 bg-navy/10 text-navy text-xs font-semibold rounded shrink-0">
+                <div key={doc.id} className="flex items-center gap-3 p-3 bg-muted rounded-lg border border-border">
+                  <Badge tone="navy" className="shrink-0">
                     {documentTypes[doc.document_type]?.split(' — ')[0] || doc.document_type}
-                  </span>
-                  <a href={doc.file_url} target="_blank" rel="noopener noreferrer" className="flex-1 text-sm text-gray-700 hover:text-navy truncate underline-offset-2 hover:underline">
+                  </Badge>
+                  <a href={doc.file_url} target="_blank" rel="noopener noreferrer" className="flex-1 text-sm text-foreground hover:text-navy truncate underline-offset-2 hover:underline">
                     {doc.title}
                   </a>
-                  <button type="button" onClick={() => deleteDocument(doc.id)} className="p-1.5 text-gray-400 hover:text-red-500 transition-colors" title="Remover">
+                  <IconButton
+                    type="button"
+                    tone="delete"
+                    title="Remover"
+                    onClick={() => setDeleteTarget({ id: doc.id, label: doc.title })}
+                  >
                     <Trash2 className="w-4 h-4" />
-                  </button>
+                  </IconButton>
                 </div>
               ))}
             </div>
@@ -209,22 +206,21 @@ export default function LicitacaoForm({ licitacao, documents, documentTypes, mod
           {/* Novos uploads */}
           {newDocs.length > 0 && (
             <div className="space-y-2">
-              <h3 className="text-sm font-medium text-gray-600">Novos arquivos</h3>
+              <h3 className="text-sm font-medium text-muted-foreground">Novos arquivos</h3>
               {newDocs.map((row, index) => (
-                <div key={index} className="grid grid-cols-1 sm:grid-cols-[180px_1fr_auto_auto] gap-2 items-center p-3 bg-blue-50/50 rounded-lg border border-blue-100">
-                  <select value={row.type} onChange={(e) => updateRow(index, { type: e.target.value })} className="px-2 py-2 border border-gray-200 rounded-lg text-xs bg-white outline-none">
+                <div key={index} className="grid grid-cols-1 sm:grid-cols-[180px_1fr_auto_auto] gap-2 items-center p-3 bg-navy/5 rounded-lg border border-navy/10">
+                  <Select value={row.type} onChange={(e) => updateRow(index, { type: e.target.value })}>
                     {Object.entries(documentTypes).map(([value, label]) => (
                       <option key={value} value={value}>{label.split(' — ')[0]}</option>
                     ))}
-                  </select>
-                  <input
+                  </Select>
+                  <Input
                     type="text"
                     placeholder="Título (opcional — usa o nome do arquivo)"
                     value={row.title}
                     onChange={(e) => updateRow(index, { title: e.target.value })}
-                    className="px-3 py-2 border border-gray-200 rounded-lg text-xs bg-white outline-none"
                   />
-                  <label className="flex items-center gap-2 px-3 py-2 border border-gray-200 rounded-lg text-xs bg-white cursor-pointer hover:bg-gray-50 max-w-[200px]">
+                  <label className="flex items-center gap-2 px-3 py-2.5 border border-border rounded-lg text-xs bg-card cursor-pointer hover:bg-muted max-w-[200px]">
                     <Upload className="w-3.5 h-3.5 shrink-0" />
                     <span className="truncate">{row.file ? row.file.name : 'Escolher arquivo'}</span>
                     <input
@@ -234,32 +230,39 @@ export default function LicitacaoForm({ licitacao, documents, documentTypes, mod
                       onChange={(e) => updateRow(index, { file: e.target.files?.[0] || null })}
                     />
                   </label>
-                  <button type="button" onClick={() => removeRow(index)} className="p-1.5 text-gray-400 hover:text-red-500" title="Remover linha">
+                  <IconButton type="button" tone="delete" title="Remover linha" onClick={() => removeRow(index)}>
                     <Trash2 className="w-4 h-4" />
-                  </button>
+                  </IconButton>
                 </div>
               ))}
             </div>
           )}
 
-          <button type="button" onClick={() => addRow()} className="flex items-center gap-2 px-4 py-2 border border-dashed border-gray-300 rounded-lg text-sm text-gray-500 hover:border-navy/50 hover:text-navy transition-colors">
+          <button type="button" onClick={() => addRow()} className="flex items-center gap-2 px-4 py-2 border border-dashed border-border rounded-lg text-sm text-muted-foreground hover:border-navy/50 hover:text-navy transition-colors">
             <Plus className="w-4 h-4" /> Adicionar arquivo
           </button>
 
           {licitacao?.file_url && (
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-muted-foreground">
               PDF antigo (campo único):{' '}
               <a href={licitacao.file_url} target="_blank" rel="noopener noreferrer" className="text-navy underline">ver arquivo</a>
               {' '}— continua visível no site como "Edital (PDF)".
             </p>
           )}
-        </div>
+        </Card>
 
-        <button type="submit" disabled={submitting}
-          className="flex items-center gap-2 px-6 py-2.5 bg-navy text-white rounded-xl hover:bg-navy-dark transition-colors text-sm font-medium disabled:opacity-50">
-          <Save className="w-4 h-4" /> {submitting ? 'Salvando...' : 'Salvar'}
-        </button>
+        <Button type="submit" loading={submitting}>
+          {!submitting && <Save className="w-4 h-4" />}
+          {submitting ? 'Salvando...' : 'Salvar'}
+        </Button>
       </form>
+
+      <ConfirmDelete
+        target={deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        deleteUrl={(id) => `/painel/licitacoes/documentos/${id}`}
+        entity="documento"
+      />
     </AdminLayout>
   )
 }

@@ -1,6 +1,23 @@
-import { Head, Link, router } from '@inertiajs/react'
+import { Head, router } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Plus, Pencil, Trash2, FileText, ExternalLink } from 'lucide-react'
+import { Pencil, Trash2, ExternalLink } from 'lucide-react'
+import { useState } from 'react'
+import {
+  Badge,
+  ConfirmDelete,
+  CreateButton,
+  IconButton,
+  IconLink,
+  RowActions,
+  Select,
+  Table,
+  TableEmpty,
+  TBody,
+  TD,
+  TH,
+  THead,
+  TR,
+} from '~/components/admin/ui'
 
 interface PlenarySession {
   id: number
@@ -20,97 +37,106 @@ interface Props {
 const typeLabels: Record<string, string> = {
   ordinaria: 'Ordinária', extraordinaria: 'Extraordinária', solene: 'Solene', especial: 'Especial',
 }
-const statusLabels: Record<string, string> = {
-  agendada: 'Agendada', realizada: 'Realizada', cancelada: 'Cancelada',
+const statusBadges: Record<string, { label: string; tone: 'success' | 'warning' | 'danger' }> = {
+  agendada: { label: 'Agendada', tone: 'warning' },
+  realizada: { label: 'Realizada', tone: 'success' },
+  cancelada: { label: 'Cancelada', tone: 'danger' },
 }
 
 export default function PlenarySessionsIndex({ sessions, filters }: Props) {
-  function handleDelete(id: number, title: string) {
-    if (confirm(`Excluir a sessão "${title}"?`)) {
-      router.delete(`/painel/sessoes/${id}`)
-    }
-  }
+  const [deleteTarget, setDeleteTarget] = useState<{ id: number; label: string } | null>(null)
 
   return (
     <AdminLayout title="Sessões / Atas">
       <Head title="Sessões / Atas - Painel" />
 
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div className="flex items-center gap-3">
-          <p className="text-sm text-gray-500">{sessions.meta?.total || sessions.data.length} sessão(ões)</p>
-          <select value={filters.type}
+          <p className="text-sm text-muted-foreground whitespace-nowrap">
+            {sessions.meta?.total || sessions.data.length} sessão(ões)
+          </p>
+          <Select
+            value={filters.type}
             onChange={(e) => router.get('/painel/sessoes', { type: e.target.value, year: filters.year }, { preserveState: true })}
-            className="text-sm border border-gray-200 rounded-lg px-2 py-1">
+            className="sm:w-48"
+          >
             <option value="">Todos os tipos</option>
             <option value="ordinaria">Ordinária</option>
             <option value="extraordinaria">Extraordinária</option>
             <option value="solene">Solene</option>
-          </select>
+          </Select>
         </div>
-        <Link href="/painel/sessoes/criar"
-          className="flex items-center gap-2 px-4 py-2.5 bg-navy text-white rounded-xl hover:bg-navy-dark transition-colors text-sm font-medium">
-          <Plus className="w-4 h-4" /> Nova Sessão
-        </Link>
+        <CreateButton href="/painel/sessoes/criar">Nova Sessão</CreateButton>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
-        {sessions.data.length === 0 ? (
-          <div className="p-12 text-center">
-            <FileText className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-500">Nenhuma sessão cadastrada</p>
-          </div>
-        ) : (
-          <table className="w-full">
-            <thead>
-              <tr className="bg-gray-50 border-b border-gray-100">
-                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Data</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Título</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Tipo</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Status</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Arquivo</th>
-                <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sessions.data.map((s) => (
-                <tr key={s.id} className="border-b border-gray-50 hover:bg-gray-50/50">
-                  <td className="px-4 py-3 text-sm text-gray-500">{new Date(s.session_date).toLocaleDateString('pt-BR')}</td>
-                  <td className="px-4 py-3 text-sm font-medium text-gray-800">{s.title}</td>
-                  <td className="px-4 py-3">
-                    <span className="inline-block px-2 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
-                      {typeLabels[s.type] || s.type}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3">
-                    <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                      s.status === 'realizada' ? 'bg-green-100 text-green-700' :
-                      s.status === 'cancelada' ? 'bg-red-100 text-red-700' :
-                      'bg-yellow-100 text-yellow-700'
-                    }`}>{statusLabels[s.status] || s.status}</span>
-                  </td>
-                  <td className="px-4 py-3">
-                    {s.file_url ? (
-                      <a href={s.file_url} target="_blank" rel="noopener" className="text-blue-600 hover:text-blue-800">
-                        <ExternalLink className="w-4 h-4" />
-                      </a>
-                    ) : <span className="text-gray-300">—</span>}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <Link href={`/painel/sessoes/${s.id}/editar`} className="p-2 rounded-lg hover:bg-blue-50 text-gray-400 hover:text-blue-600 transition-colors">
-                        <Pencil className="w-4 h-4" />
-                      </Link>
-                      <button onClick={() => handleDelete(s.id, s.title)} className="p-2 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+      <Table>
+        <THead>
+          <TH>Data</TH>
+          <TH>Título</TH>
+          <TH>Tipo</TH>
+          <TH>Status</TH>
+          <TH>Arquivo</TH>
+          <TH className="text-right">Ações</TH>
+        </THead>
+        <TBody>
+          {sessions.data.length === 0 && (
+            <TableEmpty colSpan={6}>Nenhuma sessão cadastrada</TableEmpty>
+          )}
+          {sessions.data.map((s) => {
+            const status = statusBadges[s.status]
+            return (
+              <TR key={s.id}>
+                <TD className="text-muted-foreground whitespace-nowrap">
+                  {new Date(s.session_date).toLocaleDateString('pt-BR')}
+                </TD>
+                <TD className="font-medium">{s.title}</TD>
+                <TD>
+                  <Badge tone="info">{typeLabels[s.type] || s.type}</Badge>
+                </TD>
+                <TD>
+                  <Badge tone={status?.tone ?? 'neutral'}>{status?.label ?? s.status}</Badge>
+                </TD>
+                <TD>
+                  {s.file_url ? (
+                    <a
+                      href={s.file_url}
+                      target="_blank"
+                      rel="noopener"
+                      className="inline-flex p-2 rounded-lg text-muted-foreground hover:text-sky hover:bg-sky/10 transition-colors"
+                      title="Abrir arquivo"
+                    >
+                      <ExternalLink className="w-4 h-4" />
+                    </a>
+                  ) : (
+                    <span className="text-muted-foreground/50">—</span>
+                  )}
+                </TD>
+                <TD>
+                  <RowActions>
+                    <IconLink tone="edit" href={`/painel/sessoes/${s.id}/editar`} title="Editar">
+                      <Pencil className="w-4 h-4" />
+                    </IconLink>
+                    <IconButton
+                      tone="delete"
+                      onClick={() => setDeleteTarget({ id: s.id, label: s.title })}
+                      title="Excluir"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </IconButton>
+                  </RowActions>
+                </TD>
+              </TR>
+            )
+          })}
+        </TBody>
+      </Table>
+
+      <ConfirmDelete
+        target={deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        deleteUrl={(id) => `/painel/sessoes/${id}`}
+        entity="sessão"
+      />
     </AdminLayout>
   )
 }

@@ -35,6 +35,8 @@ export interface AtriconCriterion {
   autoCheck?: string
   /** Palavras-chave para localizar links da transparência que evidenciam o critério */
   keywords?: string[]
+  /** Deep-link do módulo do painel que resolve o critério (sobrepõe o mapa por autoCheck) */
+  actionHref?: string
 }
 
 export const ATRICON_DIMENSIONS: AtriconDimension[] = [
@@ -253,6 +255,7 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
     verification: [D, A, H, G, F],
     hint: 'Nº/ano, valor previsto e recebido, objeto, vigência, origem e inteiro teor. Se não houver, declarar expressamente a inexistência.',
     route: '/transparencia',
+    autoCheck: 'info:transferencias-recebidas',
     keywords: ['convênio', 'transferências recebidas'],
   },
   {
@@ -263,6 +266,7 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
     verification: [D, A, H, G, F],
     hint: 'Beneficiário, nº/ano, objeto, vigência, valores e inteiro teor, separado das recebidas.',
     route: '/transparencia',
+    autoCheck: 'info:transferencias-realizadas',
     keywords: ['convênio', 'transferências realizadas'],
   },
   {
@@ -273,6 +277,7 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
     verification: [D, A, H, G, F],
     hint: 'Partes, nº/ano, objeto, vigência, obrigações e inteiro teor. Declarar inexistência quando for o caso.',
     route: '/transparencia',
+    autoCheck: 'info:acordos',
     keywords: ['acordos', 'termo de cooperação'],
   },
 
@@ -315,6 +320,7 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
     verification: [D, A, H, G, F],
     hint: 'Nome, data de contratação e término. Se não houver, declarar expressamente por exercício.',
     route: '/transparencia',
+    autoCheck: 'info:estagiarios',
     keywords: ['estagiários'],
   },
   {
@@ -325,6 +331,7 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
     verification: [D, A, H, G, F],
     hint: 'Nome completo, função/atividade e razão social da empregadora. Declarar inexistência quando for o caso.',
     route: '/transparencia',
+    autoCheck: 'info:terceirizados',
     keywords: ['terceirizados'],
   },
   {
@@ -335,6 +342,7 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
     verification: [D, A, H, F],
     hint: 'Íntegra dos editais. Sem concursos recentes, informar expressamente (ex.: "último certame em 20XX").',
     route: '/transparencia',
+    autoCheck: 'info:concursos',
     keywords: ['concurso', 'seleção pública', 'processo seletivo'],
   },
   {
@@ -345,6 +353,7 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
     verification: [D, A, F],
     hint: 'Lista de aprovados com classificações e nomeações; aceita link para site da banca.',
     route: '/transparencia',
+    autoCheck: 'info:concursos',
     keywords: ['concurso', 'nomeações', 'aprovados'],
   },
 
@@ -429,6 +438,7 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
     verification: [D, A],
     hint: 'Publicar o PCA na seção de licitações. Declaração de inexistência NÃO atende este critério.',
     route: '/licitacoes',
+    autoCheck: 'info:pca',
     keywords: ['plano de contratações', 'pca'],
   },
   {
@@ -494,6 +504,7 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
     verification: [D, A, G, F],
     hint: 'Tabela de obras em seção específica. Sem obras? Informar expressamente no portal.',
     route: '/transparencia',
+    autoCheck: 'info:obras',
     keywords: ['obras'],
   },
   {
@@ -504,6 +515,7 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
     verification: [D, A, G],
     hint: 'Planilha contratual (quantitativos × preços unitários) em até 25 dias úteis da assinatura. Declarar inexistência quando for o caso.',
     route: '/transparencia',
+    autoCheck: 'info:obras',
     keywords: ['obras', 'preços unitários'],
   },
   {
@@ -514,6 +526,7 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
     verification: [D, A, G],
     hint: 'Itens executados e valores pagos por obra encerrada. Declarar inexistência quando for o caso.',
     route: '/transparencia',
+    autoCheck: 'info:obras',
     keywords: ['obras', 'medições'],
   },
   {
@@ -524,6 +537,7 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
     verification: [D, A, G, F],
     hint: 'Sem obras paralisadas (ou sem obras), declarar expressamente.',
     route: '/transparencia',
+    autoCheck: 'info:obras',
     keywords: ['obras paralisadas'],
   },
 
@@ -536,6 +550,7 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
     verification: [D, A, H, F],
     hint: 'Balanço Orçamentário, Financeiro, Patrimonial e DVP em PDF pesquisável.',
     route: '/transparencia',
+    autoCheck: 'info:prestacao-contas',
     keywords: ['balanço geral', 'prestação de contas'],
   },
   {
@@ -546,6 +561,7 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
     verification: [D, A, H, F],
     hint: 'Relatório consolidado anual da gestão (metas, entregas, resultados). Notícias soltas NÃO atendem.',
     route: '/transparencia',
+    autoCheck: 'info:relatorio-gestao',
     keywords: ['relatório de gestão', 'relatório de atividades'],
   },
   {
@@ -556,6 +572,7 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
     verification: [D, A, H],
     hint: 'Íntegra do Acórdão/Parecer do Tribunal de Contas (aceita link direto ao site do TCE) e indicação das contas pendentes.',
     route: '/transparencia',
+    autoCheck: 'info:parecer-contas',
     keywords: ['julgamento das contas', 'parecer prévio', 'acórdão'],
   },
   {
@@ -566,6 +583,7 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
     verification: [D, A, H, F],
     hint: 'RGF com todos os anexos, em seção específica. Municípios até 50 mil hab.: semestral (até 30 dias após o semestre).',
     route: '/transparencia',
+    autoCheck: 'info:rgf',
     keywords: ['rgf', 'gestão fiscal'],
   },
   {
@@ -576,6 +594,7 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
     verification: [D],
     hint: 'Plano com objetivos estratégicos, indicadores e metas (difere do PPA).',
     route: '/transparencia',
+    autoCheck: 'info:plano-estrategico',
     keywords: ['plano estratégico'],
   },
 
@@ -751,6 +770,7 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
     verification: [D],
     hint: 'Seção "Carta de Serviços ao Usuário" com serviços, formas de acesso, etapas e prazos.',
     route: '/transparencia',
+    autoCheck: 'info:carta-servicos',
     keywords: ['carta de serviços'],
   },
 
@@ -895,6 +915,7 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
     verification: [D, A, H, F],
     hint: 'Decreto legislativo + ata/resumo da sessão que aprovou ou rejeitou as contas do Executivo.',
     route: '/transparencia',
+    autoCheck: 'info:apreciacao',
     keywords: ['julgamento das contas do prefeito', 'contas do executivo', 'decreto legislativo'],
   },
   {
@@ -914,6 +935,7 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
     verification: [D, A, H, G, F],
     hint: 'Norma + gastos detalhados por vereador. Sem verba indenizatória? Declarar expressamente.',
     route: '/transparencia',
+    autoCheck: 'info:verbas',
     keywords: ['verba indenizatória', 'cota parlamentar'],
   },
   {
@@ -956,6 +978,42 @@ export const STATUS_CREDIT: Record<AtriconStatusValue, number | null> = {
   pendente: 0,
   externo: 1, // atendido via sistema externo (link no portal)
   nao_se_aplica: null, // excluído do cálculo
+}
+
+/**
+ * Deep-link do módulo do painel que resolve cada autoCheck.
+ * Critérios `info:*` são resolvidos no módulo Acesso à Informação.
+ */
+export const AUTO_CHECK_ACTION_HREF: Record<string, string> = {
+  transparency: '/painel/transparencia',
+  councilors: '/painel/vereadores',
+  mesaDiretora: '/painel/bienios',
+  contactSettings: '/painel/aparencia',
+  hoursSettings: '/painel/aparencia',
+  socialSettings: '/painel/aparencia',
+  radarLink: '/painel/transparencia',
+  publications: '/painel/publicacoes',
+  faq: '/painel/faq',
+  licitacoes: '/painel/licitacoes',
+  licitacaoDocs: '/painel/licitacoes',
+  contratoDocs: '/painel/licitacoes',
+  atas: '/painel/sessoes',
+  pautas: '/painel/sessoes',
+  committees: '/painel/comissoes',
+  activities: '/painel/atividades',
+  survey: '/painel/pesquisa-satisfacao',
+  votacoes: '/painel/votacoes',
+}
+
+/** Resolve o link de ação de um critério: actionHref explícito → mapa por autoCheck → transparência (keywords). */
+export function criterionActionHref(c: AtriconCriterion): string | null {
+  if (c.actionHref) return c.actionHref
+  if (c.autoCheck) {
+    if (c.autoCheck.startsWith('info:')) return '/painel/acesso-informacao'
+    if (AUTO_CHECK_ACTION_HREF[c.autoCheck]) return AUTO_CHECK_ACTION_HREF[c.autoCheck]
+  }
+  if (c.keywords?.length) return '/painel/transparencia'
+  return null
 }
 
 /** Níveis de transparência conforme metodologia PNTP 2026. */

@@ -8,10 +8,18 @@ export default class ActivitiesController {
     const type = request.input('tipo', '')
     const year = request.input('ano', '')
     const autor = request.input('autor', '')
+    const search = request.input('busca', '')
 
     let query = LegislativeActivity.query().orderBy('year', 'desc').orderBy('created_at', 'desc')
     if (type) query = query.where('type', type)
     if (year) query = query.where('year', year)
+    if (search) {
+      query = query.where((q) => {
+        q.whereILike('title', `%${search}%`)
+          .orWhereILike('summary', `%${search}%`)
+          .orWhereILike('number', `%${search}%`)
+      })
+    }
     if (autor) {
       query = query.where((q) => {
         q.whereILike('author', `%${autor}%`).orWhereHas('authors', (sub) => {
@@ -22,6 +30,11 @@ export default class ActivitiesController {
 
     const activities = await query.paginate(page, 20)
     const siteSettings = await SiteSetting.allAsObject()
+
+    // Opções dos filtros (tipos e anos existentes na base)
+    const typeRows = await LegislativeActivity.query().distinct('type').orderBy('type', 'asc')
+    const yearRows = await LegislativeActivity.query().distinct('year').orderBy('year', 'desc')
+
     return inertia.render('public/activities/index', {
       activities: activities.all().map((a) => ({
         id: a.id,
@@ -30,12 +43,16 @@ export default class ActivitiesController {
         date: a.sessionDate || a.createdAt?.toISODate() || null,
         type: a.type,
         author: a.author ? { name: a.author } : null,
+        file_url: a.fileUrl || null,
       })),
       pagination: {
         currentPage: activities.currentPage,
         lastPage: activities.lastPage,
+        total: activities.total,
       },
-      filters: { type, year, autor },
+      filters: { type, year, autor, search },
+      types: typeRows.map((r) => r.type).filter(Boolean),
+      years: yearRows.map((r) => r.year).filter(Boolean),
       siteSettings,
     })
   }
@@ -45,7 +62,7 @@ export default class ActivitiesController {
       .where('slug', params.slug)
       .preload('authors')
       .first()
-    if (!activity) return response.redirect().status(301).toPath('/atividades-legislativa')
+    if (!activity) return response.redirect().status(301).toPath('/atividades-legislativas')
     const siteSettings = await SiteSetting.allAsObject()
     return inertia.render('public/activities/show', {
       activity: activity.serialize(),

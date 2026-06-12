@@ -17,12 +17,12 @@ interface CertificationsSectionProps {
 export const CertificationsSection = ({ seals = [], title, subtitle }: CertificationsSectionProps) => {
   if (seals.length === 0) {
     return (
-      <section className="py-16 px-4 bg-gradient-to-r from-primary/5 via-gold/5 to-sky/5">
+      <section className="py-14 lg:py-20 px-4 bg-background">
         <div className="container mx-auto">
           <div className="flex flex-col md:flex-row items-center justify-center gap-8">
             <div className="flex items-center gap-4 animate-fade-in">
               <div className="relative">
-                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-gold to-gold-light flex items-center justify-center shadow-glow">
+                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-gold to-gold-light flex items-center justify-center shadow-md">
                   <Award className="w-12 h-12 text-navy-dark" />
                 </div>
                 <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-green-500 flex items-center justify-center border-4 border-background">
@@ -51,14 +51,14 @@ export const CertificationsSection = ({ seals = [], title, subtitle }: Certifica
   }
 
   return (
-    <section className="py-20 px-4 bg-gradient-navy text-white">
+    <section className="py-14 lg:py-20 px-4 bg-background">
       <div className="container mx-auto">
         <div className="text-center mb-12" data-reveal>
-          <span className="inline-block px-4 py-1.5 bg-white/10 rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
+          <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
             Certificações
           </span>
-          <h2 className="heading-accent text-3xl md:text-4xl font-bold mb-4">{title || "Compromisso com a Transparência"}</h2>
-          <p className="text-white/70 max-w-2xl mx-auto">
+          <h2 className="heading-accent text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-4">{title || "Compromisso com a Transparência"}</h2>
+          <p className="text-muted-foreground max-w-2xl mx-auto">
             {subtitle || "A Câmara Municipal é reconhecida por seu compromisso com a transparência pública."}
           </p>
         </div>
@@ -66,7 +66,7 @@ export const CertificationsSection = ({ seals = [], title, subtitle }: Certifica
           {seals.map((seal, index) => (
             <div
               key={seal.id}
-              className="bg-white rounded-2xl p-8 shadow-xl hover-lift transition-all duration-300 group"
+              className="bg-card border border-border/60 rounded-2xl p-8 shadow-sm hover:shadow-md hover-lift group"
               data-reveal="zoom"
               data-reveal-delay={index * 100}
             >
@@ -79,11 +79,11 @@ export const CertificationsSection = ({ seals = [], title, subtitle }: Certifica
                   </div>
                 )}
               </div>
-              <h3 className="text-lg font-bold text-center mb-2 text-gray-900">{seal.title}</h3>
-              {seal.description && <p className="text-gray-500 text-sm text-center mb-5">{seal.description}</p>}
+              <h3 className="text-lg font-bold text-center mb-2 text-foreground">{seal.title}</h3>
+              {seal.description && <p className="text-muted-foreground text-sm text-center mb-5">{seal.description}</p>}
               {seal.linkUrl && (
                 <div className="text-center">
-                  <a href={seal.linkUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg text-sm font-medium hover:border-primary hover:text-primary transition-colors no-underline">
+                  <a href={seal.linkUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 border border-border text-foreground rounded-lg text-sm font-medium hover:border-primary hover:text-primary transition-colors no-underline">
                     Saiba Mais
                     <ExternalLink className="w-4 h-4" />
                   </a>

@@ -1,7 +1,20 @@
 import { Head, Link, useForm } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Instagram, ArrowLeft, Save, TestTube, RefreshCw, CheckCircle, XCircle } from 'lucide-react'
+import {
+  Instagram,
+  ArrowLeft,
+  Save,
+  TestTube,
+  CheckCircle,
+  XCircle,
+  FileText,
+  Bot,
+  Rocket,
+  Cookie,
+  BrainCircuit,
+} from 'lucide-react'
 import { useState } from 'react'
+import { Button, Card, CardHeader, Field, Input, Select, Textarea } from '~/components/admin/ui'
 
 interface Props {
   settings: Record<string, string | null>
@@ -86,195 +99,311 @@ export default function InstagramSettings({ settings, categories, defaultPrompt 
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Link href="/painel/instagram" className="p-2 text-slate-600 hover:bg-slate-100 rounded-lg">
+            <Link
+              href="/painel/instagram"
+              className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            >
               <ArrowLeft className="w-5 h-5" />
             </Link>
-            <div className="p-2 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg">
-              <Instagram className="w-6 h-6 text-white" />
+            <div className="p-2 bg-navy text-white rounded-lg">
+              <Instagram className="w-6 h-6" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-slate-800">Configurações</h1>
-              <p className="text-sm text-slate-500">Configure a automação do Instagram</p>
+              <h1 className="text-xl font-bold text-foreground tracking-tight">Configurações</h1>
+              <p className="text-sm text-muted-foreground">Configure a automação do Instagram</p>
             </div>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Publicação */}
-          <div className="bg-white rounded-lg border p-6">
-            <h2 className="text-lg font-semibold text-slate-800 mb-4">📝 Publicação</h2>
+          <Card>
+            <CardHeader title="Publicação" icon={FileText} />
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Categoria Padrão</label>
-                <select value={data.default_category} onChange={e => setData('default_category', e.target.value)} className="w-full px-4 py-2 border rounded-lg">
+              <Field label="Categoria Padrão">
+                <Select
+                  value={data.default_category}
+                  onChange={e => setData('default_category', e.target.value)}
+                >
                   <option value="">Selecione uma categoria</option>
-                  {categories.map(cat => <option key={cat.id} value={cat.id}>{cat.name}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Status Padrão</label>
-                <select value={data.default_status} onChange={e => setData('default_status', e.target.value)} className="w-full px-4 py-2 border rounded-lg">
+                  {categories.map(cat => (
+                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  ))}
+                </Select>
+              </Field>
+              <Field label="Status Padrão">
+                <Select
+                  value={data.default_status}
+                  onChange={e => setData('default_status', e.target.value)}
+                >
                   <option value="draft">Rascunho</option>
                   <option value="published">Publicado</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Quantidade de Posts</label>
-                <input type="number" value={data.posts_fetch_count} onChange={e => setData('posts_fetch_count', e.target.value)} min="12" max="100" className="w-full px-4 py-2 border rounded-lg" />
-                <p className="text-xs text-slate-500 mt-1">Quantos posts buscar (12-100)</p>
-              </div>
+                </Select>
+              </Field>
+              <Field label="Quantidade de Posts" hint="Quantos posts buscar (12-100)">
+                <Input
+                  type="number"
+                  value={data.posts_fetch_count}
+                  onChange={e => setData('posts_fetch_count', e.target.value)}
+                  min="12"
+                  max="100"
+                />
+              </Field>
             </div>
-          </div>
+          </Card>
 
           {/* Importação Automática */}
-          <div className="bg-white rounded-lg border p-6">
-            <h2 className="text-lg font-semibold text-slate-800 mb-2">🤖 Importação Automática</h2>
-            <p className="text-sm text-slate-500 mb-4">Importa automaticamente os posts do Instagram feitos NO DIA, todos os dias no horário configurado (fuso de Brasília).</p>
+          <Card>
+            <CardHeader
+              title="Importação Automática"
+              description="Importa automaticamente os posts do Instagram feitos NO DIA, todos os dias no horário configurado (fuso de Brasília)."
+              icon={Bot}
+            />
             <div className="space-y-4">
               <label className="flex items-center gap-3 cursor-pointer">
-                <input type="checkbox" checked={data.auto_import_enabled} onChange={e => setData('auto_import_enabled', e.target.checked)} className="w-5 h-5 rounded border-slate-300 text-purple-600 focus:ring-purple-500" />
-                <span className="font-medium text-slate-800">Habilitar importação automática</span>
+                <input
+                  type="checkbox"
+                  checked={data.auto_import_enabled}
+                  onChange={e => setData('auto_import_enabled', e.target.checked)}
+                  className="w-5 h-5 rounded border-border accent-[hsl(var(--navy))]"
+                />
+                <span className="font-medium text-foreground">Habilitar importação automática</span>
               </label>
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Modo de Execução</label>
-                  <select value={data.cron_mode} onChange={e => setData('cron_mode', e.target.value)} className="w-full px-4 py-2 border rounded-lg">
-                    <option value="daily">📅 Diário (Produção) - 1x por dia</option>
-                    <option value="test">🧪 Teste - A cada 2 minutos</option>
-                  </select>
-                  {data.cron_mode === 'test' && (
-                    <p className="text-xs text-red-500 mt-1">⚠️ Modo teste consome muitas requisições! Use apenas para testar.</p>
-                  )}
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Horário (Brasília)</label>
+                <Field
+                  label="Modo de Execução"
+                  error={
+                    data.cron_mode === 'test'
+                      ? 'Modo teste consome muitas requisições! Use apenas para testar.'
+                      : undefined
+                  }
+                >
+                  <Select value={data.cron_mode} onChange={e => setData('cron_mode', e.target.value)}>
+                    <option value="daily">Diário (Produção) - 1x por dia</option>
+                    <option value="test">Teste - A cada 2 minutos</option>
+                  </Select>
+                </Field>
+                <Field label="Horário (Brasília)">
                   <div className="flex gap-2">
-                    <select value={data.cron_hour} onChange={e => setData('cron_hour', e.target.value)} className="flex-1 px-4 py-2 border rounded-lg">
-                      {Array.from({ length: 24 }, (_, i) => <option key={i} value={i}>{String(i).padStart(2, '0')}h</option>)}
-                    </select>
-                    <select value={data.cron_minute} onChange={e => setData('cron_minute', e.target.value)} className="flex-1 px-4 py-2 border rounded-lg">
-                      {[0, 15, 30, 45].map(m => <option key={m} value={m}>{String(m).padStart(2, '0')}</option>)}
-                    </select>
+                    <Select
+                      value={data.cron_hour}
+                      onChange={e => setData('cron_hour', e.target.value)}
+                      className="flex-1"
+                    >
+                      {Array.from({ length: 24 }, (_, i) => (
+                        <option key={i} value={i}>{String(i).padStart(2, '0')}h</option>
+                      ))}
+                    </Select>
+                    <Select
+                      value={data.cron_minute}
+                      onChange={e => setData('cron_minute', e.target.value)}
+                      className="flex-1"
+                    >
+                      {[0, 15, 30, 45].map(m => (
+                        <option key={m} value={m}>{String(m).padStart(2, '0')}</option>
+                      ))}
+                    </Select>
                   </div>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Limite por Verificação</label>
-                  <input type="number" value={data.auto_import_limit} onChange={e => setData('auto_import_limit', e.target.value)} min="1" max="20" className="w-full px-4 py-2 border rounded-lg" />
-                  <p className="text-xs text-slate-500 mt-1">Máx. 20 posts por execução</p>
-                </div>
+                </Field>
+                <Field label="Limite por Verificação" hint="Máx. 20 posts por execução">
+                  <Input
+                    type="number"
+                    value={data.auto_import_limit}
+                    onChange={e => setData('auto_import_limit', e.target.value)}
+                    min="1"
+                    max="20"
+                  />
+                </Field>
               </div>
             </div>
-          </div>
+          </Card>
 
           {/* Perfil Instagram */}
-          <div className="bg-white rounded-lg border p-6">
-            <h2 className="text-lg font-semibold text-slate-800 mb-4">📸 Perfil do Instagram</h2>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">URL do Perfil</label>
-              <input type="url" value={data.instagram_profile_url} onChange={e => setData('instagram_profile_url', e.target.value)} placeholder="https://www.instagram.com/seu_perfil" className="w-full px-4 py-2 border rounded-lg" />
-            </div>
-          </div>
+          <Card>
+            <CardHeader title="Perfil do Instagram" icon={Instagram} />
+            <Field label="URL do Perfil">
+              <Input
+                type="url"
+                value={data.instagram_profile_url}
+                onChange={e => setData('instagram_profile_url', e.target.value)}
+                placeholder="https://www.instagram.com/seu_perfil"
+              />
+            </Field>
+          </Card>
 
           {/* RapidAPI */}
-          <div className="bg-white rounded-lg border p-6">
-            <h2 className="text-lg font-semibold text-slate-800 mb-2">🚀 RapidAPI (Recomendado)</h2>
-            <p className="text-sm text-slate-500 mb-4">Método mais confiável para buscar posts do Instagram.</p>
-            <details className="mb-4 bg-blue-50 p-4 rounded-lg border border-blue-200">
-              <summary className="cursor-pointer font-medium text-blue-800">📖 Como obter a API Key do RapidAPI</summary>
-              <ol className="mt-2 ml-4 text-sm text-blue-700 list-decimal space-y-1">
-                <li>Acesse <a href="https://rapidapi.com/social-api1-instagram/api/instagram-public-bulk-scraper" target="_blank" className="underline">RapidAPI Instagram Public Bulk Scraper</a></li>
+          <Card>
+            <CardHeader
+              title="RapidAPI (Recomendado)"
+              description="Método mais confiável para buscar posts do Instagram."
+              icon={Rocket}
+            />
+            <details className="mb-4 bg-navy/5 p-4 rounded-lg border border-navy/20">
+              <summary className="cursor-pointer font-medium text-navy">
+                Como obter a API Key do RapidAPI
+              </summary>
+              <ol className="mt-2 ml-4 text-sm text-foreground list-decimal space-y-1">
+                <li>
+                  Acesse{' '}
+                  <a
+                    href="https://rapidapi.com/social-api1-instagram/api/instagram-public-bulk-scraper"
+                    target="_blank"
+                    className="underline text-navy"
+                  >
+                    RapidAPI Instagram Public Bulk Scraper
+                  </a>
+                </li>
                 <li>Crie uma conta gratuita ou faça login</li>
                 <li>Clique em "Subscribe to Test" e escolha o plano Basic (gratuito)</li>
                 <li>Copie sua API Key (X-RapidAPI-Key)</li>
                 <li>Cole no campo abaixo</li>
               </ol>
             </details>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">RapidAPI Key</label>
-              <input type="password" value={data.rapidapi_key} onChange={e => setData('rapidapi_key', e.target.value)} placeholder="Cole sua API Key aqui" className="w-full px-4 py-2 border rounded-lg" />
-            </div>
-          </div>
+            <Field label="RapidAPI Key">
+              <Input
+                type="password"
+                value={data.rapidapi_key}
+                onChange={e => setData('rapidapi_key', e.target.value)}
+                placeholder="Cole sua API Key aqui"
+              />
+            </Field>
+          </Card>
 
           {/* Cookie Session (Alternativo) */}
-          <div className="bg-white rounded-lg border p-6">
-            <h2 className="text-lg font-semibold text-slate-800 mb-2">🍪 Autenticação Instagram (Alternativo)</h2>
-            <p className="text-sm text-slate-500 mb-4">Para buscar posts via cookie de sessão do Instagram.</p>
-            <details className="mb-4 bg-slate-50 p-4 rounded-lg border">
-              <summary className="cursor-pointer font-medium text-slate-800">📖 Como obter o sessionid</summary>
-              <ol className="mt-2 ml-4 text-sm text-slate-600 list-decimal space-y-1">
+          <Card>
+            <CardHeader
+              title="Autenticação Instagram (Alternativo)"
+              description="Para buscar posts via cookie de sessão do Instagram."
+              icon={Cookie}
+            />
+            <details className="mb-4 bg-muted/40 p-4 rounded-lg border border-border">
+              <summary className="cursor-pointer font-medium text-foreground">
+                Como obter o sessionid
+              </summary>
+              <ol className="mt-2 ml-4 text-sm text-muted-foreground list-decimal space-y-1">
                 <li>Abra o Instagram no navegador e faça login</li>
                 <li>Pressione F12 para abrir as Ferramentas do Desenvolvedor</li>
                 <li>Vá para a aba Application (Chrome) ou Storage (Firefox)</li>
                 <li>Clique em Cookies → instagram.com</li>
-                <li>Procure por <code className="bg-slate-200 px-1 rounded">sessionid</code> e copie o valor</li>
+                <li>
+                  Procure por <code className="bg-muted px-1 rounded">sessionid</code> e copie o valor
+                </li>
               </ol>
-              <p className="mt-2 text-xs text-red-600">⚠️ O cookie expira a cada ~90 dias.</p>
+              <p className="mt-2 text-xs text-destructive">O cookie expira a cada ~90 dias.</p>
             </details>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Session ID</label>
-                <input type="password" value={data.instagram_sessionid} onChange={e => setData('instagram_sessionid', e.target.value)} placeholder="Cole seu sessionid aqui" className="w-full px-4 py-2 border rounded-lg" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">User-Agent</label>
-                <input type="text" value={data.instagram_useragent} onChange={e => setData('instagram_useragent', e.target.value)} placeholder="Mozilla/5.0 ..." className="w-full px-4 py-2 border rounded-lg" />
-                <p className="text-xs text-slate-500 mt-1">Deve ser o mesmo do navegador onde pegou o sessionid</p>
-              </div>
+              <Field label="Session ID">
+                <Input
+                  type="password"
+                  value={data.instagram_sessionid}
+                  onChange={e => setData('instagram_sessionid', e.target.value)}
+                  placeholder="Cole seu sessionid aqui"
+                />
+              </Field>
+              <Field
+                label="User-Agent"
+                hint="Deve ser o mesmo do navegador onde pegou o sessionid"
+              >
+                <Input
+                  type="text"
+                  value={data.instagram_useragent}
+                  onChange={e => setData('instagram_useragent', e.target.value)}
+                  placeholder="Mozilla/5.0 ..."
+                />
+              </Field>
             </div>
-          </div>
+          </Card>
 
           {/* Configurações de IA */}
-          <div className="bg-white rounded-lg border p-6">
-            <h2 className="text-lg font-semibold text-slate-800 mb-4">🧠 Inteligência Artificial</h2>
+          <Card>
+            <CardHeader title="Inteligência Artificial" icon={BrainCircuit} />
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Provedor</label>
+              <Field label="Provedor">
                 <div className="space-y-2">
-                  {[{ value: 'gemini', label: 'Google Gemini' }, { value: 'openai', label: 'OpenAI (GPT)' }, { value: 'claude', label: 'Anthropic Claude' }].map(provider => (
+                  {[
+                    { value: 'gemini', label: 'Google Gemini' },
+                    { value: 'openai', label: 'OpenAI (GPT)' },
+                    { value: 'claude', label: 'Anthropic Claude' },
+                  ].map(provider => (
                     <label key={provider.value} className="flex items-center gap-2 cursor-pointer">
-                      <input type="radio" name="ai_provider" value={provider.value} checked={data.ai_provider === provider.value} onChange={e => setData('ai_provider', e.target.value)} className="text-purple-600 focus:ring-purple-500" />
-                      <span>{provider.label}</span>
+                      <input
+                        type="radio"
+                        name="ai_provider"
+                        value={provider.value}
+                        checked={data.ai_provider === provider.value}
+                        onChange={e => setData('ai_provider', e.target.value)}
+                        className="accent-[hsl(var(--navy))]"
+                      />
+                      <span className="text-sm text-foreground">{provider.label}</span>
                     </label>
                   ))}
                 </div>
-              </div>
+              </Field>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">API Key</label>
-                <input type="password" value={data.ai_api_key} onChange={e => setData('ai_api_key', e.target.value)} placeholder="Sua chave de API" className="w-full px-4 py-2 border rounded-lg" />
-                <button type="button" onClick={testAiConnection} disabled={testingAi || !data.ai_api_key} className="mt-2 flex items-center gap-2 px-4 py-2 text-sm border rounded-lg hover:bg-slate-50 disabled:opacity-50">
-                  {testingAi ? <RefreshCw className="w-4 h-4 animate-spin" /> : <TestTube className="w-4 h-4" />}
+                <Field label="API Key">
+                  <Input
+                    type="password"
+                    value={data.ai_api_key}
+                    onChange={e => setData('ai_api_key', e.target.value)}
+                    placeholder="Sua chave de API"
+                  />
+                </Field>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  className="mt-2"
+                  onClick={testAiConnection}
+                  disabled={!data.ai_api_key}
+                  loading={testingAi}
+                >
+                  {!testingAi && <TestTube className="w-4 h-4" />}
                   Testar Conexão
-                </button>
+                </Button>
                 {testResult && (
-                  <div className={`mt-2 flex items-center gap-2 text-sm ${testResult.success ? 'text-green-600' : 'text-red-600'}`}>
-                    {testResult.success ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
+                  <div
+                    className={`mt-2 flex items-center gap-2 text-sm ${
+                      testResult.success ? 'text-emerald-600' : 'text-destructive'
+                    }`}
+                  >
+                    {testResult.success ? (
+                      <CheckCircle className="w-4 h-4" />
+                    ) : (
+                      <XCircle className="w-4 h-4" />
+                    )}
                     {testResult.message}
                   </div>
                 )}
               </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">Modelo</label>
-                <select value={data.ai_model} onChange={e => setData('ai_model', e.target.value)} className="w-full px-4 py-2 border rounded-lg">
+              <Field label="Modelo">
+                <Select value={data.ai_model} onChange={e => setData('ai_model', e.target.value)}>
                   {(aiModels[data.ai_provider] || []).map(model => (
                     <option key={model.value} value={model.value}>{model.label}</option>
                   ))}
-                </select>
-              </div>
+                </Select>
+              </Field>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Prompt Personalizado</label>
-              <textarea value={data.ai_prompt} onChange={e => setData('ai_prompt', e.target.value)} rows={12} className="w-full px-4 py-2 border rounded-lg font-mono text-sm" />
-              <p className="text-xs text-slate-500 mt-1">Use <code className="bg-slate-200 px-1 rounded">{'{CAPTION}'}</code> onde a legenda do Instagram deve ser inserida.</p>
-            </div>
-          </div>
+            <Field label="Prompt Personalizado">
+              <Textarea
+                value={data.ai_prompt}
+                onChange={e => setData('ai_prompt', e.target.value)}
+                rows={12}
+                className="font-mono text-sm"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Use <code className="bg-muted px-1 rounded">{'{CAPTION}'}</code> onde a legenda do
+                Instagram deve ser inserida.
+              </p>
+            </Field>
+          </Card>
 
           {/* Submit */}
           <div className="flex justify-end">
-            <button type="submit" disabled={processing} className="flex items-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">
-              {processing ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+            <Button type="submit" loading={processing}>
+              {!processing && <Save className="w-4 h-4" />}
               Salvar Configurações
-            </button>
+            </Button>
           </div>
         </form>
       </div>

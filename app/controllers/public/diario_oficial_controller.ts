@@ -1,4 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
+import db from '@adonisjs/lucid/services/db'
 import OfficialGazetteEntry from '#models/official_gazette_entry'
 import SiteSetting from '#models/site_setting'
 
@@ -13,6 +14,11 @@ export default class DiarioOficialController {
     const entries = await query.paginate(page, 20)
     const siteSettings = await SiteSetting.allAsObject()
 
+    const yearRows: Array<{ year: number }> = await db
+      .from('official_gazette_entries')
+      .select(db.raw('DISTINCT EXTRACT(YEAR FROM publication_date::date)::int AS year'))
+      .orderBy('year', 'desc')
+
     return inertia.render('public/diario-oficial/index', {
       entries: entries.all().map((e) => ({
         id: e.id,
@@ -24,7 +30,9 @@ export default class DiarioOficialController {
       pagination: {
         currentPage: entries.currentPage,
         lastPage: entries.lastPage,
+        total: entries.total,
       },
+      years: yearRows.map((r) => r.year).filter(Boolean),
       filters: { year },
       siteSettings,
     })

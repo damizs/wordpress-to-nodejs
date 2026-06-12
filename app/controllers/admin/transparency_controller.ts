@@ -99,7 +99,15 @@ export default class TransparencyController {
   }
 
   async storeLink({ params, request, response, session }: HttpContext) {
-    const data = request.only(['title', 'url', 'icon', 'display_order', 'is_external'])
+    const data = request.only([
+      'title',
+      'url',
+      'icon',
+      'display_order',
+      'is_external',
+      'open_mode',
+      'hide_chrome',
+    ])
     await TransparencyLink.create({
       sectionId: Number.parseInt(params.sectionId),
       title: data.title,
@@ -107,6 +115,8 @@ export default class TransparencyController {
       icon: data.icon,
       displayOrder: Number.parseInt(data.display_order) || 0,
       isExternal: data.is_external === 'true' || data.is_external === true,
+      openMode: data.open_mode === 'modal' ? 'modal' : 'nova_aba',
+      hideChrome: !(data.hide_chrome === 'false' || data.hide_chrome === false || data.hide_chrome === '0'),
     })
     session.flash('success', 'Link adicionado!')
     return response.redirect().toPath('/painel/transparencia')
@@ -123,12 +133,22 @@ export default class TransparencyController {
 
   async updateLink({ params, request, response, session }: HttpContext) {
     const link = await TransparencyLink.findOrFail(params.id)
-    const data = request.only(['title', 'url', 'icon', 'display_order', 'is_external'])
+    const data = request.only([
+      'title',
+      'url',
+      'icon',
+      'display_order',
+      'is_external',
+      'open_mode',
+      'hide_chrome',
+    ])
     link.title = data.title
     link.url = data.url
     link.icon = data.icon
     link.displayOrder = Number.parseInt(data.display_order) || 0
     link.isExternal = data.is_external === 'true' || data.is_external === true
+    link.openMode = data.open_mode === 'modal' ? 'modal' : 'nova_aba'
+    link.hideChrome = !(data.hide_chrome === 'false' || data.hide_chrome === false || data.hide_chrome === '0')
     await link.save()
     session.flash('success', 'Link atualizado!')
     return response.redirect().toPath('/painel/transparencia')

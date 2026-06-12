@@ -1,7 +1,16 @@
 import { Head, useForm, Link } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Save, ArrowLeft, Upload } from 'lucide-react'
+import { Save, ArrowLeft, Upload, User, Landmark, ImageIcon } from 'lucide-react'
 import { useState, useRef } from 'react'
+import {
+  Button,
+  Card,
+  CardHeader,
+  Field,
+  Input,
+  Select,
+  Textarea,
+} from '~/components/admin/ui'
 
 interface Props {
   councilor: any | null
@@ -74,165 +83,199 @@ export default function CouncilorForm({ councilor, legislatures, biennia }: Prop
     <AdminLayout title={isEditing ? 'Editar Vereador' : 'Novo Vereador'}>
       <Head title={`${isEditing ? 'Editar' : 'Novo'} Vereador - Painel`} />
 
-      <Link href="/painel/vereadores" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 mb-4">
+      <Link
+        href="/painel/vereadores"
+        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4"
+      >
         <ArrowLeft className="w-4 h-4" /> Voltar
       </Link>
 
       <form onSubmit={handleSubmit} className="max-w-3xl space-y-6">
         {/* Dados Pessoais */}
-        <div className="bg-white rounded-xl border border-gray-100 p-6 space-y-4">
-          <h2 className="font-semibold text-gray-800 mb-2">Dados Pessoais</h2>
+        <Card>
+          <CardHeader title="Dados Pessoais" icon={User} />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Nome Completo *</label>
-              <input type="text" value={data.name} onChange={(e) => {
-                setData('name', e.target.value)
-                if (!isEditing) setData('slug', generateSlug(e.target.value))
-              }} required className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none" />
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Field label="Nome Completo" required>
+                <Input
+                  type="text"
+                  value={data.name}
+                  onChange={(e) => {
+                    setData('name', e.target.value)
+                    if (!isEditing) setData('slug', generateSlug(e.target.value))
+                  }}
+                  required
+                />
+              </Field>
+              <Field label="Nome Parlamentar">
+                <Input
+                  type="text"
+                  value={data.parliamentary_name}
+                  onChange={(e) => setData('parliamentary_name', e.target.value)}
+                  placeholder="Ex: BRUNO DUARTE"
+                />
+              </Field>
+              <Field label="Slug">
+                <Input
+                  type="text"
+                  value={data.slug}
+                  onChange={(e) => setData('slug', e.target.value)}
+                  className="font-mono"
+                />
+              </Field>
+              <Field label="Partido">
+                <Input
+                  type="text"
+                  value={data.party}
+                  onChange={(e) => setData('party', e.target.value)}
+                  placeholder="Ex: PP, MDB, PSD"
+                />
+              </Field>
+              <Field label="Gênero">
+                <Select value={data.gender} onChange={(e) => setData('gender', e.target.value)}>
+                  <option value="">Selecionar...</option>
+                  {genderOptions.map((g) => <option key={g} value={g}>{g}</option>)}
+                </Select>
+              </Field>
+              <Field label="Estado Civil">
+                <Select
+                  value={data.marital_status}
+                  onChange={(e) => setData('marital_status', e.target.value)}
+                >
+                  <option value="">Selecionar...</option>
+                  {maritalOptions.map((m) => <option key={m} value={m}>{m}</option>)}
+                </Select>
+              </Field>
+              <Field label="Grau de Instrução">
+                <Select
+                  value={data.education_level}
+                  onChange={(e) => setData('education_level', e.target.value)}
+                >
+                  <option value="">Selecionar...</option>
+                  {educationOptions.map((ed) => <option key={ed} value={ed}>{ed}</option>)}
+                </Select>
+              </Field>
+              <Field label="Ordem de Exibição">
+                <Input
+                  type="number"
+                  value={data.display_order}
+                  onChange={(e) => setData('display_order', parseInt(e.target.value) || 0)}
+                />
+              </Field>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Nome Parlamentar</label>
-              <input type="text" value={data.parliamentary_name} onChange={(e) => setData('parliamentary_name', e.target.value)}
-                placeholder="Ex: BRUNO DUARTE"
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none" />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Field label="E-mail">
+                <Input
+                  type="email"
+                  value={data.email}
+                  onChange={(e) => setData('email', e.target.value)}
+                />
+              </Field>
+              <Field label="Telefone">
+                <Input
+                  type="text"
+                  value={data.phone}
+                  onChange={(e) => setData('phone', e.target.value)}
+                />
+              </Field>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Slug</label>
-              <input type="text" value={data.slug} onChange={(e) => setData('slug', e.target.value)}
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none font-mono" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Partido</label>
-              <input type="text" value={data.party} onChange={(e) => setData('party', e.target.value)}
-                placeholder="Ex: PP, MDB, PSD"
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Gênero</label>
-              <select value={data.gender} onChange={(e) => setData('gender', e.target.value)}
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none">
-                <option value="">Selecionar...</option>
-                {genderOptions.map((g) => <option key={g} value={g}>{g}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Estado Civil</label>
-              <select value={data.marital_status} onChange={(e) => setData('marital_status', e.target.value)}
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none">
-                <option value="">Selecionar...</option>
-                {maritalOptions.map((m) => <option key={m} value={m}>{m}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Grau de Instrução</label>
-              <select value={data.education_level} onChange={(e) => setData('education_level', e.target.value)}
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none">
-                <option value="">Selecionar...</option>
-                {educationOptions.map((ed) => <option key={ed} value={ed}>{ed}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Ordem de Exibição</label>
-              <input type="number" value={data.display_order} onChange={(e) => setData('display_order', parseInt(e.target.value) || 0)}
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none" />
-            </div>
+
+            <Field label="Biografia">
+              <Textarea value={data.bio} onChange={(e) => setData('bio', e.target.value)} rows={3} />
+            </Field>
+
+            <Field label="História / Trajetória">
+              <Textarea
+                value={data.history}
+                onChange={(e) => setData('history', e.target.value)}
+                rows={3}
+              />
+            </Field>
+
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={data.is_active}
+                onChange={(e) => setData('is_active', e.target.checked)}
+                className="rounded border-border text-navy focus:ring-navy"
+              />
+              <span className="text-sm text-muted-foreground">Ativo (em exercício)</span>
+            </label>
           </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">E-mail</label>
-              <input type="email" value={data.email} onChange={(e) => setData('email', e.target.value)}
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Telefone</label>
-              <input type="text" value={data.phone} onChange={(e) => setData('phone', e.target.value)}
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none" />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1">Biografia</label>
-            <textarea value={data.bio} onChange={(e) => setData('bio', e.target.value)}
-              rows={3} className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none" />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1">História / Trajetória</label>
-            <textarea value={data.history} onChange={(e) => setData('history', e.target.value)}
-              rows={3} className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none" />
-          </div>
-
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" checked={data.is_active}
-              onChange={(e) => setData('is_active', e.target.checked)}
-              className="rounded border-gray-300 text-navy focus:ring-navy" />
-            <span className="text-sm text-gray-600">Ativo (em exercício)</span>
-          </label>
-        </div>
+        </Card>
 
         {/* Legislatura e Mesa Diretora */}
-        <div className="bg-white rounded-xl border border-gray-100 p-6 space-y-4">
-          <h2 className="font-semibold text-gray-800 mb-2">Legislatura e Mesa Diretora</h2>
+        <Card>
+          <CardHeader title="Legislatura e Mesa Diretora" icon={Landmark} />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Legislatura</label>
-              <select value={data.legislature_id} onChange={(e) => setData('legislature_id', e.target.value)}
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none">
-                <option value="">Selecionar...</option>
-                {legislatures.map((l: any) => (
-                  <option key={l.id} value={l.id}>{l.name} ({l.number}ª){l.is_current ? ' ✓' : ''}</option>
-                ))}
-              </select>
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Field label="Legislatura">
+                <Select
+                  value={data.legislature_id}
+                  onChange={(e) => setData('legislature_id', e.target.value)}
+                >
+                  <option value="">Selecionar...</option>
+                  {legislatures.map((l: any) => (
+                    <option key={l.id} value={l.id}>{l.name} ({l.number}ª){l.is_current ? ' ✓' : ''}</option>
+                  ))}
+                </Select>
+              </Field>
+              <Field label="Biênio">
+                <Select
+                  value={data.biennium_id}
+                  onChange={(e) => setData('biennium_id', e.target.value)}
+                >
+                  <option value="">Selecionar...</option>
+                  {biennia.map((b: any) => (
+                    <option key={b.id} value={b.id}>{b.name}{b.is_current ? ' ✓' : ''}</option>
+                  ))}
+                </Select>
+              </Field>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Biênio</label>
-              <select value={data.biennium_id} onChange={(e) => setData('biennium_id', e.target.value)}
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none">
-                <option value="">Selecionar...</option>
-                {biennia.map((b: any) => (
-                  <option key={b.id} value={b.id}>{b.name}{b.is_current ? ' ✓' : ''}</option>
-                ))}
-              </select>
-            </div>
-          </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1">Cargo na Mesa Diretora</label>
-            <select value={data.position} onChange={(e) => setData('position', e.target.value)}
-              className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none">
-              <option value="">Sem cargo na mesa</option>
-              {positionOptions.map((p) => <option key={p} value={p}>{p}</option>)}
-            </select>
+            <Field label="Cargo na Mesa Diretora">
+              <Select value={data.position} onChange={(e) => setData('position', e.target.value)}>
+                <option value="">Sem cargo na mesa</option>
+                {positionOptions.map((p) => <option key={p} value={p}>{p}</option>)}
+              </Select>
+            </Field>
           </div>
-        </div>
+        </Card>
 
         {/* Foto */}
-        <div className="bg-white rounded-xl border border-gray-100 p-6">
-          <h2 className="font-semibold text-gray-800 mb-4">Foto</h2>
+        <Card>
+          <CardHeader title="Foto" icon={ImageIcon} />
           <div className="flex items-start gap-4">
             {photoPreview && (
-              <img src={photoPreview} alt="Preview" className="w-24 h-24 rounded-xl object-cover border border-gray-100" />
+              <img
+                src={photoPreview}
+                alt="Preview"
+                className="w-24 h-24 rounded-xl object-cover border border-border"
+              />
             )}
             <div>
-              <button type="button" onClick={() => photoRef.current?.click()}
-                className="flex items-center gap-2 px-4 py-2 border border-gray-200 rounded-lg text-sm hover:bg-gray-50 transition-colors">
+              <Button type="button" variant="secondary" onClick={() => photoRef.current?.click()}>
                 <Upload className="w-4 h-4" /> {photoPreview ? 'Trocar foto' : 'Selecionar foto'}
-              </button>
-              <p className="text-xs text-gray-400 mt-1">PNG, JPG ou WebP. Máx 2MB.</p>
+              </Button>
+              <p className="text-xs text-muted-foreground mt-1">PNG, JPG ou WebP. Máx 2MB.</p>
             </div>
           </div>
-          <input ref={photoRef} type="file" accept="image/png,image/jpeg,image/webp"
-            onChange={(e) => handlePhotoChange(e.target.files?.[0] || null)} className="hidden" />
-        </div>
+          <input
+            ref={photoRef}
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            onChange={(e) => handlePhotoChange(e.target.files?.[0] || null)}
+            className="hidden"
+          />
+        </Card>
 
-        <button type="submit" disabled={processing}
-          className="flex items-center gap-2 px-6 py-2.5 bg-navy text-white rounded-xl hover:bg-navy-dark transition-colors text-sm font-medium disabled:opacity-50">
+        <Button type="submit" loading={processing}>
           <Save className="w-4 h-4" />
           {processing ? 'Salvando...' : 'Salvar'}
-        </button>
+        </Button>
       </form>
     </AdminLayout>
   )

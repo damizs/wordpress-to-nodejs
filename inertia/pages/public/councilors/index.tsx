@@ -42,9 +42,8 @@ export default function VereadoresIndex({ vereadores = [], legislature }: Props)
           centered
         />
 
-        <main className="py-12">
+        <main className="py-10 lg:py-14">
           <div className="container mx-auto px-4">
-            {/* Grid */}
             {vereadores.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {vereadores.map((vereador, i) => (
@@ -55,57 +54,68 @@ export default function VereadoresIndex({ vereadores = [], legislature }: Props)
                     data-reveal="up"
                     data-reveal-delay={String(Math.min(i, 7) * 60)}
                   >
-                    <div className="card-modern card-shine overflow-hidden text-center hover-lift">
-                      {/* Photo */}
-                      <div className="relative h-56 overflow-hidden bg-gradient-to-br from-primary/20 to-gold/20">
+                    <article className="h-full bg-card border border-border rounded-2xl p-6 text-center shadow-sm transition-all duration-300 hover:shadow-md hover:border-gold/40">
+                      {/* Foto circular com ring dourado */}
+                      <div className="w-28 h-28 mx-auto rounded-full overflow-hidden ring-2 ring-gold/40 ring-offset-4 ring-offset-card bg-muted transition-colors duration-300 group-hover:ring-gold">
                         {vereador.photo ? (
                           <img
                             src={vereador.photo}
-                            alt={vereador.name}
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                            alt={`Foto de ${vereador.name}`}
+                            loading="lazy"
+                            className="w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <span className="text-6xl text-primary/30">👤</span>
+                          <div
+                            className="w-full h-full flex items-center justify-center text-3xl font-bold text-primary/40"
+                            aria-hidden="true"
+                          >
+                            {vereador.name.charAt(0)}
                           </div>
                         )}
-                        <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                        <div className="absolute bottom-4 left-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <span className="inline-flex items-center gap-1 text-white text-sm font-medium">
-                            Ver perfil <ArrowRight className="w-4 h-4" />
-                          </span>
-                        </div>
                       </div>
 
                       {/* Info */}
-                      <div className="p-5">
-                        <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">
+                      <div className="mt-5">
+                        {vereador.role && (
+                          <span className="inline-block mb-2 px-2.5 py-0.5 bg-gold/10 text-gold border border-gold/25 text-[11px] font-bold rounded-full uppercase tracking-wide">
+                            {vereador.role}
+                          </span>
+                        )}
+                        <h3 className="text-base font-bold text-foreground group-hover:text-primary transition-colors leading-snug">
                           {vereador.name}
                         </h3>
                         {vereador.party && (
-                          <span className="inline-block mt-2 px-3 py-1 bg-primary/10 text-primary text-xs font-semibold rounded-full">
-                            {vereador.party}
-                          </span>
-                        )}
-                        {vereador.role && (
-                          <p className="mt-2 text-sm text-gold font-medium">{vereador.role}</p>
+                          <p className="mt-1 text-sm font-medium text-muted-foreground">{vereador.party}</p>
                         )}
 
-                        {/* Contact */}
-                        <div className="mt-4 flex items-center justify-center gap-3">
-                          {vereador.email && (
-                            <span className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-muted-foreground">
-                              <Mail className="w-4 h-4" />
-                            </span>
-                          )}
-                          {vereador.phone && (
-                            <span className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-muted-foreground">
-                              <Phone className="w-4 h-4" />
-                            </span>
-                          )}
-                        </div>
+                        {/* Contato */}
+                        {(vereador.email || vereador.phone) && (
+                          <div className="mt-4 flex items-center justify-center gap-2.5">
+                            {vereador.email && (
+                              <span
+                                className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground"
+                                title="Possui e-mail de contato"
+                              >
+                                <Mail className="w-4 h-4" aria-hidden="true" />
+                              </span>
+                            )}
+                            {vereador.phone && (
+                              <span
+                                className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground"
+                                title="Possui telefone de contato"
+                              >
+                                <Phone className="w-4 h-4" aria-hidden="true" />
+                              </span>
+                            )}
+                          </div>
+                        )}
+
+                        <span className="inline-flex items-center gap-1.5 mt-4 text-sm font-semibold text-primary group-hover:text-gold transition-colors">
+                          Ver perfil
+                          <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+                        </span>
                       </div>
-                    </div>
+                    </article>
                   </Link>
                 ))}
               </div>

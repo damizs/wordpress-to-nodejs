@@ -17,13 +17,13 @@ export const ESicSection = ({ title, subtitle }: ESicSectionProps) => {
     url.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {};
 
   return (
-    <section className="py-20 px-4 bg-muted/40">
+    <section className="py-14 lg:py-20 px-4 bg-muted/40">
       <div className="container mx-auto">
         <div className="text-center mb-12" data-reveal>
           <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
             Acesso à Informação
           </span>
-          <h2 className="heading-accent text-3xl md:text-4xl font-bold text-foreground mb-4">
+          <h2 className="heading-accent text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-4">
             {title && title !== "e-SIC" ? title : "E-SIC - Sistema Eletrônico de Informações"}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">

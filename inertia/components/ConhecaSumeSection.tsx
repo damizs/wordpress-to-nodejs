@@ -11,19 +11,20 @@ export const ConhecaSumeSection = ({ images, title, subtitle }: ConhecaSumeSecti
   const [currentIndex, setCurrentIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
-  
+
   const defaultImages = ["/images/sume-cidade.jpg"];
   const carouselImages = images && images.length > 0 ? images : defaultImages;
   const hasMultipleImages = carouselImages.length > 1;
 
-  // Auto-play do carrossel (5 segundos)
+  // Auto-play do crossfade (5 segundos); pausa no hover/lightbox e respeita prefers-reduced-motion
   useEffect(() => {
     if (!hasMultipleImages || isPaused || lightboxOpen) return;
-    
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % carouselImages.length);
     }, 5000);
-    
+
     return () => clearInterval(interval);
   }, [carouselImages.length, hasMultipleImages, isPaused, lightboxOpen]);
 
@@ -37,47 +38,47 @@ export const ConhecaSumeSection = ({ images, title, subtitle }: ConhecaSumeSecti
     setCurrentIndex((prev) => (prev + 1) % carouselImages.length);
   };
 
-  const openLightbox = () => {
-    setLightboxOpen(true);
-    document.body.style.overflow = 'hidden';
-  };
-
-  const closeLightbox = () => {
-    setLightboxOpen(false);
-    document.body.style.overflow = '';
-  };
+  // Trava o scroll do body enquanto o lightbox estiver aberto (com cleanup garantido)
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [lightboxOpen]);
 
   // Keyboard navigation
   useEffect(() => {
     if (!lightboxOpen) return;
-    
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') closeLightbox();
-      if (e.key === 'ArrowLeft') goToPrevious();
-      if (e.key === 'ArrowRight') goToNext();
+      if (e.key === "Escape") setLightboxOpen(false);
+      if (e.key === "ArrowLeft") goToPrevious();
+      if (e.key === "ArrowRight") goToNext();
     };
-    
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, [lightboxOpen, carouselImages.length]);
 
   return (
     <>
-      <section className="py-20 px-4 bg-background">
+      <section className="py-14 lg:py-20 px-4 bg-muted/40">
         <div className="container mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Image Carousel */}
-            <div 
+            <div
               className="relative"
               data-reveal="left"
               onMouseEnter={() => setIsPaused(true)}
               onMouseLeave={() => setIsPaused(false)}
             >
               <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-gold/20 rounded-3xl blur-3xl" />
-              
-              <div 
+
+              <div
                 className="relative rounded-3xl shadow-2xl overflow-hidden aspect-[4/3] cursor-pointer group"
-                onClick={openLightbox}
+                onClick={() => setLightboxOpen(true)}
               >
                 {carouselImages.map((src, index) => (
                   <img
@@ -105,12 +106,14 @@ export const ConhecaSumeSection = ({ images, title, subtitle }: ConhecaSumeSecti
                   <>
                     <button
                       onClick={goToPrevious}
+                      aria-label="Imagem anterior"
                       className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 hover:bg-white shadow-lg transition-all opacity-0 group-hover:opacity-100"
                     >
                       <ChevronLeft className="w-5 h-5 text-gray-800" />
                     </button>
                     <button
                       onClick={goToNext}
+                      aria-label="Próxima imagem"
                       className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 hover:bg-white shadow-lg transition-all opacity-0 group-hover:opacity-100"
                     >
                       <ChevronRight className="w-5 h-5 text-gray-800" />
@@ -128,9 +131,10 @@ export const ConhecaSumeSection = ({ images, title, subtitle }: ConhecaSumeSecti
                           e.stopPropagation();
                           setCurrentIndex(index);
                         }}
+                        aria-label={`Ir para imagem ${index + 1}`}
                         className={`h-2.5 rounded-full transition-all ${
-                          index === currentIndex 
-                            ? 'bg-gold w-6' 
+                          index === currentIndex
+                            ? 'bg-gold w-6'
                             : 'bg-white/60 hover:bg-white/80 w-2.5'
                         }`}
                       />
@@ -146,9 +150,9 @@ export const ConhecaSumeSection = ({ images, title, subtitle }: ConhecaSumeSecti
                 Conheça Nossa Cidade
               </span>
               {title ? (
-                <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-6">{title}</h2>
+                <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-6">{title}</h2>
               ) : (
-                <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-6">
+                <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-6">
                   Sumé<br />
                   <span className="text-gradient-gold">Cariri Paraibano</span>
                 </h2>
@@ -195,13 +199,14 @@ export const ConhecaSumeSection = ({ images, title, subtitle }: ConhecaSumeSecti
 
       {/* Lightbox Modal */}
       {lightboxOpen && (
-        <div 
+        <div
           className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center"
-          onClick={closeLightbox}
+          onClick={() => setLightboxOpen(false)}
         >
           {/* Close Button */}
           <button
-            onClick={closeLightbox}
+            onClick={() => setLightboxOpen(false)}
+            aria-label="Fechar visualização"
             className="absolute top-4 right-4 p-2 text-white/70 hover:text-white transition-colors z-10"
           >
             <X className="w-8 h-8" />
@@ -229,12 +234,14 @@ export const ConhecaSumeSection = ({ images, title, subtitle }: ConhecaSumeSecti
             <>
               <button
                 onClick={goToPrevious}
+                aria-label="Imagem anterior"
                 className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all"
               >
                 <ChevronLeft className="w-8 h-8" />
               </button>
               <button
                 onClick={goToNext}
+                aria-label="Próxima imagem"
                 className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all"
               >
                 <ChevronRight className="w-8 h-8" />
@@ -252,9 +259,10 @@ export const ConhecaSumeSection = ({ images, title, subtitle }: ConhecaSumeSecti
                     e.stopPropagation();
                     setCurrentIndex(index);
                   }}
+                  aria-label={`Ir para imagem ${index + 1}`}
                   className={`w-16 h-12 rounded-lg overflow-hidden flex-shrink-0 transition-all ${
-                    index === currentIndex 
-                      ? 'ring-2 ring-gold opacity-100' 
+                    index === currentIndex
+                      ? 'ring-2 ring-gold opacity-100'
                       : 'opacity-50 hover:opacity-75'
                   }`}
                 >

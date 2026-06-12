@@ -33,7 +33,15 @@ export default class InformationRecordsController {
   }
 
   async store({ request, response, session }: HttpContext) {
-    const data = request.only(['title', 'category', 'year', 'content', 'reference_date'])
+    const data = request.only([
+      'title',
+      'category',
+      'year',
+      'content',
+      'reference_date',
+      'open_mode',
+      'hide_chrome',
+    ])
 
     let fileUrl: string | null = null
     const file = request.file('file', { size: '20mb', extnames: ['pdf'] })
@@ -53,6 +61,9 @@ export default class InformationRecordsController {
       referenceDate: data.reference_date || null,
       fileUrl,
       isActive: true,
+      openMode: data.open_mode === 'modal' ? 'modal' : 'nova_aba',
+      // Formulário envia via FormData: booleanos chegam como '1'/'0'
+      hideChrome: !(data.hide_chrome === 'false' || data.hide_chrome === false || data.hide_chrome === '0'),
     })
 
     session.flash('success', 'Registro cadastrado com sucesso!')
@@ -77,6 +88,8 @@ export default class InformationRecordsController {
       'content',
       'reference_date',
       'is_active',
+      'open_mode',
+      'hide_chrome',
     ])
 
     const file = request.file('file', { size: '20mb', extnames: ['pdf'] })
@@ -94,7 +107,10 @@ export default class InformationRecordsController {
       year: Number.parseInt(data.year),
       content: data.content || null,
       referenceDate: data.reference_date || null,
-      isActive: data.is_active === 'true' || data.is_active === true,
+      isActive: data.is_active === 'true' || data.is_active === true || data.is_active === '1',
+      openMode: data.open_mode === 'modal' ? 'modal' : 'nova_aba',
+      // Formulário envia via FormData: booleanos chegam como '1'/'0'
+      hideChrome: !(data.hide_chrome === 'false' || data.hide_chrome === false || data.hide_chrome === '0'),
     })
     await record.save()
 

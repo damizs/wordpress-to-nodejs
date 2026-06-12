@@ -1,7 +1,27 @@
-import { Head, Link, router } from '@inertiajs/react'
+import { Head, router } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Plus, Pencil, Trash2, ScrollText, Search, Filter } from 'lucide-react'
+import { Pencil, Trash2 } from 'lucide-react'
 import { useState } from 'react'
+import {
+  Badge,
+  ConfirmDelete,
+  CreateButton,
+  IconButton,
+  IconLink,
+  Pagination,
+  RowActions,
+  SearchInput,
+  Select,
+  StatusBadge,
+  Table,
+  TableEmpty,
+  TBody,
+  TD,
+  TH,
+  THead,
+  Toolbar,
+  TR,
+} from '~/components/admin/ui'
 
 interface Props {
   activities: {
@@ -15,121 +35,104 @@ interface Props {
 
 export default function ActivitiesIndex({ activities, filters, types, years }: Props) {
   const [search, setSearch] = useState(filters.search)
+  const [deleteTarget, setDeleteTarget] = useState<{ id: number; label: string } | null>(null)
 
   function handleFilter(field: string, value: string) {
     router.get('/painel/atividades', { ...filters, [field]: value, page: 1 }, { preserveState: true })
   }
 
-  function handleSearch(e: React.FormEvent) {
-    e.preventDefault()
-    handleFilter('search', search)
-  }
-
-  function handleDelete(id: number) {
-    if (confirm('Excluir esta atividade?')) {
-      router.delete(`/painel/atividades/${id}`)
-    }
-  }
-
   const { data, meta } = activities
+
+  const params = new URLSearchParams()
+  if (filters.type) params.set('type', filters.type)
+  if (filters.year) params.set('year', filters.year)
+  if (filters.search) params.set('search', filters.search)
+  const baseUrl = `/painel/atividades${params.toString() ? `?${params.toString()}` : ''}`
 
   return (
     <AdminLayout title="Atividades Legislativas">
       <Head title="Atividades Legislativas - Painel" />
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
-        <p className="text-sm text-gray-500">{meta.total} atividade(s)</p>
-        <Link href="/painel/atividades/criar"
-          className="flex items-center gap-2 px-4 py-2.5 bg-navy text-white rounded-xl hover:bg-navy-dark transition-colors text-sm font-medium">
-          <Plus className="w-4 h-4" /> Nova Atividade
-        </Link>
+        <p className="text-sm text-muted-foreground">{meta.total} atividade(s)</p>
+        <CreateButton href="/painel/atividades/criar">Nova Atividade</CreateButton>
       </div>
 
-      {/* Filters */}
-      <div className="bg-white rounded-xl border border-gray-100 p-4 mb-4 flex flex-wrap gap-3 items-end">
-        <div>
-          <label className="block text-xs text-gray-500 mb-1">Tipo</label>
-          <select value={filters.type} onChange={(e) => handleFilter('type', e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm">
-            <option value="">Todos</option>
-            {types.map((t) => <option key={t} value={t}>{t}</option>)}
-          </select>
-        </div>
-        <div>
-          <label className="block text-xs text-gray-500 mb-1">Ano</label>
-          <select value={filters.year} onChange={(e) => handleFilter('year', e.target.value)}
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm">
-            <option value="">Todos</option>
-            {years.map((y) => <option key={y} value={y}>{y}</option>)}
-          </select>
-        </div>
-        <form onSubmit={handleSearch} className="flex gap-2">
-          <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Buscar..."
-            className="px-3 py-2 border border-gray-200 rounded-lg text-sm w-48" />
-          <button type="submit" className="p-2 bg-gray-100 rounded-lg hover:bg-gray-200">
-            <Search className="w-4 h-4" />
-          </button>
-        </form>
-      </div>
+      <Toolbar>
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          onSearch={() => handleFilter('search', search)}
+          placeholder="Buscar..."
+          className="sm:flex-1 sm:max-w-xs"
+        />
+        <Select
+          value={filters.type}
+          onChange={(e) => handleFilter('type', e.target.value)}
+          className="sm:w-48"
+        >
+          <option value="">Todos os tipos</option>
+          {types.map((t) => <option key={t} value={t}>{t}</option>)}
+        </Select>
+        <Select
+          value={filters.year}
+          onChange={(e) => handleFilter('year', e.target.value)}
+          className="sm:w-36"
+        >
+          <option value="">Todos os anos</option>
+          {years.map((y) => <option key={y} value={y}>{y}</option>)}
+        </Select>
+      </Toolbar>
 
-      <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
-        {data.length === 0 ? (
-          <div className="p-12 text-center">
-            <ScrollText className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-500">Nenhuma atividade encontrada</p>
-          </div>
-        ) : (
-          <table className="w-full">
-            <thead>
-              <tr className="bg-gray-50 border-b border-gray-100">
-                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Tipo</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Nº/Ano</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Ementa</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Status</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Autor</th>
-                <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((a: any) => (
-                <tr key={a.id} className="border-b border-gray-50 hover:bg-gray-50/50">
-                  <td className="px-4 py-3 text-sm">
-                    <span className="px-2 py-1 bg-navy/10 text-navy rounded-full text-xs font-medium">{a.type}</span>
-                  </td>
-                  <td className="px-4 py-3 text-sm font-medium text-gray-800">{a.number}/{a.year}</td>
-                  <td className="px-4 py-3 text-sm text-gray-600 max-w-md truncate">{a.summary}</td>
-                  <td className="px-4 py-3 text-sm text-gray-500">{a.status}</td>
-                  <td className="px-4 py-3 text-sm text-gray-500">{a.author || '—'}</td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="flex items-center justify-end gap-1">
-                      <Link href={`/painel/atividades/${a.id}/editar`}
-                        className="p-2 rounded-lg hover:bg-blue-50 text-gray-400 hover:text-blue-600 transition-colors">
-                        <Pencil className="w-4 h-4" />
-                      </Link>
-                      <button onClick={() => handleDelete(a.id)}
-                        className="p-2 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+      <Table footer={<Pagination meta={meta} baseUrl={baseUrl} itemLabel="atividade" />}>
+        <THead>
+          <TH>Tipo</TH>
+          <TH>Nº/Ano</TH>
+          <TH>Ementa</TH>
+          <TH>Status</TH>
+          <TH>Autor</TH>
+          <TH className="text-right">Ações</TH>
+        </THead>
+        <TBody>
+          {data.length === 0 && (
+            <TableEmpty colSpan={6}>Nenhuma atividade encontrada</TableEmpty>
+          )}
+          {data.map((a: any) => (
+            <TR key={a.id}>
+              <TD>
+                <Badge tone="navy">{a.type}</Badge>
+              </TD>
+              <TD className="font-medium whitespace-nowrap">{a.number}/{a.year}</TD>
+              <TD className="text-muted-foreground max-w-md truncate">{a.summary}</TD>
+              <TD>
+                <StatusBadge status={a.status} />
+              </TD>
+              <TD className="text-muted-foreground">{a.author || '—'}</TD>
+              <TD>
+                <RowActions>
+                  <IconLink tone="edit" href={`/painel/atividades/${a.id}/editar`} title="Editar">
+                    <Pencil className="w-4 h-4" />
+                  </IconLink>
+                  <IconButton
+                    tone="delete"
+                    onClick={() => setDeleteTarget({ id: a.id, label: `${a.type} ${a.number}/${a.year}` })}
+                    title="Excluir"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </IconButton>
+                </RowActions>
+              </TD>
+            </TR>
+          ))}
+        </TBody>
+      </Table>
 
-        {/* Pagination */}
-        {meta.last_page > 1 && (
-          <div className="flex items-center justify-center gap-2 py-4 border-t border-gray-100">
-            {Array.from({ length: meta.last_page }, (_, i) => i + 1).map((page) => (
-              <button key={page} onClick={() => handleFilter('page', String(page))}
-                className={`w-8 h-8 rounded-lg text-sm font-medium ${
-                  page === meta.current_page ? 'bg-navy text-white' : 'hover:bg-gray-100 text-gray-600'
-                }`}>{page}</button>
-            ))}
-          </div>
-        )}
-      </div>
+      <ConfirmDelete
+        target={deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        deleteUrl={(id) => `/painel/atividades/${id}`}
+        entity="atividade"
+      />
     </AdminLayout>
   )
 }

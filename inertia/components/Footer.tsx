@@ -1,4 +1,4 @@
-import { Link } from "@inertiajs/react";
+import { Link, usePage } from "@inertiajs/react";
 import { MapPin, Phone, Mail, Clock, Facebook, Instagram, Youtube } from "lucide-react";
 import { useSiteSettings } from "~/hooks/use_site_settings";
 
@@ -6,8 +6,68 @@ interface FooterProps {
   logoUrl?: string | null;
 }
 
+interface FooterLink {
+  label: string;
+  href: string;
+}
+
+interface FooterColumn {
+  title: string;
+  links: FooterLink[];
+}
+
+const defaultFooterColumns: FooterColumn[] = [
+  {
+    title: "Links Úteis",
+    links: [
+      { label: "Portal da Transparência", href: "/transparencia" },
+      { label: "E-SIC", href: "/transparencia" },
+      { label: "Ouvidoria", href: "/ouvidoria" },
+      { label: "Licitações", href: "/licitacoes" },
+      { label: "Vereadores", href: "/vereadores" },
+      { label: "Atas", href: "/atas" },
+    ],
+  },
+  {
+    title: "Institucional",
+    links: [
+      { label: "A Câmara", href: "/historia-da-camara" },
+      { label: "Mesa Diretora", href: "/mesa-diretora" },
+      { label: "Comissões", href: "/comissoes" },
+      { label: "Publicações Oficiais", href: "/publicacoes-oficiais" },
+      { label: "Leis Municipais", href: "/leis" },
+      { label: "Política de Privacidade", href: "/politica-de-privacidade" },
+    ],
+  },
+];
+
+/** Colunas editáveis no painel (/painel/menus); cai no padrão se a setting estiver vazia */
+function parseFooterColumns(raw: string | null | undefined): FooterColumn[] {
+  if (!raw) return defaultFooterColumns;
+  try {
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed) || parsed.length === 0) return defaultFooterColumns;
+    return parsed
+      .filter((c: any) => c && c.title)
+      .map((c: any) => ({
+        title: String(c.title),
+        links: Array.isArray(c.links)
+          ? c.links
+              .filter((l: any) => l && l.label && l.href)
+              .map((l: any) => ({ label: String(l.label), href: String(l.href) }))
+          : [],
+      }));
+  } catch {
+    return defaultFooterColumns;
+  }
+}
+
 export const Footer = ({ logoUrl }: FooterProps) => {
   const settings = useSiteSettings();
+  // Modo embed (?embed=1): página renderizada dentro de um modal/iframe — sem rodapé
+  const { url: currentUrl } = usePage();
+  const isEmbed = /[?&]embed=1/.test(currentUrl);
+  const footerColumns = parseFooterColumns(settings.footer_columns);
 
   const resolvedLogo = logoUrl ?? settings.logo_url ?? null;
   const headerTitle = settings.header_title || "CÂMARA MUNICIPAL DE SUMÉ";
@@ -19,13 +79,14 @@ export const Footer = ({ logoUrl }: FooterProps) => {
   const phone = settings.footer_phone || "(83) 3353-1175";
   const email = settings.footer_email || "contato@camaradesume.pb.gov.br";
   const hours = settings.footer_hours || "Seg a Sex, 8h às 14h";
-  const esicUrl = settings.esic_new_url && settings.esic_new_url !== "#" ? settings.esic_new_url : "/transparencia";
 
   const socials = [
     { icon: Facebook, url: settings.social_facebook },
     { icon: Instagram, url: settings.social_instagram },
     { icon: Youtube, url: settings.social_youtube },
   ].filter((s) => s.url && s.url.trim() !== "");
+
+  if (isEmbed) return null;
 
   return (
     <footer className="bg-gradient-navy text-primary-foreground">
@@ -73,33 +134,36 @@ export const Footer = ({ logoUrl }: FooterProps) => {
             )}
           </div>
 
-          {/* Quick Links */}
-          <div>
-            <h4 className="font-bold text-sm uppercase tracking-wider mb-1.5">Links Úteis</h4>
-            <div className="w-8 h-0.5 bg-gold rounded-full mb-4" />
-            <ul className="space-y-2.5 text-sm">
-              <li><Link href="/transparencia" className="inline-block opacity-75 hover:opacity-100 hover:text-gold hover:translate-x-1 transition-all duration-200 no-underline">Portal da Transparência</Link></li>
-              <li><a href={esicUrl} target={esicUrl.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer" className="inline-block opacity-75 hover:opacity-100 hover:text-gold hover:translate-x-1 transition-all duration-200 no-underline">E-SIC</a></li>
-              <li><Link href="/ouvidoria" className="inline-block opacity-75 hover:opacity-100 hover:text-gold hover:translate-x-1 transition-all duration-200 no-underline">Ouvidoria</Link></li>
-              <li><Link href="/licitacoes" className="inline-block opacity-75 hover:opacity-100 hover:text-gold hover:translate-x-1 transition-all duration-200 no-underline">Licitações</Link></li>
-              <li><Link href="/vereadores" className="inline-block opacity-75 hover:opacity-100 hover:text-gold hover:translate-x-1 transition-all duration-200 no-underline">Vereadores</Link></li>
-              <li><Link href="/atas" className="inline-block opacity-75 hover:opacity-100 hover:text-gold hover:translate-x-1 transition-all duration-200 no-underline">Atas</Link></li>
-            </ul>
-          </div>
-
-          {/* Institutional */}
-          <div>
-            <h4 className="font-bold text-sm uppercase tracking-wider mb-1.5">Institucional</h4>
-            <div className="w-8 h-0.5 bg-gold rounded-full mb-4" />
-            <ul className="space-y-2.5 text-sm">
-              <li><Link href="/historia-da-camara" className="inline-block opacity-75 hover:opacity-100 hover:text-gold hover:translate-x-1 transition-all duration-200 no-underline">A Câmara</Link></li>
-              <li><Link href="/mesa-diretora" className="inline-block opacity-75 hover:opacity-100 hover:text-gold hover:translate-x-1 transition-all duration-200 no-underline">Mesa Diretora</Link></li>
-              <li><Link href="/comissoes" className="inline-block opacity-75 hover:opacity-100 hover:text-gold hover:translate-x-1 transition-all duration-200 no-underline">Comissões</Link></li>
-              <li><Link href="/publicacoes-oficiais" className="inline-block opacity-75 hover:opacity-100 hover:text-gold hover:translate-x-1 transition-all duration-200 no-underline">Publicações Oficiais</Link></li>
-              <li><Link href="/leis" className="inline-block opacity-75 hover:opacity-100 hover:text-gold hover:translate-x-1 transition-all duration-200 no-underline">Leis Municipais</Link></li>
-              <li><Link href="/politica-de-privacidade" className="inline-block opacity-75 hover:opacity-100 hover:text-gold hover:translate-x-1 transition-all duration-200 no-underline">Política de Privacidade</Link></li>
-            </ul>
-          </div>
+          {/* Colunas de links (editáveis em /painel/menus) */}
+          {footerColumns.map((column, ci) => (
+            <div key={ci}>
+              <h4 className="font-bold text-sm uppercase tracking-wider mb-1.5">{column.title}</h4>
+              <div className="w-8 h-0.5 bg-gold rounded-full mb-4" />
+              <ul className="space-y-2.5 text-sm">
+                {column.links.map((link, li) => (
+                  <li key={li}>
+                    {link.href.startsWith("http") ? (
+                      <a
+                        href={link.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-block opacity-75 hover:opacity-100 hover:text-gold hover:translate-x-1 transition-all duration-200 no-underline"
+                      >
+                        {link.label}
+                      </a>
+                    ) : (
+                      <Link
+                        href={link.href}
+                        className="inline-block opacity-75 hover:opacity-100 hover:text-gold hover:translate-x-1 transition-all duration-200 no-underline"
+                      >
+                        {link.label}
+                      </Link>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
 
           {/* Contact */}
           <div>

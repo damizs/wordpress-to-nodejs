@@ -4,7 +4,8 @@ import {
   LayoutDashboard, Newspaper, Palette, ChevronLeft, ChevronRight, ChevronDown,
   LogOut, Menu, User, Home, Users, FileText, Link2, Shield, UserCog,
   ScrollText, Settings, Monitor, HelpCircle, Info, Tags, Calendar, Users2,
-  Gavel, ClipboardCheck, Image, Radar, Vote, ExternalLink,
+  Gavel, ClipboardCheck, Image, Radar, Vote, ExternalLink, Award, Files,
+  BookOpen, FolderOpen,
 } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 
@@ -73,7 +74,13 @@ const navGroups: NavGroup[] = [
     label: 'Site',
     items: [
       { label: 'Homepage', href: '/painel/homepage', icon: Monitor, permissions: ['site.gerenciar'] },
+      { label: 'Páginas', href: '/painel/paginas', icon: Files, permissions: ['site.gerenciar'] },
+      { label: 'Conteúdo Institucional', href: '/painel/institucional', icon: BookOpen, permissions: ['site.gerenciar'] },
+      { label: 'Biblioteca de Mídia', href: '/painel/midia', icon: FolderOpen, permissions: ['site.gerenciar'] },
       { label: 'Aparência', href: '/painel/aparencia', icon: Palette, permissions: ['site.gerenciar'] },
+      { label: 'Menus do Site', href: '/painel/menus', icon: Menu, permissions: ['site.gerenciar'] },
+      { label: 'Feriados', href: '/painel/feriados', icon: Calendar, permissions: ['site.gerenciar'] },
+      { label: 'Selos', href: '/painel/selos', icon: Award, permissions: ['site.gerenciar'] },
       { label: 'Links Rápidos', href: '/painel/links-rapidos', icon: Link2, permissions: ['site.gerenciar'] },
       { label: 'Categorias', href: '/painel/categorias', icon: Tags, permissions: ['site.gerenciar'] },
       { label: 'Fotos da Cidade', href: '/painel/configuracoes/fotos-cidade', icon: Image, permissions: ['site.gerenciar'] },
@@ -161,7 +168,7 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
     } ${collapsed ? 'justify-center px-0' : ''}`
 
   return (
-    <div className="min-h-screen bg-gray-100/80" style={{ fontFamily: "'Inter Variable', 'Inter', Verdana, Geneva, sans-serif" }}>
+    <div className="min-h-screen bg-background" style={{ fontFamily: "'Inter Variable', 'Inter', Verdana, Geneva, sans-serif" }}>
       <FlashMessages />
 
       {/* Mobile overlay */}
@@ -283,17 +290,17 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
       {/* Main content */}
       <div className={`transition-all duration-300 ${collapsed ? 'lg:ml-[68px]' : 'lg:ml-64'}`}>
         {/* Top bar */}
-        <header className="h-16 bg-white/90 backdrop-blur border-b border-gray-200 flex items-center justify-between px-4 lg:px-8 sticky top-0 z-30">
+        <header className="h-16 bg-card/90 backdrop-blur border-b border-border flex items-center justify-between px-4 lg:px-8 sticky top-0 z-30">
           <div className="flex items-center gap-3 min-w-0">
             <button
               onClick={() => setMobileOpen(true)}
-              className="lg:hidden p-2 rounded-lg hover:bg-gray-100 text-gray-600"
+              className="lg:hidden p-2 rounded-lg hover:bg-muted text-muted-foreground"
             >
               <Menu className="w-5 h-5" />
             </button>
             <div className="min-w-0">
-              <p className="text-[11px] text-gray-400 leading-none mb-0.5">Painel</p>
-              <h1 className="text-base font-bold text-gray-900 truncate leading-tight">{title}</h1>
+              <p className="text-[11px] text-muted-foreground/70 leading-none mb-0.5">Painel</p>
+              <h1 className="text-base font-bold text-foreground truncate leading-tight">{title}</h1>
             </div>
           </div>
 
@@ -301,16 +308,16 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
             <Link
               href="/"
               target="_blank"
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-gray-500 hover:text-navy hover:bg-gray-100 transition-colors no-underline"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-muted-foreground hover:text-navy hover:bg-muted transition-colors no-underline"
             >
               <ExternalLink className="w-3.5 h-3.5" />
               Ver site
             </Link>
-            <div className="flex items-center gap-2.5 pl-2 border-l border-gray-200">
-              <div className="w-8 h-8 rounded-full bg-navy text-white flex items-center justify-center text-[11px] font-bold">
+            <div className="flex items-center gap-2.5 pl-2 border-l border-border">
+              <div className="w-8 h-8 rounded-full bg-navy text-white flex items-center justify-center text-[11px] font-bold ring-2 ring-gold/40">
                 {initials || <User className="w-4 h-4" />}
               </div>
-              <span className="text-sm font-medium text-gray-700 hidden md:inline max-w-[160px] truncate">
+              <span className="text-sm font-medium text-foreground hidden md:inline max-w-[160px] truncate">
                 {userName}
               </span>
             </div>

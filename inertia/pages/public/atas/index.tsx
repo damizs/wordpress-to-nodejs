@@ -6,7 +6,8 @@ import { Header } from "~/components/Header";
 import { Breadcrumb } from "~/components/Breadcrumb";
 import { PageHero } from "~/components/PageHero";
 import { Footer } from "~/components/Footer";
-import { Calendar, FileText, Download, ChevronLeft, ChevronRight, Search, X, ArrowRight } from "lucide-react";
+import { Calendar, FileText, ChevronLeft, ChevronRight, Search, X, ArrowRight } from "lucide-react";
+import { DownloadPdfButton, formatDocumentDate } from "~/components/DocumentActions";
 
 interface Ata { id: number; title: string; slug: string; date: string; file_url?: string; }
 interface Props {
@@ -37,10 +38,11 @@ export default function AtasIndex({ atas = [], pagination, years = [], filters =
       <div className="min-h-screen bg-background">
         <TopBar /><Header /><Breadcrumb items={[{ label: "Atas das Sessões" }]} />
         <PageHero badge="Documentos Oficiais" title="Atas das Sessões" subtitle="Registros oficiais das sessões plenárias realizadas pela Câmara Municipal" />
-        <main className="py-12">
-          <div className="container mx-auto px-4">
+        <main>
+          <section className="py-10 lg:py-14">
+          <div className="container">
             {/* Toolbar de filtros */}
-            <div data-reveal="up" className="max-w-3xl mx-auto mb-8 card-modern p-4 flex flex-col sm:flex-row gap-3">
+            <div data-reveal="up" className="max-w-4xl mx-auto mb-8 card-modern p-4 flex flex-col sm:flex-row gap-3">
               <form
                 className="relative flex-1"
                 onSubmit={(e) => { e.preventDefault(); applyFilters({ busca: searchTerm }); }}
@@ -65,7 +67,7 @@ export default function AtasIndex({ atas = [], pagination, years = [], filters =
               {hasFilters && (
                 <button
                   onClick={() => { setSearchTerm(""); router.get("/atas"); }}
-                  className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-sm text-muted-foreground hover:text-red-500 hover:bg-red-50 transition-colors"
+                  className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                 >
                   <X className="w-4 h-4" /> Limpar
                 </button>
@@ -73,38 +75,43 @@ export default function AtasIndex({ atas = [], pagination, years = [], filters =
             </div>
 
             {pagination?.total !== undefined && (
-              <p data-reveal="fade" className="max-w-3xl mx-auto mb-6 text-sm text-muted-foreground text-right">
+              <p data-reveal="fade" className="max-w-4xl mx-auto mb-6 text-sm text-muted-foreground text-right">
                 {pagination.total} {pagination.total === 1 ? "registro" : "registros"}
               </p>
             )}
 
             {atas.length > 0 ? (
-              <div className="max-w-3xl mx-auto space-y-4">
-                {atas.map((ata, i) => (
-                  <div key={ata.id} data-reveal="up" data-reveal-delay={String(Math.min(i, 6) * 60)} className="card-modern card-shine p-5 flex items-center justify-between gap-4 hover-lift group">
-                    <div className="flex items-center gap-4 min-w-0">
-                      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 icon-pop">
+              <div className="max-w-4xl mx-auto space-y-4">
+                {atas.map((ata, i) => {
+                  const year = String(ata.date || "").slice(0, 4);
+                  return (
+                    <div key={ata.id} data-reveal="up" data-reveal-delay={String(Math.min(i, 6) * 60)} className="card-modern p-5 flex flex-col sm:flex-row sm:items-center gap-4 hover-lift group">
+                      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                         <FileText className="w-6 h-6 text-primary" />
                       </div>
-                      <div className="min-w-0">
-                        <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors truncate">{ata.title}</h3>
-                        <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-0.5">
-                          <Calendar className="w-3.5 h-3.5" />{new Date(ata.date).toLocaleDateString('pt-BR')}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                          <span className="px-2.5 py-0.5 bg-gold/10 text-gold rounded-full text-xs font-semibold uppercase tracking-wide">Ata de Sessão</span>
+                          {year && <span className="px-2.5 py-0.5 bg-primary/10 text-primary rounded-full text-xs font-bold">{year}</span>}
+                        </div>
+                        <h3 className="font-semibold text-foreground leading-snug line-clamp-2">
+                          <Link href={`/atas/${ata.slug}`} className="no-underline text-foreground group-hover:text-primary transition-colors">
+                            {ata.title}
+                          </Link>
+                        </h3>
+                        <p className="text-sm text-muted-foreground flex items-center gap-1.5 mt-1">
+                          <Calendar className="w-3.5 h-3.5" />{formatDocumentDate(ata.date)}
                         </p>
                       </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <DownloadPdfButton fileUrl={ata.file_url} />
+                        <Link href={`/atas/${ata.slug}`} className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-2.5 rounded-xl border border-border bg-card text-sm font-medium text-foreground hover:border-primary/40 hover:text-primary transition-colors no-underline">
+                          Detalhes <ArrowRight className="w-4 h-4" />
+                        </Link>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 shrink-0">
-                      <Link href={`/atas/${ata.slug}`} className="hidden sm:inline-flex items-center gap-1 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-medium no-underline hover:bg-primary/90 transition-colors">
-                        Visualizar <ArrowRight className="w-4 h-4" />
-                      </Link>
-                      {ata.file_url && (
-                        <a href={ata.file_url} target="_blank" rel="noopener noreferrer" title="Baixar PDF" className="p-2.5 rounded-xl bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground transition-colors no-underline">
-                          <Download className="w-5 h-5" />
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <div className="text-center py-20">
@@ -128,6 +135,7 @@ export default function AtasIndex({ atas = [], pagination, years = [], filters =
               </div>
             )}
           </div>
+          </section>
         </main>
         <Footer />
       </div>

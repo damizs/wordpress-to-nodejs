@@ -172,7 +172,7 @@ export const LegislativoSection = ({ data, title, subtitle }: LegislativoSection
   const showVereadores = vereadoresAtivos.length > 0;
 
   return (
-    <section className="py-20 px-4 bg-muted/40">
+    <section className="py-14 lg:py-20 px-4 bg-background">
       <div className="container mx-auto">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10" data-reveal="up">
@@ -180,7 +180,7 @@ export const LegislativoSection = ({ data, title, subtitle }: LegislativoSection
             <span className="inline-block px-4 py-1.5 bg-gold/10 text-gold rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
               Legislativo em Números
             </span>
-            <h2 className="text-3xl md:text-4xl font-bold text-foreground">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground">
               {title || "Atividade Legislativa"}
             </h2>
             {subtitle && <p className="text-muted-foreground mt-2 max-w-2xl">{subtitle}</p>}

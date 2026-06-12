@@ -1,6 +1,7 @@
 import { Head, useForm } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Save, Monitor, Type, Shield, Users, FileText, Globe, Award, BarChart3, Eye, EyeOff } from 'lucide-react'
+import { Save, Monitor, Shield, Users, FileText, Globe, Award, Eye, type LucideIcon } from 'lucide-react'
+import { Button, Card, CardHeader, Field, Input, Textarea } from '~/components/admin/ui'
 
 interface Props {
   settings: Record<string, Record<string, string | null>>
@@ -85,12 +86,12 @@ export default function HomepageEditor({ settings }: Props) {
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             {visibilityItems.map((item) => (
               <label key={item.key} className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-colors ${
-                data[item.key] === 'true' ? 'border-green-300 bg-green-50' : 'border-gray-200 bg-gray-50'
+                data[item.key] === 'true' ? 'border-navy/40 bg-navy/5' : 'border-border bg-muted'
               }`}>
                 <input type="checkbox" checked={data[item.key] === 'true'}
                   onChange={(e) => setData(item.key, e.target.checked ? 'true' : 'false')}
-                  className="w-4 h-4 rounded border-gray-300 text-green-600 focus:ring-green-500" />
-                <span className="text-sm text-gray-700">{item.label}</span>
+                  className="w-4 h-4 rounded border-border accent-navy" />
+                <span className="text-sm text-foreground">{item.label}</span>
               </label>
             ))}
           </div>
@@ -98,75 +99,74 @@ export default function HomepageEditor({ settings }: Props) {
 
         {/* Hero */}
         <Section icon={Monitor} title="Banner Principal (Hero)">
-          <Field label="Título" value={data.homepage_hero_title} onChange={(v) => setData('homepage_hero_title', v)} />
-          <Field label="Subtítulo" value={data.homepage_hero_subtitle} onChange={(v) => setData('homepage_hero_subtitle', v)} />
+          <TextField label="Título" value={data.homepage_hero_title} onChange={(v) => setData('homepage_hero_title', v)} />
+          <TextField label="Subtítulo" value={data.homepage_hero_subtitle} onChange={(v) => setData('homepage_hero_subtitle', v)} />
         </Section>
 
         {/* Quick Access */}
         <Section icon={Globe} title="Seção: Acesso Rápido" description="Os cards de acesso rápido são gerenciados em Links Rápidos">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field label="Badge" value={data.homepage_quickaccess_badge} onChange={(v) => setData('homepage_quickaccess_badge', v)} />
-            <Field label="Título" value={data.homepage_quickaccess_title} onChange={(v) => setData('homepage_quickaccess_title', v)} />
+            <TextField label="Badge" value={data.homepage_quickaccess_badge} onChange={(v) => setData('homepage_quickaccess_badge', v)} />
+            <TextField label="Título" value={data.homepage_quickaccess_title} onChange={(v) => setData('homepage_quickaccess_title', v)} />
           </div>
-          <Field label="Subtítulo" value={data.homepage_quickaccess_subtitle} onChange={(v) => setData('homepage_quickaccess_subtitle', v)} />
+          <TextField label="Subtítulo" value={data.homepage_quickaccess_subtitle} onChange={(v) => setData('homepage_quickaccess_subtitle', v)} />
         </Section>
 
         {/* E-SIC */}
         <Section icon={Shield} title="Seção: E-SIC" description="Links dos botões são configurados em Aparência > E-SIC">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field label="Título" value={data.homepage_esic_title} onChange={(v) => setData('homepage_esic_title', v)} />
-            <Field label="Subtítulo" value={data.homepage_esic_subtitle} onChange={(v) => setData('homepage_esic_subtitle', v)} />
+            <TextField label="Título" value={data.homepage_esic_title} onChange={(v) => setData('homepage_esic_title', v)} />
+            <TextField label="Subtítulo" value={data.homepage_esic_subtitle} onChange={(v) => setData('homepage_esic_subtitle', v)} />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <TextArea label="Endereço" value={data.homepage_esic_address} onChange={(v) => setData('homepage_esic_address', v)} rows={3} />
-            <TextArea label="Horário" value={data.homepage_esic_hours} onChange={(v) => setData('homepage_esic_hours', v)} rows={3} />
+            <TextAreaField label="Endereço" value={data.homepage_esic_address} onChange={(v) => setData('homepage_esic_address', v)} rows={3} />
+            <TextAreaField label="Horário" value={data.homepage_esic_hours} onChange={(v) => setData('homepage_esic_hours', v)} rows={3} />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field label="Telefone" value={data.homepage_esic_phone} onChange={(v) => setData('homepage_esic_phone', v)} />
-            <Field label="Email" value={data.homepage_esic_email} onChange={(v) => setData('homepage_esic_email', v)} />
+            <TextField label="Telefone" value={data.homepage_esic_phone} onChange={(v) => setData('homepage_esic_phone', v)} />
+            <TextField label="Email" value={data.homepage_esic_email} onChange={(v) => setData('homepage_esic_email', v)} />
           </div>
         </Section>
 
         {/* Vereadores */}
         <Section icon={Users} title="Seção: Vereadores" description="Os vereadores são gerenciados em Vereadores">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field label="Badge da Legislatura" value={data.homepage_vereadores_badge} onChange={(v) => setData('homepage_vereadores_badge', v)} />
-            <Field label="Título" value={data.homepage_vereadores_title} onChange={(v) => setData('homepage_vereadores_title', v)} />
+            <TextField label="Badge da Legislatura" value={data.homepage_vereadores_badge} onChange={(v) => setData('homepage_vereadores_badge', v)} />
+            <TextField label="Título" value={data.homepage_vereadores_title} onChange={(v) => setData('homepage_vereadores_title', v)} />
           </div>
-          <Field label="Subtítulo" value={data.homepage_vereadores_subtitle} onChange={(v) => setData('homepage_vereadores_subtitle', v)} />
+          <TextField label="Subtítulo" value={data.homepage_vereadores_subtitle} onChange={(v) => setData('homepage_vereadores_subtitle', v)} />
         </Section>
 
         {/* Transparency */}
         <Section icon={Shield} title="Seção: Transparência">
-          <Field label="Título" value={data.homepage_transparency_title} onChange={(v) => setData('homepage_transparency_title', v)} />
-          <Field label="Subtítulo" value={data.homepage_transparency_subtitle} onChange={(v) => setData('homepage_transparency_subtitle', v)} />
+          <TextField label="Título" value={data.homepage_transparency_title} onChange={(v) => setData('homepage_transparency_title', v)} />
+          <TextField label="Subtítulo" value={data.homepage_transparency_subtitle} onChange={(v) => setData('homepage_transparency_subtitle', v)} />
         </Section>
 
         {/* Diário */}
         <Section icon={FileText} title="Seção: Diário Oficial">
-          <Field label="Título" value={data.homepage_diario_title} onChange={(v) => setData('homepage_diario_title', v)} />
-          <Field label="Subtítulo" value={data.homepage_diario_subtitle} onChange={(v) => setData('homepage_diario_subtitle', v)} />
+          <TextField label="Título" value={data.homepage_diario_title} onChange={(v) => setData('homepage_diario_title', v)} />
+          <TextField label="Subtítulo" value={data.homepage_diario_subtitle} onChange={(v) => setData('homepage_diario_subtitle', v)} />
         </Section>
 
         {/* Conheça Sumé */}
         <Section icon={Globe} title="Seção: Conheça Sumé">
-          <Field label="Título" value={data.homepage_conheca_title} onChange={(v) => setData('homepage_conheca_title', v)} />
-          <Field label="Subtítulo" value={data.homepage_conheca_subtitle} onChange={(v) => setData('homepage_conheca_subtitle', v)} />
+          <TextField label="Título" value={data.homepage_conheca_title} onChange={(v) => setData('homepage_conheca_title', v)} />
+          <TextField label="Subtítulo" value={data.homepage_conheca_subtitle} onChange={(v) => setData('homepage_conheca_subtitle', v)} />
         </Section>
 
         {/* Seals */}
         <Section icon={Award} title="Seção: Selos de Transparência">
-          <Field label="Título" value={data.homepage_seals_title} onChange={(v) => setData('homepage_seals_title', v)} />
-          <Field label="Subtítulo" value={data.homepage_seals_subtitle} onChange={(v) => setData('homepage_seals_subtitle', v)} />
+          <TextField label="Título" value={data.homepage_seals_title} onChange={(v) => setData('homepage_seals_title', v)} />
+          <TextField label="Subtítulo" value={data.homepage_seals_subtitle} onChange={(v) => setData('homepage_seals_subtitle', v)} />
         </Section>
 
         {/* Submit */}
         <div className="flex justify-end pt-4">
-          <button type="submit" disabled={processing}
-            className="flex items-center gap-2 px-6 py-3 bg-navy text-white rounded-xl hover:bg-navy-dark transition-colors disabled:opacity-50 font-medium">
-            <Save className="w-4 h-4" />
+          <Button type="submit" loading={processing}>
+            {!processing && <Save className="w-4 h-4" />}
             {processing ? 'Salvando...' : 'Salvar Todas as Configurações'}
-          </button>
+          </Button>
         </div>
       </form>
     </AdminLayout>
@@ -174,36 +174,27 @@ export default function HomepageEditor({ settings }: Props) {
 }
 
 // Sub-components
-function Section({ icon: Icon, title, description, children }: { icon: any; title: string; description?: string; children: React.ReactNode }) {
+function Section({ icon, title, description, children }: { icon: LucideIcon; title: string; description?: string; children: React.ReactNode }) {
   return (
-    <div className="bg-white rounded-xl border border-gray-100 p-5">
-      <div className="flex items-center gap-2 mb-1">
-        <Icon className="w-5 h-5 text-navy" />
-        <h2 className="font-semibold text-gray-800">{title}</h2>
-      </div>
-      {description && <p className="text-xs text-gray-400 mb-4 ml-7">{description}</p>}
-      {!description && <div className="mb-4" />}
+    <Card>
+      <CardHeader icon={icon} title={title} description={description} />
       <div className="space-y-4">{children}</div>
-    </div>
+    </Card>
   )
 }
 
-function Field({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string }) {
+function TextField({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string }) {
   return (
-    <div>
-      <label className="block text-sm font-medium text-gray-600 mb-1">{label}</label>
-      <input type="text" value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
-        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none transition-all" />
-    </div>
+    <Field label={label}>
+      <Input type="text" value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} />
+    </Field>
   )
 }
 
-function TextArea({ label, value, onChange, rows = 3 }: { label: string; value: string; onChange: (v: string) => void; rows?: number }) {
+function TextAreaField({ label, value, onChange, rows = 3 }: { label: string; value: string; onChange: (v: string) => void; rows?: number }) {
   return (
-    <div>
-      <label className="block text-sm font-medium text-gray-600 mb-1">{label}</label>
-      <textarea value={value} onChange={(e) => onChange(e.target.value)} rows={rows}
-        className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none transition-all resize-none" />
-    </div>
+    <Field label={label}>
+      <Textarea value={value} onChange={(e) => onChange(e.target.value)} rows={rows} className="resize-none" />
+    </Field>
   )
 }

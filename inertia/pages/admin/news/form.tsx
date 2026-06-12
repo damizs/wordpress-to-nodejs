@@ -2,6 +2,15 @@ import { Head, useForm, Link, router } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
 import { Save, ArrowLeft, Upload, Image, X } from 'lucide-react'
 import { useState, useRef } from 'react'
+import {
+  Button,
+  ButtonLink,
+  Card,
+  Field,
+  Input,
+  Select,
+  Textarea,
+} from '~/components/admin/ui'
 
 interface NewsItem {
   id: number
@@ -89,7 +98,7 @@ export default function NewsForm({ news: existing, categories }: Props) {
         {/* Back */}
         <Link
           href="/painel/noticias"
-          className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-navy mb-6 transition-colors"
+          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-navy mb-6 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           Voltar para listagem
@@ -97,152 +106,138 @@ export default function NewsForm({ news: existing, categories }: Props) {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Main content */}
-          <div className="bg-white rounded-xl border border-gray-100 p-5 space-y-5">
-            {/* Title */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Título</label>
-              <input
+          <Card className="space-y-5">
+            <Field label="Título" required>
+              <Input
                 type="text"
                 value={data.title}
                 onChange={(e) => setData('title', e.target.value)}
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none transition-all"
                 placeholder="Título da notícia"
                 required
               />
-            </div>
+            </Field>
 
-            {/* Excerpt */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Resumo</label>
-              <textarea
+            <Field label="Resumo">
+              <Textarea
                 value={data.excerpt}
                 onChange={(e) => setData('excerpt', e.target.value)}
                 rows={2}
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none transition-all resize-none"
+                className="resize-none min-h-0"
                 placeholder="Resumo curto da notícia (aparece na listagem)"
               />
-            </div>
+            </Field>
 
-            {/* Content */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1.5">Conteúdo</label>
-              <textarea
+            <Field label="Conteúdo" hint="Suporta HTML. Em breve: editor visual.">
+              <Textarea
                 value={data.content}
                 onChange={(e) => setData('content', e.target.value)}
                 rows={15}
-                className="w-full px-4 py-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none transition-all font-mono"
+                className="font-mono"
                 placeholder="Conteúdo da notícia (HTML suportado)"
               />
-              <p className="text-xs text-gray-400 mt-1">Suporta HTML. Em breve: editor visual.</p>
-            </div>
-          </div>
+            </Field>
+          </Card>
 
           {/* Sidebar options */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {/* Cover Image */}
-            <div className="bg-white rounded-xl border border-gray-100 p-5">
-              <label className="block text-sm font-medium text-gray-700 mb-3">Imagem de Capa</label>
-              {coverPreview ? (
-                <div className="relative rounded-lg overflow-hidden mb-3">
-                  <img src={coverPreview} alt="Preview" className="w-full h-40 object-cover" />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setCoverPreview(null)
-                      setData('cover_image', null)
-                    }}
-                    className="absolute top-2 right-2 p-1 bg-black/50 rounded-full text-white hover:bg-black/70"
+            <Card>
+              <Field label="Imagem de Capa">
+                {coverPreview ? (
+                  <div className="relative rounded-lg overflow-hidden mb-3 mt-1.5">
+                    <img src={coverPreview} alt="Preview" className="w-full h-40 object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCoverPreview(null)
+                        setData('cover_image', null)
+                      }}
+                      className="absolute top-2 right-2 p-1 bg-navy-dark/50 rounded-full text-white hover:bg-navy-dark/70 transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <div
+                    onClick={() => fileRef.current?.click()}
+                    className="flex flex-col items-center justify-center py-8 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-navy/30 transition-colors mb-3 mt-1.5"
                   >
-                    <X className="w-4 h-4" />
-                  </button>
-                </div>
-              ) : (
-                <div
-                  onClick={() => fileRef.current?.click()}
-                  className="flex flex-col items-center justify-center py-8 border-2 border-dashed border-gray-200 rounded-lg cursor-pointer hover:border-navy/30 transition-colors mb-3"
-                >
-                  <Image className="w-8 h-8 text-gray-300 mb-2" />
-                  <span className="text-sm text-gray-400">Clique para enviar</span>
-                  <span className="text-xs text-gray-300 mt-1">JPG, PNG ou WebP até 5MB</span>
-                </div>
-              )}
-              <input
-                ref={fileRef}
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                className="hidden"
-                onChange={(e) => handleCoverChange(e.target.files?.[0] || null)}
-              />
-              {!coverPreview && (
-                <button
-                  type="button"
-                  onClick={() => fileRef.current?.click()}
-                  className="w-full py-2 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 transition-colors flex items-center justify-center gap-2"
-                >
-                  <Upload className="w-4 h-4" />
-                  Selecionar imagem
-                </button>
-              )}
-            </div>
+                    <Image className="w-8 h-8 text-muted-foreground/50 mb-2" />
+                    <span className="text-sm text-muted-foreground">Clique para enviar</span>
+                    <span className="text-xs text-muted-foreground/60 mt-1">JPG, PNG ou WebP até 5MB</span>
+                  </div>
+                )}
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  className="hidden"
+                  onChange={(e) => handleCoverChange(e.target.files?.[0] || null)}
+                />
+                {!coverPreview && (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    className="w-full"
+                    onClick={() => fileRef.current?.click()}
+                  >
+                    <Upload className="w-4 h-4" />
+                    Selecionar imagem
+                  </Button>
+                )}
+              </Field>
+            </Card>
 
             {/* Status + Category + Date */}
             <div className="space-y-5">
-              <div className="bg-white rounded-xl border border-gray-100 p-5">
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Status</label>
-                <select
-                  value={data.status}
-                  onChange={(e) => setData('status', e.target.value)}
-                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 outline-none"
-                >
-                  <option value="draft">Rascunho</option>
-                  <option value="published">Publicada</option>
-                  <option value="archived">Arquivada</option>
-                </select>
-              </div>
+              <Card>
+                <Field label="Status">
+                  <Select value={data.status} onChange={(e) => setData('status', e.target.value)}>
+                    <option value="draft">Rascunho</option>
+                    <option value="published">Publicada</option>
+                    <option value="archived">Arquivada</option>
+                  </Select>
+                </Field>
+              </Card>
 
-              <div className="bg-white rounded-xl border border-gray-100 p-5">
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Categoria</label>
-                <select
-                  value={data.category_id}
-                  onChange={(e) => setData('category_id', e.target.value)}
-                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 outline-none"
-                >
-                  <option value="">Sem categoria</option>
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>{cat.name}</option>
-                  ))}
-                </select>
-              </div>
+              <Card>
+                <Field label="Categoria">
+                  <Select
+                    value={data.category_id}
+                    onChange={(e) => setData('category_id', e.target.value)}
+                  >
+                    <option value="">Sem categoria</option>
+                    {categories.map((cat) => (
+                      <option key={cat.id} value={cat.id}>{cat.name}</option>
+                    ))}
+                  </Select>
+                </Field>
+              </Card>
 
-              <div className="bg-white rounded-xl border border-gray-100 p-5">
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">Data de Publicação</label>
-                <input
-                  type="datetime-local"
-                  value={data.published_at}
-                  onChange={(e) => setData('published_at', e.target.value)}
-                  className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 outline-none"
-                />
-                <p className="text-xs text-gray-400 mt-1">Deixe em branco para usar a data atual ao publicar</p>
-              </div>
+              <Card>
+                <Field
+                  label="Data de Publicação"
+                  hint="Deixe em branco para usar a data atual ao publicar"
+                >
+                  <Input
+                    type="datetime-local"
+                    value={data.published_at}
+                    onChange={(e) => setData('published_at', e.target.value)}
+                  />
+                </Field>
+              </Card>
             </div>
           </div>
 
           {/* Actions */}
           <div className="flex items-center justify-end gap-3 pt-2">
-            <Link
-              href="/painel/noticias"
-              className="px-5 py-2.5 border border-gray-200 rounded-lg text-sm text-gray-600 hover:bg-gray-50 transition-colors"
-            >
+            <ButtonLink href="/painel/noticias" variant="secondary">
               Cancelar
-            </Link>
-            <button
-              type="submit"
-              disabled={processing}
-              className="flex items-center gap-2 px-6 py-2.5 bg-navy text-white rounded-lg hover:bg-navy-dark transition-colors disabled:opacity-50 text-sm font-medium"
-            >
-              <Save className="w-4 h-4" />
+            </ButtonLink>
+            <Button type="submit" loading={processing}>
+              {!processing && <Save className="w-4 h-4" />}
               {processing ? 'Salvando...' : isEditing ? 'Atualizar' : 'Criar Notícia'}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

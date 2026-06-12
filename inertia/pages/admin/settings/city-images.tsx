@@ -2,6 +2,7 @@ import { Head, router } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
 import { Image, Trash2, Save, Plus } from 'lucide-react'
 import { useState, useRef } from 'react'
+import { Button, Card, CardHeader } from '~/components/admin/ui'
 
 interface Props {
   images: string[]
@@ -17,7 +18,7 @@ export default function CityImages({ images }: Props) {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
     setNewFiles(prev => [...prev, ...files])
-    
+
     files.forEach(file => {
       const reader = new FileReader()
       reader.onload = (ev) => {
@@ -38,7 +39,7 @@ export default function CityImages({ images }: Props) {
 
   const handleSave = async () => {
     setSaving(true)
-    
+
     const formData = new FormData()
     formData.append('existing_images', JSON.stringify(currentImages))
     newFiles.forEach((file) => {
@@ -54,7 +55,7 @@ export default function CityImages({ images }: Props) {
           'X-XSRF-TOKEN': document.cookie.split('; ').find(row => row.startsWith('XSRF-TOKEN='))?.split('=')[1] || ''
         }
       })
-      
+
       if (response.ok) {
         router.reload()
       }
@@ -70,27 +71,24 @@ export default function CityImages({ images }: Props) {
       <Head title="Fotos da Cidade - Painel" />
 
       <div className="max-w-4xl">
-        <div className="bg-white rounded-xl border border-gray-100 p-6">
-          <div className="flex items-center gap-2 mb-4">
-            <Image className="w-5 h-5 text-navy" />
-            <h2 className="font-semibold text-gray-800">Fotos da Cidade (Carrossel)</h2>
-          </div>
-          
-          <p className="text-sm text-gray-500 mb-6">
-            Adicione fotos de Sumé que aparecerão no carrossel da seção "Conheça Nossa Cidade".
-          </p>
+        <Card>
+          <CardHeader
+            icon={Image}
+            title="Fotos da Cidade (Carrossel)"
+            description='Adicione fotos de Sumé que aparecerão no carrossel da seção "Conheça Nossa Cidade".'
+          />
 
           {currentImages.length > 0 && (
             <div className="mb-6">
-              <h3 className="text-sm font-medium text-gray-700 mb-3">Imagens atuais</h3>
+              <h3 className="text-sm font-medium text-foreground mb-3">Imagens atuais</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {currentImages.map((img, index) => (
                   <div key={index} className="relative group">
-                    <img src={img} alt={`Cidade ${index + 1}`} className="w-full h-32 object-cover rounded-lg" />
+                    <img src={img} alt={`Cidade ${index + 1}`} className="w-full h-32 object-cover rounded-lg border border-border" />
                     <button
                       type="button"
                       onClick={() => removeExisting(index)}
-                      className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute top-2 right-2 p-1.5 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/90"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -102,15 +100,15 @@ export default function CityImages({ images }: Props) {
 
           {previews.length > 0 && (
             <div className="mb-6">
-              <h3 className="text-sm font-medium text-gray-700 mb-3">Novas imagens</h3>
+              <h3 className="text-sm font-medium text-foreground mb-3">Novas imagens</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {previews.map((preview, index) => (
                   <div key={index} className="relative group">
-                    <img src={preview} alt={`Nova ${index + 1}`} className="w-full h-32 object-cover rounded-lg border-2 border-green-400" />
+                    <img src={preview} alt={`Nova ${index + 1}`} className="w-full h-32 object-cover rounded-lg border-2 border-gold" />
                     <button
                       type="button"
                       onClick={() => removeNew(index)}
-                      className="absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute top-2 right-2 p-1.5 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/90"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -124,10 +122,10 @@ export default function CityImages({ images }: Props) {
             <button
               type="button"
               onClick={() => fileRef.current?.click()}
-              className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg hover:border-navy/50 transition-colors"
+              className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-border rounded-lg hover:border-navy/50 transition-colors"
             >
-              <Plus className="w-5 h-5 text-gray-400" />
-              <span className="text-sm text-gray-600">Adicionar Fotos</span>
+              <Plus className="w-5 h-5 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">Adicionar Fotos</span>
             </button>
             <input
               ref={fileRef}
@@ -138,17 +136,17 @@ export default function CityImages({ images }: Props) {
               onChange={handleFileSelect}
             />
 
-            <button
+            <Button
               type="button"
               onClick={handleSave}
+              loading={saving}
               disabled={saving || (currentImages.length === images.length && newFiles.length === 0)}
-              className="flex items-center justify-center gap-2 px-6 py-3 bg-navy text-white rounded-lg hover:bg-navy-dark transition-colors disabled:opacity-50"
             >
-              <Save className="w-4 h-4" />
+              {!saving && <Save className="w-4 h-4" />}
               {saving ? 'Salvando...' : 'Salvar Alterações'}
-            </button>
+            </Button>
           </div>
-        </div>
+        </Card>
       </div>
     </AdminLayout>
   )

@@ -52,6 +52,11 @@ const AdminLicitacoesController = () => import('#controllers/admin/licitacoes_co
 const AdminSatisfactionSurveyController = () =>
   import('#controllers/admin/satisfaction_survey_controller')
 const AdminSealsController = () => import('#controllers/admin/seals_controller')
+const AdminMenusController = () => import('#controllers/admin/menus_controller')
+const AdminPagesController = () => import('#controllers/admin/pages_controller')
+const AdminMediaController = () => import('#controllers/admin/media_controller')
+const AdminInstitutionalController = () => import('#controllers/admin/institutional_controller')
+const AdminHolidaysController = () => import('#controllers/admin/holidays_controller')
 const AdminInstagramController = () => import('#controllers/admin/instagram_controller')
 const InstagramProxyController = () => import('#controllers/admin/instagram_proxy_controller')
 const AdminUsersController = () => import('#controllers/admin/users_controller')
@@ -222,12 +227,33 @@ router
         router.delete('/links-rapidos/:id', [AdminQuickLinksController, 'destroy'])
         router.post('/links-rapidos/reorder', [AdminQuickLinksController, 'reorder'])
 
+        router.get('/menus', [AdminMenusController, 'index'])
+        router.post('/menus', [AdminMenusController, 'update'])
+        router.post('/menus/restaurar', [AdminMenusController, 'reset'])
+
         router.get('/selos', [AdminSealsController, 'index'])
         router.get('/selos/novo', [AdminSealsController, 'create'])
         router.post('/selos', [AdminSealsController, 'store'])
         router.get('/selos/:id/editar', [AdminSealsController, 'edit'])
         router.post('/selos/:id', [AdminSealsController, 'update'])
         router.delete('/selos/:id', [AdminSealsController, 'destroy'])
+
+        router.get('/paginas', [AdminPagesController, 'index'])
+        router.get('/paginas/nova', [AdminPagesController, 'create'])
+        router.post('/paginas', [AdminPagesController, 'store'])
+        router.get('/paginas/:id/editar', [AdminPagesController, 'edit'])
+        router.put('/paginas/:id', [AdminPagesController, 'update'])
+        router.delete('/paginas/:id', [AdminPagesController, 'destroy'])
+
+        router.get('/midia', [AdminMediaController, 'index'])
+        router.post('/midia/upload', [AdminMediaController, 'upload'])
+        router.delete('/midia/:id', [AdminMediaController, 'destroy'])
+
+        router.get('/institucional', [AdminInstitutionalController, 'index'])
+        router.put('/institucional/:key', [AdminInstitutionalController, 'update'])
+
+        router.get('/feriados', [AdminHolidaysController, 'index'])
+        router.post('/feriados', [AdminHolidaysController, 'update'])
       })
       .use(middleware.can(['site.gerenciar']))
 

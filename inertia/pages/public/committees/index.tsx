@@ -19,6 +19,7 @@ interface Member {
 interface Committee {
   id: number;
   name: string;
+  type?: "permanente" | "temporaria" | "especial" | string;
   description?: string;
   legislature_name?: string;
   members?: Member[];
@@ -49,6 +50,12 @@ function roleBadgeClass(role?: string) {
   return "bg-muted text-muted-foreground border-border";
 }
 
+const TYPE_LABELS: Record<string, string> = {
+  permanente: "Permanente",
+  temporaria: "Temporária",
+  especial: "Especial",
+};
+
 export default function CommitteesIndex({ committees = [] }: Props) {
   return (
     <>
@@ -62,7 +69,7 @@ export default function CommitteesIndex({ committees = [] }: Props) {
         <Header />
         <Breadcrumb items={[{ label: "Comissões Permanentes" }]} />
         <PageHero badge="Legislativo" title="Comissões Permanentes" subtitle="Órgãos técnicos que analisam as matérias antes da deliberação em Plenário" centered />
-        <main className="py-12">
+        <main className="py-10 lg:py-14">
           <div className="container mx-auto px-4">
             {committees.length > 0 ? (
               <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
@@ -71,76 +78,96 @@ export default function CommitteesIndex({ committees = [] }: Props) {
                     (a, b) => roleWeight(a.role) - roleWeight(b.role)
                   );
                   return (
-                    <div
+                    <article
                       key={committee.id}
                       data-reveal="up"
                       data-reveal-delay={String(Math.min(i, 4) * 80)}
-                      className="card-modern card-shine p-6 flex flex-col hover-lift"
+                      className="bg-card border border-border rounded-2xl flex flex-col shadow-sm transition-all duration-300 hover:shadow-md hover:border-gold/40 overflow-hidden"
                     >
-                      <div className="flex items-start gap-4 mb-4">
-                        <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 icon-pop">
-                          <Gavel className="w-6 h-6 text-primary" />
-                        </div>
-                        <div className="min-w-0">
-                          <h3 className="font-bold text-foreground leading-snug">{committee.name}</h3>
-                          {committee.legislature_name && (
-                            <span className="inline-block mt-1.5 px-2.5 py-0.5 rounded-full bg-muted text-muted-foreground text-xs font-medium">
-                              {committee.legislature_name}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {committee.description && (
-                        <p className="text-sm text-muted-foreground mb-5 leading-relaxed">{committee.description}</p>
-                      )}
-
-                      {members.length > 0 && (
-                        <div className="mt-auto space-y-2">
-                          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                            <Users className="w-3.5 h-3.5" /> Composição
-                          </p>
-                          {members.map((member) => (
-                            <Link
-                              key={member.id}
-                              href={`/vereadores/${member.slug}`}
-                              className="flex items-center gap-3 p-2 rounded-xl hover:bg-muted transition-colors no-underline group"
-                            >
-                              {member.photo ? (
-                                <img
-                                  src={member.photo}
-                                  alt={member.name}
-                                  loading="lazy"
-                                  className="w-10 h-10 rounded-full object-cover border border-border shrink-0"
-                                />
-                              ) : (
-                                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                                  <span className="text-primary text-sm font-bold">{member.name.charAt(0)}</span>
-                                </div>
-                              )}
-                              <div className="min-w-0 flex-1">
-                                <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors truncate">
-                                  {member.name}
-                                </p>
-                                {member.party && <p className="text-xs text-muted-foreground">{member.party}</p>}
-                              </div>
-                              {member.role && (
-                                <span className={`shrink-0 px-2.5 py-1 rounded-full border text-[11px] font-semibold ${roleBadgeClass(member.role)}`}>
-                                  {member.role}
+                      {/* Cabeçalho */}
+                      <div className="p-6 pb-5 border-b border-border">
+                        <div className="flex items-start gap-4">
+                          <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                            <Gavel className="w-5 h-5 text-primary" aria-hidden="true" />
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <h2 className="text-base font-bold text-foreground leading-snug">
+                              {committee.name}
+                            </h2>
+                            <div className="flex flex-wrap items-center gap-2 mt-2">
+                              {committee.type && (
+                                <span className="inline-block px-2.5 py-0.5 rounded-full bg-gold/10 text-gold border border-gold/25 text-[11px] font-bold uppercase tracking-wide">
+                                  {TYPE_LABELS[committee.type] || committee.type}
                                 </span>
                               )}
-                            </Link>
-                          ))}
+                              {committee.legislature_name && (
+                                <span className="inline-block px-2.5 py-0.5 rounded-full bg-muted text-muted-foreground text-[11px] font-medium">
+                                  {committee.legislature_name}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        {committee.description && (
+                          <p className="text-sm text-muted-foreground mt-4 leading-relaxed">
+                            {committee.description}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Composição */}
+                      {members.length > 0 && (
+                        <div className="p-6 pt-5 mt-auto">
+                          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                            <Users className="w-3.5 h-3.5" aria-hidden="true" /> Composição
+                          </p>
+                          <ul className="space-y-1">
+                            {members.map((member) => (
+                              <li key={member.id}>
+                                <Link
+                                  href={`/vereadores/${member.slug}`}
+                                  className="flex items-center gap-3 p-2 -mx-2 rounded-xl hover:bg-muted transition-colors no-underline group"
+                                >
+                                  {member.photo ? (
+                                    <img
+                                      src={member.photo}
+                                      alt={`Foto de ${member.name}`}
+                                      loading="lazy"
+                                      className="w-10 h-10 rounded-full object-cover ring-1 ring-border shrink-0"
+                                    />
+                                  ) : (
+                                    <div
+                                      className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0"
+                                      aria-hidden="true"
+                                    >
+                                      <span className="text-primary text-sm font-bold">{member.name.charAt(0)}</span>
+                                    </div>
+                                  )}
+                                  <div className="min-w-0 flex-1">
+                                    <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors truncate">
+                                      {member.name}
+                                    </p>
+                                    {member.party && <p className="text-xs text-muted-foreground">{member.party}</p>}
+                                  </div>
+                                  {member.role && (
+                                    <span className={`shrink-0 px-2.5 py-1 rounded-full border text-[11px] font-semibold ${roleBadgeClass(member.role)}`}>
+                                      {member.role}
+                                    </span>
+                                  )}
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
                         </div>
                       )}
-                    </div>
+                    </article>
                   );
                 })}
               </div>
             ) : (
               <div className="text-center py-20">
                 <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
-                  <Gavel className="w-8 h-8 text-muted-foreground/40" />
+                  <Gavel className="w-8 h-8 text-muted-foreground/40" aria-hidden="true" />
                 </div>
                 <h3 className="text-lg font-medium text-foreground mb-2">Nenhuma comissão cadastrada</h3>
                 <p className="text-muted-foreground text-sm">As comissões permanentes serão publicadas em breve</p>

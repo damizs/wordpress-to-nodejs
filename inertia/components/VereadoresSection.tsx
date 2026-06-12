@@ -1,6 +1,6 @@
 import { Link } from "@inertiajs/react";
 import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface Vereador {
   id: number;
@@ -25,41 +25,66 @@ export const VereadoresSection = ({
   title = "Mesa Diretora e Vereadores",
   subtitle,
 }: VereadoresSectionProps) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const scrollerRef = useRef<HTMLDivElement>(null);
   const [isPaused, setIsPaused] = useState(false);
-  const itemsPerPage = 4;
-  const maxIndex = Math.max(0, vereadores.length - itemsPerPage);
+  const [canPrev, setCanPrev] = useState(false);
+  const [canNext, setCanNext] = useState(false);
 
-  const handlePrev = () => {
-    setCurrentIndex((prev) => Math.max(0, prev - 1));
-  };
+  const updateEdges = useCallback(() => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    setCanPrev(el.scrollLeft > 1);
+    setCanNext(el.scrollLeft < el.scrollWidth - el.clientWidth - 1);
+  }, []);
 
-  const handleNext = () => {
-    setCurrentIndex((prev) => Math.min(maxIndex, prev + 1));
-  };
-
-  // Autoplay: avança a cada 5s e volta ao início; pausa no hover
   useEffect(() => {
-    if (isPaused || maxIndex === 0) return;
+    const el = scrollerRef.current;
+    if (!el) return;
+    updateEdges();
+    el.addEventListener("scroll", updateEdges, { passive: true });
+    window.addEventListener("resize", updateEdges);
+    return () => {
+      el.removeEventListener("scroll", updateEdges);
+      window.removeEventListener("resize", updateEdges);
+    };
+  }, [updateEdges, vereadores.length]);
+
+  const scrollByPage = useCallback((direction: 1 | -1) => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    el.scrollBy({ left: direction * el.clientWidth * 0.9, behavior: "smooth" });
+  }, []);
+
+  // Autoplay: avança a cada 5s e volta ao início; pausa no hover; respeita prefers-reduced-motion
+  useEffect(() => {
+    if (isPaused || vereadores.length <= 1) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
+      const el = scrollerRef.current;
+      if (!el) return;
+      const atEnd = el.scrollLeft >= el.scrollWidth - el.clientWidth - 1;
+      if (atEnd) {
+        el.scrollTo({ left: 0, behavior: "smooth" });
+      } else {
+        el.scrollBy({ left: el.clientWidth * 0.9, behavior: "smooth" });
+      }
     }, 5000);
     return () => clearInterval(timer);
-  }, [isPaused, maxIndex]);
+  }, [isPaused, vereadores.length]);
 
   if (vereadores.length === 0) {
     return null;
   }
 
   return (
-    <section className="py-20 px-4 section-gradient">
+    <section className="py-14 lg:py-20 px-4 bg-background">
       <div className="container mx-auto">
         {/* Header */}
         <div className="text-center mb-14" data-reveal>
           <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
             Legislatura {legislatura}
           </span>
-          <h2 className="heading-accent text-3xl md:text-5xl font-bold text-foreground mb-4">
+          <h2 className="heading-accent text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-4">
             {title}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
@@ -74,60 +99,62 @@ export const VereadoresSection = ({
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => setIsPaused(false)}
         >
-          <div className="overflow-hidden rounded-2xl">
-            <div 
-              className="flex transition-transform duration-700 ease-out gap-6"
-              style={{ transform: `translateX(-${currentIndex * (100 / itemsPerPage + 2)}%)` }}
-            >
-              {vereadores.map((vereador, index) => (
-                <div 
-                  key={vereador.id} 
-                  className="min-w-[calc(25%-18px)] sm:min-w-[calc(50%-12px)] lg:min-w-[calc(25%-18px)]"
-                >
-                  <Link href={`/vereadores/${vereador.slug}`} className="no-underline">
-                    <div className="card-modern overflow-hidden group">
-                      <div className="relative aspect-[3/4] overflow-hidden">
-                        {vereador.ativo && (
-                          <span className="absolute top-3 left-3 z-10 px-2.5 py-1 bg-navy-dark/90 text-white text-[10px] font-bold tracking-wide rounded-md shadow-lg">
-                            EM EXERCÍCIO
-                          </span>
-                        )}
-                        <img 
-                          src={vereador.foto || "/images/placeholder-vereador.jpg"} 
-                          alt={vereador.nome}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                      </div>
-                      <div className="p-5">
-                        <h3 className="font-bold text-foreground text-sm leading-tight mb-2 line-clamp-2">
-                          {vereador.nome.toUpperCase()}
-                        </h3>
-                        <p className="text-muted-foreground text-sm mb-3">{vereador.apelido}</p>
-                        <span className="inline-block px-3 py-1.5 bg-gradient-to-r from-primary/10 to-primary/5 text-primary text-xs font-semibold rounded-full">
-                          {vereador.cargo}
+          <div
+            ref={scrollerRef}
+            className="flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth rounded-2xl pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
+            {vereadores.map((vereador) => (
+              <div
+                key={vereador.id}
+                className="snap-start shrink-0 w-[85%] sm:w-[45%] lg:w-[31%] xl:w-[23.5%]"
+              >
+                <Link href={`/vereadores/${vereador.slug}`} className="no-underline">
+                  <div className="card-modern overflow-hidden group">
+                    <div className="relative aspect-[3/4] overflow-hidden">
+                      {vereador.ativo && (
+                        <span className="absolute top-3 left-3 z-10 px-2.5 py-1 bg-navy-dark/90 text-white text-[10px] font-bold tracking-wide rounded-md shadow-lg">
+                          EM EXERCÍCIO
                         </span>
-                      </div>
+                      )}
+                      <img
+                        src={vereador.foto || "/images/placeholder-vereador.jpg"}
+                        alt={vereador.nome}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     </div>
-                  </Link>
-                </div>
-              ))}
-            </div>
+                    <div className="p-5">
+                      <h3 className="font-bold text-foreground text-sm leading-tight mb-2 line-clamp-2">
+                        {vereador.nome.toUpperCase()}
+                      </h3>
+                      <p className="text-muted-foreground text-sm mb-3">{vereador.apelido}</p>
+                      <span className="inline-block px-3 py-1.5 bg-gradient-to-r from-primary/10 to-primary/5 text-primary text-xs font-semibold rounded-full">
+                        {vereador.cargo}
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              </div>
+            ))}
           </div>
 
           {/* Navigation Buttons */}
-          {vereadores.length > itemsPerPage && (
+          {vereadores.length > 1 && (
             <>
-              <button 
-                onClick={handlePrev}
-                disabled={currentIndex === 0}
+              <button
+                type="button"
+                onClick={() => scrollByPage(-1)}
+                disabled={!canPrev}
+                aria-label="Vereadores anteriores"
                 className="absolute left-0 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-card shadow-xl border border-border/50 flex items-center justify-center hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 <ChevronLeft className="w-6 h-6" />
               </button>
-              <button 
-                onClick={handleNext}
-                disabled={currentIndex >= maxIndex}
+              <button
+                type="button"
+                onClick={() => scrollByPage(1)}
+                disabled={!canNext}
+                aria-label="Próximos vereadores"
                 className="absolute right-0 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-card shadow-xl border border-border/50 flex items-center justify-center hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 <ChevronRight className="w-6 h-6" />

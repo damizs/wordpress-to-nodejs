@@ -55,8 +55,9 @@ export default function NewsShow({ news, related = [] }: Props) {
         <Header />
         <Breadcrumb items={[{ label: "Notícias", href: "/noticias" }, { label: news.title }]} />
 
-        <main className="py-12">
-          <div className="container mx-auto px-4">
+        <main>
+          <section className="py-10 lg:py-14">
+            <div className="container">
             <div className="max-w-4xl mx-auto">
               {/* Back Link */}
               <Link
@@ -82,10 +83,28 @@ export default function NewsShow({ news, related = [] }: Props) {
                 )}
 
                 <div className="p-6 md:p-10">
-                  {/* Meta */}
-                  <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-4">
+                  {/* Categoria */}
+                  {news.category && (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-gold/10 text-gold rounded-full text-xs font-semibold uppercase tracking-wide mb-4">
+                      <Tag className="w-3.5 h-3.5" />
+                      {news.category.name}
+                    </span>
+                  )}
+
+                  {/* Title */}
+                  <h1 className="text-2xl md:text-4xl font-bold text-foreground mb-4 leading-tight">
+                    {news.title}
+                  </h1>
+
+                  {/* Excerpt como linha fina */}
+                  {news.excerpt && (
+                    <p className="text-base md:text-lg text-muted-foreground mb-4">{news.excerpt}</p>
+                  )}
+
+                  {/* Meta: data e autor */}
+                  <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground pb-6 mb-6 border-b border-border">
                     <span className="flex items-center gap-1.5">
-                      <Calendar className="w-4 h-4" />
+                      <Calendar className="w-4 h-4 text-primary" />
                       {new Date(publishedAt).toLocaleDateString('pt-BR', {
                         day: 'numeric',
                         month: 'long',
@@ -94,26 +113,15 @@ export default function NewsShow({ news, related = [] }: Props) {
                     </span>
                     {news.author && (
                       <span className="flex items-center gap-1.5">
-                        <User className="w-4 h-4" />
+                        <User className="w-4 h-4 text-primary" />
                         {news.author.name}
-                      </span>
-                    )}
-                    {news.category && (
-                      <span className="flex items-center gap-1.5">
-                        <Tag className="w-4 h-4" />
-                        {news.category.name}
                       </span>
                     )}
                   </div>
 
-                  {/* Title */}
-                  <h1 className="text-2xl md:text-4xl font-bold text-foreground mb-6">
-                    {news.title}
-                  </h1>
-
                   {/* Content */}
                   <div
-                    className="prose prose-lg max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-primary"
+                    className="prose prose-lg dark:prose-invert max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-primary prose-img:rounded-xl"
                     dangerouslySetInnerHTML={{ __html: news.content }}
                   />
 
@@ -149,7 +157,7 @@ export default function NewsShow({ news, related = [] }: Props) {
                           href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(fullUrl)}&text=${encodeURIComponent(news.title)}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="w-10 h-10 rounded-xl bg-black text-white flex items-center justify-center hover:bg-gray-800 transition-colors no-underline"
+                          className="w-10 h-10 rounded-xl bg-foreground text-background flex items-center justify-center hover:opacity-80 transition-opacity no-underline"
                           title="Compartilhar no X"
                         >
                           <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -160,7 +168,7 @@ export default function NewsShow({ news, related = [] }: Props) {
                         <button
                           onClick={copyLink}
                           className={`w-10 h-10 rounded-xl flex items-center justify-center transition-colors ${
-                            copied ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                            copied ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400' : 'bg-muted text-foreground hover:bg-muted/70'
                           }`}
                           title={copied ? "Link copiado!" : "Copiar link"}
                         >
@@ -213,7 +221,8 @@ export default function NewsShow({ news, related = [] }: Props) {
                 </div>
               )}
             </div>
-          </div>
+            </div>
+          </section>
         </main>
 
         <Footer />

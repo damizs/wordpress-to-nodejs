@@ -6,6 +6,7 @@ import { Header } from "~/components/Header";
 import { Breadcrumb } from "~/components/Breadcrumb";
 import { PageHero } from "~/components/PageHero";
 import { Footer } from "~/components/Footer";
+import { LinkModal } from "~/components/LinkModal";
 import { FileText, Download, Calendar, ChevronLeft, ChevronRight, X, Search, Eye } from "lucide-react";
 
 interface InfoRecord {
@@ -15,6 +16,8 @@ interface InfoRecord {
   content?: string | null;
   reference_date?: string | null;
   file_url?: string | null;
+  open_mode?: string | null;
+  hide_chrome?: boolean | null;
 }
 
 interface Category { id: number; name: string; slug: string; }
@@ -38,6 +41,7 @@ export default function DynamicInfoPage({ records, category, allCategories = [],
   const total = meta?.total ?? items.length;
 
   const [searchTerm, setSearchTerm] = useState(filters.search || "");
+  const [modalRecord, setModalRecord] = useState<InfoRecord | null>(null);
 
   function applyFilters(patch: Record<string, string>) {
     const params: Record<string, string> = {};
@@ -64,10 +68,11 @@ export default function DynamicInfoPage({ records, category, allCategories = [],
       <div className="min-h-screen bg-background">
         <TopBar /><Header /><Breadcrumb items={[{ label: "Acesso à Informação" }, { label: category.name }]} />
         <PageHero badge="Acesso à Informação" title={category.name} subtitle="Documentos publicados em cumprimento à Lei de Acesso à Informação" />
-        <main className="py-12">
-          <div className="container mx-auto px-4">
+        <main>
+          <section className="py-10 lg:py-14">
+            <div className="container">
             {/* Toolbar */}
-            <div data-reveal="up" className="max-w-3xl mx-auto mb-6 card-modern p-4 flex flex-col sm:flex-row gap-3">
+            <div data-reveal="up" className="max-w-4xl mx-auto mb-6 card-modern p-4 flex flex-col sm:flex-row gap-3">
               <form className="relative flex-1" onSubmit={(e) => { e.preventDefault(); applyFilters({ busca: searchTerm }); }}>
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <input
@@ -87,18 +92,18 @@ export default function DynamicInfoPage({ records, category, allCategories = [],
                 {years.map((y) => <option key={y} value={y}>{y}</option>)}
               </select>
               {hasFilters && (
-                <button onClick={() => { setSearchTerm(""); router.get(`/${category.slug}`); }} className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-sm text-muted-foreground hover:text-red-500 hover:bg-red-50 transition-colors">
+                <button onClick={() => { setSearchTerm(""); router.get(`/${category.slug}`); }} className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
                   <X className="w-4 h-4" /> Limpar
                 </button>
               )}
             </div>
 
-            <p data-reveal="fade" className="max-w-3xl mx-auto mb-8 text-sm text-muted-foreground text-right">
+            <p data-reveal="fade" className="max-w-4xl mx-auto mb-8 text-sm text-muted-foreground text-right">
               {total} {total === 1 ? "registro encontrado" : "registros encontrados"}
             </p>
 
             {items.length > 0 ? (
-              <div className="max-w-3xl mx-auto space-y-8">
+              <div className="max-w-4xl mx-auto space-y-8">
                 {sortedYears.map((year) => (
                   <section key={year}>
                     <div data-reveal="up" className="flex items-center gap-3 mb-4">
@@ -111,10 +116,10 @@ export default function DynamicInfoPage({ records, category, allCategories = [],
                     </div>
                     <div className="space-y-3">
                       {groupedByYear[year].map((record, i) => (
-                        <div key={record.id} data-reveal="up" data-reveal-delay={String(Math.min(i, 5) * 60)} className="card-modern card-shine p-4 flex items-center justify-between gap-4 hover-lift group">
+                        <div key={record.id} data-reveal="up" data-reveal-delay={String(Math.min(i, 5) * 60)} className="card-modern p-4 flex items-center justify-between gap-4 hover-lift group">
                           <div className="flex items-center gap-4 min-w-0">
-                            <div className="w-11 h-11 rounded-xl bg-red-50 flex items-center justify-center shrink-0 icon-pop">
-                              <FileText className="w-5 h-5 text-red-500" />
+                            <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                              <FileText className="w-5 h-5 text-primary" />
                             </div>
                             <div className="min-w-0">
                               <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">{record.title}</h3>
@@ -128,10 +133,17 @@ export default function DynamicInfoPage({ records, category, allCategories = [],
                             </div>
                           </div>
                           {record.file_url && (
-                            <a href={record.file_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-primary/20 text-primary text-sm font-medium hover:bg-primary hover:text-primary-foreground transition-colors no-underline shrink-0">
-                              <Eye className="w-4 h-4" /> <span className="hidden sm:inline">Visualizar</span>
-                              <Download className="w-4 h-4 sm:hidden" />
-                            </a>
+                            record.open_mode === "modal" ? (
+                              <button type="button" onClick={() => setModalRecord(record)} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-primary/20 text-primary text-sm font-medium hover:bg-primary hover:text-primary-foreground transition-colors shrink-0">
+                                <Eye className="w-4 h-4" /> <span className="hidden sm:inline">Visualizar</span>
+                                <Download className="w-4 h-4 sm:hidden" />
+                              </button>
+                            ) : (
+                              <a href={record.file_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-primary/20 text-primary text-sm font-medium hover:bg-primary hover:text-primary-foreground transition-colors no-underline shrink-0">
+                                <Eye className="w-4 h-4" /> <span className="hidden sm:inline">Visualizar</span>
+                                <Download className="w-4 h-4 sm:hidden" />
+                              </a>
+                            )
                           )}
                         </div>
                       ))}
@@ -168,7 +180,7 @@ export default function DynamicInfoPage({ records, category, allCategories = [],
 
             {/* Outras categorias */}
             {allCategories.length > 1 && (
-              <div className="max-w-3xl mx-auto mt-14 pt-8 border-t border-border">
+              <div className="max-w-4xl mx-auto mt-14 pt-8 border-t border-border">
                 <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4 text-center">Outras informações</h2>
                 <div className="flex flex-wrap justify-center gap-2">
                   {allCategories
@@ -181,9 +193,23 @@ export default function DynamicInfoPage({ records, category, allCategories = [],
                 </div>
               </div>
             )}
-          </div>
+            </div>
+          </section>
         </main>
         <Footer />
+        <LinkModal
+          link={
+            modalRecord && modalRecord.file_url
+              ? {
+                  title: modalRecord.title,
+                  url: modalRecord.file_url,
+                  open_mode: modalRecord.open_mode,
+                  hide_chrome: modalRecord.hide_chrome,
+                }
+              : null
+          }
+          onClose={() => setModalRecord(null)}
+        />
       </div>
     </>
   );

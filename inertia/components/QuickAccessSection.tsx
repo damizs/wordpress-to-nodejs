@@ -1,4 +1,6 @@
+import { useState } from "react";
 import { Link } from "@inertiajs/react";
+import { LinkModal, type LinkModalLink } from "~/components/LinkModal";
 import {
   Play,
   Users,
@@ -43,6 +45,8 @@ interface QuickLinkItem {
   url: string;
   icon: string | null;
   color: string | null;
+  open_mode?: string | null;
+  hide_chrome?: boolean | null;
 }
 
 interface QuickAccessSectionProps {
@@ -88,33 +92,27 @@ const iconMap: Record<string, LucideIcon> = {
   Link: LinkIcon,
 };
 
-// Cores vindas do banco (quick_links.color) -> círculos coloridos (padrão do portal WP)
+// Cores vindas do banco (quick_links.color) -> tokens institucionais (navy/gold/sky/emerald)
 const colorMap: Record<string, string> = {
-  navy: "bg-blue-800",
-  blue: "bg-blue-500",
-  gold: "bg-amber-500",
-  sky: "bg-sky-500",
-  emerald: "bg-emerald-500",
-  green: "bg-green-500",
-  red: "bg-red-500",
-  rose: "bg-pink-500",
-  purple: "bg-purple-500",
-  indigo: "bg-indigo-500",
-  teal: "bg-teal-500",
-  orange: "bg-orange-500",
+  navy: "bg-navy",
+  blue: "bg-navy-light",
+  gold: "bg-gold",
+  sky: "bg-sky",
+  emerald: "bg-emerald-600",
+  green: "bg-emerald-600",
+  red: "bg-navy",
+  rose: "bg-gold",
+  purple: "bg-navy-light",
+  indigo: "bg-navy",
+  teal: "bg-emerald-600",
+  orange: "bg-gold",
 };
 
 const fallbackColors = [
-  "bg-red-500",
-  "bg-purple-500",
-  "bg-sky-500",
-  "bg-emerald-500",
-  "bg-green-500",
-  "bg-pink-500",
-  "bg-blue-500",
-  "bg-amber-500",
-  "bg-orange-500",
-  "bg-indigo-500",
+  "bg-navy",
+  "bg-gold",
+  "bg-sky",
+  "bg-emerald-600",
 ];
 
 // Descrições curtas exibidas abaixo do título (igual ao portal WP)
@@ -160,15 +158,16 @@ export const QuickAccessSection = ({
   subtitle,
 }: QuickAccessSectionProps) => {
   const items = quickLinks.length > 0 ? quickLinks : defaultItems;
+  const [modalLink, setModalLink] = useState<LinkModalLink | null>(null);
 
   return (
-    <section className="py-20 px-4 section-gradient">
+    <section className="py-14 lg:py-20 px-4 bg-background">
       <div className="container mx-auto">
         <div className="text-center mb-14" data-reveal>
           <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
             {badge}
           </span>
-          <h2 className="heading-accent text-3xl md:text-5xl font-bold text-foreground mb-4">
+          <h2 className="heading-accent text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-4">
             {title}
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
@@ -182,11 +181,11 @@ export const QuickAccessSection = ({
             const color = colorMap[item.color || ""] || fallbackColors[index % fallbackColors.length];
             const description = descriptionMap[item.title.toLowerCase().trim()];
             const cardClass =
-              "group card-modern card-shine p-6 no-underline flex flex-col items-center text-center";
+              "group card-modern p-6 no-underline flex flex-col items-center text-center";
             const cardStyle = {};
             const inner = (
               <>
-                <div className={`icon-pop w-14 h-14 rounded-full ${color} flex items-center justify-center mb-4 shadow-lg group-hover:shadow-xl`}>
+                <div className={`w-14 h-14 rounded-full ${color} flex items-center justify-center mb-4 shadow-sm`}>
                   <IconComponent className="w-7 h-7 text-white" />
                 </div>
                 <h3 className="font-bold text-foreground text-sm group-hover:text-primary transition-colors duration-300">
@@ -197,7 +196,19 @@ export const QuickAccessSection = ({
                 )}
               </>
             );
-            return isExternal(item.url) ? (
+            return item.open_mode === "modal" ? (
+              <button
+                key={item.id ?? index}
+                type="button"
+                onClick={() => setModalLink(item)}
+                className={cardClass}
+                style={cardStyle}
+                data-reveal
+                data-reveal-delay={index * 60}
+              >
+                {inner}
+              </button>
+            ) : isExternal(item.url) ? (
               <a
                 key={item.id ?? index}
                 href={item.url}
@@ -235,6 +246,8 @@ export const QuickAccessSection = ({
           </Link>
         </div>
       </div>
+
+      <LinkModal link={modalLink} onClose={() => setModalLink(null)} />
     </section>
   );
 };

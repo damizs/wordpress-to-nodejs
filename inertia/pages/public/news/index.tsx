@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, router } from "@inertiajs/react";
 import { SeoHead } from "~/components/SeoHead";
 import { TopBar } from "~/components/TopBar";
@@ -5,7 +6,7 @@ import { Header } from "~/components/Header";
 import { Breadcrumb } from "~/components/Breadcrumb";
 import { PageHero } from "~/components/PageHero";
 import { Footer } from "~/components/Footer";
-import { Calendar, ArrowRight, ChevronLeft, ChevronRight, Filter, X } from "lucide-react";
+import { Calendar, ArrowRight, ChevronLeft, ChevronRight, Search, X, Newspaper } from "lucide-react";
 
 interface NewsItem {
   id: number;
@@ -20,6 +21,12 @@ interface NewsItem {
   category?: { id: number; name: string };
 }
 
+interface Filters {
+  category?: string;
+  year?: string;
+  search?: string;
+}
+
 interface Props {
   news: {
     data: NewsItem[];
@@ -32,20 +39,34 @@ interface Props {
     };
   };
   categories?: { id: number; name: string }[];
-  filters?: {
-    category?: string;
-    year?: string;
-  };
+  filters?: Filters;
 }
+
+const toParams = (filters: Filters): Record<string, string> => {
+  const params: Record<string, string> = {};
+  if (filters.category) params.categoria = filters.category;
+  if (filters.year) params.ano = filters.year;
+  if (filters.search) params.busca = filters.search;
+  return params;
+};
+
+const pageUrl = (page: number, filters: Filters) => {
+  const params = new URLSearchParams(toParams(filters));
+  if (page > 1) params.set("page", String(page));
+  const qs = params.toString();
+  return `/noticias${qs ? `?${qs}` : ""}`;
+};
 
 export default function NewsIndex({ news, categories = [], filters = {} }: Props) {
   const items = news?.data || [];
   const pagination = news?.meta ? {
     currentPage: news.meta.currentPage || news.meta.current_page || 1,
     lastPage: news.meta.lastPage || news.meta.last_page || 1,
-    total: news.meta.total || 0
+    total: news.meta.total || 0,
   } : null;
-  
+
+  const [searchTerm, setSearchTerm] = useState(filters.search || "");
+
   // Helpers
   const getImage = (item: NewsItem) => item.coverImageUrl || item.cover_image_url || item.featured_image;
   const getDate = (item: NewsItem) => item.publishedAt || item.published_at || new Date().toISOString();
@@ -54,25 +75,16 @@ export default function NewsIndex({ news, categories = [], filters = {} }: Props
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 5 }, (_, i) => currentYear - i);
 
-  // Aplicar filtro
-  const applyFilter = (key: string, value: string) => {
-    if (typeof window === 'undefined') return;
-    const params = new URLSearchParams(window.location.search);
-    if (value) {
-      params.set(key, value);
-    } else {
-      params.delete(key);
-    }
-    params.delete('page'); // Reset página ao filtrar
-    router.get(`/noticias?${params.toString()}`);
-  };
+  function applyFilters(patch: Partial<Filters>) {
+    router.get("/noticias", toParams({ ...filters, ...patch }), { preserveScroll: true });
+  }
 
-  // Limpar filtros
   const clearFilters = () => {
-    router.get('/noticias');
+    setSearchTerm("");
+    router.get("/noticias");
   };
 
-  const hasFilters = filters.category || filters.year;
+  const hasFilters = !!(filters.category || filters.year || filters.search);
 
   return (
     <>
@@ -84,169 +96,162 @@ export default function NewsIndex({ news, categories = [], filters = {} }: Props
       <div className="min-h-screen bg-background">
         <TopBar />
         <Header />
-        
         <Breadcrumb items={[{ label: "Notícias" }]} />
-        
         <PageHero
           badge="Fique por dentro"
           title="Notícias"
           subtitle="Acompanhe as últimas notícias da Câmara Municipal"
         />
 
-        <main className="py-12">
-          <div className="container mx-auto px-6 lg:px-8">
-            
-            {/* Filtros */}
-            <div className="mb-10 flex flex-wrap items-center gap-4">
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Filter className="w-4 h-4" />
-                <span className="text-sm font-medium">Filtrar:</span>
-              </div>
-              
-              {/* Filtro por Categoria */}
-              <select
-                value={filters.category || ''}
-                onChange={(e) => applyFilter('categoria', e.target.value)}
-                className="px-4 py-2 bg-card border border-border rounded-lg text-sm focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all cursor-pointer"
-              >
-                <option value="">Todas as categorias</option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>{cat.name}</option>
-                ))}
-              </select>
-
-              {/* Filtro por Ano */}
-              <select
-                value={filters.year || ''}
-                onChange={(e) => applyFilter('ano', e.target.value)}
-                className="px-4 py-2 bg-card border border-border rounded-lg text-sm focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all cursor-pointer"
-              >
-                <option value="">Todos os anos</option>
-                {years.map((year) => (
-                  <option key={year} value={year}>{year}</option>
-                ))}
-              </select>
-
-              {/* Limpar Filtros */}
-              {hasFilters && (
-                <button
-                  onClick={clearFilters}
-                  className="flex items-center gap-1.5 px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        <main>
+          <section className="py-10 lg:py-14">
+            <div className="container">
+              {/* Toolbar de filtros */}
+              <div data-reveal="up" className="mb-8 card-modern p-4 flex flex-col sm:flex-row gap-3">
+                <form className="relative flex-1" onSubmit={(e) => { e.preventDefault(); applyFilters({ search: searchTerm }); }}>
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <input
+                    type="search"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Pesquisar notícia..."
+                    className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
+                  />
+                </form>
+                <select
+                  value={filters.category || ""}
+                  onChange={(e) => applyFilters({ category: e.target.value })}
+                  className="px-4 py-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
                 >
-                  <X className="w-4 h-4" />
-                  Limpar filtros
-                </button>
-              )}
-
-              {/* Total de resultados */}
-              {pagination && (
-                <span className="ml-auto text-sm text-muted-foreground">
-                  {pagination.total} {pagination.total === 1 ? 'notícia' : 'notícias'}
-                </span>
-              )}
-            </div>
-
-            {/* Grid de Notícias */}
-            {items.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {items.map((item, i) => (
-                  <Link
-                    key={item.id}
-                    href={`/noticias/${item.slug}`}
-                    className="group no-underline"
-                    data-reveal="up"
-                    data-reveal-delay={String(Math.min(i, 8) * 60)}
-                  >
-                    <article className="bg-card rounded-xl overflow-hidden border border-border hover:border-primary/30 hover:shadow-lg transition-all duration-300 h-full flex flex-col card-shine hover-lift">
-                      {/* Imagem */}
-                      <div className="relative h-48 overflow-hidden">
-                        {getImage(item) ? (
-                          <img
-                            src={getImage(item)}
-                            alt={item.title}
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-primary/10 to-gold/10 flex items-center justify-center">
-                            <span className="text-5xl opacity-40">📰</span>
-                          </div>
-                        )}
-                        {item.category && (
-                          <span className="absolute top-3 left-3 px-2.5 py-1 bg-primary text-white text-xs font-medium rounded-md">
-                            {item.category.name}
-                          </span>
-                        )}
-                      </div>
-                      
-                      {/* Conteúdo */}
-                      <div className="p-5 flex-1 flex flex-col">
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
-                          <Calendar className="w-3.5 h-3.5" />
-                          {new Date(getDate(item)).toLocaleDateString('pt-BR')}
-                        </div>
-                        
-                        <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-auto">
-                          {item.title}
-                        </h3>
-                        
-                        <div className="mt-4 flex items-center gap-1 text-sm text-primary font-medium">
-                          Ler mais
-                          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                        </div>
-                      </div>
-                    </article>
-                  </Link>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-20">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
-                  <span className="text-3xl">📰</span>
-                </div>
-                <h3 className="text-lg font-medium text-foreground mb-2">
-                  Nenhuma notícia encontrada
-                </h3>
-                <p className="text-muted-foreground text-sm">
-                  {hasFilters ? 'Tente ajustar os filtros' : 'Em breve publicaremos novidades'}
-                </p>
+                  <option value="">Todas as categorias</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  ))}
+                </select>
+                <select
+                  value={filters.year || ""}
+                  onChange={(e) => applyFilters({ year: e.target.value })}
+                  className="px-4 py-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
+                >
+                  <option value="">Todos os anos</option>
+                  {years.map((year) => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
                 {hasFilters && (
                   <button
                     onClick={clearFilters}
-                    className="mt-4 px-4 py-2 bg-primary text-white rounded-lg text-sm hover:bg-primary/90 transition-colors"
+                    className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                   >
-                    Limpar filtros
+                    <X className="w-4 h-4" /> Limpar
                   </button>
                 )}
               </div>
-            )}
 
-            {/* Paginação */}
-            {pagination && pagination.lastPage > 1 && (
-              <div className="mt-12 flex items-center justify-center gap-2">
-                {pagination.currentPage > 1 && (
-                  <Link
-                    href={`/noticias?page=${pagination.currentPage - 1}${filters.category ? `&categoria=${filters.category}` : ''}${filters.year ? `&ano=${filters.year}` : ''}`}
-                    className="p-2 bg-card border border-border rounded-lg text-foreground hover:bg-muted transition-colors no-underline"
-                  >
-                    <ChevronLeft className="w-5 h-5" />
-                  </Link>
-                )}
-                
-                <span className="px-4 py-2 text-sm text-muted-foreground">
-                  {pagination.currentPage} / {pagination.lastPage}
-                </span>
+              {pagination && (
+                <p data-reveal="fade" className="mb-6 text-sm text-muted-foreground text-right">
+                  {pagination.total} {pagination.total === 1 ? "notícia encontrada" : "notícias encontradas"}
+                </p>
+              )}
 
-                {pagination.currentPage < pagination.lastPage && (
-                  <Link
-                    href={`/noticias?page=${pagination.currentPage + 1}${filters.category ? `&categoria=${filters.category}` : ''}${filters.year ? `&ano=${filters.year}` : ''}`}
-                    className="p-2 bg-card border border-border rounded-lg text-foreground hover:bg-muted transition-colors no-underline"
-                  >
-                    <ChevronRight className="w-5 h-5" />
-                  </Link>
-                )}
-              </div>
-            )}
-          </div>
+              {/* Grid de Notícias */}
+              {items.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {items.map((item, i) => (
+                    <Link
+                      key={item.id}
+                      href={`/noticias/${item.slug}`}
+                      className="group no-underline"
+                      data-reveal="up"
+                      data-reveal-delay={String(Math.min(i, 8) * 60)}
+                    >
+                      <article className="card-modern overflow-hidden h-full flex flex-col">
+                        {/* Imagem */}
+                        <div className="relative h-48 overflow-hidden">
+                          {getImage(item) ? (
+                            <img
+                              src={getImage(item)}
+                              alt={item.title}
+                              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-primary/10 to-gold/10 flex items-center justify-center">
+                              <Newspaper className="w-10 h-10 text-muted-foreground/40" />
+                            </div>
+                          )}
+                          {item.category && (
+                            <span className="absolute top-3 left-3 px-2.5 py-1 bg-primary text-primary-foreground text-xs font-semibold rounded-md">
+                              {item.category.name}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Conteúdo */}
+                        <div className="p-5 flex-1 flex flex-col">
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
+                            <Calendar className="w-3.5 h-3.5" />
+                            {new Date(getDate(item)).toLocaleDateString("pt-BR")}
+                          </div>
+
+                          <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2 mb-auto">
+                            {item.title}
+                          </h3>
+
+                          <div className="mt-4 flex items-center gap-1 text-sm text-primary font-medium">
+                            Ler mais
+                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                          </div>
+                        </div>
+                      </article>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-20">
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
+                    <Newspaper className="w-8 h-8 text-muted-foreground/40" />
+                  </div>
+                  <h3 className="text-lg font-medium text-foreground mb-2">Nenhuma notícia encontrada</h3>
+                  <p className="text-muted-foreground text-sm">
+                    {hasFilters ? "Tente ajustar os filtros de busca" : "Em breve publicaremos novidades"}
+                  </p>
+                  {hasFilters && (
+                    <button
+                      onClick={clearFilters}
+                      className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm hover:bg-primary/90 transition-colors"
+                    >
+                      Limpar filtros
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {/* Paginação */}
+              {pagination && pagination.lastPage > 1 && (
+                <div className="flex items-center justify-center gap-3 mt-10">
+                  {pagination.currentPage > 1 && (
+                    <Link
+                      href={pageUrl(pagination.currentPage - 1, filters)}
+                      className="inline-flex items-center gap-1 px-4 py-2 rounded-lg border border-border bg-card text-sm font-medium hover:border-primary/40 hover:text-primary transition-colors no-underline"
+                    >
+                      <ChevronLeft className="w-4 h-4" /> Anterior
+                    </Link>
+                  )}
+                  <span className="text-sm text-muted-foreground">
+                    Página {pagination.currentPage} de {pagination.lastPage}
+                  </span>
+                  {pagination.currentPage < pagination.lastPage && (
+                    <Link
+                      href={pageUrl(pagination.currentPage + 1, filters)}
+                      className="inline-flex items-center gap-1 px-4 py-2 rounded-lg border border-border bg-card text-sm font-medium hover:border-primary/40 hover:text-primary transition-colors no-underline"
+                    >
+                      Próxima <ChevronRight className="w-4 h-4" />
+                    </Link>
+                  )}
+                </div>
+              )}
+            </div>
+          </section>
         </main>
 
         <Footer />

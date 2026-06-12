@@ -11,6 +11,10 @@ export default class InformationRecord extends BaseModel {
   @column() declare fileUrl: string | null
   @column() declare isActive: boolean
   @column() declare displayOrder: number
+  /** Como o arquivo/link abre no site público: 'nova_aba' | 'modal' */
+  @column() declare openMode: string
+  /** No modal, esconde cabeçalho/rodapé de páginas internas (?embed=1) */
+  @column() declare hideChrome: boolean
   @column.dateTime({ autoCreate: true }) declare createdAt: DateTime
   @column.dateTime({ autoCreate: true, autoUpdate: true }) declare updatedAt: DateTime | null
 }

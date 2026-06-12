@@ -8,13 +8,35 @@ export default class LicitacoesController {
     const page = request.input('page', 1)
     const status = request.input('status', '')
     const modality = request.input('modalidade', '')
+    const year = request.input('ano', '')
+    const search = request.input('busca', '')
 
     let query = Licitacao.query().where('is_active', true).orderBy('created_at', 'desc')
     if (status) query = query.where('status', status)
     if (modality) query = query.where('modality', modality)
+    if (year) query = query.where('year', year)
+    if (search) {
+      query = query.where((q) => {
+        q.whereILike('title', `%${search}%`)
+          .orWhereILike('number', `%${search}%`)
+          .orWhereILike('object', `%${search}%`)
+      })
+    }
 
     const licitacoes = await query.paginate(page, 20)
     const siteSettings = await SiteSetting.allAsObject()
+
+    const yearRows = await Licitacao.query()
+      .where('is_active', true)
+      .whereNotNull('year')
+      .distinct('year')
+      .orderBy('year', 'desc')
+    const modalityRows = await Licitacao.query()
+      .where('is_active', true)
+      .whereNotNull('modality')
+      .distinct('modality')
+      .orderBy('modality', 'asc')
+
     return inertia.render('public/licitacoes/index', {
       licitacoes: licitacoes.all().map((l) => ({
         id: l.id,
@@ -28,8 +50,11 @@ export default class LicitacoesController {
       pagination: {
         currentPage: licitacoes.currentPage,
         lastPage: licitacoes.lastPage,
+        total: licitacoes.total,
       },
-      filters: { status, modality },
+      filters: { status, modality, year, search },
+      years: yearRows.map((r) => r.year).filter(Boolean),
+      modalities: modalityRows.map((r) => r.modality).filter(Boolean),
       siteSettings,
     })
   }

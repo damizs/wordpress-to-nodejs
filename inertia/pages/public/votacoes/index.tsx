@@ -32,19 +32,19 @@ interface Props {
 }
 
 const resultStyles: Record<string, { label: string; cls: string }> = {
-  aprovado: { label: "Aprovado", cls: "bg-green-100 text-green-700" },
-  rejeitado: { label: "Rejeitado", cls: "bg-red-100 text-red-700" },
-  retirado: { label: "Retirado", cls: "bg-gray-100 text-gray-600" },
-  adiado: { label: "Adiado", cls: "bg-amber-100 text-amber-700" },
-  outro: { label: "Outro", cls: "bg-gray-100 text-gray-600" },
+  aprovado: { label: "Aprovado", cls: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
+  rejeitado: { label: "Rejeitado", cls: "bg-destructive/10 text-destructive" },
+  retirado: { label: "Retirado", cls: "bg-muted text-muted-foreground" },
+  adiado: { label: "Adiado", cls: "bg-amber-500/10 text-amber-600 dark:text-amber-400" },
+  outro: { label: "Outro", cls: "bg-muted text-muted-foreground" },
 };
 
 const voteStyles: Record<string, { label: string; cls: string; icon: any }> = {
-  sim: { label: "Sim", cls: "bg-green-50 text-green-700 border-green-200", icon: CheckCircle2 },
-  nao: { label: "Não", cls: "bg-red-50 text-red-700 border-red-200", icon: XCircle },
-  abstencao: { label: "Abstenção", cls: "bg-amber-50 text-amber-700 border-amber-200", icon: MinusCircle },
-  ausente: { label: "Ausente", cls: "bg-gray-50 text-gray-500 border-gray-200", icon: UserX },
-  nao_votou: { label: "Não votou", cls: "bg-slate-50 text-slate-500 border-slate-200", icon: MinusCircle },
+  sim: { label: "Sim", cls: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20", icon: CheckCircle2 },
+  nao: { label: "Não", cls: "bg-destructive/10 text-destructive border-destructive/20", icon: XCircle },
+  abstencao: { label: "Abstenção", cls: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20", icon: MinusCircle },
+  ausente: { label: "Ausente", cls: "bg-muted text-muted-foreground border-border", icon: UserX },
+  nao_votou: { label: "Não votou", cls: "bg-muted text-muted-foreground border-border", icon: MinusCircle },
 };
 
 function VotacaoCard({ votacao, index }: { votacao: Votacao; index: number }) {
@@ -53,7 +53,7 @@ function VotacaoCard({ votacao, index }: { votacao: Votacao; index: number }) {
   const totalVotantes = (votacao.tally.sim || 0) + (votacao.tally.nao || 0) + (votacao.tally.abstencao || 0);
 
   return (
-    <div data-reveal="up" data-reveal-delay={String(Math.min(index, 6) * 60)} className="card-modern card-shine overflow-hidden">
+    <div data-reveal="up" data-reveal-delay={String(Math.min(index, 6) * 60)} className="card-modern overflow-hidden">
       <div className="p-5">
         <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
           <div className="min-w-0 flex-1">
@@ -101,10 +101,10 @@ function VotacaoCard({ votacao, index }: { votacao: Votacao; index: number }) {
 
             {/* Barra proporcional sim/não/abstenção */}
             {totalVotantes > 0 && (
-              <div className="h-2 rounded-full overflow-hidden bg-gray-100 flex mb-4">
-                <div className="bg-green-500" style={{ width: `${((votacao.tally.sim || 0) / totalVotantes) * 100}%` }} />
-                <div className="bg-red-500" style={{ width: `${((votacao.tally.nao || 0) / totalVotantes) * 100}%` }} />
-                <div className="bg-amber-400" style={{ width: `${((votacao.tally.abstencao || 0) / totalVotantes) * 100}%` }} />
+              <div className="h-2 rounded-full overflow-hidden bg-muted flex mb-4">
+                <div className="bg-emerald-500" style={{ width: `${((votacao.tally.sim || 0) / totalVotantes) * 100}%` }} />
+                <div className="bg-destructive" style={{ width: `${((votacao.tally.nao || 0) / totalVotantes) * 100}%` }} />
+                <div className="bg-amber-500" style={{ width: `${((votacao.tally.abstencao || 0) / totalVotantes) * 100}%` }} />
               </div>
             )}
 
@@ -166,8 +166,9 @@ export default function VotacoesIndex({ votacoes = [], pagination, years = [], f
       <div className="min-h-screen bg-background">
         <TopBar /><Header /><Breadcrumb items={[{ label: "Votações Nominais" }]} />
         <PageHero badge="Atividade Legislativa" title="Votações Nominais" subtitle="Veja como cada vereador votou nas matérias apreciadas em Plenário" />
-        <main className="py-12">
-          <div className="container mx-auto px-4">
+        <main>
+          <section className="py-10 lg:py-14">
+            <div className="container">
             {/* Toolbar de filtros */}
             <div data-reveal="up" className="max-w-3xl mx-auto mb-8 card-modern p-4 flex flex-col sm:flex-row gap-3">
               <form
@@ -205,7 +206,7 @@ export default function VotacoesIndex({ votacoes = [], pagination, years = [], f
               {hasFilters && (
                 <button
                   onClick={() => { setSearchTerm(""); router.get("/votacoes"); }}
-                  className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-sm text-muted-foreground hover:text-red-500 hover:bg-red-50 transition-colors"
+                  className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-sm text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
                 >
                   <X className="w-4 h-4" /> Limpar
                 </button>
@@ -233,17 +234,28 @@ export default function VotacoesIndex({ votacoes = [], pagination, years = [], f
             )}
 
             {pagination && pagination.lastPage > 1 && (
-              <div className="mt-10 flex justify-center items-center gap-2">
+              <div className="max-w-3xl mx-auto flex items-center justify-center gap-3 mt-10">
                 {pagination.currentPage > 1 && (
-                  <Link href={`/votacoes?page=${pagination.currentPage - 1}${queryString}`} className="p-2.5 card-modern text-foreground hover:text-primary no-underline transition-colors"><ChevronLeft className="w-5 h-5" /></Link>
+                  <Link
+                    href={`/votacoes?page=${pagination.currentPage - 1}${queryString}`}
+                    className="inline-flex items-center gap-1 px-4 py-2 rounded-lg border border-border bg-card text-sm font-medium hover:border-primary/40 hover:text-primary transition-colors no-underline"
+                  >
+                    <ChevronLeft className="w-4 h-4" /> Anterior
+                  </Link>
                 )}
-                <span className="px-4 py-2 text-sm text-muted-foreground">Página {pagination.currentPage} de {pagination.lastPage}</span>
+                <span className="text-sm text-muted-foreground">Página {pagination.currentPage} de {pagination.lastPage}</span>
                 {pagination.currentPage < pagination.lastPage && (
-                  <Link href={`/votacoes?page=${pagination.currentPage + 1}${queryString}`} className="p-2.5 card-modern text-foreground hover:text-primary no-underline transition-colors"><ChevronRight className="w-5 h-5" /></Link>
+                  <Link
+                    href={`/votacoes?page=${pagination.currentPage + 1}${queryString}`}
+                    className="inline-flex items-center gap-1 px-4 py-2 rounded-lg border border-border bg-card text-sm font-medium hover:border-primary/40 hover:text-primary transition-colors no-underline"
+                  >
+                    Próxima <ChevronRight className="w-4 h-4" />
+                  </Link>
                 )}
               </div>
             )}
-          </div>
+            </div>
+          </section>
         </main>
         <Footer />
       </div>

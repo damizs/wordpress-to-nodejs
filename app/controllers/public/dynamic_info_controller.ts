@@ -3,10 +3,19 @@ import InformationRecord from '#models/information_record'
 import SystemCategory from '#models/system_category'
 import SiteSetting from '#models/site_setting'
 import News from '#models/news'
+import { findPublishedPage, renderPublicPage } from '#controllers/public/pages_controller'
 
 export default class DynamicInfoController {
   async show({ params, inertia, request, response }: HttpContext) {
     const slug = params.slug
+
+    // Páginas criadas no painel (módulo "Páginas") têm precedência sobre as
+    // categorias dinâmicas de registros de informação.
+    const customPage = await findPublishedPage(slug)
+    if (customPage) {
+      return renderPublicPage(inertia, customPage)
+    }
+
     const category = await SystemCategory.query()
       .where('type', 'information_record')
       .where('slug', slug)

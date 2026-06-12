@@ -1,7 +1,17 @@
 import { Head, useForm, Link } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Save, ArrowLeft, Plus, X } from 'lucide-react'
+import { Save, ArrowLeft, Plus, X, Landmark, Users } from 'lucide-react'
 import { useState } from 'react'
+import {
+  Button,
+  Card,
+  CardHeader,
+  Field,
+  IconButton,
+  Input,
+  Select,
+  Textarea,
+} from '~/components/admin/ui'
 
 interface Props {
   committee: any | null
@@ -67,92 +77,113 @@ export default function CommitteeForm({ committee, members: initialMembers, legi
     <AdminLayout title={isEditing ? 'Editar Comissão' : 'Nova Comissão'}>
       <Head title={`${isEditing ? 'Editar' : 'Nova'} Comissão - Painel`} />
 
-      <Link href="/painel/comissoes" className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-gray-700 mb-4">
+      <Link
+        href="/painel/comissoes"
+        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4"
+      >
         <ArrowLeft className="w-4 h-4" /> Voltar
       </Link>
 
       <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
-        <div className="bg-white rounded-xl border border-gray-100 p-6 space-y-4">
-          <h2 className="font-semibold text-gray-800 mb-2">Dados da Comissão</h2>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Nome *</label>
-              <input type="text" value={data.name} onChange={(e) => {
-                setData('name', e.target.value)
-                if (!isEditing) setData('slug', generateSlug(e.target.value))
-              }} required className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none" />
+        <Card>
+          <CardHeader title="Dados da Comissão" icon={Landmark} />
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <Field label="Nome" required>
+                <Input
+                  type="text"
+                  value={data.name}
+                  onChange={(e) => {
+                    setData('name', e.target.value)
+                    if (!isEditing) setData('slug', generateSlug(e.target.value))
+                  }}
+                  required
+                />
+              </Field>
+              <Field label="Tipo">
+                <Select value={data.type} onChange={(e) => setData('type', e.target.value)}>
+                  <option value="permanente">Permanente</option>
+                  <option value="temporaria">Temporária</option>
+                  <option value="especial">Especial</option>
+                </Select>
+              </Field>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-600 mb-1">Tipo</label>
-              <select value={data.type} onChange={(e) => setData('type', e.target.value)}
-                className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none">
-                <option value="permanente">Permanente</option>
-                <option value="temporaria">Temporária</option>
-                <option value="especial">Especial</option>
-              </select>
-            </div>
+            <Field label="Legislatura">
+              <Select
+                value={data.legislature_id}
+                onChange={(e) => setData('legislature_id', e.target.value)}
+              >
+                <option value="">Nenhuma</option>
+                {legislatures.map((l: any) => (
+                  <option key={l.id} value={l.id}>{l.name} ({l.number}ª)</option>
+                ))}
+              </Select>
+            </Field>
+            <Field label="Descrição">
+              <Textarea
+                value={data.description}
+                onChange={(e) => setData('description', e.target.value)}
+                rows={3}
+              />
+            </Field>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={data.is_active}
+                onChange={(e) => setData('is_active', e.target.checked)}
+                className="rounded border-border text-navy focus:ring-navy"
+              />
+              <span className="text-sm text-muted-foreground">Ativa</span>
+            </label>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1">Legislatura</label>
-            <select value={data.legislature_id} onChange={(e) => setData('legislature_id', e.target.value)}
-              className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none">
-              <option value="">Nenhuma</option>
-              {legislatures.map((l: any) => (
-                <option key={l.id} value={l.id}>{l.name} ({l.number}ª)</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-600 mb-1">Descrição</label>
-            <textarea value={data.description} onChange={(e) => setData('description', e.target.value)}
-              rows={3} className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none" />
-          </div>
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" checked={data.is_active} onChange={(e) => setData('is_active', e.target.checked)}
-              className="rounded border-gray-300 text-navy focus:ring-navy" />
-            <span className="text-sm text-gray-600">Ativa</span>
-          </label>
-        </div>
+        </Card>
 
         {/* Members */}
-        <div className="bg-white rounded-xl border border-gray-100 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-gray-800">Membros</h2>
-            <button type="button" onClick={addMember}
-              className="flex items-center gap-1 px-3 py-1.5 text-sm text-navy border border-navy/20 rounded-lg hover:bg-navy/5 transition-colors">
-              <Plus className="w-3.5 h-3.5" /> Adicionar
-            </button>
-          </div>
+        <Card>
+          <CardHeader
+            title="Membros"
+            icon={Users}
+            actions={
+              <Button type="button" variant="secondary" size="sm" onClick={addMember}>
+                <Plus className="w-3.5 h-3.5" /> Adicionar
+              </Button>
+            }
+          />
           <div className="space-y-3">
             {membersList.map((member, idx) => (
               <div key={idx} className="flex items-center gap-3">
-                <select value={member.councilor_id} onChange={(e) => updateMember(idx, 'councilor_id', e.target.value)}
-                  className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none">
+                <Select
+                  value={member.councilor_id}
+                  onChange={(e) => updateMember(idx, 'councilor_id', e.target.value)}
+                  className="flex-1"
+                >
                   <option value="">Selecionar vereador...</option>
                   {councilors.map((c: any) => (
                     <option key={c.id} value={c.id}>{c.name} ({c.party || 'S/P'})</option>
                   ))}
-                </select>
-                <select value={member.role} onChange={(e) => updateMember(idx, 'role', e.target.value)}
-                  className="w-40 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none">
+                </Select>
+                <Select
+                  value={member.role}
+                  onChange={(e) => updateMember(idx, 'role', e.target.value)}
+                  className="w-40"
+                >
                   {roleOptions.map((r) => <option key={r} value={r}>{r}</option>)}
-                </select>
-                <button type="button" onClick={() => removeMember(idx)} className="p-1.5 text-gray-400 hover:text-red-500">
+                </Select>
+                <IconButton type="button" tone="delete" onClick={() => removeMember(idx)} title="Remover">
                   <X className="w-4 h-4" />
-                </button>
+                </IconButton>
               </div>
             ))}
             {membersList.length === 0 && (
-              <p className="text-sm text-gray-400 py-2">Nenhum membro adicionado.</p>
+              <p className="text-sm text-muted-foreground py-2">Nenhum membro adicionado.</p>
             )}
           </div>
-        </div>
+        </Card>
 
-        <button type="submit" disabled={processing}
-          className="flex items-center gap-2 px-6 py-2.5 bg-navy text-white rounded-xl hover:bg-navy-dark transition-colors text-sm font-medium disabled:opacity-50">
+        <Button type="submit" loading={processing}>
           <Save className="w-4 h-4" />
           {processing ? 'Salvando...' : 'Salvar'}
-        </button>
+        </Button>
       </form>
     </AdminLayout>
   )

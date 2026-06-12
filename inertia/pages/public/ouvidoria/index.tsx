@@ -7,10 +7,10 @@ import { Footer } from "~/components/Footer";
 import { MessageSquare, Phone, Mail, Clock, MapPin, Send, FileText, AlertCircle, ThumbsUp, HelpCircle } from "lucide-react";
 
 const channels = [
-  { icon: MessageSquare, title: "Denúncias", description: "Relate irregularidades de forma sigilosa", color: "bg-red-100 text-red-600" },
-  { icon: HelpCircle, title: "Solicitações", description: "Solicite informações ou serviços", color: "bg-blue-100 text-blue-600" },
-  { icon: AlertCircle, title: "Reclamações", description: "Registre sua insatisfação", color: "bg-amber-100 text-amber-600" },
-  { icon: ThumbsUp, title: "Elogios", description: "Reconheça o bom atendimento", color: "bg-emerald-100 text-emerald-600" },
+  { icon: MessageSquare, title: "Denúncias", description: "Relate irregularidades de forma sigilosa", color: "bg-navy/10 text-navy dark:bg-sky/10 dark:text-sky" },
+  { icon: HelpCircle, title: "Solicitações", description: "Solicite informações ou serviços", color: "bg-sky/10 text-sky" },
+  { icon: AlertCircle, title: "Reclamações", description: "Registre sua insatisfação", color: "bg-amber-500/10 text-amber-600 dark:text-amber-400" },
+  { icon: ThumbsUp, title: "Elogios", description: "Reconheça o bom atendimento", color: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
 ];
 
 export default function OuvidoriaIndex() {
@@ -20,12 +20,13 @@ export default function OuvidoriaIndex() {
       <div className="min-h-screen bg-background">
         <TopBar /><Header /><Breadcrumb items={[{ label: "Ouvidoria" }]} />
         <PageHero badge="Cidadão" title="Ouvidoria" subtitle="Canal de comunicação direta entre o cidadão e a Câmara Municipal" centered />
-        <main className="py-12">
-          <div className="container mx-auto px-4">
+        <main>
+          <section className="py-10 lg:py-14">
+            <div className="container">
             <div className="max-w-4xl mx-auto">
 
               {/* Channels */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+              <div data-reveal="up" className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
                 {channels.map((channel, index) => (
                   <div key={index} className="card-modern p-5 text-center">
                     <div className={`w-12 h-12 mx-auto rounded-xl ${channel.color} flex items-center justify-center mb-3`}>
@@ -113,7 +114,8 @@ export default function OuvidoriaIndex() {
                 </div>
               </div>
             </div>
-          </div>
+            </div>
+          </section>
         </main>
         <Footer />
       </div>

@@ -1,6 +1,26 @@
-import { Head, Link, router } from '@inertiajs/react'
+import { Head, router } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Plus, Pencil, Trash2, Vote, Sparkles, Eye, EyeOff } from 'lucide-react'
+import { Pencil, Trash2, Sparkles, Eye, EyeOff } from 'lucide-react'
+import { useState } from 'react'
+import {
+  Badge,
+  type BadgeTone,
+  ButtonLink,
+  ConfirmDelete,
+  CreateButton,
+  IconButton,
+  IconLink,
+  Pagination,
+  RowActions,
+  Select,
+  Table,
+  TableEmpty,
+  TBody,
+  TD,
+  TH,
+  THead,
+  TR,
+} from '~/components/admin/ui'
 
 interface Voting {
   id: number
@@ -21,12 +41,12 @@ interface Props {
   filters: { year: string }
 }
 
-const resultLabels: Record<string, { label: string; cls: string }> = {
-  aprovado: { label: 'Aprovado', cls: 'bg-green-100 text-green-700' },
-  rejeitado: { label: 'Rejeitado', cls: 'bg-red-100 text-red-700' },
-  retirado: { label: 'Retirado', cls: 'bg-gray-100 text-gray-600' },
-  adiado: { label: 'Adiado', cls: 'bg-yellow-100 text-yellow-700' },
-  outro: { label: 'Outro', cls: 'bg-gray-100 text-gray-600' },
+const resultLabels: Record<string, { label: string; tone: BadgeTone }> = {
+  aprovado: { label: 'Aprovado', tone: 'success' },
+  rejeitado: { label: 'Rejeitado', tone: 'danger' },
+  retirado: { label: 'Retirado', tone: 'neutral' },
+  adiado: { label: 'Adiado', tone: 'warning' },
+  outro: { label: 'Outro', tone: 'neutral' },
 }
 
 const sourceLabels: Record<string, string> = {
@@ -36,11 +56,9 @@ const sourceLabels: Record<string, string> = {
 }
 
 export default function VotingsIndex({ votings, years = [], filters }: Props) {
-  function handleDelete(id: number, title: string) {
-    if (confirm(`Excluir a votação "${title}"?`)) {
-      router.delete(`/painel/votacoes/${id}`)
-    }
-  }
+  const [deleteTarget, setDeleteTarget] = useState<{ id: number; label: string } | null>(null)
+
+  const baseUrl = filters.year ? `/painel/votacoes?year=${filters.year}` : '/painel/votacoes'
 
   return (
     <AdminLayout title="Votações Nominais">
@@ -48,100 +66,116 @@ export default function VotingsIndex({ votings, years = [], filters }: Props) {
 
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div className="flex items-center gap-3">
-          <p className="text-sm text-gray-500">{votings.meta?.total ?? votings.data.length} votação(ões)</p>
-          <select value={filters.year}
+          <p className="text-sm text-muted-foreground whitespace-nowrap">
+            {votings.meta?.total ?? votings.data.length} votação(ões)
+          </p>
+          <Select
+            value={filters.year}
             onChange={(e) => router.get('/painel/votacoes', { year: e.target.value }, { preserveState: true })}
-            className="text-sm border border-gray-200 rounded-lg px-2 py-1">
+            className="w-40"
+          >
             <option value="">Todos os anos</option>
             {years.map((y) => <option key={y} value={y}>{y}</option>)}
-          </select>
+          </Select>
         </div>
         <div className="flex items-center gap-2">
-          <Link href="/painel/votacoes/importar"
-            className="flex items-center gap-2 px-4 py-2.5 border border-navy/20 text-navy rounded-xl hover:bg-navy/5 transition-colors text-sm font-medium">
+          <ButtonLink href="/painel/votacoes/importar" variant="secondary">
             <Sparkles className="w-4 h-4" /> Importar da Ata (IA)
-          </Link>
-          <Link href="/painel/votacoes/criar"
-            className="flex items-center gap-2 px-4 py-2.5 bg-navy text-white rounded-xl hover:bg-navy-dark transition-colors text-sm font-medium">
-            <Plus className="w-4 h-4" /> Nova Votação
-          </Link>
+          </ButtonLink>
+          <CreateButton href="/painel/votacoes/criar">Nova Votação</CreateButton>
         </div>
       </div>
 
-      <div className="bg-white rounded-xl border border-gray-100 overflow-hidden">
-        {votings.data.length === 0 ? (
-          <div className="p-12 text-center">
-            <Vote className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-gray-500 mb-1">Nenhuma votação cadastrada</p>
-            <p className="text-sm text-gray-400">Cadastre manualmente ou importe das atas com IA</p>
-          </div>
-        ) : (
-          <table className="w-full">
-            <thead>
-              <tr className="bg-gray-50 border-b border-gray-100">
-                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Data</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Matéria</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Resultado</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Votos</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Origem</th>
-                <th className="text-left px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Publicada</th>
-                <th className="text-right px-4 py-3 text-xs font-semibold text-gray-500 uppercase">Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              {votings.data.map((v) => {
-                const result = resultLabels[v.result] || resultLabels.outro
-                return (
-                  <tr key={v.id} className="border-b border-gray-50 hover:bg-gray-50/50">
-                    <td className="px-4 py-3 text-sm text-gray-500 whitespace-nowrap">
-                      {new Date(v.voting_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
-                    </td>
-                    <td className="px-4 py-3 text-sm font-medium text-gray-800">
-                      <p className="line-clamp-2">{v.title}</p>
-                      {v.session_title && <p className="text-xs text-gray-400 mt-0.5">{v.session_title}</p>}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${result.cls}`}>{result.label}</span>
-                      {v.is_unanimous && <span className="inline-block ml-1 px-2 py-1 rounded-full text-xs font-medium bg-blue-50 text-blue-700">Unânime</span>}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-500">{v.votes_count}</td>
-                    <td className="px-4 py-3 text-sm text-gray-500">{sourceLabels[v.source] || v.source}</td>
-                    <td className="px-4 py-3">
-                      {v.is_published
-                        ? <span className="inline-flex items-center gap-1 text-xs font-medium text-green-700"><Eye className="w-3.5 h-3.5" /> Sim</span>
-                        : <span className="inline-flex items-center gap-1 text-xs font-medium text-gray-400"><EyeOff className="w-3.5 h-3.5" /> Não</span>}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <Link href={`/painel/votacoes/${v.id}/editar`} className="p-2 rounded-lg hover:bg-blue-50 text-gray-400 hover:text-blue-600 transition-colors">
-                          <Pencil className="w-4 h-4" />
-                        </Link>
-                        <button onClick={() => handleDelete(v.id, v.title)} className="p-2 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors">
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        )}
-      </div>
+      <Table
+        footer={
+          votings.meta ? (
+            <Pagination
+              meta={{
+                total: votings.meta.total,
+                current_page: votings.meta.currentPage,
+                last_page: votings.meta.lastPage,
+              }}
+              baseUrl={baseUrl}
+              itemLabel="votação"
+              itemLabelPlural="votações"
+            />
+          ) : undefined
+        }
+      >
+        <THead>
+          <TH>Data</TH>
+          <TH>Matéria</TH>
+          <TH>Resultado</TH>
+          <TH>Votos</TH>
+          <TH>Origem</TH>
+          <TH>Publicada</TH>
+          <TH className="text-right">Ações</TH>
+        </THead>
+        <TBody>
+          {votings.data.length === 0 && (
+            <TableEmpty colSpan={7}>
+              <p>Nenhuma votação cadastrada</p>
+              <p className="text-xs text-muted-foreground/70 mt-1">
+                Cadastre manualmente ou importe das atas com IA
+              </p>
+            </TableEmpty>
+          )}
+          {votings.data.map((v) => {
+            const result = resultLabels[v.result] || resultLabels.outro
+            return (
+              <TR key={v.id}>
+                <TD className="text-muted-foreground whitespace-nowrap">
+                  {new Date(v.voting_date).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
+                </TD>
+                <TD className="font-medium">
+                  <p className="line-clamp-2">{v.title}</p>
+                  {v.session_title && (
+                    <p className="text-xs text-muted-foreground mt-0.5">{v.session_title}</p>
+                  )}
+                </TD>
+                <TD>
+                  <Badge tone={result.tone}>{result.label}</Badge>
+                  {v.is_unanimous && <Badge tone="info" className="ml-1">Unânime</Badge>}
+                </TD>
+                <TD className="text-muted-foreground">{v.votes_count}</TD>
+                <TD className="text-muted-foreground">{sourceLabels[v.source] || v.source}</TD>
+                <TD>
+                  {v.is_published ? (
+                    <Badge tone="success">
+                      <Eye className="w-3.5 h-3.5" /> Sim
+                    </Badge>
+                  ) : (
+                    <Badge tone="neutral">
+                      <EyeOff className="w-3.5 h-3.5" /> Não
+                    </Badge>
+                  )}
+                </TD>
+                <TD>
+                  <RowActions>
+                    <IconLink tone="edit" href={`/painel/votacoes/${v.id}/editar`} title="Editar">
+                      <Pencil className="w-4 h-4" />
+                    </IconLink>
+                    <IconButton
+                      tone="delete"
+                      onClick={() => setDeleteTarget({ id: v.id, label: v.title })}
+                      title="Excluir"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </IconButton>
+                  </RowActions>
+                </TD>
+              </TR>
+            )
+          })}
+        </TBody>
+      </Table>
 
-      {votings.meta && votings.meta.lastPage > 1 && (
-        <div className="mt-4 flex justify-center gap-2">
-          {votings.meta.currentPage > 1 && (
-            <button onClick={() => router.get('/painel/votacoes', { page: votings.meta.currentPage - 1, year: filters.year })}
-              className="px-4 py-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50">Anterior</button>
-          )}
-          <span className="px-4 py-2 text-sm text-gray-500">Página {votings.meta.currentPage} de {votings.meta.lastPage}</span>
-          {votings.meta.currentPage < votings.meta.lastPage && (
-            <button onClick={() => router.get('/painel/votacoes', { page: votings.meta.currentPage + 1, year: filters.year })}
-              className="px-4 py-2 text-sm border border-gray-200 rounded-lg hover:bg-gray-50">Próxima</button>
-          )}
-        </div>
-      )}
+      <ConfirmDelete
+        target={deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        deleteUrl={(id) => `/painel/votacoes/${id}`}
+        entity="votação"
+      />
     </AdminLayout>
   )
 }

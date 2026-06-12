@@ -14,7 +14,16 @@ export default class QuickLinksController {
   }
 
   async store({ request, response, session }: HttpContext) {
-    const data = request.only(['title', 'url', 'icon', 'color', 'display_order', 'is_active'])
+    const data = request.only([
+      'title',
+      'url',
+      'icon',
+      'color',
+      'display_order',
+      'is_active',
+      'open_mode',
+      'hide_chrome',
+    ])
     data.is_active = data.is_active === 'true' || data.is_active === true
     data.display_order = Number.parseInt(data.display_order) || 0
 
@@ -25,6 +34,8 @@ export default class QuickLinksController {
       color: data.color,
       displayOrder: data.display_order,
       isActive: data.is_active,
+      openMode: data.open_mode === 'modal' ? 'modal' : 'nova_aba',
+      hideChrome: !(data.hide_chrome === 'false' || data.hide_chrome === false || data.hide_chrome === '0'),
     })
     session.flash('success', 'Link rápido cadastrado!')
     return response.redirect().toPath('/painel/links-rapidos')
@@ -37,7 +48,16 @@ export default class QuickLinksController {
 
   async update({ params, request, response, session }: HttpContext) {
     const link = await QuickLink.findOrFail(params.id)
-    const data = request.only(['title', 'url', 'icon', 'color', 'display_order', 'is_active'])
+    const data = request.only([
+      'title',
+      'url',
+      'icon',
+      'color',
+      'display_order',
+      'is_active',
+      'open_mode',
+      'hide_chrome',
+    ])
 
     link.title = data.title
     link.url = data.url
@@ -45,6 +65,8 @@ export default class QuickLinksController {
     link.color = data.color
     link.displayOrder = Number.parseInt(data.display_order) || 0
     link.isActive = data.is_active === 'true' || data.is_active === true
+    link.openMode = data.open_mode === 'modal' ? 'modal' : 'nova_aba'
+    link.hideChrome = !(data.hide_chrome === 'false' || data.hide_chrome === false || data.hide_chrome === '0')
     await link.save()
 
     session.flash('success', 'Link rápido atualizado!')
