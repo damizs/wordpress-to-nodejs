@@ -1,40 +1,25 @@
 /**
  * Faixa fina das campanhas sazonais (Outubro Rosa, Novembro Azul, etc.).
  * Só renderiza quando há campanha ativa (ver useActiveCampaign / campaign_mode).
- * O usuário pode dispensar a faixa — a escolha vale para a sessão (sessionStorage).
+ * O X dispensa a faixa apenas na visualização atual (estado local, sem storage):
+ * ao recarregar a página ou navegar novamente, ela reaparece.
  *
  * Este componente NÃO é montado automaticamente: importe-o no Header e
  * renderize <CampaignBanner /> acima da barra principal.
  */
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { X } from 'lucide-react'
 import { useActiveCampaign } from '~/components/DynamicTheme'
 
 export function CampaignBanner() {
   const campaign = useActiveCampaign()
-  // Começa oculto até ler o sessionStorage (evita flash/mismatch de hidratação)
-  const [visible, setVisible] = useState(false)
+  // Dispensa efêmera: some só nesta visualização; volta em reload/nova navegação
+  const [dismissed, setDismissed] = useState(false)
 
-  const storageKey = campaign ? `campaign-banner-dismissed:${campaign.key}` : null
-
-  useEffect(() => {
-    if (!storageKey) return
-    try {
-      setVisible(sessionStorage.getItem(storageKey) !== '1')
-    } catch {
-      setVisible(true)
-    }
-  }, [storageKey])
-
-  if (!campaign || !visible) return null
+  if (!campaign || dismissed) return null
 
   function dismiss() {
-    setVisible(false)
-    try {
-      if (storageKey) sessionStorage.setItem(storageKey, '1')
-    } catch {
-      /* ignore */
-    }
+    setDismissed(true)
   }
 
   return (

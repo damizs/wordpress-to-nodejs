@@ -281,7 +281,7 @@ function ThemeAndCampaigns({
       {/* Seasonal campaigns */}
       <Field
         label="Campanhas sazonais"
-        hint="Campanhas de conscientização (Outubro Rosa, Novembro Azul...) recolorem o site e exibem uma faixa com o laço da causa. Elas têm prioridade sobre o tema."
+        hint="Campanhas de conscientização (Outubro Rosa, Novembro Azul...) recolorem apenas o cabeçalho, o rodapé e os botões, além de exibir uma faixa com o laço da causa. O restante do site mantém a paleta institucional."
       >
         <div className="space-y-2.5">
           <label className="flex items-start gap-2.5 cursor-pointer">
