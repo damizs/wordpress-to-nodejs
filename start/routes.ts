@@ -24,6 +24,8 @@ const StaticPagesController = () => import('#controllers/public/static_pages_con
 const PublicDiarioOficialController = () => import('#controllers/public/diario_oficial_controller')
 const PublicNominalVotingsController = () =>
   import('#controllers/public/nominal_votings_controller')
+const SitemapPageController = () => import('#controllers/public/sitemap_page_controller')
+const OpenDataController = () => import('#controllers/public/open_data_controller')
 const SeoController = () => import('#controllers/seo_controller')
 
 // Lazy imports - Admin
@@ -83,6 +85,7 @@ router.get('/noticias/:slug', [PublicNewsController, 'show'])
 router.get('/vereadores', [PublicCouncilorsController, 'index'])
 router.get('/vereadores/:slug', [PublicCouncilorsController, 'show'])
 router.get('/transparencia', [PublicTransparencyController, 'index'])
+router.get('/transparencia/:slug', [PublicTransparencyController, 'show'])
 router.get('/mesa-diretora', [PublicMesaDiretoraController, 'index'])
 router.get('/comissoes', [PublicCommitteesController, 'index'])
 router.get('/atas', [PublicAtasController, 'index'])
@@ -107,6 +110,11 @@ router.get('/sobre', [StaticPagesController, 'sobre'])
 router.get('/ouvidoria', [StaticPagesController, 'ouvidoria'])
 router.get('/diario-oficial', [PublicDiarioOficialController, 'index'])
 router.get('/votacoes', [PublicNominalVotingsController, 'index'])
+router.get('/mapa-do-site', [SitemapPageController, 'index'])
+router.get('/dados-abertos', [OpenDataController, 'index'])
+router
+  .get('/dados-abertos/:dataset/:format', [OpenDataController, 'dataset'])
+  .where('format', /^(json|csv)$/)
 // Leis municipais ficam no portal da prefeitura (mesmo destino do site WordPress antigo)
 router.get('/leis', ({ response }) =>
   response.redirect('https://www.sume.pb.gov.br/portal-da-transparencia/leis-municipais/')
@@ -121,7 +129,7 @@ router
     'slug',
     // Anclado com $: bloqueia só o slug exato reservado, não slugs que começam igual
     // (ex.: notícia antiga "vereadores-acompanham-..." deve passar pelo catch-all)
-    /^(?!(?:login|painel|api|health|noticias|vereadores|transparencia|mesa-diretora|comissoes|atas|pautas|atividades-legislativa|atividades-legislativas|publicacoes-oficiais|licitacoes|perguntas-frequentes|pesquisa-de-satisfacao|politica-de-privacidade|historia-da-camara|sobre|ouvidoria|diario-oficial|votacoes|leis)$).+$/
+    /^(?!(?:login|painel|api|health|noticias|vereadores|transparencia|mesa-diretora|comissoes|atas|pautas|atividades-legislativa|atividades-legislativas|publicacoes-oficiais|licitacoes|perguntas-frequentes|pesquisa-de-satisfacao|politica-de-privacidade|historia-da-camara|sobre|ouvidoria|diario-oficial|votacoes|leis|mapa-do-site|dados-abertos)$).+$/
   )
 
 // ========= API =========

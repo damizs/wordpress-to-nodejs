@@ -27,6 +27,8 @@ const defaultFooterColumns: FooterColumn[] = [
       { label: "Licitações", href: "/licitacoes" },
       { label: "Vereadores", href: "/vereadores" },
       { label: "Atas", href: "/atas" },
+      { label: "Mapa do Site", href: "/mapa-do-site" },
+      { label: "Dados Abertos", href: "/dados-abertos" },
     ],
   },
   {

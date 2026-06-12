@@ -6,6 +6,8 @@ export default class TransparencyLink extends BaseModel {
   @column({ isPrimary: true }) declare id: number
   @column() declare sectionId: number
   @column() declare title: string
+  /** Slug para deep-link do modal: /transparencia/<slug> */
+  @column() declare slug: string | null
   @column() declare url: string
   @column() declare icon: string | null
   @column() declare displayOrder: number

@@ -41,6 +41,8 @@ const cidadaoSubItems = [
   { label: "Perguntas Frequentes", href: "/perguntas-frequentes" },
   { label: "Pesquisa de Satisfação", href: "/pesquisa-de-satisfacao" },
   { label: "Política de Privacidade", href: "/politica-de-privacidade" },
+  { label: "Mapa do Site", href: "/mapa-do-site" },
+  { label: "Dados Abertos", href: "/dados-abertos" },
 ];
 
 const defaultNavItems: NavItem[] = [
@@ -144,7 +146,7 @@ export const Header = ({ logoUrl }: HeaderProps) => {
           <div className="container mx-auto px-4 h-14 flex items-center justify-between gap-4">
             <Link href="/" className="flex items-center gap-2.5 no-underline min-w-0">
               {resolvedLogo ? (
-                <img src={resolvedLogo} alt={headerTitle} className="h-9 w-auto object-contain" />
+                <img src={resolvedLogo} alt={headerTitle} className="h-11 w-auto object-contain" />
               ) : (
                 <span className="w-8 h-8 rounded-full bg-gold flex items-center justify-center text-navy-dark font-extrabold text-sm shrink-0">
                   {titleFirstWord.charAt(0)}
@@ -200,7 +202,7 @@ export const Header = ({ logoUrl }: HeaderProps) => {
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary-foreground/20 to-transparent" />
       </div>
 
-      <div className="relative container mx-auto px-4 py-8">
+      <div className="relative container mx-auto px-4 py-10 md:py-12">
         {/* Logo and Title */}
         <Link href="/" className="flex items-center justify-center gap-5 mb-8 animate-fade-in no-underline">
           {resolvedLogo ? (
@@ -208,7 +210,7 @@ export const Header = ({ logoUrl }: HeaderProps) => {
             <img 
               src={resolvedLogo} 
               alt={headerTitle} 
-              className="h-24 md:h-32 w-auto object-contain"
+              className="h-32 md:h-44 w-auto object-contain"
             />
           ) : (
             /* Fallback: Text Logo */

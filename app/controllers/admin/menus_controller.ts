@@ -40,6 +40,8 @@ export const DEFAULT_HEADER_MENU: MenuItem[] = [
       { label: 'Perguntas Frequentes', href: '/perguntas-frequentes' },
       { label: 'Pesquisa de Satisfação', href: '/pesquisa-de-satisfacao' },
       { label: 'Política de Privacidade', href: '/politica-de-privacidade' },
+      { label: 'Mapa do Site', href: '/mapa-do-site' },
+      { label: 'Dados Abertos', href: '/dados-abertos' },
     ],
   },
 ]
@@ -54,6 +56,8 @@ export const DEFAULT_FOOTER_COLUMNS: FooterColumn[] = [
       { label: 'Licitações', href: '/licitacoes' },
       { label: 'Vereadores', href: '/vereadores' },
       { label: 'Atas', href: '/atas' },
+      { label: 'Mapa do Site', href: '/mapa-do-site' },
+      { label: 'Dados Abertos', href: '/dados-abertos' },
     ],
   },
   {

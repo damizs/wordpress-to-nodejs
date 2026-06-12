@@ -1,8 +1,23 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import TransparencySection from '#models/transparency_section'
 import TransparencyLink from '#models/transparency_link'
+import { generateSlug } from '#helpers/slug'
 
 export default class TransparencyController {
+  /** Gera slug único (a partir do título) para o link, com sufixo -2, -3... */
+  private async uniqueLinkSlug(title: string, ignoreId?: number): Promise<string> {
+    const base = generateSlug(title) || 'link'
+    let slug = base
+    let suffix = 2
+    while (true) {
+      const query = TransparencyLink.query().where('slug', slug)
+      if (ignoreId) query.whereNot('id', ignoreId)
+      const exists = await query.first()
+      if (!exists) return slug
+      slug = `${base}-${suffix++}`
+    }
+  }
+
   async index({ inertia }: HttpContext) {
     const sections = await TransparencySection.query().orderBy('display_order', 'asc')
     const sectionIds = sections.map((s) => s.id)
@@ -111,6 +126,7 @@ export default class TransparencyController {
     await TransparencyLink.create({
       sectionId: Number.parseInt(params.sectionId),
       title: data.title,
+      slug: await this.uniqueLinkSlug(data.title),
       url: data.url,
       icon: data.icon,
       displayOrder: Number.parseInt(data.display_order) || 0,
@@ -142,6 +158,9 @@ export default class TransparencyController {
       'open_mode',
       'hide_chrome',
     ])
+    if (!link.slug || link.title !== data.title) {
+      link.slug = await this.uniqueLinkSlug(data.title, link.id)
+    }
     link.title = data.title
     link.url = data.url
     link.icon = data.icon

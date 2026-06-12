@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { Link } from "@inertiajs/react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link, router } from "@inertiajs/react";
 import { SeoHead } from "~/components/SeoHead";
 import { TopBar } from "~/components/TopBar";
 import { Header } from "~/components/Header";
@@ -16,6 +16,7 @@ import {
 interface TransparencyLink {
   id: number;
   title: string;
+  slug?: string | null;
   url: string;
   icon?: string | null;
   is_external: boolean;
@@ -34,6 +35,8 @@ interface TransparencySection {
 
 interface Props {
   sections: TransparencySection[];
+  /** Link a abrir no modal ao acessar /transparencia/<slug> diretamente */
+  openLink?: TransparencyLink | null;
 }
 
 const iconMap: Record<string, any> = {
@@ -116,9 +119,38 @@ function CardLink({
   );
 }
 
-export default function TransparenciaIndex({ sections = [] }: Props) {
+export default function TransparenciaIndex({ sections = [], openLink = null }: Props) {
   const [query, setQuery] = useState("");
-  const [modalLink, setModalLink] = useState<TransparencyLink | null>(null);
+  // openLink inicial = acesso direto a /transparencia/<slug>: modal já aberto no mount
+  const [modalLink, setModalLink] = useState<TransparencyLink | null>(openLink);
+  const [activeSection, setActiveSection] = useState<string | null>(
+    sections[0]?.slug ?? null
+  );
+
+  // Deep-link: a prop openLink (rota /transparencia/<slug>) controla o modal —
+  // também cobre voltar/avançar do navegador entre /transparencia e o slug.
+  useEffect(() => {
+    setModalLink(openLink ?? null);
+  }, [openLink]);
+
+  /** Abre o modal e leva a URL para /transparencia/<slug> (sem remontar a página) */
+  const openModal = useCallback((link: TransparencyLink) => {
+    setModalLink(link);
+    if (link.slug) {
+      router.visit(`/transparencia/${link.slug}`, {
+        preserveScroll: true,
+        preserveState: true,
+      });
+    }
+  }, []);
+
+  /** Fecha o modal e devolve a URL para /transparencia */
+  const closeModal = useCallback(() => {
+    setModalLink(null);
+    if (typeof window !== "undefined" && window.location.pathname !== "/transparencia") {
+      router.visit("/transparencia", { preserveScroll: true, preserveState: true });
+    }
+  }, []);
 
   const filtered = useMemo(() => {
     const q = normalize(query.trim());
@@ -136,6 +168,30 @@ export default function TransparenciaIndex({ sections = [] }: Props) {
     () => sections.reduce((acc, s) => acc + s.links.length, 0),
     [sections]
   );
+
+  // Scrollspy: observa os headings das seções do conteúdo e marca na sidebar
+  // a seção que está na faixa superior do viewport durante o scroll.
+  useEffect(() => {
+    if (typeof window === "undefined" || !("IntersectionObserver" in window)) return;
+    const elements = filtered
+      .map((s) => document.getElementById(`secao-${s.slug}`))
+      .filter((el): el is HTMLElement => el !== null);
+    if (elements.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id.replace(/^secao-/, ""));
+          }
+        }
+      },
+      // Faixa entre 20% do topo e 30% da base: só uma seção "ativa" por vez
+      { rootMargin: "-20% 0px -70% 0px", threshold: 0 }
+    );
+    elements.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, [filtered]);
 
   return (
     <>
@@ -164,14 +220,35 @@ export default function TransparenciaIndex({ sections = [] }: Props) {
                 <nav className="bg-card rounded-2xl shadow-md border border-border/60 overflow-hidden">
                   {filtered.map((section) => {
                     const Icon = iconMap[section.icon || ""] || FolderOpen;
+                    const isActive = activeSection === section.slug;
                     return (
                       <div key={section.id} className="border-b border-border/60 last:border-b-0">
                         <a
                           href={`#secao-${section.slug}`}
-                          className="flex items-center gap-2.5 px-4 py-3.5 bg-muted/60 border-l-4 border-primary no-underline hover:bg-muted transition-colors"
+                          aria-current={isActive ? "true" : undefined}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setActiveSection(section.slug);
+                            document
+                              .getElementById(`secao-${section.slug}`)
+                              ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                          }}
+                          className={`flex items-center gap-2.5 px-4 py-3.5 border-l-4 no-underline transition-colors ${
+                            isActive
+                              ? "bg-muted/60 border-primary"
+                              : "border-transparent hover:bg-muted/60"
+                          }`}
                         >
-                          <Icon className="w-4 h-4 text-primary shrink-0" />
-                          <span className="text-[12px] font-bold uppercase tracking-wide text-foreground">
+                          <Icon
+                            className={`w-4 h-4 shrink-0 transition-colors ${
+                              isActive ? "text-primary" : "text-muted-foreground"
+                            }`}
+                          />
+                          <span
+                            className={`text-[12px] font-bold uppercase tracking-wide transition-colors ${
+                              isActive ? "text-foreground" : "text-muted-foreground"
+                            }`}
+                          >
                             {section.title}
                           </span>
                         </a>
@@ -181,7 +258,7 @@ export default function TransparenciaIndex({ sections = [] }: Props) {
                               <button
                                 key={link.id}
                                 type="button"
-                                onClick={() => setModalLink(link)}
+                                onClick={() => openModal(link)}
                                 className="block w-full text-left py-1.5 px-2 rounded-md text-[13px] text-muted-foreground transition-all hover:text-primary hover:bg-muted hover:pl-3"
                               >
                                 {link.title}
@@ -262,7 +339,7 @@ export default function TransparenciaIndex({ sections = [] }: Props) {
 
                         <div className="grid gap-4 grid-cols-2 sm:grid-cols-[repeat(auto-fill,minmax(170px,1fr))]">
                           {section.links.map((link) => (
-                            <CardLink key={link.id} link={link} onOpenModal={setModalLink} />
+                            <CardLink key={link.id} link={link} onOpenModal={openModal} />
                           ))}
                         </div>
                       </section>
@@ -308,7 +385,7 @@ export default function TransparenciaIndex({ sections = [] }: Props) {
         </main>
 
         <Footer />
-        <LinkModal link={modalLink} onClose={() => setModalLink(null)} />
+        <LinkModal link={modalLink} onClose={closeModal} />
       </div>
     </>
   );
