@@ -3,8 +3,13 @@ import QuickLink from '#models/quick_link'
 
 export default class extends BaseSeeder {
   async run() {
-    // Limpa links existentes
-    await QuickLink.query().delete()
+    // Idempotente: só semeia se a tabela estiver vazia — roda a cada boot
+    // (startup.sh) e não pode apagar links editados no painel.
+    const existing = await QuickLink.query().count('* as total').first()
+    if (Number(existing?.$extras.total ?? 0) > 0) {
+      console.log('Quick links já existem — seed ignorado')
+      return
+    }
 
     // Links rápidos padrão para câmara municipal
     const links = [

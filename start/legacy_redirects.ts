@@ -42,7 +42,8 @@ const cptToListing: Record<string, string> = {
   legislatura: '/vereadores',
   glossario: '/perguntas-frequentes',
   perguntas: '/perguntas-frequentes',
-  transparencia: '/transparencia',
+  // 'transparencia' removido: GET /transparencia/:slug agora é rota real
+  // (deep-link do modal); o controller redireciona slugs desconhecidos.
   // Internos do WP sem equivalente (manda para destino útil)
   'acesso-rapido': '/',
   'jet-popup': '/',
