@@ -61,7 +61,7 @@ const pageRedirects: Record<string, string> = {
   'listagem-dos-vereadores': '/vereadores',
   'listagem-das-legislaturas': '/vereadores',
   'fale-conosco': '/ouvidoria',
-  'mapa-do-site': '/sitemap.xml',
+  // 'mapa-do-site' removido: agora é página real (/mapa-do-site)
   'convenios-e-transferencias': '/acordos',
   // Páginas de transparência fiscal (conteúdo consolidado em /transparencia)
   'licitantes-sancionados': '/transparencia',
