@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from "react";
-import { Sun, Moon, Contrast, Type, Accessibility } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Sun, Moon, Contrast, Type, Accessibility, PersonStanding, X } from "lucide-react";
 
 declare global {
   interface Window {
@@ -91,17 +91,45 @@ async function activateVLibras(): Promise<void> {
   setVLibrasVisible(true);
 }
 
-/* ===== Barra de acessibilidade ===== */
+/* ===== Acessibilidade (FAB + painel popover) =====
+ * Botão flutuante circular fixo no canto inferior direito, empilhado acima
+ * do botão do assistente virtual (assistente: bottom-6 right-6 w-14 → aqui:
+ * bottom-24 right-6 w-14). Ao clicar abre um painel compacto com os mesmos
+ * controles de antes (fonte, contraste, modo escuro, VLibras).
+ */
 
 const MIN_SCALE = 1;
 const MAX_SCALE = 3;
 
 export const AccessibilityBar = () => {
+  const [open, setOpen] = useState(false);
   const [dark, toggleDark] = useDarkMode();
   const [highContrast, setHighContrast] = useState(false);
   const [fontScale, setFontScale] = useState(MIN_SCALE);
   const [vlibrasOn, setVlibrasOn] = useState(false);
   const [vlibrasLoading, setVlibrasLoading] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+
+  // Fecha ao clicar fora ou pressionar Esc
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (e: MouseEvent | TouchEvent) => {
+      if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("mousedown", onPointerDown);
+    document.addEventListener("touchstart", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("touchstart", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open]);
 
   // Sincroniza o estado inicial com o que o script anti-flash já aplicou no <html>
   useEffect(() => {
@@ -164,104 +192,132 @@ export const AccessibilityBar = () => {
   }, [vlibrasOn]);
 
   const btnBase =
-    "inline-flex items-center justify-center gap-1 h-7 min-w-[1.75rem] px-1.5 rounded-md text-xs font-semibold transition-colors hover:bg-white/15 disabled:opacity-40 disabled:cursor-not-allowed";
+    "inline-flex items-center justify-center gap-1.5 h-8 min-w-[2rem] px-2 rounded-md text-xs font-semibold bg-muted text-foreground transition-colors hover:bg-muted/70 disabled:opacity-40 disabled:cursor-not-allowed";
   const btnActive = "bg-gold text-navy-dark hover:bg-gold-light";
 
   return (
-    <div className="relative z-[70] bg-navy-dark text-white border-b border-white/10">
-      <div className="container mx-auto px-4 py-1 flex items-center gap-2 text-xs">
-        <span className="hidden sm:flex items-center gap-1.5 font-medium tracking-wide text-white/70">
-          <Accessibility className="w-3.5 h-3.5" aria-hidden="true" />
-          Acessibilidade
-        </span>
-
+    <div ref={rootRef} className="fixed bottom-24 right-6 z-50">
+      {/* Painel popover (abre acima do botão) */}
+      {open && (
         <div
-          role="group"
+          id="painel-acessibilidade"
+          role="dialog"
           aria-label="Opções de acessibilidade"
-          className="flex flex-wrap items-center gap-1 ml-auto"
+          className="absolute bottom-full right-0 mb-3 w-72 max-w-[calc(100vw-48px)] rounded-xl border border-border bg-card text-card-foreground shadow-lg p-4 animate-fade-in"
         >
-          {/* Escala de fonte */}
-          <Type className="w-3.5 h-3.5 text-white/50 mr-0.5" aria-hidden="true" />
-          <button
-            type="button"
-            onClick={() => applyFontScale(fontScale - 1)}
-            disabled={fontScale <= MIN_SCALE}
-            aria-label="Diminuir tamanho do texto"
-            className={btnBase}
-          >
-            A-
-          </button>
-          <button
-            type="button"
-            onClick={() => applyFontScale(MIN_SCALE)}
-            aria-label="Tamanho de texto padrão"
-            className={btnBase}
-          >
-            A
-          </button>
-          <button
-            type="button"
-            onClick={() => applyFontScale(fontScale + 1)}
-            disabled={fontScale >= MAX_SCALE}
-            aria-label="Aumentar tamanho do texto"
-            className={btnBase}
-          >
-            A+
-          </button>
+          <div className="flex items-center justify-between mb-3">
+            <span className="flex items-center gap-1.5 text-sm font-bold">
+              <Accessibility className="w-4 h-4 text-gold" aria-hidden="true" />
+              Acessibilidade
+            </span>
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              aria-label="Fechar opções de acessibilidade"
+              className="w-7 h-7 rounded-md flex items-center justify-center text-muted-foreground hover:bg-muted transition-colors"
+            >
+              <X className="w-4 h-4" aria-hidden="true" />
+            </button>
+          </div>
 
-          <span className="w-px h-4 bg-white/20 mx-1" aria-hidden="true" />
+          <div className="space-y-3">
+            {/* Escala de fonte */}
+            <div className="flex items-center justify-between gap-2">
+              <span className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                <Type className="w-3.5 h-3.5" aria-hidden="true" />
+                Tamanho do texto
+              </span>
+              <div role="group" aria-label="Tamanho do texto" className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => applyFontScale(fontScale - 1)}
+                  disabled={fontScale <= MIN_SCALE}
+                  aria-label="Diminuir tamanho do texto"
+                  className={btnBase}
+                >
+                  A-
+                </button>
+                <button
+                  type="button"
+                  onClick={() => applyFontScale(MIN_SCALE)}
+                  aria-label="Tamanho de texto padrão"
+                  className={btnBase}
+                >
+                  A
+                </button>
+                <button
+                  type="button"
+                  onClick={() => applyFontScale(fontScale + 1)}
+                  disabled={fontScale >= MAX_SCALE}
+                  aria-label="Aumentar tamanho do texto"
+                  className={btnBase}
+                >
+                  A+
+                </button>
+              </div>
+            </div>
 
-          {/* Alto contraste */}
-          <button
-            type="button"
-            onClick={toggleContrast}
-            aria-pressed={highContrast}
-            aria-label={highContrast ? "Desativar alto contraste" : "Ativar alto contraste"}
-            title="Alto contraste"
-            className={`${btnBase} ${highContrast ? btnActive : ""}`}
-          >
-            <Contrast className="w-3.5 h-3.5" aria-hidden="true" />
-            <span className="hidden md:inline">Contraste</span>
-          </button>
+            {/* Alto contraste */}
+            <button
+              type="button"
+              onClick={toggleContrast}
+              aria-pressed={highContrast}
+              aria-label={highContrast ? "Desativar alto contraste" : "Ativar alto contraste"}
+              className={`${btnBase} w-full justify-start ${highContrast ? btnActive : ""}`}
+            >
+              <Contrast className="w-3.5 h-3.5" aria-hidden="true" />
+              Alto contraste
+            </button>
 
-          {/* Modo escuro */}
-          <button
-            type="button"
-            onClick={toggleDark}
-            aria-pressed={dark}
-            aria-label={dark ? "Desativar modo escuro" : "Ativar modo escuro"}
-            title="Modo escuro"
-            className={`${btnBase} ${dark ? btnActive : ""}`}
-          >
-            {dark ? (
-              <Sun className="w-3.5 h-3.5" aria-hidden="true" />
-            ) : (
-              <Moon className="w-3.5 h-3.5" aria-hidden="true" />
-            )}
-            <span className="hidden md:inline">{dark ? "Modo claro" : "Modo escuro"}</span>
-          </button>
+            {/* Modo escuro */}
+            <button
+              type="button"
+              onClick={toggleDark}
+              aria-pressed={dark}
+              aria-label={dark ? "Desativar modo escuro" : "Ativar modo escuro"}
+              className={`${btnBase} w-full justify-start ${dark ? btnActive : ""}`}
+            >
+              {dark ? (
+                <Sun className="w-3.5 h-3.5" aria-hidden="true" />
+              ) : (
+                <Moon className="w-3.5 h-3.5" aria-hidden="true" />
+              )}
+              {dark ? "Modo claro" : "Modo escuro"}
+            </button>
 
-          <span className="w-px h-4 bg-white/20 mx-1" aria-hidden="true" />
-
-          {/* VLibras */}
-          <button
-            type="button"
-            onClick={() => void toggleVLibras()}
-            aria-pressed={vlibrasOn}
-            aria-label={
-              vlibrasOn
-                ? "Desativar VLibras (tradução para Língua Brasileira de Sinais)"
-                : "Ativar VLibras (tradução para Língua Brasileira de Sinais)"
-            }
-            title="VLibras - Língua Brasileira de Sinais"
-            disabled={vlibrasLoading}
-            className={`${btnBase} ${vlibrasOn ? btnActive : ""}`}
-          >
-            <Accessibility className="w-3.5 h-3.5" aria-hidden="true" />
-            <span className="hidden md:inline">{vlibrasLoading ? "Carregando…" : "VLibras"}</span>
-          </button>
+            {/* VLibras */}
+            <button
+              type="button"
+              onClick={() => void toggleVLibras()}
+              aria-pressed={vlibrasOn}
+              aria-label={
+                vlibrasOn
+                  ? "Desativar VLibras (tradução para Língua Brasileira de Sinais)"
+                  : "Ativar VLibras (tradução para Língua Brasileira de Sinais)"
+              }
+              disabled={vlibrasLoading}
+              className={`${btnBase} w-full justify-start ${vlibrasOn ? btnActive : ""}`}
+            >
+              <Accessibility className="w-3.5 h-3.5" aria-hidden="true" />
+              {vlibrasLoading ? "Carregando…" : "VLibras (Língua de Sinais)"}
+            </button>
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Botão flutuante (acima do assistente virtual: bottom-6 → aqui bottom-24) */}
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        aria-haspopup="dialog"
+        aria-controls={open ? "painel-acessibilidade" : undefined}
+        aria-label={open ? "Fechar opções de acessibilidade" : "Abrir opções de acessibilidade"}
+        title="Acessibilidade"
+        className="w-14 h-14 rounded-full bg-navy text-white shadow-lg hover:shadow-xl hover:scale-110 hover:bg-gold hover:text-navy-dark transition-all duration-300 flex items-center justify-center"
+      >
+        <PersonStanding className="w-7 h-7" aria-hidden="true" />
+      </button>
     </div>
   );
 };

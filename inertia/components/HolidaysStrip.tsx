@@ -33,11 +33,17 @@ function TypeChip({ type }: { type: Holiday['type'] }) {
   )
 }
 
+interface HolidaysStripProps {
+  /** 'footer': linha compacta com texto claro para o fundo navy do rodapé */
+  variant?: 'default' | 'footer'
+}
+
 /**
  * Faixa discreta com os próximos 2 feriados (nacionais calculados client-side
- * + municipais/estaduais do setting `municipal_holidays`). Montada na TopBar.
+ * + municipais/estaduais do setting `municipal_holidays`).
+ * Montada no Footer, logo acima da bottom bar (variant="footer").
  */
-export const HolidaysStrip = () => {
+export const HolidaysStrip = ({ variant = 'default' }: HolidaysStripProps) => {
   const settings = useSiteSettings()
   const municipal = parseMunicipalHolidays(settings.municipal_holidays)
   const upcoming = nextHolidays(municipal, 2)
@@ -46,10 +52,17 @@ export const HolidaysStrip = () => {
 
   const todayHoliday = upcoming.find((h) => isHolidayToday(h))
 
+  const isFooter = variant === 'footer'
+  const baseText = isFooter
+    ? 'text-primary-foreground/80'
+    : 'text-white/70'
+
   if (todayHoliday) {
     return (
-      <div className="flex items-center gap-1.5 py-2 text-[11px] md:text-xs font-medium tracking-wide">
-        <Calendar className="w-3 h-3 text-gold shrink-0" />
+      <div
+        className={`flex items-center ${isFooter ? 'justify-center md:justify-start' : ''} gap-1.5 py-2 text-[11px] md:text-xs font-medium tracking-wide`}
+      >
+        <Calendar className="w-3 h-3 text-gold shrink-0" aria-hidden="true" />
         <span className="text-gold">
           Hoje: feriado de {todayHoliday.label} — sem expediente
         </span>
@@ -59,12 +72,22 @@ export const HolidaysStrip = () => {
   }
 
   return (
-    <div className="flex items-center gap-x-5 gap-y-0 flex-wrap py-2 text-[11px] md:text-xs font-medium tracking-wide">
+    <div
+      className={`flex items-center ${isFooter ? 'justify-center md:justify-start' : ''} gap-x-5 gap-y-0 flex-wrap py-2 text-[11px] md:text-xs font-medium tracking-wide`}
+    >
+      {isFooter && (
+        <span className="flex items-center gap-1.5 text-primary-foreground/60 uppercase tracking-wider text-[10px] font-semibold">
+          <Calendar className="w-3.5 h-3.5 text-gold/70 shrink-0" aria-hidden="true" />
+          Próximos feriados
+        </span>
+      )}
       {upcoming.map((holiday, i) => (
-        <span key={i} className="flex items-center gap-1.5 text-white/70">
-          <Calendar className="w-3 h-3 text-gold/70 shrink-0" />
+        <span key={i} className={`flex items-center gap-1.5 ${baseText}`}>
+          {!isFooter && (
+            <Calendar className="w-3 h-3 text-gold/70 shrink-0" aria-hidden="true" />
+          )}
           <span>
-            Feriado: {formatDay(holiday.date)} — {holiday.label}
+            {formatDay(holiday.date)} — {holiday.label}
           </span>
           <TypeChip type={holiday.type} />
         </span>

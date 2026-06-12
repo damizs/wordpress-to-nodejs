@@ -62,26 +62,60 @@ export default class WpMigrate extends BaseCommand {
     this.wpDir = '/uploads/wp-migration'
 
     // ── Core data ──
-    const legislature = await this.ensureLegislature()
-    const biennium = await this.ensureBiennium(legislature)
-    await this.importNews(data.news)
-    await this.importVereadores(data.vereadores, legislature)
-    await this.importMesaDiretora(data.mesa_diretora, biennium)
-    await this.importComissoes(data.comissoes, legislature)
-    await this.importFaqs(data.faqs)
-    await this.importSurveyQuestions(data.survey_questions)
+    let legislature: Legislature | null = null
+    let biennium: Biennium | null = null
+    try {
+      legislature = await this.ensureLegislature()
+      biennium = await this.ensureBiennium(legislature)
+    } catch (error) {
+      this.logger.error(`  Legislature/Biennium FAILED: ${this.errMsg(error)}`)
+    }
+
+    await this.runSection('News', () => this.importNews(data.news))
+    if (legislature) {
+      const leg = legislature
+      await this.runSection('Vereadores', () => this.importVereadores(data.vereadores, leg))
+      await this.runSection('Comissões', () => this.importComissoes(data.comissoes, leg))
+    } else {
+      this.logger.warning('  Skipping Vereadores/Comissões (no legislature)')
+    }
+    if (biennium) {
+      const bien = biennium
+      await this.runSection('Mesa Diretora', () => this.importMesaDiretora(data.mesa_diretora, bien))
+    } else {
+      this.logger.warning('  Skipping Mesa Diretora (no biennium)')
+    }
+    await this.runSection('FAQs', () => this.importFaqs(data.faqs))
+    await this.runSection('Survey Questions', () => this.importSurveyQuestions(data.survey_questions))
 
     // ── Extra data ──
-    await this.importQuickLinks(extra.lr_links)
-    await this.importMaterias(extra.materias)
-    await this.importPublicacoes(extra.publicacoes, extra.pub_attachments)
-    await this.importAtas(extra.atas, extra.ata_attachments)
-    await this.importTransparencia(extra.transparencia)
-    await this.importInformationRecords(extra.registros_pntp, extra.anexos_pntp)
+    await this.runSection('Quick Links', () => this.importQuickLinks(extra.lr_links))
+    await this.runSection('Matérias', () => this.importMaterias(extra.materias))
+    await this.runSection('Publicações', () =>
+      this.importPublicacoes(extra.publicacoes, extra.pub_attachments)
+    )
+    await this.runSection('Atas/Sessões', () => this.importAtas(extra.atas, extra.ata_attachments))
+    await this.runSection('Transparência', () => this.importTransparencia(extra.transparencia))
+    await this.runSection('Information Records', () =>
+      this.importInformationRecords(extra.registros_pntp, extra.anexos_pntp)
+    )
 
     this.logger.success('\n══════════════════════════════════')
     this.logger.success('  ✓ Migration complete!')
     this.logger.success('══════════════════════════════════')
+  }
+
+  /** Runs an import section, logging failures without aborting the whole command. */
+  private async runSection(name: string, fn: () => Promise<void>) {
+    try {
+      await fn()
+    } catch (error) {
+      this.logger.error(`  Section "${name}" FAILED: ${this.errMsg(error)}`)
+    }
+  }
+
+  private errMsg(error: unknown): string {
+    return error instanceof Error ? error.message : String(error)
   }
 
   // ═══════════════════════════════════════
@@ -376,9 +410,13 @@ export default class WpMigrate extends BaseCommand {
     }
 
     let ok = 0
+    let skip = 0
     for (const q of questions) {
       const existing = await SurveyQuestion.findBy('displayOrder', q.number)
-      if (existing && !this.force) continue
+      if (existing) {
+        skip++
+        continue
+      }
 
       try {
         await SurveyQuestion.create({
@@ -391,7 +429,7 @@ export default class WpMigrate extends BaseCommand {
         this.logger.warning(`  FAIL: Q${q.number}`)
       }
     }
-    this.logger.success(`  Survey Questions: ${ok} imported`)
+    this.logger.success(`  Survey Questions: ${ok} imported, ${skip} skipped`)
   }
 
   // ═══════════════════════════════════════
@@ -434,11 +472,18 @@ export default class WpMigrate extends BaseCommand {
     }
 
     let ok = 0
+    let skip = 0
     for (const [i, l] of links.entries()) {
       if (!l.active) continue
       let url = l.url
         .replace('https://camaradesume.pb.gov.br/', '/')
         .replace('http://camaradesume.pb.gov.br/', '/')
+      // Dedupe by natural key (title + url) — table has no unique constraint
+      const existing = await QuickLink.query().where('title', l.title).where('url', url).first()
+      if (existing) {
+        skip++
+        continue
+      }
       try {
         await QuickLink.create({
           title: l.title,
@@ -450,10 +495,10 @@ export default class WpMigrate extends BaseCommand {
         })
         ok++
       } catch {
-        /* skip */
+        this.logger.warning(`  FAIL: ${l.title?.substring(0, 50)}`)
       }
     }
-    this.logger.success(`  Quick Links: ${ok} imported`)
+    this.logger.success(`  Quick Links: ${ok} imported, ${skip} skipped`)
   }
 
   // ═══════════════════════════════════════
@@ -506,12 +551,17 @@ export default class WpMigrate extends BaseCommand {
     let legOk = 0
     let licOk = 0
     let pubOk = 0
+    let skip = 0
     for (const m of materias) {
       const content = this.cleanContent(m.conteudo)
       const year = m.dt_publicacao ? Number.parseInt(m.dt_publicacao.substring(0, 4)) : 2025
       const slug = this.slugify(`${m.tipo}-${m.codigo}`)
 
       if (legislativeTypes.has(m.tipo)) {
+        if (await LegislativeActivity.findBy('slug', slug)) {
+          skip++
+          continue
+        }
         try {
           await LegislativeActivity.create({
             title: m.titulo,
@@ -529,6 +579,10 @@ export default class WpMigrate extends BaseCommand {
           /* skip */
         }
       } else if (licitacaoTypes.has(m.tipo)) {
+        if (await Licitacao.findBy('slug', slug)) {
+          skip++
+          continue
+        }
         try {
           await Licitacao.create({
             title: m.titulo,
@@ -554,6 +608,10 @@ export default class WpMigrate extends BaseCommand {
           'Atos Administrativos': 'Ato Administrativo',
           'Outros Atos Administrativos': 'Ato Administrativo',
         }
+        if (await OfficialPublication.findBy('slug', slug)) {
+          skip++
+          continue
+        }
         try {
           await OfficialPublication.create({
             title: m.titulo,
@@ -569,7 +627,9 @@ export default class WpMigrate extends BaseCommand {
         }
       }
     }
-    this.logger.success(`  Legislative: ${legOk}, Licitações: ${licOk}, Publications: ${pubOk}`)
+    this.logger.success(
+      `  Legislative: ${legOk}, Licitações: ${licOk}, Publications: ${pubOk}, skipped: ${skip}`
+    )
   }
 
   // ═══════════════════════════════════════
@@ -579,7 +639,13 @@ export default class WpMigrate extends BaseCommand {
     this.logger.info(`\n━━━ Publicações Oficiais: ${pubs.length} items ━━━`)
 
     let ok = 0
+    let skip = 0
     for (const p of pubs) {
+      const slug = p.slug !== 'closed' ? p.slug : this.slugify(p.title)
+      if (await OfficialPublication.findBy('slug', slug)) {
+        skip++
+        continue
+      }
       const att = attachments[p.wp_id]
       const fileName = att?.path?.split('/').pop() || null
       const fileUrl = fileName ? `${this.wpDir}/pdfs/publicacoes/${fileName}` : null
@@ -593,7 +659,7 @@ export default class WpMigrate extends BaseCommand {
       try {
         await OfficialPublication.create({
           title: p.title,
-          slug: p.slug !== 'closed' ? p.slug : this.slugify(p.title),
+          slug,
           type,
           number: numMatch,
           publicationDate: p.date,
@@ -605,7 +671,7 @@ export default class WpMigrate extends BaseCommand {
         this.logger.warning(`  FAIL: ${p.title.substring(0, 50)}`)
       }
     }
-    this.logger.success(`  Publicações: ${ok} imported`)
+    this.logger.success(`  Publicações: ${ok} imported, ${skip} skipped`)
   }
 
   // ═══════════════════════════════════════
@@ -618,8 +684,14 @@ export default class WpMigrate extends BaseCommand {
     }
 
     let ok = 0
+    let skip = 0
     for (const a of atas) {
       if (a.title === 'Atas') continue
+      const slug = this.slugify(a.title)
+      if (await PlenarySession.findBy('slug', slug)) {
+        skip++
+        continue
+      }
       const attPath = attachments[a.wp_id]
       const fileName = attPath?.split('/').pop() || null
       const fileUrl = fileName ? `${this.wpDir}/pdfs/atas/${fileName}` : null
@@ -631,7 +703,7 @@ export default class WpMigrate extends BaseCommand {
       try {
         await PlenarySession.create({
           title: a.title,
-          slug: this.slugify(a.title),
+          slug,
           type,
           sessionDate: a.date,
           year: Number.parseInt(a.date.substring(0, 4)),
@@ -643,7 +715,7 @@ export default class WpMigrate extends BaseCommand {
         this.logger.warning(`  FAIL: ${a.title.substring(0, 50)}`)
       }
     }
-    this.logger.success(`  Sessions: ${ok} imported`)
+    this.logger.success(`  Sessions: ${ok} imported, ${skip} skipped`)
   }
 
   // ═══════════════════════════════════════
@@ -721,19 +793,36 @@ export default class WpMigrate extends BaseCommand {
     }
 
     let secOk = 0
+    let secSkip = 0
     let linkOk = 0
+    let linkSkip = 0
     let order = 1
     for (const [secName, titles] of Object.entries(sections)) {
       if (titles.length === 0) continue
-      const section = await TransparencySection.create({
-        title: secName,
-        slug: this.slugify(secName),
-        icon: icons[secName] || 'Link',
-        displayOrder: order++,
-        isActive: true,
-      })
-      secOk++
+      const secSlug = this.slugify(secName)
+      let section = await TransparencySection.findBy('slug', secSlug)
+      if (section) {
+        secSkip++
+      } else {
+        section = await TransparencySection.create({
+          title: secName,
+          slug: secSlug,
+          icon: icons[secName] || 'Link',
+          displayOrder: order,
+          isActive: true,
+        })
+        secOk++
+      }
+      order++
       for (const [i, title] of titles.entries()) {
+        const existingLink = await TransparencyLink.query()
+          .where('sectionId', section.id)
+          .where('title', title)
+          .first()
+        if (existingLink) {
+          linkSkip++
+          continue
+        }
         try {
           await TransparencyLink.create({
             sectionId: section.id,
@@ -744,11 +833,13 @@ export default class WpMigrate extends BaseCommand {
           })
           linkOk++
         } catch {
-          /* skip */
+          this.logger.warning(`  FAIL link: ${title.substring(0, 50)}`)
         }
       }
     }
-    this.logger.success(`  Sections: ${secOk}, Links: ${linkOk}`)
+    this.logger.success(
+      `  Sections: ${secOk} created, ${secSkip} skipped | Links: ${linkOk} created, ${linkSkip} skipped`
+    )
   }
 
   // ═══════════════════════════════════════
@@ -781,15 +872,28 @@ export default class WpMigrate extends BaseCommand {
     }
 
     let ok = 0
+    let skip = 0
     for (const r of registros) {
+      const category = catMap[r.secao] || r.secao
+      const year = r.ano || 2026
+      // No slug column — dedupe by natural key (title + category + year)
+      const existing = await InformationRecord.query()
+        .where('title', r.titulo)
+        .where('category', category)
+        .where('year', year)
+        .first()
+      if (existing) {
+        skip++
+        continue
+      }
       const regAnexos = anexos.filter((a: any) => a.registro_id === r.id)
       const fileName = regAnexos[0]?.path?.split('/').pop() || null
       const fileUrl = fileName ? `${this.wpDir}/pdfs/pntp/${fileName}` : null
       try {
         await InformationRecord.create({
           title: r.titulo,
-          category: catMap[r.secao] || r.secao,
-          year: r.ano || 2026,
+          category,
+          year,
           content: r.conteudo || null,
           fileUrl,
           isActive: r.ativo,
@@ -800,7 +904,7 @@ export default class WpMigrate extends BaseCommand {
         this.logger.warning(`  FAIL: ${r.titulo.substring(0, 50)}`)
       }
     }
-    this.logger.success(`  Information Records: ${ok} imported`)
+    this.logger.success(`  Information Records: ${ok} imported, ${skip} skipped`)
   }
 
   // ═══════════════════════════════════════

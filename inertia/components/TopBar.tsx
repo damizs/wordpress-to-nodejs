@@ -1,7 +1,6 @@
 import { Link, usePage } from "@inertiajs/react";
 import { Search, HelpCircle, FileText, MessageSquare, Shield } from "lucide-react";
 import { useSiteSettings } from "~/hooks/use_site_settings";
-import { HolidaysStrip } from "~/components/HolidaysStrip";
 
 export const TopBar = () => {
   const settings = useSiteSettings();
@@ -26,9 +25,8 @@ export const TopBar = () => {
   return (
     <div className="bg-navy-dark text-primary-foreground border-b border-white/5">
       <div className="container mx-auto px-4">
-        <div className="flex flex-wrap items-center justify-center xl:justify-between gap-x-6">
-          <nav className="flex flex-wrap items-center justify-center gap-x-7 gap-y-0 text-[11px] md:text-xs font-medium tracking-wide">
-            {topLinks.map((link, index) =>
+        <nav className="flex flex-wrap items-center justify-center gap-x-7 gap-y-0 text-[11px] md:text-xs font-medium tracking-wide">
+          {topLinks.map((link, index) =>
             link.external ? (
               <a key={index} href={link.href} target="_blank" rel="noopener noreferrer" className={linkClass}>
                 <link.icon className="w-3 h-3 text-gold/70 group-hover:text-gold transition-colors" />
@@ -41,11 +39,7 @@ export const TopBar = () => {
               </Link>
             )
           )}
-          </nav>
-          <div className="hidden xl:block">
-            <HolidaysStrip />
-          </div>
-        </div>
+        </nav>
       </div>
     </div>
   );
