@@ -13,7 +13,7 @@ const APPEARANCE_KEYS: Record<
 > = {
   color_navy: {
     group: 'appearance',
-    defaultValue: '#0a3d62',
+    defaultValue: '#141b47',
     type: 'color',
     label: 'Cor Principal (Navy)',
   },
@@ -25,7 +25,7 @@ const APPEARANCE_KEYS: Record<
   },
   color_sky: {
     group: 'appearance',
-    defaultValue: '#2e86de',
+    defaultValue: '#272971',
     type: 'color',
     label: 'Cor Secundária (Sky)',
   },
