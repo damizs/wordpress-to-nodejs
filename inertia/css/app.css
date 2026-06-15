@@ -222,6 +222,93 @@
   html[data-font-scale='3'] {
     font-size: 125%;
   }
+
+  /* ===== Estilos de layout (atributo data-layout no <html>) =====
+     Sobrescrevem apenas FORMA / TIPOGRAFIA / DENSIDADE — nunca a paleta de
+     cores (essa fica com theme_preset / campanhas via DynamicTheme).
+     Usam os tokens em HSL existentes, portanto são dark-safe e compatíveis
+     com alto contraste. 'institucional' é o padrão = sem overrides. */
+
+  /* ----- Minimalista (clean): flat, hairline, muito respiro ----- */
+  html[data-layout='clean'] {
+    --radius: 0.375rem;
+    --shadow-sm: 0 1px 2px -1px hsl(var(--navy) / 0.06);
+    --shadow-md: 0 2px 6px -2px hsl(var(--navy) / 0.08);
+    --shadow-lg: 0 6px 16px -8px hsl(var(--navy) / 0.1);
+    --shadow-xl: 0 10px 24px -12px hsl(var(--navy) / 0.12);
+    --shadow-inner: none;
+    /* Header/footer sólidos (navy chapado) em vez de gradiente.
+       Redefinir --gradient-hero/navy é aceitável: a campanha sazonal, quando
+       ativa, sobrescreve essas mesmas vars inline no <html> e tem precedência. */
+    --gradient-hero: linear-gradient(0deg, hsl(var(--navy)) 0%, hsl(var(--navy)) 100%);
+    --gradient-navy: linear-gradient(0deg, hsl(var(--navy)) 0%, hsl(var(--navy)) 100%);
+  }
+  /* Bordas mais finas/discretas no estilo flat */
+  html[data-layout='clean'] .card-modern,
+  html[data-layout='clean'] .glass-card {
+    border-color: hsl(var(--border) / 0.7);
+  }
+  html[data-layout='clean'] .card-modern:hover {
+    transform: none;
+    box-shadow: var(--shadow-md);
+  }
+
+  /* ----- Moderno (bold): pill, sombras fortes, títulos maiores ----- */
+  html[data-layout='moderno'] {
+    --radius: 1.25rem;
+    --shadow-sm: 0 4px 14px -4px hsl(var(--navy) / 0.16);
+    --shadow-md: 0 12px 32px -10px hsl(var(--navy) / 0.22);
+    --shadow-lg: 0 28px 60px -18px hsl(var(--navy) / 0.32);
+    --shadow-xl: 0 36px 72px -22px hsl(var(--navy) / 0.38);
+  }
+  /* Botões e badges totalmente arredondados (pill) */
+  html[data-layout='moderno'] .btn-modern,
+  html[data-layout='moderno'] button,
+  html[data-layout='moderno'] .badge,
+  html[data-layout='moderno'] [class*='rounded-xl'],
+  html[data-layout='moderno'] [class*='rounded-2xl'] {
+    border-radius: 9999px;
+  }
+  /* Títulos com mais presença */
+  html[data-layout='moderno'] h1 {
+    font-size: clamp(2.25rem, 4vw, 3.5rem);
+    letter-spacing: -0.02em;
+  }
+  html[data-layout='moderno'] h2 {
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+  }
+  html[data-layout='moderno'] h3 {
+    font-size: clamp(1.35rem, 2.2vw, 1.75rem);
+  }
+  html[data-layout='moderno'] h1,
+  html[data-layout='moderno'] h2,
+  html[data-layout='moderno'] h3 {
+    font-weight: 800;
+  }
+
+  /* ----- Clássico (tradicional): reto, serifa, denso, filete dourado ----- */
+  html[data-layout='classico'] {
+    --radius: 0.25rem;
+  }
+  html[data-layout='classico'] h1,
+  html[data-layout='classico'] h2,
+  html[data-layout='classico'] h3,
+  html[data-layout='classico'] h4,
+  html[data-layout='classico'] h5,
+  html[data-layout='classico'] h6 {
+    font-family: Georgia, 'Times New Roman', serif;
+    letter-spacing: 0;
+  }
+  /* Densidade maior: títulos um pouco mais compactos verticalmente */
+  html[data-layout='classico'] h1,
+  html[data-layout='classico'] h2,
+  html[data-layout='classico'] h3 {
+    line-height: 1.15;
+  }
+  /* Filete/accent dourado sutil no topo dos cartões (governamental formal) */
+  html[data-layout='classico'] .card-modern {
+    border-top: 3px solid hsl(var(--gold) / 0.85);
+  }
 }
 
 @layer base {

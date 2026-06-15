@@ -9,11 +9,13 @@ import {
   Save,
   Upload,
   Sparkles,
+  LayoutGrid,
   type LucideIcon,
 } from 'lucide-react'
 import { useState, useRef } from 'react'
 import { Button, Card, CardHeader, Field, Input, Select } from '~/components/admin/ui'
 import { CAMPAIGNS, THEME_PRESETS, getCampaign, resolveActiveCampaign } from '~/lib/campaigns'
+import { LAYOUT_STYLES, type LayoutStyle } from '~/lib/layouts'
 
 interface SettingItem {
   key: string
@@ -41,6 +43,7 @@ export default function Appearance({ settings }: Props) {
   const { data, setData, post, processing } = useForm<Record<string, any>>({
     theme_preset: getVal(appearance, 'theme_preset') || 'navy',
     campaign_mode: getVal(appearance, 'campaign_mode') || 'auto',
+    layout_style: getVal(appearance, 'layout_style') || 'institucional',
     color_navy: getVal(appearance, 'color_navy'),
     color_gold: getVal(appearance, 'color_gold'),
     color_sky: getVal(appearance, 'color_sky'),
@@ -107,6 +110,11 @@ export default function Appearance({ settings }: Props) {
             onThemeChange={(v) => setData('theme_preset', v)}
             onCampaignChange={(v) => setData('campaign_mode', v)}
           />
+        </Section>
+
+        {/* Layout style */}
+        <Section icon={LayoutGrid} title="Estilo de Layout">
+          <LayoutStylePicker value={data.layout_style} onChange={(v) => setData('layout_style', v)} />
         </Section>
 
         {/* Colors */}
@@ -422,6 +430,132 @@ function ThemeAndCampaigns({
         )
       )}
     </div>
+  )
+}
+
+// ---- Layout style picker ----
+
+/**
+ * Características visuais aproximadas de cada estilo, usadas APENAS no
+ * mini-preview do cartão (inline). O efeito real no site vem do CSS
+ * `[data-layout="..."]` em app.css.
+ */
+const LAYOUT_PREVIEW: Record<
+  string,
+  {
+    radius: string
+    shadow: string
+    headingFont: string
+    pill: boolean
+    topAccent: boolean
+    solidHeader: boolean
+  }
+> = {
+  institucional: {
+    radius: '0.75rem',
+    shadow: '0 8px 24px -8px rgba(20,27,71,0.18)',
+    headingFont: "'Inter', sans-serif",
+    pill: false,
+    topAccent: false,
+    solidHeader: false,
+  },
+  clean: {
+    radius: '0.375rem',
+    shadow: '0 1px 3px -1px rgba(20,27,71,0.1)',
+    headingFont: "'Inter', sans-serif",
+    pill: false,
+    topAccent: false,
+    solidHeader: true,
+  },
+  moderno: {
+    radius: '1.25rem',
+    shadow: '0 16px 36px -12px rgba(20,27,71,0.4)',
+    headingFont: "'Inter', sans-serif",
+    pill: true,
+    topAccent: false,
+    solidHeader: false,
+  },
+  classico: {
+    radius: '0.25rem',
+    shadow: '0 6px 16px -8px rgba(20,27,71,0.2)',
+    headingFont: "Georgia, 'Times New Roman', serif",
+    pill: false,
+    topAccent: true,
+    solidHeader: false,
+  },
+}
+
+function LayoutStylePreview({ styleKey }: { styleKey: string }) {
+  const p = LAYOUT_PREVIEW[styleKey] ?? LAYOUT_PREVIEW.institucional
+  return (
+    <div
+      className="overflow-hidden border border-border bg-white"
+      style={{
+        borderRadius: p.radius,
+        boxShadow: p.shadow,
+        borderTop: p.topAccent ? '3px solid #d4a017' : undefined,
+      }}
+    >
+      {/* mini header */}
+      <div
+        className="h-6"
+        style={{
+          background: p.solidHeader ? '#141b47' : 'linear-gradient(135deg, #0a3d62, #141b47)',
+        }}
+      />
+      <div className="p-2.5 space-y-1.5">
+        <div
+          className="text-[11px] leading-tight text-foreground"
+          style={{ fontFamily: p.headingFont, fontWeight: 700 }}
+        >
+          Título de exemplo
+        </div>
+        <div className="h-1.5 w-full rounded bg-muted" />
+        <div className="h-1.5 w-3/4 rounded bg-muted" />
+        <span
+          className="inline-block mt-1 px-2 py-0.5 text-[9px] font-medium text-white"
+          style={{ background: '#141b47', borderRadius: p.pill ? '9999px' : p.radius }}
+        >
+          Botão
+        </span>
+      </div>
+    </div>
+  )
+}
+
+function LayoutStylePicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  return (
+    <Field
+      label="Estilo de layout"
+      hint="Altera a forma (cantos, sombras), a tipografia e a densidade de todo o site. É independente das cores: combina com qualquer tema ou campanha sazonal."
+    >
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        {LAYOUT_STYLES.map((layout: LayoutStyle) => {
+          const selected = (value || 'institucional') === layout.key
+          return (
+            <button
+              key={layout.key}
+              type="button"
+              onClick={() => onChange(layout.key)}
+              aria-pressed={selected}
+              className={`rounded-lg border p-3 text-left transition-all ${
+                selected
+                  ? 'border-navy ring-2 ring-navy/25 bg-navy/5'
+                  : 'border-border bg-card hover:border-navy/40'
+              }`}
+            >
+              <LayoutStylePreview styleKey={layout.key} />
+              <span className={`block mt-2.5 text-sm font-semibold ${selected ? 'text-navy' : 'text-foreground'}`}>
+                {layout.label}
+              </span>
+              <span className="block mt-0.5 text-xs text-muted-foreground leading-snug">
+                {layout.description}
+              </span>
+            </button>
+          )
+        })}
+      </div>
+    </Field>
   )
 }
 

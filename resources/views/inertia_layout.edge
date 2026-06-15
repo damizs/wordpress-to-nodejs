@@ -56,6 +56,10 @@
         if (localStorage.getItem('contrast') === 'high') el.classList.add('high-contrast')
         var fs = localStorage.getItem('fontScale')
         if (fs === '2' || fs === '3') el.setAttribute('data-font-scale', fs)
+        // Estilo de layout (forma/tipografia/densidade) — reaplica antes do
+        // paint a partir do valor persistido pelo DynamicTheme. Default
+        // 'institucional' não tem overrides; 1ª visita pode ter leve flash.
+        el.setAttribute('data-layout', localStorage.getItem('layoutStyle') || 'institucional')
       } catch (e) {}
     })()
   </script>

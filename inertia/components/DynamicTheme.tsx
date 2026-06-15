@@ -5,6 +5,7 @@ import {
   resolveActiveCampaign,
   type Campaign,
 } from '~/lib/campaigns'
+import { getLayoutStyle } from '~/lib/layouts'
 
 interface SharedProps {
   siteSettings?: Record<string, string | null>
@@ -89,6 +90,18 @@ export function DynamicTheme() {
 
   useEffect(() => {
     const root = document.documentElement
+
+    /* ---- Estilo de layout (data-layout): forma/tipografia/densidade ----
+       Ortogonal às cores. Aplicado sempre no efeito (consistência em
+       navegação SPA) e persistido em localStorage para o script anti-flash
+       do inertia_layout.edge reaplicar antes do paint na próxima visita. */
+    const layout = getLayoutStyle(siteSettings?.layout_style).key
+    root.dataset.layout = layout
+    try {
+      localStorage.setItem('layoutStyle', layout)
+    } catch {
+      /* ignore (modo privado / storage indisponível) */
+    }
 
     /* ---- Campanha sazonal: apenas header, footer e botões ---- */
     const campaignBase = campaign ? hexToHslParts(campaign.colors.navy) : null

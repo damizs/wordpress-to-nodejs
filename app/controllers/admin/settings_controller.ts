@@ -41,6 +41,12 @@ const APPEARANCE_KEYS: Record<
     type: 'text',
     label: 'Campanha Sazonal (auto | off | chave da campanha)',
   },
+  layout_style: {
+    group: 'appearance',
+    defaultValue: 'institucional',
+    type: 'text',
+    label: 'Estilo de Layout',
+  },
   header_title: {
     group: 'appearance',
     defaultValue: 'CÂMARA MUNICIPAL DE SUMÉ',
