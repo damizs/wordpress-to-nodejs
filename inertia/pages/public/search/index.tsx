@@ -117,7 +117,7 @@ export default function SearchIndex({ q = "", results = [], total = 0 }: Props) 
         <main>
           <section className="py-10 lg:py-14">
             <div className="container">
-              <div className="max-w-4xl mx-auto">
+              <div>
                 {/* Campo de busca */}
                 <form onSubmit={submit} role="search" className="relative mb-8">
                   <Search

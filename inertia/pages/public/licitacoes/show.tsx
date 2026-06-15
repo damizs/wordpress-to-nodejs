@@ -62,7 +62,7 @@ export default function LicitacaoShow({ licitacao, documentGroups = [] }: Props)
         <main>
           <section className="py-10 lg:py-14">
             <div className="container">
-              <div className="max-w-4xl mx-auto">
+              <div className="max-w-4xl">
                 <Link href="/licitacoes" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-6 no-underline">
                   <ArrowLeft className="w-4 h-4" />Voltar para Licitações
                 </Link>

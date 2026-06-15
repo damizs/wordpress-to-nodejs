@@ -53,7 +53,7 @@ export default function PublicationsIndex({ publications = [], pagination, filte
           <section className="py-10 lg:py-14">
             <div className="container">
               {/* Toolbar de filtros */}
-              <div data-reveal="up" className="max-w-4xl mx-auto mb-8 card-modern p-4 flex flex-col sm:flex-row gap-3">
+              <div data-reveal="up" className="mb-8 card-modern p-4 flex flex-col sm:flex-row gap-3">
                 <form className="relative flex-1" onSubmit={(e) => { e.preventDefault(); applyFilters({ search: searchTerm }); }}>
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <input
@@ -91,13 +91,13 @@ export default function PublicationsIndex({ publications = [], pagination, filte
               </div>
 
               {pagination?.total !== undefined && (
-                <p data-reveal="fade" className="max-w-4xl mx-auto mb-6 text-sm text-muted-foreground text-right">
+                <p data-reveal="fade" className="mb-6 text-sm text-muted-foreground text-right">
                   {pagination.total} {pagination.total === 1 ? "publicação encontrada" : "publicações encontradas"}
                 </p>
               )}
 
               {publications.length > 0 ? (
-                <div className="max-w-4xl mx-auto space-y-4">
+                <div className="space-y-4">
                   {publications.map((pub, i) => {
                     const year = String(pub.date || "").slice(0, 4);
                     return (
@@ -143,7 +143,7 @@ export default function PublicationsIndex({ publications = [], pagination, filte
               )}
 
               {pagination && pagination.lastPage > 1 && (
-                <div className="max-w-4xl mx-auto flex items-center justify-center gap-3 mt-10">
+                <div className="flex items-center justify-center gap-3 mt-10">
                   {pagination.currentPage > 1 && (
                     <Link
                       href={pageUrl(pagination.currentPage - 1, filters)}

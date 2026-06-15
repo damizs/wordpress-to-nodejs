@@ -23,7 +23,7 @@ export default function OuvidoriaIndex() {
         <main>
           <section className="py-10 lg:py-14">
             <div className="container">
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-4xl">
 
               {/* Channels */}
               <div data-reveal="up" className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">

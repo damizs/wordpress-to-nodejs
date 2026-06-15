@@ -63,7 +63,7 @@ export default function ActivitiesIndex({ activities = [], pagination, filters =
           <section className="py-10 lg:py-14">
             <div className="container">
               {filters.autor && (
-                <div className="max-w-4xl mx-auto mb-6 flex items-center gap-3 p-4 rounded-xl bg-primary/5 border border-primary/15">
+                <div className="mb-6 flex items-center gap-3 p-4 rounded-xl bg-primary/5 border border-primary/15">
                   <User className="w-4 h-4 text-primary shrink-0" />
                   <p className="text-sm text-foreground">
                     Exibindo matérias de autoria de <strong>{filters.autor}</strong>
@@ -78,7 +78,7 @@ export default function ActivitiesIndex({ activities = [], pagination, filters =
               )}
 
               {/* Toolbar de filtros */}
-              <div data-reveal="up" className="max-w-4xl mx-auto mb-8 card-modern p-4 flex flex-col sm:flex-row gap-3">
+              <div data-reveal="up" className="mb-8 card-modern p-4 flex flex-col sm:flex-row gap-3">
                 <form className="relative flex-1" onSubmit={(e) => { e.preventDefault(); applyFilters({ search: searchTerm }); }}>
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <input
@@ -126,13 +126,13 @@ export default function ActivitiesIndex({ activities = [], pagination, filters =
               </div>
 
               {pagination?.total !== undefined && (
-                <p data-reveal="fade" className="max-w-4xl mx-auto mb-6 text-sm text-muted-foreground text-right">
+                <p data-reveal="fade" className="mb-6 text-sm text-muted-foreground text-right">
                   {pagination.total} {pagination.total === 1 ? "matéria encontrada" : "matérias encontradas"}
                 </p>
               )}
 
               {activities.length > 0 ? (
-                <div className="max-w-4xl mx-auto grid gap-4">
+                <div className="grid gap-4">
                   {activities.map((activity, i) => {
                     const year = String(activity.date || "").slice(0, 4);
                     return (
@@ -169,7 +169,7 @@ export default function ActivitiesIndex({ activities = [], pagination, filters =
               )}
 
               {pagination && pagination.lastPage > 1 && (
-                <div className="max-w-4xl mx-auto flex items-center justify-center gap-3 mt-10">
+                <div className="flex items-center justify-center gap-3 mt-10">
                   {pagination.currentPage > 1 && (
                     <Link
                       href={pageUrl(pagination.currentPage - 1, filters)}

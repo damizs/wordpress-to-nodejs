@@ -86,7 +86,7 @@ export default function DuodecimosIndex({
         <main>
           <section className="py-10 lg:py-14">
             <div className="container">
-              <div className="max-w-5xl mx-auto">
+              <div>
                 {/* Caixa informativa */}
                 <div
                   data-reveal="up"
@@ -284,7 +284,7 @@ export default function DuodecimosIndex({
                 )}
 
                 {/* Nota legal */}
-                <p className="mt-6 text-xs text-muted-foreground/80 leading-relaxed text-center max-w-3xl mx-auto">
+                <p className="mt-6 text-xs text-muted-foreground/80 leading-relaxed text-center">
                   Informação publicada em cumprimento ao dever de transparência ativa (Lei nº
                   12.527/2011 — Lei de Acesso à Informação) e ao art. 168 da Constituição Federal.
                   Os valores referem-se aos repasses do duodécimo do Poder Executivo Municipal à

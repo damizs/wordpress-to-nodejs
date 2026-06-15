@@ -170,7 +170,7 @@ export default function VotacoesIndex({ votacoes = [], pagination, years = [], f
           <section className="py-10 lg:py-14">
             <div className="container">
             {/* Toolbar de filtros */}
-            <div data-reveal="up" className="max-w-4xl mx-auto mb-8 card-modern p-4 flex flex-col sm:flex-row gap-3">
+            <div data-reveal="up" className="mb-8 card-modern p-4 flex flex-col sm:flex-row gap-3">
               <form
                 className="relative flex-1"
                 onSubmit={(e) => { e.preventDefault(); applyFilters({ busca: searchTerm }); }}
@@ -214,13 +214,13 @@ export default function VotacoesIndex({ votacoes = [], pagination, years = [], f
             </div>
 
             {pagination?.total !== undefined && (
-              <p data-reveal="fade" className="max-w-4xl mx-auto mb-6 text-sm text-muted-foreground text-right">
+              <p data-reveal="fade" className="mb-6 text-sm text-muted-foreground text-right">
                 {pagination.total} {pagination.total === 1 ? "votação" : "votações"}
               </p>
             )}
 
             {votacoes.length > 0 ? (
-              <div className="max-w-4xl mx-auto space-y-5">
+              <div className="space-y-5">
                 {votacoes.map((v, i) => <VotacaoCard key={v.id} votacao={v} index={i} />)}
               </div>
             ) : (
@@ -234,7 +234,7 @@ export default function VotacoesIndex({ votacoes = [], pagination, years = [], f
             )}
 
             {pagination && pagination.lastPage > 1 && (
-              <div className="max-w-4xl mx-auto flex items-center justify-center gap-3 mt-10">
+              <div className="flex items-center justify-center gap-3 mt-10">
                 {pagination.currentPage > 1 && (
                   <Link
                     href={`/votacoes?page=${pagination.currentPage - 1}${queryString}`}

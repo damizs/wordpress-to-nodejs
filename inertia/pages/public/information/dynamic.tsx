@@ -72,7 +72,7 @@ export default function DynamicInfoPage({ records, category, allCategories = [],
           <section className="py-10 lg:py-14">
             <div className="container">
             {/* Toolbar */}
-            <div data-reveal="up" className="max-w-4xl mx-auto mb-6 card-modern p-4 flex flex-col sm:flex-row gap-3">
+            <div data-reveal="up" className="max-w-4xl mb-6 card-modern p-4 flex flex-col sm:flex-row gap-3">
               <form className="relative flex-1" onSubmit={(e) => { e.preventDefault(); applyFilters({ busca: searchTerm }); }}>
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <input
@@ -98,12 +98,12 @@ export default function DynamicInfoPage({ records, category, allCategories = [],
               )}
             </div>
 
-            <p data-reveal="fade" className="max-w-4xl mx-auto mb-8 text-sm text-muted-foreground text-right">
+            <p data-reveal="fade" className="max-w-4xl mb-8 text-sm text-muted-foreground text-right">
               {total} {total === 1 ? "registro encontrado" : "registros encontrados"}
             </p>
 
             {items.length > 0 ? (
-              <div className="max-w-4xl mx-auto space-y-8">
+              <div className="max-w-4xl space-y-8">
                 {sortedYears.map((year) => (
                   <section key={year}>
                     <div data-reveal="up" className="flex items-center gap-3 mb-4">
@@ -180,7 +180,7 @@ export default function DynamicInfoPage({ records, category, allCategories = [],
 
             {/* Outras categorias */}
             {allCategories.length > 1 && (
-              <div className="max-w-4xl mx-auto mt-14 pt-8 border-t border-border">
+              <div className="max-w-4xl mt-14 pt-8 border-t border-border">
                 <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-4 text-center">Outras informações</h2>
                 <div className="flex flex-wrap justify-center gap-2">
                   {allCategories

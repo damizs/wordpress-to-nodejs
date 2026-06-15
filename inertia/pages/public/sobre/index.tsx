@@ -24,7 +24,7 @@ export default function SobreIndex({ institutional }: Props) {
         <main>
           <section className="py-10 lg:py-14">
             <div className="container">
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-4xl">
 
               {/* Mission, Vision, Values */}
               <div data-reveal="up" className="grid md:grid-cols-3 gap-6 mb-12">

@@ -53,7 +53,7 @@ export default function PesquisaSatisfacaoIndex() {
         <main>
           <section className="py-10 lg:py-14">
             <div className="container">
-            <div className="max-w-2xl mx-auto">
+            <div>
               <form onSubmit={handleSubmit} data-reveal="up" className="card-modern p-6 md:p-8 space-y-6">
                 <div>
                   <label className="block font-semibold text-foreground mb-3">Como você avalia nossos serviços?</label>

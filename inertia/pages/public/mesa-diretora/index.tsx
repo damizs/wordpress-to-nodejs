@@ -94,7 +94,7 @@ export default function MesaDiretoraIndex({ members = [], biennium }: Props) {
           <section className="py-10 lg:py-14">
             <div className="container">
             {members.length > 0 ? (
-              <div className="max-w-5xl mx-auto">
+              <div>
                 {/* Biênio em destaque */}
                 {biennium && (
                   <div className="flex justify-center mb-8" data-reveal="fade">
@@ -160,7 +160,7 @@ export default function MesaDiretoraIndex({ members = [], biennium }: Props) {
             )}
 
             {/* Competências da Mesa */}
-            <div data-reveal="up" className="max-w-5xl mx-auto mt-12 lg:mt-16">
+            <div data-reveal="up" className="mt-12 lg:mt-16">
               <div className="flex items-center gap-3 mb-6">
                 <div className="w-10 h-10 rounded-xl bg-gold/10 border border-gold/25 flex items-center justify-center shrink-0">
                   <Gavel className="w-5 h-5 text-gold" aria-hidden="true" />

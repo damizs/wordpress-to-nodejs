@@ -121,7 +121,7 @@ export default function DadosAbertos({ datasets = [] }: Props) {
               </div>
 
               {/* Nota de uso */}
-              <div className="max-w-3xl mx-auto mt-10 card-modern p-5 flex items-start gap-3">
+              <div className="mt-10 card-modern p-5 flex items-start gap-3">
                 <Download className="w-5 h-5 text-gold shrink-0 mt-0.5" />
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   Os arquivos CSV usam ponto e vírgula (;) como separador e codificação UTF-8 com

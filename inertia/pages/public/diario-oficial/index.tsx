@@ -86,7 +86,7 @@ export default function DiarioOficialIndex({ entries = [], pagination, years = [
           <section className="py-10 lg:py-14">
             <div className="container">
               {/* Filtro por ano (server-side, controller) */}
-              <div data-reveal="up" className="max-w-4xl mx-auto mb-6 flex flex-col sm:flex-row sm:items-center gap-3">
+              <div data-reveal="up" className="mb-6 flex flex-col sm:flex-row sm:items-center gap-3">
                 <p className="flex-1 text-sm text-muted-foreground">
                   Filtre as edições por ano de publicação
                 </p>
@@ -106,7 +106,7 @@ export default function DiarioOficialIndex({ entries = [], pagination, years = [
               </div>
 
               {/* Card no estilo do plugin */}
-              <div data-reveal="up" className="max-w-4xl mx-auto rounded-2xl overflow-hidden shadow-xl bg-card border border-border/60">
+              <div data-reveal="up" className="rounded-2xl overflow-hidden shadow-xl bg-card border border-border/60">
                 {/* Cabeçalho colorido + contador */}
                 <div className="bg-gradient-hero px-6 py-5 flex items-center justify-between gap-4 text-primary-foreground">
                   <div className="flex items-center gap-3">

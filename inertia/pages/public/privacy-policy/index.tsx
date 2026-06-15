@@ -206,7 +206,7 @@ export default function PrivacyPolicyIndex({ content }: Props) {
         <main>
           <section className="py-10 lg:py-14">
             <div className="container">
-              <div className="max-w-4xl mx-auto">
+              <div className="max-w-4xl">
                 {content ? (
                   <article className="card-modern !transform-none p-6 md:p-10">
                     <div className={PROSE} dangerouslySetInnerHTML={{ __html: content }} />

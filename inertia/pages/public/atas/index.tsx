@@ -52,7 +52,7 @@ export default function AtasIndex({ atas = [], pagination, years = [], types = [
           <section className="py-10 lg:py-14">
           <div className="container">
             {/* Toolbar de filtros */}
-            <div data-reveal="up" className="max-w-4xl mx-auto mb-8 card-modern p-4 flex flex-col sm:flex-row gap-3">
+            <div data-reveal="up" className="mb-8 card-modern p-4 flex flex-col sm:flex-row gap-3">
               <form
                 className="relative flex-1"
                 onSubmit={(e) => { e.preventDefault(); applyFilters({ busca: searchTerm }); }}
@@ -95,13 +95,13 @@ export default function AtasIndex({ atas = [], pagination, years = [], types = [
             </div>
 
             {pagination?.total !== undefined && (
-              <p data-reveal="fade" className="max-w-4xl mx-auto mb-6 text-sm text-muted-foreground text-right">
+              <p data-reveal="fade" className="mb-6 text-sm text-muted-foreground text-right">
                 {pagination.total} {pagination.total === 1 ? "registro" : "registros"}
               </p>
             )}
 
             {atas.length > 0 ? (
-              <div className="max-w-4xl mx-auto space-y-4">
+              <div className="space-y-4">
                 {atas.map((ata, i) => {
                   const year = String(ata.date || "").slice(0, 4);
                   return (

@@ -51,7 +51,7 @@ export default function PautasIndex({ pautas = [], pagination, years = [], types
         <main>
           <section className="py-10 lg:py-14">
           <div className="container">
-            <div data-reveal="up" className="max-w-4xl mx-auto mb-8 card-modern p-4 flex flex-col sm:flex-row gap-3">
+            <div data-reveal="up" className="mb-8 card-modern p-4 flex flex-col sm:flex-row gap-3">
               <form className="relative flex-1" onSubmit={(e) => { e.preventDefault(); applyFilters({ busca: searchTerm }); }}>
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <input
@@ -88,7 +88,7 @@ export default function PautasIndex({ pautas = [], pagination, years = [], types
             </div>
 
             {pautas.length > 0 ? (
-              <div className="max-w-4xl mx-auto space-y-4">
+              <div className="space-y-4">
                 {pautas.map((pauta, i) => {
                   const year = String(pauta.date || "").slice(0, 4);
                   return (

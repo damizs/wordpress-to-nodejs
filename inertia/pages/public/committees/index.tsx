@@ -73,7 +73,7 @@ export default function CommitteesIndex({ committees = [] }: Props) {
           <section className="py-10 lg:py-14">
             <div className="container">
             {committees.length > 0 ? (
-              <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+              <div className="grid md:grid-cols-2 gap-6">
                 {committees.map((committee, i) => {
                   const members = [...(committee.members || [])].sort(
                     (a, b) => roleWeight(a.role) - roleWeight(b.role)
