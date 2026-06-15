@@ -92,10 +92,32 @@ const MateriasChart = ({ weekly }: { weekly: { label: string; count: number }[] 
       aria-label="Gráfico de matérias legislativas apresentadas por semana"
     >
       <defs>
+        {/* Gradiente vibrante da área (navy → sky → transparente) */}
         <linearGradient id="materias-fill" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="hsl(var(--navy))" stopOpacity="0.35" />
-          <stop offset="100%" stopColor="hsl(var(--navy))" stopOpacity="0.02" />
+          <stop offset="0%" stopColor="hsl(var(--navy))" stopOpacity="0.55" />
+          <stop offset="45%" stopColor="hsl(var(--sky))" stopOpacity="0.28" />
+          <stop offset="100%" stopColor="hsl(var(--sky))" stopOpacity="0.02" />
         </linearGradient>
+        {/* "Espessura" 3D (face/extrusão sob a área) */}
+        <linearGradient id="materias-depth" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="hsl(var(--navy-dark))" stopOpacity="0.45" />
+          <stop offset="100%" stopColor="hsl(var(--navy-dark))" stopOpacity="0.04" />
+        </linearGradient>
+        {/* Linha com gradiente navy → sky */}
+        <linearGradient id="materias-line" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="hsl(var(--navy))" />
+          <stop offset="100%" stopColor="hsl(var(--sky))" />
+        </linearGradient>
+        {/* Sombra projetada (lift 3D) */}
+        <filter id="materias-lift" x="-20%" y="-20%" width="140%" height="170%">
+          <feDropShadow
+            dx="0"
+            dy="9"
+            stdDeviation="8"
+            floodColor="hsl(var(--navy))"
+            floodOpacity="0.30"
+          />
+        </filter>
       </defs>
 
       {/* Grade horizontal */}
@@ -121,9 +143,26 @@ const MateriasChart = ({ weekly }: { weekly: { label: string; count: number }[] 
         </g>
       ))}
 
-      {/* Área + linha */}
-      <path d={area} fill="url(#materias-fill)" />
-      <path d={line} fill="none" stroke="hsl(var(--navy))" strokeWidth="2.5" strokeLinecap="round" />
+      {/* Camada de profundidade (extrusão 3D): a mesma área deslocada para baixo,
+          mais escura, dá a sensação de "espessura" sob o gráfico */}
+      <g transform="translate(0,9)">
+        <path d={area} fill="url(#materias-depth)" />
+      </g>
+
+      {/* Área principal com gradiente + sombra projetada (lift 3D) */}
+      <path d={area} fill="url(#materias-fill)" filter="url(#materias-lift)" />
+
+      {/* Linha com gradiente + brilho fino no topo (gloss) */}
+      <path d={line} fill="none" stroke="url(#materias-line)" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d={line}
+        fill="none"
+        stroke="hsl(var(--card))"
+        strokeWidth="1.25"
+        strokeLinecap="round"
+        opacity="0.45"
+        transform="translate(0,-1.4)"
+      />
 
       {/* Toque de distinção: markers nos pontos + destaque do pico */}
       {points.map(([x, y], i) => {
