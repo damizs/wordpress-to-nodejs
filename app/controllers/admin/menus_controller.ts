@@ -51,6 +51,7 @@ export const DEFAULT_FOOTER_COLUMNS: FooterColumn[] = [
     title: 'Links Úteis',
     links: [
       { label: 'Portal da Transparência', href: '/transparencia' },
+      { label: 'Duodécimos', href: '/duodecimos' },
       { label: 'E-SIC', href: '/transparencia' },
       { label: 'Ouvidoria', href: '/ouvidoria' },
       { label: 'Licitações', href: '/licitacoes' },

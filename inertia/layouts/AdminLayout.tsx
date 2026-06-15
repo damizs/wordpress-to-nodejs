@@ -5,7 +5,7 @@ import {
   LogOut, Menu, User, Home, Users, FileText, Link2, Shield, UserCog,
   ScrollText, Settings, Monitor, HelpCircle, Info, Tags, Calendar, Users2,
   Gavel, ClipboardCheck, Image, Radar, Vote, ExternalLink, Award, Files,
-  BookOpen, FolderOpen,
+  BookOpen, FolderOpen, Coins,
 } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 
@@ -64,6 +64,7 @@ const navGroups: NavGroup[] = [
     label: 'Transparência',
     items: [
       { label: 'Transparência', href: '/painel/transparencia', icon: Shield, permissions: ['transparencia.gerenciar'] },
+      { label: 'Duodécimos', href: '/painel/duodecimos', icon: Coins, permissions: ['transparencia.gerenciar'] },
       { label: 'Licitações', href: '/painel/licitacoes', icon: Gavel, permissions: ['licitacao.gerenciar'] },
       { label: 'Acesso à Informação', href: '/painel/acesso-informacao', icon: Info, permissions: ['pntp.gerenciar'] },
       { label: 'Radar ATRICON', href: '/painel/atricon', icon: Radar, permissions: ['pntp.gerenciar'] },

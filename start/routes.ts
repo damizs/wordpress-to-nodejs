@@ -26,6 +26,7 @@ const PublicNominalVotingsController = () =>
   import('#controllers/public/nominal_votings_controller')
 const SitemapPageController = () => import('#controllers/public/sitemap_page_controller')
 const OpenDataController = () => import('#controllers/public/open_data_controller')
+const PublicDuodecimosController = () => import('#controllers/public/duodecimos_controller')
 const SeoController = () => import('#controllers/seo_controller')
 
 // Lazy imports - Admin
@@ -65,6 +66,7 @@ const AdminUsersController = () => import('#controllers/admin/users_controller')
 const AdminRolesController = () => import('#controllers/admin/roles_controller')
 const AdminNominalVotingsController = () =>
   import('#controllers/admin/nominal_votings_controller')
+const AdminDuodecimosController = () => import('#controllers/admin/duodecimos_controller')
 
 // ========= HEALTH CHECK =========
 router.get('/health', async () => ({ status: 'ok', timestamp: new Date().toISOString() }))
@@ -111,6 +113,7 @@ router.get('/ouvidoria', [StaticPagesController, 'ouvidoria'])
 router.get('/diario-oficial', [PublicDiarioOficialController, 'index'])
 router.get('/votacoes', [PublicNominalVotingsController, 'index'])
 router.get('/mapa-do-site', [SitemapPageController, 'index'])
+router.get('/duodecimos', [PublicDuodecimosController, 'index'])
 router.get('/dados-abertos', [OpenDataController, 'index'])
 router
   .get('/dados-abertos/:dataset/:format', [OpenDataController, 'dataset'])
@@ -129,7 +132,7 @@ router
     'slug',
     // Anclado com $: bloqueia só o slug exato reservado, não slugs que começam igual
     // (ex.: notícia antiga "vereadores-acompanham-..." deve passar pelo catch-all)
-    /^(?!(?:login|painel|api|health|noticias|vereadores|transparencia|mesa-diretora|comissoes|atas|pautas|atividades-legislativa|atividades-legislativas|publicacoes-oficiais|licitacoes|perguntas-frequentes|pesquisa-de-satisfacao|politica-de-privacidade|historia-da-camara|sobre|ouvidoria|diario-oficial|votacoes|leis|mapa-do-site|dados-abertos)$).+$/
+    /^(?!(?:login|painel|api|health|noticias|vereadores|transparencia|mesa-diretora|comissoes|atas|pautas|atividades-legislativa|atividades-legislativas|publicacoes-oficiais|licitacoes|perguntas-frequentes|pesquisa-de-satisfacao|politica-de-privacidade|historia-da-camara|sobre|ouvidoria|diario-oficial|votacoes|leis|mapa-do-site|duodecimos|dados-abertos)$).+$/
   )
 
 // ========= API =========
@@ -435,6 +438,13 @@ router
         router.get('/transparencia/links/:id/editar', [AdminTransparencyController, 'editLink'])
         router.put('/transparencia/links/:id', [AdminTransparencyController, 'updateLink'])
         router.delete('/transparencia/links/:id', [AdminTransparencyController, 'destroyLink'])
+
+        // Duodécimos (repasses de 1/12 do orçamento — transparência ativa nativa)
+        router.get('/duodecimos', [AdminDuodecimosController, 'index'])
+        router.post('/duodecimos', [AdminDuodecimosController, 'store'])
+        router.post('/duodecimos/gerar-ano', [AdminDuodecimosController, 'generateYear'])
+        router.put('/duodecimos/:id', [AdminDuodecimosController, 'update'])
+        router.delete('/duodecimos/:id', [AdminDuodecimosController, 'destroy'])
       })
       .use(middleware.can(['transparencia.gerenciar']))
 

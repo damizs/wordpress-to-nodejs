@@ -71,7 +71,8 @@ const pageRedirects: Record<string, string> = {
   'aditivos': '/transparencia',
   'despesas-mensais': '/transparencia',
   'empenhos-detalhados': '/transparencia',
-  'duodecimos': '/transparencia',
+  // 'duodecimos' removido: GET /duodecimos agora é rota real (módulo nativo).
+  // Mantê-lo aqui causaria "Duplicate route" / sobreporia a página nova.
   // Páginas utilitárias do WP (plugins de ticket/login) sem equivalente
   'log-in': '/login',
   'register': '/',

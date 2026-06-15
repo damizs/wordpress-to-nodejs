@@ -43,6 +43,7 @@ const KNOWN_GROUPS: SitemapGroup[] = [
     title: 'Transparência',
     links: [
       { label: 'Portal da Transparência', href: '/transparencia' },
+      { label: 'Duodécimos', href: '/duodecimos' },
       { label: 'Licitações', href: '/licitacoes' },
       { label: 'Votações Nominais', href: '/votacoes' },
       { label: 'Dados Abertos', href: '/dados-abertos' },
