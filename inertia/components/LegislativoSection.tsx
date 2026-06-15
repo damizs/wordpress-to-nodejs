@@ -118,6 +118,24 @@ const MateriasChart = ({ weekly }: { weekly: { label: string; count: number }[] 
             floodOpacity="0.30"
           />
         </filter>
+        {/* Brilho neon na linha */}
+        <filter id="materias-glow" x="-20%" y="-60%" width="140%" height="220%">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="3.5" result="blur" />
+          <feMerge>
+            <feMergeNode in="blur" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
+        </filter>
+        {/* Faixa de luz que varre o gráfico (a 4ª dimensão: o tempo) */}
+        <linearGradient id="materias-sweep" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="hsl(var(--sky))" stopOpacity="0" />
+          <stop offset="50%" stopColor="hsl(var(--sky))" stopOpacity="0.55" />
+          <stop offset="100%" stopColor="hsl(var(--sky))" stopOpacity="0" />
+        </linearGradient>
+        {/* Recorte na forma da área para a luz varrer só dentro do gráfico */}
+        <clipPath id="materias-clip">
+          <path d={area} />
+        </clipPath>
       </defs>
 
       {/* Grade horizontal */}
@@ -152,8 +170,28 @@ const MateriasChart = ({ weekly }: { weekly: { label: string; count: number }[] 
       {/* Área principal com gradiente + sombra projetada (lift 3D) */}
       <path d={area} fill="url(#materias-fill)" filter="url(#materias-lift)" />
 
-      {/* Linha com gradiente + brilho fino no topo (gloss) */}
-      <path d={line} fill="none" stroke="url(#materias-line)" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
+      {/* Luz que varre a área (movimento contínuo — sensação "4D") */}
+      <g clipPath="url(#materias-clip)">
+        <rect
+          className="animate-chart-sweep"
+          x="0"
+          y={PAD.t}
+          width="200"
+          height={H - PAD.t - PAD.b}
+          fill="url(#materias-sweep)"
+        />
+      </g>
+
+      {/* Linha com gradiente + brilho neon + brilho fino no topo (gloss) */}
+      <path
+        d={line}
+        fill="none"
+        stroke="url(#materias-line)"
+        strokeWidth="3.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        filter="url(#materias-glow)"
+      />
       <path
         d={line}
         fill="none"
@@ -169,7 +207,15 @@ const MateriasChart = ({ weekly }: { weekly: { label: string; count: number }[] 
         const isPeak = i === peakIndex && weekly[i].count > 0;
         return (
           <g key={`pt-${i}`}>
-            {isPeak && <circle cx={x} cy={y} r="7.5" fill="hsl(var(--gold))" opacity="0.25" />}
+            {isPeak && (
+              <circle
+                className="animate-chart-peak"
+                cx={x}
+                cy={y}
+                r="8"
+                fill="hsl(var(--gold))"
+              />
+            )}
             <circle
               cx={x}
               cy={y}
