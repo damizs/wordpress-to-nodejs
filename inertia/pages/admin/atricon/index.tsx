@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react'
 import {
   FileDown, Printer, CheckCircle2, AlertTriangle, XCircle, ExternalLink,
   MinusCircle, ChevronDown, ChevronUp, Sparkles, Gem, Save, Filter,
+  Clock, Database, ArrowUpRight, ListChecks, TrendingUp, RotateCcw, ShieldAlert,
 } from 'lucide-react'
 import {
   Badge,
@@ -20,22 +21,30 @@ import {
 } from '~/components/admin/ui'
 
 type StatusValue = 'atendido' | 'parcial' | 'pendente' | 'externo' | 'nao_se_aplica'
+type AutoVerdict = 'ok' | 'parcial' | 'falha'
+type Source = 'auto' | 'manual' | 'padrao'
+type Classification = 'essencial' | 'obrigatoria' | 'recomendada'
+type Freshness = 'em_dia' | 'desatualizado' | 'vazio'
 
 interface Criterion {
   code: string
   dimension: string
   title: string
-  classification: 'essencial' | 'obrigatoria' | 'recomendada'
+  classification: Classification
   verification: string[]
   hint: string
   route?: string
   external?: boolean
   status: StatusValue
+  source: Source
+  autoStatus: StatusValue | null
+  divergent: boolean
   evidenceUrl: string | null
   notes: string | null
   lastUpdate: string | null
-  auto: { ok: boolean; detail: string } | null
+  auto: { status: AutoVerdict; detail: string; checkedAt: string } | null
   autoLinks: Array<{ title: string; url: string }>
+  actionHref: string | null
 }
 
 interface DimensionScore {
@@ -46,7 +55,24 @@ interface DimensionScore {
   met: number
   partial: number
   pending: number
+  notApplicable: number
   pct: number
+}
+
+interface ContentModule {
+  key: string
+  label: string
+  adminHref: string
+  total: number
+  latest: string | null
+  freshness: Freshness
+  detail: string
+}
+
+interface Snapshot {
+  date: string | null
+  index: number
+  level: string
 }
 
 interface Props {
@@ -56,7 +82,13 @@ interface Props {
     index: number
     level: string
     allEssentialsMet: boolean
-    essentials: Array<{ code: string; title: string; status: StatusValue }>
+    essentials: Array<{
+      code: string
+      title: string
+      status: StatusValue
+      source: Source
+      actionHref: string | null
+    }>
     totals: {
       criteria: number
       met: number
@@ -64,9 +96,15 @@ interface Props {
       partial: number
       pending: number
       notApplicable: number
+      autoChecked: number
+      manualOverrides: number
+      divergent: number
     }
   }
+  contentMap: ContentModule[]
+  snapshots: Snapshot[]
   fortnight: { label: string; start: string; end: string }
+  checkedAt: string
   atriconLogoUrl?: string | null
 }
 
@@ -78,13 +116,41 @@ const STATUS_META: Record<StatusValue, { label: string; tone: BadgeTone; dot: st
   nao_se_aplica: { label: 'Não se aplica', tone: 'neutral', dot: 'bg-muted-foreground/40' },
 }
 
-const CLASS_TONE: Record<Criterion['classification'], BadgeTone> = {
+const CLASS_TONE: Record<Classification, BadgeTone> = {
   essencial: 'gold',
   obrigatoria: 'navy',
   recomendada: 'neutral',
 }
 
-const CLASS_LABEL = { essencial: 'Essencial', obrigatoria: 'Obrigatória', recomendada: 'Recomendada' }
+const CLASS_LABEL: Record<Classification, string> = {
+  essencial: 'Essencial',
+  obrigatoria: 'Obrigatória',
+  recomendada: 'Recomendada',
+}
+
+const CLASS_ORDER: Record<Classification, number> = { essencial: 0, obrigatoria: 1, recomendada: 2 }
+
+const SOURCE_META: Record<Source, { label: string; tone: BadgeTone }> = {
+  auto: { label: 'Automático', tone: 'info' },
+  manual: { label: 'Manual', tone: 'navy' },
+  padrao: { label: 'Padrão', tone: 'neutral' },
+}
+
+const AUTO_META: Record<AutoVerdict, { label: string; tone: BadgeTone; text: string }> = {
+  ok: { label: 'Detectado no portal', tone: 'success', text: 'text-emerald-600' },
+  parcial: {
+    label: 'Dados desatualizados/incompletos',
+    tone: 'warning',
+    text: 'text-amber-600',
+  },
+  falha: { label: 'Sem dados no portal', tone: 'danger', text: 'text-destructive' },
+}
+
+const FRESHNESS_META: Record<Freshness, { label: string; tone: BadgeTone; rank: number }> = {
+  vazio: { label: 'Vazio', tone: 'danger', rank: 0 },
+  desatualizado: { label: 'Desatualizado', tone: 'warning', rank: 1 },
+  em_dia: { label: 'Em dia', tone: 'success', rank: 2 },
+}
 
 const LEVEL_META: Record<string, { color: string; ring: string }> = {
   'Diamante': { color: 'text-cyan-600', ring: '#0891b2' },
@@ -95,6 +161,23 @@ const LEVEL_META: Record<string, { color: string; ring: string }> = {
   'Básico': { color: 'text-orange-600', ring: '#ea580c' },
   'Inicial': { color: 'text-destructive', ring: '#e11d48' },
 }
+
+/* ============================== Helpers de data ============================== */
+
+function fmtDate(iso: string | null): string {
+  if (!iso) return '—'
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return '—'
+  return d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+}
+
+function fmtTime(iso: string): string {
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return ''
+  return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+}
+
+/* ============================== Medalha / Gauge ============================== */
 
 function LevelMedal({
   value,
@@ -107,8 +190,6 @@ function LevelMedal({
 }) {
   const meta = LEVEL_META[level] ?? LEVEL_META['Inicial']
 
-  // Se houver logo da ATRICON enviada pelo painel, ela substitui o gauge/donut.
-  // SVG pode ser transparente, então é exibida sobre fundo branco com object-contain.
   if (logoUrl) {
     return (
       <div className="flex flex-col items-center gap-2">
@@ -149,16 +230,167 @@ function Gauge({ value, level }: { value: number; level: string }) {
   )
 }
 
+/* ============================== Gráfico de evolução (SVG puro) ============================== */
+
+function EvolutionChart({ snapshots }: { snapshots: Snapshot[] }) {
+  const points = snapshots.filter((s) => s.date !== null)
+
+  if (points.length === 0) {
+    return (
+      <EmptyState
+        icon={TrendingUp}
+        title="Sem histórico ainda"
+        description="O histórico será construído a cada dia, registrando o índice estimado."
+      />
+    )
+  }
+
+  // Geometria do gráfico (viewBox responsivo)
+  const W = 720
+  const H = 240
+  const padL = 36
+  const padR = 16
+  const padT = 16
+  const padB = 28
+  const innerW = W - padL - padR
+  const innerH = H - padT - padB
+
+  const n = points.length
+  const x = (i: number) => (n === 1 ? padL + innerW / 2 : padL + (i / (n - 1)) * innerW)
+  const y = (v: number) => padT + (1 - Math.min(Math.max(v, 0), 100) / 100) * innerH
+
+  const linePath = points
+    .map((p, i) => `${i === 0 ? 'M' : 'L'} ${x(i).toFixed(1)} ${y(p.index).toFixed(1)}`)
+    .join(' ')
+
+  const areaPath =
+    n === 1
+      ? ''
+      : `${linePath} L ${x(n - 1).toFixed(1)} ${(padT + innerH).toFixed(1)} L ${x(0).toFixed(1)} ${(padT + innerH).toFixed(1)} Z`
+
+  const showLabels = n <= 12
+  const gridLines = [0, 50, 100]
+
+  const last = points[points.length - 1]
+
+  return (
+    <div>
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        className="w-full h-auto"
+        role="img"
+        aria-label="Gráfico de evolução do índice de transparência ao longo do tempo"
+      >
+        <defs>
+          <linearGradient id="atricon-area" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="hsl(var(--navy))" stopOpacity="0.25" />
+            <stop offset="100%" stopColor="hsl(var(--navy))" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+
+        {/* Linhas de grade + eixo Y */}
+        {gridLines.map((g) => (
+          <g key={g}>
+            <line
+              x1={padL}
+              x2={W - padR}
+              y1={y(g)}
+              y2={y(g)}
+              className="stroke-border"
+              strokeWidth="1"
+              strokeDasharray={g === 0 ? '0' : '3 3'}
+            />
+            <text
+              x={padL - 8}
+              y={y(g)}
+              textAnchor="end"
+              dominantBaseline="middle"
+              className="fill-muted-foreground"
+              fontSize="11"
+            >
+              {g}
+            </text>
+          </g>
+        ))}
+
+        {/* Área */}
+        {areaPath && <path d={areaPath} fill="url(#atricon-area)" />}
+
+        {/* Linha */}
+        <path
+          d={linePath}
+          fill="none"
+          className="stroke-navy"
+          strokeWidth="2.5"
+          strokeLinejoin="round"
+          strokeLinecap="round"
+        />
+
+        {/* Markers + rótulos */}
+        {points.map((p, i) => (
+          <g key={`${p.date}-${i}`}>
+            <circle cx={x(i)} cy={y(p.index)} r="4" className="fill-card stroke-navy" strokeWidth="2" />
+            {showLabels && (
+              <>
+                <text
+                  x={x(i)}
+                  y={y(p.index) - 10}
+                  textAnchor="middle"
+                  className="fill-foreground font-semibold"
+                  fontSize="11"
+                >
+                  {p.index}
+                </text>
+                <text
+                  x={x(i)}
+                  y={padT + innerH + 18}
+                  textAnchor="middle"
+                  className="fill-muted-foreground"
+                  fontSize="10"
+                >
+                  {p.date
+                    ? new Date(p.date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
+                    : ''}
+                </text>
+              </>
+            )}
+          </g>
+        ))}
+      </svg>
+
+      {n === 1 && (
+        <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1.5">
+          <Clock className="w-3.5 h-3.5" /> Apenas um registro até agora — o histórico será
+          construído a cada dia.
+        </p>
+      )}
+      {n > 1 && (
+        <p className="text-xs text-muted-foreground mt-2">
+          {n} registros · atual <strong className="text-foreground">{last.index}%</strong> ({last.level})
+        </p>
+      )}
+    </div>
+  )
+}
+
+/* ============================== Linha de critério (matriz) ============================== */
+
+const AUTO_OVERRIDE = '__auto__'
+
 function CriterionRow({ criterion }: { criterion: Criterion }) {
   const [open, setOpen] = useState(false)
-  const [status, setStatus] = useState<StatusValue>(criterion.status)
+  // valor do select: status manual real OU sentinela para "voltar ao automático"
+  const [statusSel, setStatusSel] = useState<string>(criterion.source === 'auto' ? AUTO_OVERRIDE : criterion.status)
   const [evidence, setEvidence] = useState(criterion.evidenceUrl ?? '')
   const [notes, setNotes] = useState(criterion.notes ?? '')
   const [saving, setSaving] = useState(false)
   const meta = STATUS_META[criterion.status]
+  const auto = criterion.auto
+  const autoMeta = auto ? AUTO_META[auto.status] : null
 
   const save = () => {
     setSaving(true)
+    const status = statusSel === AUTO_OVERRIDE ? 'auto' : statusSel
     router.put(
       `/painel/atricon/${criterion.code}`,
       { status, evidence_url: evidence, notes },
@@ -183,19 +415,25 @@ function CriterionRow({ criterion }: { criterion: Criterion }) {
             <Badge tone={meta.tone} className="text-[11px] px-2 py-0.5">
               {meta.label}
             </Badge>
-            {criterion.auto && (
-              <Badge
-                tone={criterion.auto.ok ? 'success' : 'warning'}
-                className="text-[11px] px-2 py-0.5"
-              >
-                <span title={criterion.auto.detail} className="inline-flex items-center gap-1">
+            <Badge tone={SOURCE_META[criterion.source].tone} className="text-[11px] px-2 py-0.5">
+              {SOURCE_META[criterion.source].label}
+            </Badge>
+            {autoMeta && (
+              <Badge tone={autoMeta.tone} className="text-[11px] px-2 py-0.5">
+                <span title={auto!.detail} className="inline-flex items-center gap-1">
                   <Sparkles className="w-3 h-3" />
-                  {criterion.auto.ok ? 'Detectado no portal' : 'Sem dados no portal'}
+                  {autoMeta.label}
                 </span>
               </Badge>
             )}
           </div>
           <p className="text-sm font-medium text-foreground mt-1">{criterion.title}</p>
+          {criterion.divergent && criterion.autoStatus && (
+            <p className="text-[11px] text-amber-600 mt-1 inline-flex items-center gap-1">
+              <ShieldAlert className="w-3 h-3" /> Verificação automática indica:{' '}
+              <strong>{STATUS_META[criterion.autoStatus].label}</strong>
+            </p>
+          )}
         </div>
         {open ? <ChevronUp className="w-4 h-4 text-muted-foreground mt-1 shrink-0" /> : <ChevronDown className="w-4 h-4 text-muted-foreground mt-1 shrink-0" />}
       </button>
@@ -213,10 +451,21 @@ function CriterionRow({ criterion }: { criterion: Criterion }) {
             ))}
           </div>
 
-          {criterion.auto && (
-            <p className={`text-xs ${criterion.auto.ok ? 'text-emerald-600' : 'text-amber-600'}`}>
+          {auto && autoMeta && (
+            <p className={`text-xs ${autoMeta.text}`}>
               <Sparkles className="w-3 h-3 inline mr-1" />
-              Auto-verificação: {criterion.auto.detail}
+              Verificação automática: {auto.detail}
+            </p>
+          )}
+
+          {criterion.divergent && criterion.autoStatus && (
+            <p className="text-xs text-amber-600 bg-amber-500/10 border border-amber-500/20 rounded-lg px-3 py-2 inline-flex items-start gap-1.5">
+              <ShieldAlert className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+              <span>
+                Alerta de veracidade: você marcou manualmente este critério como{' '}
+                <strong>{STATUS_META[criterion.status].label}</strong>, mas a verificação automática
+                indica <strong>{STATUS_META[criterion.autoStatus].label}</strong>.
+              </span>
             </p>
           )}
 
@@ -239,7 +488,8 @@ function CriterionRow({ criterion }: { criterion: Criterion }) {
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
             <Field label="Situação">
-              <Select value={status} onChange={(e) => setStatus(e.target.value as StatusValue)}>
+              <Select value={statusSel} onChange={(e) => setStatusSel(e.target.value)}>
+                {auto && <option value={AUTO_OVERRIDE}>Seguir verificação automática</option>}
                 <option value="atendido">Atendido</option>
                 <option value="parcial">Parcial</option>
                 <option value="pendente">Pendente</option>
@@ -265,15 +515,20 @@ function CriterionRow({ criterion }: { criterion: Criterion }) {
             </Field>
           </div>
 
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center gap-2">
             {criterion.lastUpdate && (
               <span className="text-[11px] text-muted-foreground">
                 Última avaliação: {new Date(criterion.lastUpdate).toLocaleDateString('pt-BR')}
               </span>
             )}
+            {criterion.actionHref && (
+              <ButtonLink href={criterion.actionHref} variant="secondary" size="sm">
+                <ArrowUpRight className="w-3.5 h-3.5" /> Abrir módulo
+              </ButtonLink>
+            )}
             <Button type="button" size="sm" onClick={save} loading={saving} className="ml-auto">
-              {!saving && <Save className="w-3.5 h-3.5" />}
-              {saving ? 'Salvando…' : 'Salvar avaliação'}
+              {!saving && (statusSel === AUTO_OVERRIDE ? <RotateCcw className="w-3.5 h-3.5" /> : <Save className="w-3.5 h-3.5" />)}
+              {saving ? 'Salvando…' : statusSel === AUTO_OVERRIDE ? 'Voltar para automático' : 'Salvar avaliação'}
             </Button>
           </div>
         </div>
@@ -282,7 +537,17 @@ function CriterionRow({ criterion }: { criterion: Criterion }) {
   )
 }
 
-export default function AtriconIndex({ matrix, scores, fortnight, atriconLogoUrl }: Props) {
+/* ============================== Página ============================== */
+
+export default function AtriconIndex({
+  matrix,
+  scores,
+  contentMap,
+  snapshots,
+  fortnight,
+  checkedAt,
+  atriconLogoUrl,
+}: Props) {
   const [dimensionFilter, setDimensionFilter] = useState<string>('')
   const [statusFilter, setStatusFilter] = useState<string>('')
 
@@ -304,6 +569,33 @@ export default function AtriconIndex({ matrix, scores, fortnight, atriconLogoUrl
     }
     return map
   }, [filtered])
+
+  // Mapa de conteúdo: vazios/desatualizados primeiro
+  const sortedContent = useMemo(
+    () =>
+      [...contentMap].sort(
+        (a, b) => FRESHNESS_META[a.freshness].rank - FRESHNESS_META[b.freshness].rank
+      ),
+    [contentMap]
+  )
+
+  // "O que falta": pendentes/parciais priorizados por classificação
+  const todo = useMemo(
+    () =>
+      matrix
+        .filter((c) => c.status === 'pendente' || c.status === 'parcial')
+        .sort((a, b) => {
+          const byClass = CLASS_ORDER[a.classification] - CLASS_ORDER[b.classification]
+          if (byClass !== 0) return byClass
+          // pendente antes de parcial
+          if (a.status !== b.status) return a.status === 'pendente' ? -1 : 1
+          return 0
+        }),
+    [matrix]
+  )
+  const TODO_LIMIT = 12
+  const todoShown = todo.slice(0, TODO_LIMIT)
+  const todoRest = todo.length - todoShown.length
 
   const t = scores.totals
   const summaryCards = [
@@ -337,6 +629,13 @@ export default function AtriconIndex({ matrix, scores, fortnight, atriconLogoUrl
         }
       />
 
+      {/* Aviso de verificação em tempo real */}
+      <p className="-mt-2 mb-5 text-xs text-muted-foreground flex items-center gap-1.5">
+        <Clock className="w-3.5 h-3.5 text-emerald-600" />
+        Verificado em tempo real às <strong className="text-foreground">{fmtTime(checkedAt)}</strong> de hoje —
+        os dados do portal são lidos a cada acesso a esta página.
+      </p>
+
       {/* Painel superior: índice + essenciais + resumo */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
         {/* Índice geral */}
@@ -364,7 +663,15 @@ export default function AtriconIndex({ matrix, scores, fortnight, atriconLogoUrl
               <div key={e.code} className="flex items-center gap-2 text-sm">
                 <span className={`w-2 h-2 rounded-full shrink-0 ${STATUS_META[e.status].dot}`} />
                 <span className="text-xs font-bold text-muted-foreground w-8 shrink-0">{e.code}</span>
-                <span className="text-foreground text-xs truncate" title={e.title}>{e.title}</span>
+                <span className="text-foreground text-xs truncate flex-1" title={e.title}>{e.title}</span>
+                {e.actionHref && (e.status === 'pendente' || e.status === 'parcial') && (
+                  <a
+                    href={e.actionHref}
+                    className="text-[11px] text-navy hover:underline shrink-0 inline-flex items-center gap-0.5"
+                  >
+                    Resolver <ArrowUpRight className="w-3 h-3" />
+                  </a>
+                )}
               </div>
             ))}
           </div>
@@ -383,6 +690,30 @@ export default function AtriconIndex({ matrix, scores, fortnight, atriconLogoUrl
                 <p className="text-[11px] text-muted-foreground mt-0.5">{c.label}</p>
               </div>
             ))}
+          </div>
+
+          {/* Procedência / veracidade */}
+          <div className="mt-3 pt-3 border-t border-border/60 grid grid-cols-3 gap-2 text-center">
+            <div>
+              <p className="text-base font-bold text-sky">{t.autoChecked}</p>
+              <p className="text-[10px] text-muted-foreground leading-tight">Auto-verificados</p>
+            </div>
+            <div>
+              <p className="text-base font-bold text-navy">{t.manualOverrides}</p>
+              <p className="text-[10px] text-muted-foreground leading-tight">Overrides manuais</p>
+            </div>
+            <div
+              className={`rounded-lg ${t.divergent > 0 ? 'bg-destructive/10 -m-0.5 p-0.5' : ''}`}
+              title="Casos em que o gestor marcou manualmente algo que a verificação automática contradiz"
+            >
+              <p className={`text-base font-bold ${t.divergent > 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                {t.divergent}
+              </p>
+              <p className={`text-[10px] leading-tight ${t.divergent > 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                {t.divergent > 0 && <ShieldAlert className="w-3 h-3 inline mr-0.5" />}
+                Divergências
+              </p>
+            </div>
           </div>
         </Card>
       </div>
@@ -418,6 +749,115 @@ export default function AtriconIndex({ matrix, scores, fortnight, atriconLogoUrl
             </button>
           ))}
         </div>
+      </Card>
+
+      {/* Mapa de Conteúdo + Evolução */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mb-6">
+        {/* Mapa de Conteúdo do Portal */}
+        <Card>
+          <CardHeader
+            title="Mapa de Conteúdo do Portal"
+            description="Mapeamento em tempo real, módulo a módulo — vazios e desatualizados aparecem primeiro."
+            icon={Database}
+          />
+          <div className="space-y-2">
+            {sortedContent.map((m) => {
+              const fm = FRESHNESS_META[m.freshness]
+              return (
+                <div
+                  key={m.key}
+                  className="flex items-start gap-3 rounded-lg border border-border p-3 hover:bg-muted/30 transition-colors"
+                >
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-sm font-semibold text-foreground">{m.label}</span>
+                      <Badge tone={fm.tone} className="text-[11px] px-2 py-0.5">{fm.label}</Badge>
+                      <span className="text-[11px] text-muted-foreground">
+                        {m.total} registro{m.total === 1 ? '' : 's'}
+                      </span>
+                      <span className="text-[11px] text-muted-foreground">· último: {fmtDate(m.latest)}</span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground mt-1">{m.detail}</p>
+                  </div>
+                  <a
+                    href={m.adminHref}
+                    className="text-[11px] text-navy hover:underline shrink-0 inline-flex items-center gap-0.5 mt-0.5"
+                  >
+                    Gerenciar <ArrowUpRight className="w-3 h-3" />
+                  </a>
+                </div>
+              )
+            })}
+            {sortedContent.length === 0 && (
+              <EmptyState icon={Database} title="Nenhum módulo mapeado." />
+            )}
+          </div>
+        </Card>
+
+        {/* Evolução do índice */}
+        <Card>
+          <CardHeader
+            title="Evolução do índice"
+            description="Série diária do índice estimado de transparência (0 a 100)."
+            icon={TrendingUp}
+          />
+          <EvolutionChart snapshots={snapshots} />
+        </Card>
+      </div>
+
+      {/* O que falta */}
+      <Card className="mb-6">
+        <CardHeader
+          title="O que falta"
+          description="Critérios pendentes e parciais priorizados — essenciais primeiro."
+          icon={ListChecks}
+        />
+        {todo.length === 0 ? (
+          <p className="text-sm text-emerald-600 font-semibold py-6 text-center">
+            Nenhuma pendência. Toda a matriz está atendida. 🎉
+          </p>
+        ) : (
+          <>
+            <div className="space-y-2">
+              {todoShown.map((c) => {
+                const sm = STATUS_META[c.status]
+                return (
+                  <div
+                    key={c.code}
+                    className="flex items-start gap-3 rounded-lg border border-border p-3"
+                  >
+                    <span className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${sm.dot}`} />
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-[11px] font-bold text-muted-foreground">{c.code}</span>
+                        <Badge tone={CLASS_TONE[c.classification]} className="text-[11px] px-2 py-0.5">
+                          {CLASS_LABEL[c.classification]}
+                        </Badge>
+                        <Badge tone={sm.tone} className="text-[11px] px-2 py-0.5">{sm.label}</Badge>
+                      </div>
+                      <p className="text-sm font-medium text-foreground mt-1">{c.title}</p>
+                      {c.auto && (
+                        <p className="text-[11px] text-muted-foreground mt-0.5">{c.auto.detail}</p>
+                      )}
+                    </div>
+                    {c.actionHref && (
+                      <ButtonLink href={c.actionHref} variant="secondary" size="sm" className="shrink-0">
+                        Resolver <ArrowUpRight className="w-3.5 h-3.5" />
+                      </ButtonLink>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+            {todoRest > 0 && (
+              <p className="text-xs text-muted-foreground mt-3 text-center">
+                + {todoRest} outro{todoRest === 1 ? '' : 's'} critério{todoRest === 1 ? '' : 's'} pendente
+                {todoRest === 1 ? '' : 's'}/parcia{todoRest === 1 ? 'l' : 'is'} — veja na matriz abaixo ou no
+                relatório quinzenal.
+              </p>
+            )}
+          </>
+        )}
       </Card>
 
       {/* Filtros */}
