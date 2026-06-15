@@ -27,6 +27,7 @@ const PublicNominalVotingsController = () =>
 const SitemapPageController = () => import('#controllers/public/sitemap_page_controller')
 const OpenDataController = () => import('#controllers/public/open_data_controller')
 const PublicDuodecimosController = () => import('#controllers/public/duodecimos_controller')
+const SearchController = () => import('#controllers/public/search_controller')
 const SeoController = () => import('#controllers/seo_controller')
 
 // Lazy imports - Admin
@@ -114,6 +115,7 @@ router.get('/diario-oficial', [PublicDiarioOficialController, 'index'])
 router.get('/votacoes', [PublicNominalVotingsController, 'index'])
 router.get('/mapa-do-site', [SitemapPageController, 'index'])
 router.get('/duodecimos', [PublicDuodecimosController, 'index'])
+router.get('/busca', [SearchController, 'index'])
 router.get('/dados-abertos', [OpenDataController, 'index'])
 router
   .get('/dados-abertos/:dataset/:format', [OpenDataController, 'dataset'])
@@ -132,7 +134,7 @@ router
     'slug',
     // Anclado com $: bloqueia só o slug exato reservado, não slugs que começam igual
     // (ex.: notícia antiga "vereadores-acompanham-..." deve passar pelo catch-all)
-    /^(?!(?:login|painel|api|health|noticias|vereadores|transparencia|mesa-diretora|comissoes|atas|pautas|atividades-legislativa|atividades-legislativas|publicacoes-oficiais|licitacoes|perguntas-frequentes|pesquisa-de-satisfacao|politica-de-privacidade|historia-da-camara|sobre|ouvidoria|diario-oficial|votacoes|leis|mapa-do-site|duodecimos|dados-abertos)$).+$/
+    /^(?!(?:login|painel|api|health|noticias|vereadores|transparencia|mesa-diretora|comissoes|atas|pautas|atividades-legislativa|atividades-legislativas|publicacoes-oficiais|licitacoes|perguntas-frequentes|pesquisa-de-satisfacao|politica-de-privacidade|historia-da-camara|sobre|ouvidoria|diario-oficial|votacoes|leis|mapa-do-site|duodecimos|dados-abertos|busca)$).+$/
   )
 
 // ========= API =========

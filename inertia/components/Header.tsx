@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, router, usePage } from "@inertiajs/react";
-import { Menu, X, ChevronDown, Sun, Moon } from "lucide-react";
+import { Menu, X, ChevronDown, Sun, Moon, Search } from "lucide-react";
 import { useSiteSettings } from "~/hooks/use_site_settings";
 import { DynamicTheme } from "~/components/DynamicTheme";
 import { DynamicFavicon } from "~/components/DynamicFavicon";
@@ -81,6 +81,9 @@ export const Header = ({ logoUrl }: HeaderProps) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileExpandedItem, setMobileExpandedItem] = useState<string | null>(null);
   const [scrolled, setScrolled] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const [dark, toggleDark] = useDarkMode();
   const settings = useSiteSettings();
   const navItems = parseNavItems(settings.header_menu);
@@ -115,6 +118,31 @@ export const Header = ({ logoUrl }: HeaderProps) => {
     setMobileMenuOpen(false);
     setMobileExpandedItem(null);
     router.visit(href);
+  };
+
+  // Foco automático no campo de busca quando o overlay abre
+  useEffect(() => {
+    if (searchOpen) searchInputRef.current?.focus();
+  }, [searchOpen]);
+
+  // Fecha o overlay de busca com a tecla Escape
+  useEffect(() => {
+    if (!searchOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSearchOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [searchOpen]);
+
+  const submitSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const value = searchTerm.trim();
+    if (value.length < 2) return;
+    setSearchOpen(false);
+    setMobileMenuOpen(false);
+    setSearchTerm("");
+    router.get("/busca", { q: value });
   };
 
   if (isEmbed) return null;
@@ -182,11 +210,23 @@ export const Header = ({ logoUrl }: HeaderProps) => {
               <li>
                 <button
                   type="button"
+                  onClick={() => setSearchOpen((v) => !v)}
+                  aria-expanded={searchOpen}
+                  aria-label="Abrir busca"
+                  title="Buscar"
+                  className="flex items-center justify-center p-2 ml-1 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+                >
+                  <Search className="w-4 h-4" aria-hidden="true" />
+                </button>
+              </li>
+              <li>
+                <button
+                  type="button"
                   onClick={toggleDark}
                   aria-pressed={dark}
                   aria-label={dark ? "Desativar modo escuro" : "Ativar modo escuro"}
                   title={dark ? "Modo claro" : "Modo escuro"}
-                  className="flex items-center justify-center p-2 ml-1 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+                  className="flex items-center justify-center p-2 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors"
                 >
                   {dark ? <Sun className="w-4 h-4" aria-hidden="true" /> : <Moon className="w-4 h-4" aria-hidden="true" />}
                 </button>
@@ -266,9 +306,57 @@ export const Header = ({ logoUrl }: HeaderProps) => {
                   )}
                 </li>
               ))}
+              <li>
+                <button
+                  type="button"
+                  onClick={() => setSearchOpen((v) => !v)}
+                  aria-expanded={searchOpen}
+                  aria-label="Abrir busca"
+                  title="Buscar"
+                  className="flex items-center justify-center p-2.5 ml-1 rounded-xl hover:bg-primary-foreground/10 transition-all duration-300 text-primary-foreground"
+                >
+                  <Search className="w-5 h-5" aria-hidden="true" />
+                </button>
+              </li>
             </ul>
           </div>
         </nav>
+
+        {/* Overlay de busca (desktop): aparece abaixo da navegação ao clicar na lupa */}
+        {searchOpen && (
+          <div className="hidden md:block relative z-40 mt-4 animate-fade-in">
+            <form
+              onSubmit={submitSearch}
+              role="search"
+              className="glass rounded-2xl px-4 py-3 mx-auto max-w-2xl flex items-center gap-3"
+            >
+              <Search className="w-5 h-5 text-primary-foreground/70 shrink-0" aria-hidden="true" />
+              <input
+                ref={searchInputRef}
+                type="search"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Buscar no portal… (ex.: licitação, ata, lei)"
+                aria-label="Termo de busca"
+                className="flex-1 bg-transparent border-0 outline-none text-primary-foreground placeholder:text-primary-foreground/50 text-sm"
+              />
+              <button
+                type="submit"
+                className="px-4 py-2 rounded-xl bg-gold text-navy-dark text-sm font-semibold hover:opacity-90 transition-opacity shrink-0"
+              >
+                Buscar
+              </button>
+              <button
+                type="button"
+                onClick={() => setSearchOpen(false)}
+                aria-label="Fechar busca"
+                className="p-1.5 rounded-lg text-primary-foreground/70 hover:text-primary-foreground hover:bg-primary-foreground/10 transition-colors shrink-0"
+              >
+                <X className="w-4 h-4" aria-hidden="true" />
+              </button>
+            </form>
+          </div>
+        )}
 
         {/* Mobile Menu Button */}
         <div className="md:hidden flex justify-center">
@@ -283,6 +371,27 @@ export const Header = ({ logoUrl }: HeaderProps) => {
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
           <nav className="md:hidden mt-6 glass rounded-2xl p-4 animate-fade-in">
+            {/* Campo de busca no menu mobile */}
+            <form onSubmit={submitSearch} role="search" className="flex items-center gap-2 mb-3">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary-foreground/50 pointer-events-none" aria-hidden="true" />
+                <input
+                  type="search"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Buscar no portal…"
+                  aria-label="Termo de busca"
+                  className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-primary-foreground/10 border border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/50 text-sm outline-none focus:border-gold/60"
+                />
+              </div>
+              <button
+                type="submit"
+                aria-label="Buscar"
+                className="px-3 py-2.5 rounded-xl bg-gold text-navy-dark text-sm font-semibold hover:opacity-90 transition-opacity"
+              >
+                Buscar
+              </button>
+            </form>
             <ul className="flex flex-col gap-1">
               {navItems.map((item, index) => (
                 <li key={index}>

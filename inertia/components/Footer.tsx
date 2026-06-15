@@ -83,20 +83,27 @@ export const Footer = ({ logoUrl }: FooterProps) => {
   const email = settings.footer_email || "contato@camaradesume.pb.gov.br";
   const hours = settings.footer_hours || "Seg a Sex, 8h às 14h";
 
+  // Sempre exibe os 3 ícones; usa a URL configurada quando existir, senão cai na home.
   const socials = [
-    { icon: Facebook, url: settings.social_facebook },
-    { icon: Instagram, url: settings.social_instagram },
-    { icon: Youtube, url: settings.social_youtube },
-  ].filter((s) => s.url && s.url.trim() !== "");
-
-  const socialLabels = ["Facebook", "Instagram", "YouTube"];
+    { icon: Facebook, label: "Facebook", url: settings.social_facebook },
+    { icon: Instagram, label: "Instagram", url: settings.social_instagram },
+    { icon: Youtube, label: "YouTube", url: settings.social_youtube },
+  ].map((s) => {
+    const configured = s.url && s.url.trim() !== "";
+    return {
+      icon: s.icon,
+      label: s.label,
+      href: configured ? s.url!.trim() : "/",
+      external: !!configured,
+    };
+  });
 
   if (isEmbed) return null;
 
   return (
-    <footer className="bg-gradient-navy text-primary-foreground">
-      {/* Acento gradiente no topo: navy → gold → sky */}
-      <div className="h-px w-full bg-gradient-to-r from-transparent via-gold/70 to-transparent" />
+    <footer className="bg-navy-dark text-primary-foreground">
+      {/* Acento gold fino e discreto no topo */}
+      <div className="h-0.5 w-full bg-gold/60" />
 
       {/* Main Footer */}
       <div className="container mx-auto py-14 lg:py-16">
@@ -125,26 +132,36 @@ export const Footer = ({ logoUrl }: FooterProps) => {
             <p className="text-sm text-primary-foreground/70 mb-6 leading-relaxed">
               {description}
             </p>
-            {socials.length > 0 && (
-              <div className="flex gap-3">
-                {socials.map((social, index) => {
-                  const label = socialLabels[index] ?? "Rede social";
-                  return (
-                    <a
-                      key={index}
-                      href={social.url!}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={label}
-                      title={label}
-                      className="w-10 h-10 rounded-full bg-primary-foreground/10 ring-1 ring-primary-foreground/15 flex items-center justify-center text-primary-foreground/90 hover:bg-gold hover:text-navy-dark hover:ring-gold hover:-translate-y-0.5 transition-all duration-200"
-                    >
-                      <social.icon className="w-[18px] h-[18px]" />
-                    </a>
-                  );
-                })}
-              </div>
-            )}
+            <div className="flex gap-3">
+              {socials.map((social, index) => {
+                const Icon = social.icon;
+                const className =
+                  "w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center text-primary-foreground/90 hover:bg-gold hover:text-navy-dark transition-colors duration-200";
+                return social.external ? (
+                  <a
+                    key={index}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={social.label}
+                    title={social.label}
+                    className={className}
+                  >
+                    <Icon className="w-[18px] h-[18px]" />
+                  </a>
+                ) : (
+                  <Link
+                    key={index}
+                    href={social.href}
+                    aria-label={social.label}
+                    title={social.label}
+                    className={className}
+                  >
+                    <Icon className="w-[18px] h-[18px]" />
+                  </Link>
+                );
+              })}
+            </div>
           </div>
 
           {/* Colunas de links (editáveis em /painel/menus) */}
@@ -160,14 +177,14 @@ export const Footer = ({ logoUrl }: FooterProps) => {
                         href={link.href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-block text-primary-foreground/70 hover:text-gold hover:translate-x-1 transition-all duration-200 no-underline"
+                        className="text-primary-foreground/70 hover:text-gold transition-colors duration-200 no-underline"
                       >
                         {link.label}
                       </a>
                     ) : (
                       <Link
                         href={link.href}
-                        className="inline-block text-primary-foreground/70 hover:text-gold hover:translate-x-1 transition-all duration-200 no-underline"
+                        className="text-primary-foreground/70 hover:text-gold transition-colors duration-200 no-underline"
                       >
                         {link.label}
                       </Link>
@@ -220,11 +237,6 @@ export const Footer = ({ logoUrl }: FooterProps) => {
             </ul>
           </div>
         </div>
-
-        {/* Colofão discreto */}
-        <p className="mt-12 text-[11px] uppercase tracking-[0.2em] text-primary-foreground/40">
-          {headerTitle} — Estado da Paraíba
-        </p>
       </div>
 
       {/* Próximos feriados — linha discreta acima da bottom bar */}
