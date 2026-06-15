@@ -39,7 +39,7 @@ export default function PublicPageShow({ page }: Props) {
         <main>
           <section className="py-10 lg:py-14">
             <div className="container">
-              <div className="max-w-4xl">
+              <div>
                 <article className="card-modern p-6 md:p-10">
                   {hasBlocks ? (
                     <BlockRenderer blocks={page.blocks!} />

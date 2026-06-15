@@ -58,7 +58,7 @@ export default function NewsShow({ news, related = [] }: Props) {
         <main>
           <section className="py-10 lg:py-14">
             <div className="container">
-            <div className="max-w-4xl">
+            <div>
               {/* Back Link */}
               <Link
                 href="/noticias"

@@ -290,7 +290,7 @@ export default function VereadorShow({
             <div className="absolute -bottom-1/2 -left-1/4 w-96 h-96 bg-sky/10 rounded-full blur-3xl" />
           </div>
 
-          <div className="relative container mx-auto px-4 py-10 lg:py-14">
+          <div className="relative container py-10 lg:py-14">
             <Link
               href="/vereadores"
               className="inline-flex items-center gap-2 text-sm text-primary-foreground/70 hover:text-primary-foreground transition-colors mb-8 no-underline"
@@ -389,7 +389,7 @@ export default function VereadorShow({
         </section>
 
         <main className="py-10 lg:py-14">
-          <div className="container mx-auto px-4">
+          <div className="container">
             {/* ===== Dados do Parlamentar + Contato ===== */}
             {(dataItems.length > 0 || vereador.email || vereador.phone) && (
               <div className="grid lg:grid-cols-3 gap-5 mb-10" data-reveal="up">
@@ -674,7 +674,7 @@ export default function VereadorShow({
 
                 {/* --- Biografia / Trajetória --- */}
                 {activeTab === "biografia" && (hasBio || hasHistory) && (
-                  <div className="max-w-3xl space-y-10">
+                  <div className="space-y-10">
                     {hasBio && (
                       <div>
                         <h2 className="flex items-center gap-2 text-2xl font-bold text-foreground mb-5">
