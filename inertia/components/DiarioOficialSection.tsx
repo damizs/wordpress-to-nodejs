@@ -72,17 +72,22 @@ export const DiarioOficialSection = ({
                   rel="noopener noreferrer"
                   className="flex items-center gap-4 px-6 py-3.5 no-underline hover:bg-muted/60 transition-colors group"
                 >
-                  <span className="text-sm font-semibold text-primary shrink-0 w-24">{pub.data}</span>
+                  <span className="text-sm font-medium text-muted-foreground shrink-0 w-24">{pub.data}</span>
                   <span className="text-sm text-foreground flex-1 truncate group-hover:text-primary transition-colors">
                     {pub.titulo}
                   </span>
-                  <Download className="w-4 h-4 text-muted-foreground/50 group-hover:text-primary shrink-0 transition-colors" />
+                  {pub.tipo && (
+                    <span className="hidden sm:inline text-[11px] text-muted-foreground shrink-0 group-hover:opacity-0 transition-opacity">
+                      {pub.tipo}
+                    </span>
+                  )}
+                  <ArrowRight className="w-4 h-4 text-muted-foreground/40 shrink-0 opacity-0 -ml-4 group-hover:opacity-100 group-hover:text-primary group-hover:ml-0 transition-all" />
                 </a>
               ) : (
                 <div key={pub.id} className="flex items-center gap-4 px-6 py-3.5">
-                  <span className="text-sm font-semibold text-primary shrink-0 w-24">{pub.data}</span>
+                  <span className="text-sm font-medium text-muted-foreground shrink-0 w-24">{pub.data}</span>
                   <span className="text-sm text-foreground flex-1 truncate">{pub.titulo}</span>
-                  <span className="text-[11px] text-muted-foreground shrink-0">{pub.tipo}</span>
+                  {pub.tipo && <span className="text-[11px] text-muted-foreground shrink-0">{pub.tipo}</span>}
                 </div>
               )
             )}

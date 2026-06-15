@@ -89,20 +89,25 @@ export const Footer = ({ logoUrl }: FooterProps) => {
     { icon: Youtube, url: settings.social_youtube },
   ].filter((s) => s.url && s.url.trim() !== "");
 
+  const socialLabels = ["Facebook", "Instagram", "YouTube"];
+
   if (isEmbed) return null;
 
   return (
     <footer className="bg-gradient-navy text-primary-foreground">
+      {/* Acento gradiente no topo: navy → gold → sky */}
+      <div className="h-px w-full bg-gradient-to-r from-transparent via-gold/70 to-transparent" />
+
       {/* Main Footer */}
-      <div className="container mx-auto py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+      <div className="container mx-auto py-14 lg:py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12">
           {/* Logo & Description */}
-          <div>
-            <div className="flex items-center gap-3 mb-4">
+          <div className="lg:max-w-xs">
+            <div className="flex items-center gap-3 mb-5">
               {resolvedLogo ? (
-                <img 
-                  src={resolvedLogo} 
-                  alt={headerTitle} 
+                <img
+                  src={resolvedLogo}
+                  alt={headerTitle}
                   className="h-16 w-auto object-contain"
                 />
               ) : (
@@ -111,28 +116,33 @@ export const Footer = ({ logoUrl }: FooterProps) => {
                     <span className="text-xl font-bold">{titleFirstWord.charAt(0)}</span>
                   </div>
                   <div>
-                    <h3 className="font-bold text-lg">{titleFirstWord}</h3>
+                    <h3 className="font-bold text-lg leading-tight">{titleFirstWord}</h3>
                     <p className="text-gold text-sm">{titleRest.join(" ")}</p>
                   </div>
                 </>
               )}
             </div>
-            <p className="text-sm opacity-80 mb-4 leading-relaxed">
+            <p className="text-sm text-primary-foreground/70 mb-6 leading-relaxed">
               {description}
             </p>
             {socials.length > 0 && (
               <div className="flex gap-3">
-                {socials.map((social, index) => (
-                  <a
-                    key={index}
-                    href={social.url!}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center hover:bg-gold hover:text-navy-dark transition-colors"
-                  >
-                    <social.icon className="w-5 h-5" />
-                  </a>
-                ))}
+                {socials.map((social, index) => {
+                  const label = socialLabels[index] ?? "Rede social";
+                  return (
+                    <a
+                      key={index}
+                      href={social.url!}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={label}
+                      title={label}
+                      className="w-10 h-10 rounded-full bg-primary-foreground/10 ring-1 ring-primary-foreground/15 flex items-center justify-center text-primary-foreground/90 hover:bg-gold hover:text-navy-dark hover:ring-gold hover:-translate-y-0.5 transition-all duration-200"
+                    >
+                      <social.icon className="w-[18px] h-[18px]" />
+                    </a>
+                  );
+                })}
               </div>
             )}
           </div>
@@ -140,9 +150,9 @@ export const Footer = ({ logoUrl }: FooterProps) => {
           {/* Colunas de links (editáveis em /painel/menus) */}
           {footerColumns.map((column, ci) => (
             <div key={ci}>
-              <h4 className="font-bold text-sm uppercase tracking-wider mb-1.5">{column.title}</h4>
-              <div className="w-8 h-0.5 bg-gold rounded-full mb-4" />
-              <ul className="space-y-2.5 text-sm">
+              <h4 className="font-bold text-sm uppercase tracking-wider mb-2">{column.title}</h4>
+              <div className="w-8 h-0.5 bg-gold rounded-full mb-5" />
+              <ul className="space-y-3 text-sm">
                 {column.links.map((link, li) => (
                   <li key={li}>
                     {link.href.startsWith("http") ? (
@@ -150,14 +160,14 @@ export const Footer = ({ logoUrl }: FooterProps) => {
                         href={link.href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-block opacity-75 hover:opacity-100 hover:text-gold hover:translate-x-1 transition-all duration-200 no-underline"
+                        className="inline-block text-primary-foreground/70 hover:text-gold hover:translate-x-1 transition-all duration-200 no-underline"
                       >
                         {link.label}
                       </a>
                     ) : (
                       <Link
                         href={link.href}
-                        className="inline-block opacity-75 hover:opacity-100 hover:text-gold hover:translate-x-1 transition-all duration-200 no-underline"
+                        className="inline-block text-primary-foreground/70 hover:text-gold hover:translate-x-1 transition-all duration-200 no-underline"
                       >
                         {link.label}
                       </Link>
@@ -170,36 +180,51 @@ export const Footer = ({ logoUrl }: FooterProps) => {
 
           {/* Contact */}
           <div>
-            <h4 className="font-bold text-sm uppercase tracking-wider mb-1.5">Contato</h4>
-            <div className="w-8 h-0.5 bg-gold rounded-full mb-4" />
-            <ul className="space-y-3 text-sm">
+            <h4 className="font-bold text-sm uppercase tracking-wider mb-2">Contato</h4>
+            <div className="w-8 h-0.5 bg-gold rounded-full mb-5" />
+            <ul className="space-y-4 text-sm">
               {address && (
                 <li className="flex items-start gap-3">
-                  <MapPin className="w-5 h-5 text-gold shrink-0 mt-0.5" />
-                  <span className="opacity-80">{address}</span>
+                  <MapPin className="w-[18px] h-[18px] text-gold shrink-0 mt-0.5" />
+                  <span className="text-primary-foreground/75 leading-relaxed">{address}</span>
                 </li>
               )}
               {phone && (
                 <li className="flex items-center gap-3">
-                  <Phone className="w-5 h-5 text-gold shrink-0" />
-                  <span className="opacity-80">{phone}</span>
+                  <Phone className="w-[18px] h-[18px] text-gold shrink-0" />
+                  <a
+                    href={`tel:${phone.replace(/[^\d+]/g, "")}`}
+                    className="text-primary-foreground/75 hover:text-gold transition-colors no-underline"
+                  >
+                    {phone}
+                  </a>
                 </li>
               )}
               {email && (
-                <li className="flex items-center gap-3">
-                  <Mail className="w-5 h-5 text-gold shrink-0" />
-                  <span className="opacity-80 break-all">{email}</span>
+                <li className="flex items-start gap-3">
+                  <Mail className="w-[18px] h-[18px] text-gold shrink-0 mt-0.5" />
+                  <a
+                    href={`mailto:${email}`}
+                    className="text-primary-foreground/75 hover:text-gold transition-colors no-underline break-words [overflow-wrap:anywhere]"
+                  >
+                    {email}
+                  </a>
                 </li>
               )}
               {hours && (
                 <li className="flex items-start gap-3">
-                  <Clock className="w-5 h-5 text-gold shrink-0 mt-0.5" />
-                  <span className="opacity-80">{hours}</span>
+                  <Clock className="w-[18px] h-[18px] text-gold shrink-0 mt-0.5" />
+                  <span className="text-primary-foreground/75">{hours}</span>
                 </li>
               )}
             </ul>
           </div>
         </div>
+
+        {/* Colofão discreto */}
+        <p className="mt-12 text-[11px] uppercase tracking-[0.2em] text-primary-foreground/40">
+          {headerTitle} — Estado da Paraíba
+        </p>
       </div>
 
       {/* Próximos feriados — linha discreta acima da bottom bar */}
@@ -209,10 +234,14 @@ export const Footer = ({ logoUrl }: FooterProps) => {
 
       {/* Bottom Bar */}
       <div className="border-t border-primary-foreground/10">
-        <div className="container mx-auto py-4">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-2 text-xs opacity-70">
-            <p>© {new Date().getFullYear()} {headerTitle}. Todos os direitos reservados.</p>
-            <p>Desenvolvido com transparência e compromisso público.</p>
+        <div className="container mx-auto py-5">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-2 text-xs">
+            <p className="text-primary-foreground/60">
+              © {new Date().getFullYear()} {headerTitle}. Todos os direitos reservados.
+            </p>
+            <p className="text-primary-foreground/50">
+              Desenvolvido com transparência e compromisso público.
+            </p>
           </div>
         </div>
       </div>

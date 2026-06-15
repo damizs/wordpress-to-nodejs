@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { MapPin, Users, Mountain, History, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { MapPin, Users, Mountain, History, ChevronLeft, ChevronRight, X, ArrowRight } from "lucide-react";
 import { SectionHeading } from "~/components/SectionHeading";
 
 interface ConhecaSumeSectionProps {
@@ -78,7 +78,7 @@ export const ConhecaSumeSection = ({ images, title, subtitle }: ConhecaSumeSecti
               <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-gold/20 rounded-3xl blur-3xl" />
 
               <div
-                className="relative rounded-3xl shadow-2xl overflow-hidden aspect-[4/3] cursor-pointer group"
+                className="relative rounded-3xl shadow-2xl overflow-hidden aspect-[4/3] cursor-pointer group ring-1 ring-border/60 border border-white/10"
                 onClick={() => setLightboxOpen(true)}
               >
                 {carouselImages.map((src, index) => (
@@ -95,9 +95,18 @@ export const ConhecaSumeSection = ({ images, title, subtitle }: ConhecaSumeSecti
                   />
                 ))}
 
+                {/* Gradiente inferior para profundidade e legibilidade */}
+                <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/55 via-black/20 to-transparent pointer-events-none" />
+
+                {/* Selo/legenda discreta */}
+                <div className="absolute top-3 left-3 flex items-center gap-1.5 rounded-full bg-black/45 backdrop-blur-sm px-3 py-1.5 text-[0.7rem] font-medium text-white/90 ring-1 ring-white/15">
+                  <MapPin className="w-3.5 h-3.5 text-gold" />
+                  Cariri Ocidental — Paraíba
+                </div>
+
                 {/* Overlay com hint de clique */}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
-                  <span className="text-white text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity bg-black/50 px-4 py-2 rounded-full">
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-all duration-300 flex items-center justify-center">
+                  <span className="text-white text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity bg-black/55 backdrop-blur-sm px-3 py-1.5 rounded-full ring-1 ring-white/15">
                     Clique para ampliar
                   </span>
                 </div>
@@ -108,16 +117,16 @@ export const ConhecaSumeSection = ({ images, title, subtitle }: ConhecaSumeSecti
                     <button
                       onClick={goToPrevious}
                       aria-label="Imagem anterior"
-                      className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 hover:bg-white shadow-lg transition-all opacity-0 group-hover:opacity-100"
+                      className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/45 hover:bg-black/65 backdrop-blur-sm text-white ring-1 ring-white/15 shadow-lg transition-all opacity-0 group-hover:opacity-100"
                     >
-                      <ChevronLeft className="w-5 h-5 text-gray-800" />
+                      <ChevronLeft className="w-5 h-5" />
                     </button>
                     <button
                       onClick={goToNext}
                       aria-label="Próxima imagem"
-                      className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-white/80 hover:bg-white shadow-lg transition-all opacity-0 group-hover:opacity-100"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/45 hover:bg-black/65 backdrop-blur-sm text-white ring-1 ring-white/15 shadow-lg transition-all opacity-0 group-hover:opacity-100"
                     >
-                      <ChevronRight className="w-5 h-5 text-gray-800" />
+                      <ChevronRight className="w-5 h-5" />
                     </button>
                   </>
                 )}
@@ -133,10 +142,10 @@ export const ConhecaSumeSection = ({ images, title, subtitle }: ConhecaSumeSecti
                           setCurrentIndex(index);
                         }}
                         aria-label={`Ir para imagem ${index + 1}`}
-                        className={`h-2.5 rounded-full transition-all ${
+                        className={`h-2.5 rounded-full transition-all ring-1 ring-black/10 ${
                           index === currentIndex
                             ? 'bg-gold w-6'
-                            : 'bg-white/60 hover:bg-white/80 w-2.5'
+                            : 'bg-white/70 hover:bg-white w-2.5'
                         }`}
                       />
                     ))}
@@ -165,35 +174,52 @@ export const ConhecaSumeSection = ({ images, title, subtitle }: ConhecaSumeSecti
               />
 
               <div className="grid grid-cols-2 gap-4">
-                <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/50">
-                  <MapPin className="w-6 h-6 text-primary" />
+                <div className="card-modern hover-lift flex items-center gap-3 p-4">
+                  <span className="flex-shrink-0 grid place-items-center w-11 h-11 rounded-xl bg-primary/10 text-primary">
+                    <MapPin className="w-5 h-5" />
+                  </span>
                   <div>
-                    <p className="font-bold text-foreground">838 km²</p>
+                    <p className="text-2xl font-bold text-foreground leading-tight">838 km²</p>
                     <p className="text-xs text-muted-foreground">Área territorial</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/50">
-                  <Users className="w-6 h-6 text-primary" />
+                <div className="card-modern hover-lift flex items-center gap-3 p-4">
+                  <span className="flex-shrink-0 grid place-items-center w-11 h-11 rounded-xl bg-primary/10 text-primary">
+                    <Users className="w-5 h-5" />
+                  </span>
                   <div>
-                    <p className="font-bold text-foreground">~16 mil</p>
+                    <p className="text-2xl font-bold text-foreground leading-tight">~16 mil</p>
                     <p className="text-xs text-muted-foreground">Habitantes</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/50">
-                  <Mountain className="w-6 h-6 text-primary" />
+                <div className="card-modern hover-lift flex items-center gap-3 p-4">
+                  <span className="flex-shrink-0 grid place-items-center w-11 h-11 rounded-xl bg-gold/10 text-gold">
+                    <Mountain className="w-5 h-5" />
+                  </span>
                   <div>
-                    <p className="font-bold text-foreground">533m</p>
+                    <p className="text-2xl font-bold text-foreground leading-tight">533m</p>
                     <p className="text-xs text-muted-foreground">Altitude média</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/50">
-                  <History className="w-6 h-6 text-primary" />
+                <div className="card-modern hover-lift flex items-center gap-3 p-4">
+                  <span className="flex-shrink-0 grid place-items-center w-11 h-11 rounded-xl bg-gold/10 text-gold">
+                    <History className="w-5 h-5" />
+                  </span>
                   <div>
-                    <p className="font-bold text-foreground">1951</p>
+                    <p className="text-2xl font-bold text-foreground leading-tight">1951</p>
                     <p className="text-xs text-muted-foreground">Emancipação</p>
                   </div>
                 </div>
               </div>
+
+              {/* CTA discreto */}
+              <a
+                href="/historia-da-camara"
+                className="group/cta mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:text-gold transition-colors"
+              >
+                Conheça a história da Câmara
+                <ArrowRight className="w-4 h-4 transition-transform group-hover/cta:translate-x-0.5" />
+              </a>
             </div>
           </div>
         </div>

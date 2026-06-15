@@ -1,4 +1,4 @@
-import { ExternalLink, Award, Shield, CheckCircle } from "lucide-react";
+import { ExternalLink, Award } from "lucide-react";
 import { SectionHeading } from "~/components/SectionHeading";
 
 interface Seal {
@@ -16,71 +16,73 @@ interface CertificationsSectionProps {
 }
 
 export const CertificationsSection = ({ seals = [], title, subtitle }: CertificationsSectionProps) => {
+  // Sem selos cadastrados: não renderiza a seção (evita seção vazia na home).
   if (seals.length === 0) {
-    return (
-      <section className="py-14 lg:py-20 px-4 bg-background">
-        <div className="container mx-auto">
-          <div className="flex flex-col md:flex-row items-center justify-center gap-8">
-            <div className="flex items-center gap-4 animate-fade-in">
-              <div className="relative">
-                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-gold to-gold-light flex items-center justify-center shadow-md">
-                  <Award className="w-12 h-12 text-navy-dark" />
-                </div>
-                <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-green-500 flex items-center justify-center border-4 border-background">
-                  <CheckCircle className="w-4 h-4 text-white" />
-                </div>
-              </div>
-              <div>
-                <h3 className="font-bold text-foreground text-lg">Selo de Transparência</h3>
-                <p className="text-sm text-muted-foreground">Compromisso com a gestão pública</p>
-              </div>
-            </div>
-            <div className="hidden md:block w-px h-16 bg-border" />
-            <div className="flex items-center gap-4 animate-fade-in" style={{ animationDelay: "200ms" }}>
-              <div className="w-16 h-16 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Shield className="w-8 h-8 text-primary" />
-              </div>
-              <div>
-                <p className="font-bold text-foreground">Lei de Acesso à Informação</p>
-                <p className="text-sm text-muted-foreground">Lei nº 12.527/2011</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    );
+    return null;
   }
 
+  // Grid adapta ao número de selos: 1 → estreito/centralizado, 2 → 2 colunas, 3+ → 3 colunas.
+  const gridClass =
+    seals.length === 1
+      ? "grid grid-cols-1 gap-6 max-w-md mx-auto"
+      : seals.length === 2
+        ? "grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto"
+        : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto";
+
   return (
-    <section className="py-14 lg:py-20 px-4 bg-background">
+    <section className="py-14 lg:py-20 px-4 bg-gradient-hero">
       <div className="container mx-auto">
         <SectionHeading
+          tone="dark"
           badge="Certificações"
           title={title || "Compromisso com a Transparência"}
-          subtitle={subtitle || "A Câmara Municipal é reconhecida por seu compromisso com a transparência pública."}
+          subtitle={
+            subtitle ||
+            "A Câmara Municipal é reconhecida por seu compromisso com a transparência pública e combate à corrupção."
+          }
         />
-        <div className={`grid gap-6 max-w-5xl mx-auto ${seals.length === 1 ? 'grid-cols-1 max-w-md' : seals.length === 2 ? 'grid-cols-1 md:grid-cols-2 max-w-3xl' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
+
+        <div className={gridClass}>
           {seals.map((seal, index) => (
             <div
               key={seal.id}
-              className="bg-card border border-border/60 rounded-2xl p-8 shadow-sm hover:shadow-md hover-lift group"
+              className="flex flex-col items-center bg-white/5 hover:bg-white/10 border border-white/10 rounded-3xl p-8 transition-colors duration-300 hover-lift group"
               data-reveal="zoom"
               data-reveal-delay={index * 100}
             >
-              <div className="flex justify-center mb-6">
+              {/* Selo sobre um glow/disco translúcido sutil para legibilidade em fundos transparentes */}
+              <div className="relative mb-6 flex items-center justify-center">
+                <div
+                  className="absolute inset-0 m-auto h-28 w-28 rounded-full bg-white/10 blur-xl"
+                  aria-hidden="true"
+                />
                 {seal.imageUrl ? (
-                  <img src={seal.imageUrl} alt={seal.title} className="h-36 w-auto object-contain group-hover:scale-105 transition-transform duration-300" />
+                  <img
+                    src={seal.imageUrl}
+                    alt={seal.title}
+                    className="relative h-32 md:h-36 w-auto object-contain drop-shadow-lg group-hover:scale-105 transition-transform duration-300"
+                  />
                 ) : (
-                  <div className="w-28 h-28 rounded-full bg-gold/15 flex items-center justify-center">
-                    <Award className="w-14 h-14 text-gold" />
+                  <div className="relative h-32 w-32 rounded-full bg-white/10 flex items-center justify-center ring-1 ring-white/20">
+                    <Award className="h-14 w-14 text-white" />
                   </div>
                 )}
               </div>
-              <h3 className="text-lg font-bold text-center mb-2 text-foreground">{seal.title}</h3>
-              {seal.description && <p className="text-muted-foreground text-sm text-center mb-5">{seal.description}</p>}
+
+              <h3 className="text-lg md:text-xl font-bold text-center text-white mb-2">{seal.title}</h3>
+
+              {seal.description && (
+                <p className="text-white/70 text-sm text-center mb-6">{seal.description}</p>
+              )}
+
               {seal.linkUrl && (
-                <div className="text-center">
-                  <a href={seal.linkUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 px-4 py-2 border border-border text-foreground rounded-lg text-sm font-medium hover:border-primary hover:text-primary transition-colors no-underline">
+                <div className="mt-auto text-center">
+                  <a
+                    href={seal.linkUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border border-white/30 text-white text-sm font-semibold hover:bg-white hover:text-navy-dark transition-colors no-underline"
+                  >
                     Saiba Mais
                     <ExternalLink className="w-4 h-4" />
                   </a>
