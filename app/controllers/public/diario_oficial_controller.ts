@@ -7,9 +7,15 @@ export default class DiarioOficialController {
   async index({ inertia, request }: HttpContext) {
     const page = request.input('page', 1)
     const year = request.input('ano', '')
+    const search = request.input('busca', '')
 
     let query = OfficialGazetteEntry.query().orderBy('publication_date', 'desc')
     if (year) query = query.whereRaw('EXTRACT(YEAR FROM publication_date::date) = ?', [year])
+    if (search) {
+      query = query.where((q) => {
+        q.whereILike('description', `%${search}%`).orWhereILike('edition_number', `%${search}%`)
+      })
+    }
 
     const entries = await query.paginate(page, 20)
     const siteSettings = await SiteSetting.allAsObject()
@@ -33,7 +39,7 @@ export default class DiarioOficialController {
         total: entries.total,
       },
       years: yearRows.map((r) => r.year).filter(Boolean),
-      filters: { year },
+      filters: { year, search },
       siteSettings,
     })
   }

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Link, router } from "@inertiajs/react";
 import { SeoHead } from "~/components/SeoHead";
 import { TopBar } from "~/components/TopBar";
@@ -6,7 +6,7 @@ import { Header } from "~/components/Header";
 import { Breadcrumb } from "~/components/Breadcrumb";
 import { PageHero } from "~/components/PageHero";
 import { Footer } from "~/components/Footer";
-import { Calendar, FileText, ChevronLeft, ChevronRight, Search, Download, ArrowRight } from "lucide-react";
+import { FileText, ChevronLeft, ChevronRight, Search, Download, ArrowRight } from "lucide-react";
 import { formatDocumentDate } from "~/components/DocumentActions";
 
 interface GazetteEntry {
@@ -21,13 +21,14 @@ interface Props {
   entries: GazetteEntry[];
   pagination?: { currentPage: number; lastPage: number; total?: number };
   years?: number[];
-  filters?: { year?: string };
+  filters?: { year?: string; search?: string };
 }
 
-const pageUrl = (page: number, year?: string) => {
+const pageUrl = (page: number, year?: string, search?: string) => {
   const params = new URLSearchParams();
   if (page > 1) params.set("page", String(page));
   if (year) params.set("ano", year);
+  if (search) params.set("busca", search);
   const qs = params.toString();
   return `/diario-oficial${qs ? `?${qs}` : ""}`;
 };
@@ -53,21 +54,20 @@ const pageWindow = (current: number, last: number): (number | "...")[] => {
 };
 
 export default function DiarioOficialIndex({ entries = [], pagination, years = [], filters = {} }: Props) {
-  const [busca, setBusca] = useState("");
+  const [busca, setBusca] = useState(filters.search || "");
 
   const titulo = (e: GazetteEntry) =>
     e.description || `Diário Oficial — Edição nº ${e.edition_number}`;
 
-  // Busca client-side: filtra a página atual por título/número da edição.
-  const visiveis = useMemo(() => {
-    const termo = busca.trim().toLowerCase();
-    if (!termo) return entries;
-    return entries.filter(
-      (e) =>
-        titulo(e).toLowerCase().includes(termo) ||
-        String(e.edition_number).toLowerCase().includes(termo)
-    );
-  }, [busca, entries]);
+  // Busca server-side: submete o termo ao controller (whereILike em
+  // description/edition_number), preservando o filtro de ano. A paginação e o
+  // contador refletem o total real do resultado filtrado.
+  const submitBusca = () => {
+    const params: Record<string, string | number> = { page: 1 };
+    if (filters.year) params.ano = filters.year;
+    if (busca.trim()) params.busca = busca.trim();
+    router.get("/diario-oficial", params, { preserveState: true });
+  };
 
   const total = pagination?.total ?? entries.length;
   const current = pagination?.currentPage ?? 1;
@@ -92,7 +92,12 @@ export default function DiarioOficialIndex({ entries = [], pagination, years = [
                 </p>
                 <select
                   value={filters.year || ""}
-                  onChange={(e) => router.get("/diario-oficial", e.target.value ? { ano: e.target.value } : {}, { preserveScroll: true })}
+                  onChange={(e) => {
+                    const params: Record<string, string | number> = { page: 1 };
+                    if (e.target.value) params.ano = e.target.value;
+                    if (busca.trim()) params.busca = busca.trim();
+                    router.get("/diario-oficial", params, { preserveScroll: true });
+                  }}
                   className="px-4 py-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
                 >
                   <option value="">Todos os anos</option>
@@ -115,9 +120,12 @@ export default function DiarioOficialIndex({ entries = [], pagination, years = [
                   </span>
                 </div>
 
-                {/* Busca client-side */}
+                {/* Busca server-side (submete no Enter/submit) */}
                 <div className="px-6 py-4 border-b border-border/60">
-                  <div className="relative max-w-md">
+                  <form
+                    className="relative max-w-md"
+                    onSubmit={(e) => { e.preventDefault(); submitBusca(); }}
+                  >
                     <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/60 pointer-events-none" />
                     <input
                       type="search"
@@ -126,14 +134,14 @@ export default function DiarioOficialIndex({ entries = [], pagination, years = [
                       placeholder="Buscar publicação..."
                       className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-muted/50 border border-border text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary focus:bg-background focus:ring-2 focus:ring-primary/10 transition-colors"
                     />
-                  </div>
+                  </form>
                 </div>
 
                 {/* Lista */}
-                {visiveis.length > 0 ? (
+                {entries.length > 0 ? (
                   <>
                     <div className="divide-y divide-border/60">
-                      {visiveis.map((entry) => {
+                      {entries.map((entry) => {
                         const dataFmt = formatDocumentDate(entry.date) || String(entry.date || "");
                         const Row = ({ children }: { children: React.ReactNode }) =>
                           entry.file_url ? (
@@ -170,8 +178,8 @@ export default function DiarioOficialIndex({ entries = [], pagination, years = [
                       })}
                     </div>
 
-                    {/* Paginação (server-side, controller) — escondida durante busca */}
-                    {last > 1 && !busca.trim() && (
+                    {/* Paginação (server-side, controller) — preserva ano e busca */}
+                    {last > 1 && (
                       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-6 py-4 bg-muted/40 border-t border-border/60">
                         <p className="text-xs text-muted-foreground m-0">
                           Mostrando <span className="font-medium text-foreground">{inicio}</span>-
@@ -181,7 +189,7 @@ export default function DiarioOficialIndex({ entries = [], pagination, years = [
                         <div className="flex items-center gap-1">
                           {current > 1 ? (
                             <Link
-                              href={pageUrl(current - 1, filters.year)}
+                              href={pageUrl(current - 1, filters.year, filters.search)}
                               aria-label="Página anterior"
                               className="flex items-center justify-center w-9 h-9 rounded-lg border border-border bg-card text-muted-foreground hover:border-primary hover:text-primary transition-colors no-underline"
                             >
@@ -207,7 +215,7 @@ export default function DiarioOficialIndex({ entries = [], pagination, years = [
                               ) : (
                                 <Link
                                   key={p}
-                                  href={pageUrl(p, filters.year)}
+                                  href={pageUrl(p, filters.year, filters.search)}
                                   className="flex items-center justify-center min-w-9 h-9 px-2 rounded-lg text-muted-foreground text-sm font-medium hover:bg-card hover:border-border border border-transparent hover:text-foreground transition-colors no-underline"
                                 >
                                   {p}
@@ -218,7 +226,7 @@ export default function DiarioOficialIndex({ entries = [], pagination, years = [
 
                           {current < last ? (
                             <Link
-                              href={pageUrl(current + 1, filters.year)}
+                              href={pageUrl(current + 1, filters.year, filters.search)}
                               aria-label="Próxima página"
                               className="flex items-center justify-center w-9 h-9 rounded-lg border border-border bg-card text-muted-foreground hover:border-primary hover:text-primary transition-colors no-underline"
                             >
@@ -240,9 +248,12 @@ export default function DiarioOficialIndex({ entries = [], pagination, years = [
                       <FileText className="w-7 h-7 text-muted-foreground/40" />
                     </div>
                     <p className="text-sm text-muted-foreground mb-3">Nenhuma publicação encontrada.</p>
-                    {busca.trim() ? (
+                    {filters.search ? (
                       <button
-                        onClick={() => setBusca("")}
+                        onClick={() => {
+                          setBusca("");
+                          router.get("/diario-oficial", filters.year ? { ano: filters.year } : {}, { preserveScroll: true });
+                        }}
                         className="text-sm font-medium text-primary hover:underline"
                       >
                         Limpar busca
@@ -258,13 +269,6 @@ export default function DiarioOficialIndex({ entries = [], pagination, years = [
                   </div>
                 )}
               </div>
-
-              {busca.trim() && (
-                <p className="max-w-4xl mx-auto mt-3 text-center text-xs text-muted-foreground flex items-center justify-center gap-1.5">
-                  <Calendar className="w-3.5 h-3.5" />
-                  A busca filtra apenas a página atual. Limpe a busca para navegar entre as páginas.
-                </p>
-              )}
             </div>
           </section>
         </main>

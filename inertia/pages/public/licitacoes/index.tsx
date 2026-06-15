@@ -20,33 +20,29 @@ interface Props {
   statuses?: string[];
 }
 
-const statusLabels: Record<string, string> = {
-  aberta: "Aberta",
-  em_andamento: "Em andamento",
-  encerrada: "Encerrada",
-  homologada: "Homologada",
-  cancelada: "Cancelada",
-  revogada: "Revogada",
-  suspensa: "Suspensa",
-  deserta: "Deserta",
-  concluida: "Concluída",
+// Mapa unificado de status, keyed pela MESMA convenção dos valores do banco
+// (snake_case). Cada entrada traz o rótulo legível e as classes de cor (tokens
+// do design system, dark-safe). A lookup é normalizada (lowercase + trim +
+// espaços -> _) para tolerar variações de cadastro.
+const STATUS_MAP: Record<string, { label: string; classes: string }> = {
+  aberta: { label: "Aberta", classes: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
+  em_andamento: { label: "Em andamento", classes: "bg-sky/10 text-sky" },
+  encerrada: { label: "Encerrada", classes: "bg-muted text-muted-foreground" },
+  homologada: { label: "Homologada", classes: "bg-navy/10 text-navy dark:bg-sky/10 dark:text-sky" },
+  cancelada: { label: "Cancelada", classes: "bg-destructive/10 text-destructive" },
+  revogada: { label: "Revogada", classes: "bg-destructive/10 text-destructive" },
+  suspensa: { label: "Suspensa", classes: "bg-amber-500/10 text-amber-600 dark:text-amber-400" },
+  deserta: { label: "Deserta", classes: "bg-amber-500/10 text-amber-600 dark:text-amber-400" },
+  concluida: { label: "Concluída", classes: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
 };
+
+const statusKey = (s: string) => s.toLowerCase().trim().replace(/\s+/g, "_");
 
 const statusLabel = (s: string) =>
-  statusLabels[s.toLowerCase()] || s.replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase());
+  STATUS_MAP[statusKey(s)]?.label || s.replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase());
 
-const statusColors: Record<string, string> = {
-  'aberta': 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
-  'em andamento': 'bg-sky/10 text-sky',
-  'em_andamento': 'bg-sky/10 text-sky',
-  'concluída': 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
-  'encerrada': 'bg-muted text-muted-foreground',
-  'homologada': 'bg-navy/10 text-navy dark:bg-sky/10 dark:text-sky',
-  'cancelada': 'bg-destructive/10 text-destructive',
-  'revogada': 'bg-destructive/10 text-destructive',
-  'suspensa': 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
-  'deserta': 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
-};
+const statusClasses = (s: string) =>
+  STATUS_MAP[statusKey(s)]?.classes || "bg-muted text-muted-foreground";
 
 const toParams = (filters: Filters): Record<string, string> => {
   const params: Record<string, string> = {};
@@ -154,7 +150,7 @@ export default function LicitacoesIndex({ licitacoes = [], pagination, filters =
                             {lic.modality && <span className="px-2.5 py-0.5 bg-gold/10 text-gold rounded-full text-xs font-semibold uppercase tracking-wide">{lic.modality}</span>}
                             {year && <span className="px-2.5 py-0.5 bg-primary/10 text-primary rounded-full text-xs font-bold">{year}</span>}
                             {lic.status && (
-                              <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${statusColors[lic.status.toLowerCase()] || 'bg-muted text-muted-foreground'}`}>
+                              <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${statusClasses(lic.status)}`}>
                                 {statusLabel(lic.status)}
                               </span>
                             )}
