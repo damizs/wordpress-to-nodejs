@@ -60,23 +60,27 @@ export default function Appearance({ settings }: Props) {
     esic_email: getVal(esic, 'esic_email'),
     logo_url: null as File | null,
     favicon_url: null as File | null,
+    atricon_logo_url: null as File | null,
     news_background_image: null as File | null,
   })
 
   const logoRef = useRef<HTMLInputElement>(null)
   const faviconRef = useRef<HTMLInputElement>(null)
+  const atriconLogoRef = useRef<HTMLInputElement>(null)
   const newsBackgroundRef = useRef<HTMLInputElement>(null)
   const [logoPreview, setLogoPreview] = useState<string | null>(getVal(appearance, 'logo_url'))
   const [faviconPreview, setFaviconPreview] = useState<string | null>(getVal(appearance, 'favicon_url'))
+  const [atriconLogoPreview, setAtriconLogoPreview] = useState<string | null>(getVal(appearance, 'atricon_logo_url'))
   const [newsBackgroundPreview, setNewsBackgroundPreview] = useState<string | null>(getVal(appearance, 'news_background_image'))
 
-  function handleFileChange(field: 'logo_url' | 'favicon_url' | 'news_background_image', file: File | null) {
+  function handleFileChange(field: 'logo_url' | 'favicon_url' | 'atricon_logo_url' | 'news_background_image', file: File | null) {
     setData(field, file)
     if (file) {
       const reader = new FileReader()
       reader.onload = (e) => {
         if (field === 'logo_url') setLogoPreview(e.target?.result as string)
         else if (field === 'favicon_url') setFaviconPreview(e.target?.result as string)
+        else if (field === 'atricon_logo_url') setAtriconLogoPreview(e.target?.result as string)
         else setNewsBackgroundPreview(e.target?.result as string)
       }
       reader.readAsDataURL(file)
@@ -133,6 +137,49 @@ export default function Appearance({ settings }: Props) {
               inputRef={faviconRef}
               onChange={(f) => handleFileChange('favicon_url', f)}
             />
+          </div>
+
+          {/* Logo ATRICON (Radar) */}
+          <div className="mt-4">
+            <Field label="Logo ATRICON (Radar)">
+              <p className="text-xs text-muted-foreground mb-3">
+                Substitui a medalha de nível no módulo Radar ATRICON. Aceita SVG (transparente) —
+                será exibida sobre fundo branco no painel.
+              </p>
+              <div className="flex items-start gap-4">
+                {atriconLogoPreview ? (
+                  <div className="relative w-28 h-28 rounded-lg overflow-hidden border border-border bg-white p-3 flex items-center justify-center">
+                    <img src={atriconLogoPreview} alt="Logo ATRICON" className="w-full h-full object-contain" />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAtriconLogoPreview(null)
+                        setData('atricon_logo_url', null)
+                      }}
+                      className="absolute top-1 right-1 p-1 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90 transition-colors"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ) : (
+                  <div
+                    onClick={() => atriconLogoRef.current?.click()}
+                    className="w-28 h-28 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-navy/50 transition-colors text-center px-2"
+                  >
+                    <Upload className="w-7 h-7 text-muted-foreground mb-1" />
+                    <span className="text-xs text-muted-foreground">Clique para enviar</span>
+                    <span className="text-[11px] text-muted-foreground/70">PNG, SVG, JPG ou WebP</span>
+                  </div>
+                )}
+                <input
+                  ref={atriconLogoRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/svg+xml,image/webp"
+                  className="hidden"
+                  onChange={(e) => handleFileChange('atricon_logo_url', e.target.files?.[0] || null)}
+                />
+              </div>
+            </Field>
           </div>
 
           {/* News Background */}

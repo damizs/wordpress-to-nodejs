@@ -1,5 +1,6 @@
 import { Link } from "@inertiajs/react";
 import { BookOpen, Download, Calendar, ArrowRight, Newspaper } from "lucide-react";
+import { SectionHeading } from "~/components/SectionHeading";
 
 interface Publicacao {
   id: number;
@@ -40,14 +41,11 @@ export const DiarioOficialSection = ({
   return (
     <section className="py-14 lg:py-20 px-4 bg-muted/40">
       <div className="container mx-auto max-w-4xl">
-        <div className="text-center mb-10" data-reveal>
-          <h2 className="heading-accent text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-3">
-            {title}
-          </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            {subtitle || "Fique sempre atualizado com as publicações e informações oficiais do município"}
-          </p>
-        </div>
+        <SectionHeading
+          badge="Publicações Oficiais"
+          title={title}
+          subtitle={subtitle || "Fique sempre atualizado com as publicações e informações oficiais do município"}
+        />
 
         {/* Card principal com cabeçalho navy (padrão do portal) */}
         <div data-reveal className="rounded-2xl overflow-hidden shadow-xl bg-card border border-border/60">

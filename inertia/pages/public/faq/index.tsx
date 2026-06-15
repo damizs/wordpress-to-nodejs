@@ -81,7 +81,7 @@ export default function FaqIndex({ faqs = [], categories = [] }: Props) {
     <>
       <SeoHead title="Perguntas Frequentes - Câmara Municipal de Sumé" description="Encontre respostas para as dúvidas mais comuns sobre a Câmara Municipal de Sumé." url="/perguntas-frequentes" />
       <div className="min-h-screen bg-background">
-        <TopBar /><Header /><Breadcrumb items={[{ label: "Perguntas Frequentes" }]} narrow />
+        <TopBar /><Header /><Breadcrumb items={[{ label: "Perguntas Frequentes" }]} />
         <PageHero badge="Ajuda" title="Perguntas Frequentes" subtitle="Encontre respostas para as dúvidas mais comuns" centered />
         <main>
           <section className="py-10 lg:py-14">

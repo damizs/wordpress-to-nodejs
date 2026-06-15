@@ -1,6 +1,7 @@
 import { Link } from "@inertiajs/react";
 import { Instagram, ExternalLink, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { SectionHeading } from "~/components/SectionHeading";
 
 interface InstagramPost {
   id: number;
@@ -54,17 +55,11 @@ export const InstagramFeedSection = ({ posts = [], instagramUrl }: InstagramFeed
   return (
     <section className="py-14 lg:py-20 px-4 bg-background">
       <div className="container mx-auto">
-        <div className="text-center mb-14" data-reveal>
-          <span className="inline-block px-4 py-1.5 bg-gradient-to-r from-purple-500/10 to-pink-500/10 text-purple-600 rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
-            Redes Sociais
-          </span>
-          <h2 className="heading-accent text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-4">
-            Siga-nos no Instagram
-          </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            Acompanhe as atividades da Câmara Municipal em tempo real.
-          </p>
-        </div>
+        <SectionHeading
+          badge="Redes Sociais"
+          title="Siga-nos no Instagram"
+          subtitle="Acompanhe as atividades da Câmara Municipal em tempo real."
+        />
 
         {posts.length > 0 ? (
           <>

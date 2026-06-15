@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { MapPin, Users, Mountain, History, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { SectionHeading } from "~/components/SectionHeading";
 
 interface ConhecaSumeSectionProps {
   images?: string[];
@@ -146,21 +147,22 @@ export const ConhecaSumeSection = ({ images, title, subtitle }: ConhecaSumeSecti
 
             {/* Content */}
             <div data-reveal="right" data-reveal-delay={120}>
-              <span className="inline-block px-4 py-1.5 bg-gold/10 text-gold rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
-                Conheça Nossa Cidade
-              </span>
-              {title ? (
-                <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-6">{title}</h2>
-              ) : (
-                <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-6">
-                  Sumé<br />
-                  <span className="text-gradient-gold">Cariri Paraibano</span>
-                </h2>
-              )}
-              <p className="text-muted-foreground text-lg mb-8 leading-relaxed">
-                {subtitle ||
-                  "Sumé, localizada no Cariri Ocidental da Paraíba, é uma cidade rica em história e cultura. Conhecida por sua hospitalidade e tradições, é um importante polo regional."}
-              </p>
+              <SectionHeading
+                align="left"
+                badge="Conheça Nossa Cidade"
+                title={
+                  title || (
+                    <>
+                      Sumé<br />
+                      <span className="text-gradient-gold">Cariri Paraibano</span>
+                    </>
+                  )
+                }
+                subtitle={
+                  subtitle ||
+                  "Sumé, localizada no Cariri Ocidental da Paraíba, é uma cidade rica em história e cultura. Conhecida por sua hospitalidade e tradições, é um importante polo regional."
+                }
+              />
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex items-center gap-3 p-4 rounded-xl bg-muted/50">

@@ -1,4 +1,5 @@
 import { ExternalLink, Award, Shield, CheckCircle } from "lucide-react";
+import { SectionHeading } from "~/components/SectionHeading";
 
 interface Seal {
   id: number;
@@ -53,15 +54,11 @@ export const CertificationsSection = ({ seals = [], title, subtitle }: Certifica
   return (
     <section className="py-14 lg:py-20 px-4 bg-background">
       <div className="container mx-auto">
-        <div className="text-center mb-12" data-reveal>
-          <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
-            Certificações
-          </span>
-          <h2 className="heading-accent text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-4">{title || "Compromisso com a Transparência"}</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            {subtitle || "A Câmara Municipal é reconhecida por seu compromisso com a transparência pública."}
-          </p>
-        </div>
+        <SectionHeading
+          badge="Certificações"
+          title={title || "Compromisso com a Transparência"}
+          subtitle={subtitle || "A Câmara Municipal é reconhecida por seu compromisso com a transparência pública."}
+        />
         <div className={`grid gap-6 max-w-5xl mx-auto ${seals.length === 1 ? 'grid-cols-1 max-w-md' : seals.length === 2 ? 'grid-cols-1 md:grid-cols-2 max-w-3xl' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'}`}>
           {seals.map((seal, index) => (
             <div

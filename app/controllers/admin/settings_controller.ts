@@ -55,6 +55,12 @@ const APPEARANCE_KEYS: Record<
   },
   logo_url: { group: 'appearance', defaultValue: '', type: 'image', label: 'Logo (PNG)' },
   favicon_url: { group: 'appearance', defaultValue: '', type: 'image', label: 'Favicon' },
+  atricon_logo_url: {
+    group: 'appearance',
+    defaultValue: '',
+    type: 'image',
+    label: 'Logo ATRICON (Radar)',
+  },
   news_background_image: {
     group: 'appearance',
     defaultValue: '',
@@ -108,7 +114,10 @@ const APPEARANCE_KEYS: Record<
 
 /** Text field keys (everything except image uploads and special fields) */
 const TEXT_KEYS = Object.keys(APPEARANCE_KEYS).filter(
-  (k) => !['logo_url', 'favicon_url', 'news_background_image', 'city_images'].includes(k)
+  (k) =>
+    !['logo_url', 'favicon_url', 'atricon_logo_url', 'news_background_image', 'city_images'].includes(
+      k
+    )
 )
 
 export default class SettingsController {
@@ -194,6 +203,26 @@ export default class SettingsController {
         await favicon.move(uploadDir, { name: fileName })
         if (favicon.state === 'moved') {
           await SiteSetting.setValue('favicon_url', `/uploads/${fileName}`, 'appearance', 'image')
+        }
+      }
+
+      // Handle ATRICON logo upload (Radar) — SVG transparente exibido com fundo branco no painel
+      const atriconLogo = request.file('atricon_logo_url', {
+        size: '2mb',
+        extnames: ['png', 'jpg', 'jpeg', 'svg', 'webp'],
+      })
+      if (atriconLogo) {
+        const uploadDir = join(app.publicPath(), 'uploads')
+        if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true })
+        const fileName = `atricon-logo-${cuid()}.${atriconLogo.extname}`
+        await atriconLogo.move(uploadDir, { name: fileName })
+        if (atriconLogo.state === 'moved') {
+          await SiteSetting.setValue(
+            'atricon_logo_url',
+            `/uploads/${fileName}`,
+            'appearance',
+            'image'
+          )
         }
       }
 

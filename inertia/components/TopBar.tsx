@@ -1,5 +1,5 @@
 import { Link, usePage } from "@inertiajs/react";
-import { Search, HelpCircle, FileText, MessageSquare, Shield } from "lucide-react";
+import { Search, HelpCircle, FileText, MessageSquare, Shield, Map, Database } from "lucide-react";
 import { useSiteSettings } from "~/hooks/use_site_settings";
 
 export const TopBar = () => {
@@ -15,6 +15,8 @@ export const TopBar = () => {
     { icon: MessageSquare, label: "Ouvidoria", href: "/ouvidoria", external: false },
     { icon: HelpCircle, label: "Perguntas Frequentes", href: "/perguntas-frequentes", external: false },
     { icon: Shield, label: "Política de Privacidade", href: "/politica-de-privacidade", external: false },
+    { icon: Map, label: "Mapa do Site", href: "/mapa-do-site", external: false },
+    { icon: Database, label: "Dados Abertos", href: "/dados-abertos", external: false },
   ];
 
   const linkClass =

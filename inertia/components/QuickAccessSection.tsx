@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "@inertiajs/react";
 import { LinkModal, type LinkModalLink } from "~/components/LinkModal";
+import { SectionHeading } from "~/components/SectionHeading";
 import {
   Play,
   Users,
@@ -163,17 +164,11 @@ export const QuickAccessSection = ({
   return (
     <section className="py-14 lg:py-20 px-4 bg-background">
       <div className="container mx-auto">
-        <div className="text-center mb-14" data-reveal>
-          <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
-            {badge}
-          </span>
-          <h2 className="heading-accent text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-4">
-            {title}
-          </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            {subtitle || "Acompanhe as funções legislativa, fiscalizadora e deliberativa da Casa do Povo."}
-          </p>
-        </div>
+        <SectionHeading
+          badge={badge}
+          title={title}
+          subtitle={subtitle || "Acompanhe as funções legislativa, fiscalizadora e deliberativa da Casa do Povo."}
+        />
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
           {items.map((item, index) => {

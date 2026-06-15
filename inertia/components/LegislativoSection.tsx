@@ -10,6 +10,7 @@ import {
   Gavel,
   TrendingUp,
 } from "lucide-react";
+import { SectionHeading } from "~/components/SectionHeading";
 
 interface LegislativoVereador {
   id: number;
@@ -175,23 +176,20 @@ export const LegislativoSection = ({ data, title, subtitle }: LegislativoSection
     <section className="py-14 lg:py-20 px-4 bg-background">
       <div className="container mx-auto">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-10" data-reveal="up">
-          <div>
-            <span className="inline-block px-4 py-1.5 bg-gold/10 text-gold rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
-              Legislativo em Números
-            </span>
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground">
-              {title || "Atividade Legislativa"}
-            </h2>
-            {subtitle && <p className="text-muted-foreground mt-2 max-w-2xl">{subtitle}</p>}
-          </div>
-          <Link
-            href="/atividades-legislativas"
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-gold transition-colors no-underline shrink-0"
-          >
-            Mais matérias <ExternalLink className="w-4 h-4" />
-          </Link>
-        </div>
+        <SectionHeading
+          align="left"
+          badge="Legislativo em Números"
+          title={title || "Atividade Legislativa"}
+          subtitle={subtitle}
+          action={
+            <Link
+              href="/atividades-legislativas"
+              className="inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:text-gold transition-colors no-underline"
+            >
+              Mais matérias <ExternalLink className="w-4 h-4" />
+            </Link>
+          }
+        />
 
         {/* Resumo do ano */}
         <div className="flex flex-wrap gap-3 mb-10" data-reveal="up" data-reveal-delay="80">

@@ -201,7 +201,7 @@ export default function PrivacyPolicyIndex({ content }: Props) {
     <>
       <SeoHead title="Política de Privacidade - Câmara Municipal de Sumé" description="Conheça nossa política de privacidade e como tratamos seus dados pessoais, em conformidade com a LGPD." url="/politica-de-privacidade" />
       <div className="min-h-screen bg-background">
-        <TopBar /><Header /><Breadcrumb items={[{ label: "Política de Privacidade" }]} narrow />
+        <TopBar /><Header /><Breadcrumb items={[{ label: "Política de Privacidade" }]} />
         <PageHero badge="LGPD" title="Política de Privacidade" subtitle="Em conformidade com a Lei Geral de Proteção de Dados — Lei nº 13.709/2018" centered />
         <main>
           <section className="py-10 lg:py-14">

@@ -1,5 +1,6 @@
 import { MapPin, Clock, Search, Send } from "lucide-react";
 import { useSiteSettings } from "~/hooks/use_site_settings";
+import { SectionHeading } from "~/components/SectionHeading";
 
 interface ESicSectionProps {
   title?: string;
@@ -19,17 +20,11 @@ export const ESicSection = ({ title, subtitle }: ESicSectionProps) => {
   return (
     <section className="py-14 lg:py-20 px-4 bg-muted/40">
       <div className="container mx-auto">
-        <div className="text-center mb-12" data-reveal>
-          <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
-            Acesso à Informação
-          </span>
-          <h2 className="heading-accent text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-4">
-            {title && title !== "e-SIC" ? title : "E-SIC - Sistema Eletrônico de Informações"}
-          </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            {subtitle || "Acesse informações públicas e solicite dados da administração municipal de forma transparente"}
-          </p>
-        </div>
+        <SectionHeading
+          badge="Acesso à Informação"
+          title={title && title !== "e-SIC" ? title : "E-SIC - Sistema Eletrônico de Informações"}
+          subtitle={subtitle || "Acesse informações públicas e solicite dados da administração municipal de forma transparente"}
+        />
 
         <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto items-stretch">
           {/* Sistema E-SIC */}

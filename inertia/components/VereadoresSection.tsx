@@ -1,6 +1,7 @@
 import { Link } from "@inertiajs/react";
-import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { ArrowRight } from "lucide-react";
+import { InfiniteCarousel } from "~/components/InfiniteCarousel";
+import { SectionHeading } from "~/components/SectionHeading";
 
 interface Vereador {
   id: number;
@@ -25,53 +26,6 @@ export const VereadoresSection = ({
   title = "Mesa Diretora e Vereadores",
   subtitle,
 }: VereadoresSectionProps) => {
-  const scrollerRef = useRef<HTMLDivElement>(null);
-  const [isPaused, setIsPaused] = useState(false);
-  const [canPrev, setCanPrev] = useState(false);
-  const [canNext, setCanNext] = useState(false);
-
-  const updateEdges = useCallback(() => {
-    const el = scrollerRef.current;
-    if (!el) return;
-    setCanPrev(el.scrollLeft > 1);
-    setCanNext(el.scrollLeft < el.scrollWidth - el.clientWidth - 1);
-  }, []);
-
-  useEffect(() => {
-    const el = scrollerRef.current;
-    if (!el) return;
-    updateEdges();
-    el.addEventListener("scroll", updateEdges, { passive: true });
-    window.addEventListener("resize", updateEdges);
-    return () => {
-      el.removeEventListener("scroll", updateEdges);
-      window.removeEventListener("resize", updateEdges);
-    };
-  }, [updateEdges, vereadores.length]);
-
-  const scrollByPage = useCallback((direction: 1 | -1) => {
-    const el = scrollerRef.current;
-    if (!el) return;
-    el.scrollBy({ left: direction * el.clientWidth * 0.9, behavior: "smooth" });
-  }, []);
-
-  // Autoplay: avança a cada 5s e volta ao início; pausa no hover; respeita prefers-reduced-motion
-  useEffect(() => {
-    if (isPaused || vereadores.length <= 1) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const timer = setInterval(() => {
-      const el = scrollerRef.current;
-      if (!el) return;
-      const atEnd = el.scrollLeft >= el.scrollWidth - el.clientWidth - 1;
-      if (atEnd) {
-        el.scrollTo({ left: 0, behavior: "smooth" });
-      } else {
-        el.scrollBy({ left: el.clientWidth * 0.9, behavior: "smooth" });
-      }
-    }, 5000);
-    return () => clearInterval(timer);
-  }, [isPaused, vereadores.length]);
-
   if (vereadores.length === 0) {
     return null;
   }
@@ -80,33 +34,19 @@ export const VereadoresSection = ({
     <section className="py-14 lg:py-20 px-4 bg-background">
       <div className="container mx-auto">
         {/* Header */}
-        <div className="text-center mb-14" data-reveal>
-          <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
-            Legislatura {legislatura}
-          </span>
-          <h2 className="heading-accent text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-4">
-            {title}
-          </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            {subtitle || `Composição da Mesa Diretora e parlamentares da Legislatura ${legislatura}`}
-          </p>
-        </div>
+        <SectionHeading
+          badge={`Legislatura ${legislatura}`}
+          title={title}
+          subtitle={subtitle || `Composição da Mesa Diretora e parlamentares da Legislatura ${legislatura}`}
+        />
 
-        {/* Carousel */}
-        <div
-          className="relative px-8"
-          data-reveal
-          onMouseEnter={() => setIsPaused(true)}
-          onMouseLeave={() => setIsPaused(false)}
-        >
-          <div
-            ref={scrollerRef}
-            className="flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth rounded-2xl pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          >
+        {/* Carrossel infinito automático */}
+        <div data-reveal>
+          <InfiniteCarousel ariaLabel="Vereadores" gapClass="gap-6" className="pb-1">
             {vereadores.map((vereador) => (
               <div
                 key={vereador.id}
-                className="snap-start shrink-0 w-[85%] sm:w-[45%] lg:w-[31%] xl:w-[23.5%]"
+                className="shrink-0 w-[85vw] sm:w-[42vw] lg:w-[28vw] xl:w-[21vw]"
               >
                 <Link href={`/vereadores/${vereador.slug}`} className="no-underline">
                   <div className="card-modern overflow-hidden group">
@@ -136,31 +76,7 @@ export const VereadoresSection = ({
                 </Link>
               </div>
             ))}
-          </div>
-
-          {/* Navigation Buttons */}
-          {vereadores.length > 1 && (
-            <>
-              <button
-                type="button"
-                onClick={() => scrollByPage(-1)}
-                disabled={!canPrev}
-                aria-label="Vereadores anteriores"
-                className="absolute left-0 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-card shadow-xl border border-border/50 flex items-center justify-center hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed"
-              >
-                <ChevronLeft className="w-6 h-6" />
-              </button>
-              <button
-                type="button"
-                onClick={() => scrollByPage(1)}
-                disabled={!canNext}
-                aria-label="Próximos vereadores"
-                className="absolute right-0 top-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-card shadow-xl border border-border/50 flex items-center justify-center hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed"
-              >
-                <ChevronRight className="w-6 h-6" />
-              </button>
-            </>
-          )}
+          </InfiniteCarousel>
         </div>
 
         {/* View More Link */}

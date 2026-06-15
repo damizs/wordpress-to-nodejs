@@ -1,11 +1,12 @@
 import { Link } from "@inertiajs/react";
-import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  Award, ChevronLeft, ChevronRight, ExternalLink, FileText, HardHat, Plane,
+  Award, ExternalLink, FileText, HardHat, Plane,
   Coins, GraduationCap, Users, ClipboardList, Gavel, BarChart3, BookOpen,
   Briefcase, Building, Scale, FolderOpen,
 } from "lucide-react";
 import { useSiteSettings } from "~/hooks/use_site_settings";
+import { SectionHeading } from "~/components/SectionHeading";
+import { InfiniteCarousel } from "~/components/InfiniteCarousel";
 
 interface InfoCategory {
   id: number;
@@ -53,49 +54,15 @@ export const TransparencySection = ({
 }: TransparencySectionProps) => {
   const settings = useSiteSettings();
   const radarUrl = settings.radar_atricon_url || "https://radardatransparencia.atricon.org.br/";
-  const scrollerRef = useRef<HTMLDivElement>(null);
-  const [canPrev, setCanPrev] = useState(false);
-  const [canNext, setCanNext] = useState(false);
-
-  const updateEdges = useCallback(() => {
-    const el = scrollerRef.current;
-    if (!el) return;
-    setCanPrev(el.scrollLeft > 1);
-    setCanNext(el.scrollLeft < el.scrollWidth - el.clientWidth - 1);
-  }, []);
-
-  useEffect(() => {
-    const el = scrollerRef.current;
-    if (!el) return;
-    updateEdges();
-    el.addEventListener("scroll", updateEdges, { passive: true });
-    window.addEventListener("resize", updateEdges);
-    return () => {
-      el.removeEventListener("scroll", updateEdges);
-      window.removeEventListener("resize", updateEdges);
-    };
-  }, [updateEdges, categories.length]);
-
-  const scrollByPage = useCallback((direction: 1 | -1) => {
-    const el = scrollerRef.current;
-    if (!el) return;
-    el.scrollBy({ left: direction * el.clientWidth * 0.9, behavior: "smooth" });
-  }, []);
 
   return (
     <section className="py-14 lg:py-20 px-4 bg-muted/40">
       <div className="container mx-auto">
-        <div className="text-center mb-12" data-reveal>
-          <span className="inline-block px-4 py-1.5 bg-primary/10 text-primary rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
-            Portal da Transparência
-          </span>
-          <h2 className="heading-accent text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mb-4">
-            {title}
-          </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-            {subtitle || "Acesse todas as informações sobre carta de serviço, obras, estagiários e muito mais"}
-          </p>
-        </div>
+        <SectionHeading
+          badge="Portal da Transparência"
+          title={title}
+          subtitle={subtitle || "Acesse todas as informações sobre carta de serviço, obras, estagiários e muito mais"}
+        />
 
         {/* Radar da Transparência ATRICON */}
         <div
@@ -123,13 +90,10 @@ export const TransparencySection = ({
           </a>
         </div>
 
-        {/* Carrossel de categorias (páginas PNTP) */}
+        {/* Carrossel infinito de categorias (páginas PNTP) */}
         {categories.length > 0 && (
-          <div className="relative px-12" data-reveal>
-            <div
-              ref={scrollerRef}
-              className="flex gap-5 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-            >
+          <div data-reveal>
+            <InfiniteCarousel ariaLabel="Categorias de transparência" gapClass="gap-5" className="pb-1">
               {categories.map((cat, index) => {
                 const Icon = categoryIcon(cat.name);
                 const palette = CATEGORY_PALETTE[index % CATEGORY_PALETTE.length];
@@ -137,7 +101,7 @@ export const TransparencySection = ({
                   <Link
                     key={cat.id}
                     href={`/${cat.slug}`}
-                    className="snap-start shrink-0 w-[85%] sm:w-[45%] lg:w-[23.5%] card-modern p-6 flex flex-col items-center text-center gap-4 no-underline hover-lift min-h-[150px] justify-center"
+                    className="shrink-0 w-[80vw] sm:w-[42vw] lg:w-[22vw] card-modern p-6 flex flex-col items-center text-center gap-4 no-underline hover-lift min-h-[150px] justify-center"
                   >
                     <div className={`w-14 h-14 rounded-full ${palette.circle} flex items-center justify-center`}>
                       <Icon className={`w-7 h-7 ${palette.icon}`} />
@@ -148,30 +112,7 @@ export const TransparencySection = ({
                   </Link>
                 );
               })}
-            </div>
-
-            {categories.length > 1 && (
-              <>
-                <button
-                  type="button"
-                  onClick={() => scrollByPage(-1)}
-                  disabled={!canPrev}
-                  aria-label="Categorias anteriores"
-                  className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:opacity-90 transition-opacity disabled:opacity-30 disabled:cursor-not-allowed"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => scrollByPage(1)}
-                  disabled={!canNext}
-                  aria-label="Próximas categorias"
-                  className="absolute right-0 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-primary text-primary-foreground shadow-lg flex items-center justify-center hover:opacity-90 transition-opacity disabled:opacity-30 disabled:cursor-not-allowed"
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-              </>
-            )}
+            </InfiniteCarousel>
           </div>
         )}
       </div>

@@ -67,6 +67,7 @@ interface Props {
     }
   }
   fortnight: { label: string; start: string; end: string }
+  atriconLogoUrl?: string | null
 }
 
 const STATUS_META: Record<StatusValue, { label: string; tone: BadgeTone; dot: string }> = {
@@ -93,6 +94,36 @@ const LEVEL_META: Record<string, { color: string; ring: string }> = {
   'Intermediário': { color: 'text-amber-600', ring: '#d97706' },
   'Básico': { color: 'text-orange-600', ring: '#ea580c' },
   'Inicial': { color: 'text-destructive', ring: '#e11d48' },
+}
+
+function LevelMedal({
+  value,
+  level,
+  logoUrl,
+}: {
+  value: number
+  level: string
+  logoUrl?: string | null
+}) {
+  const meta = LEVEL_META[level] ?? LEVEL_META['Inicial']
+
+  // Se houver logo da ATRICON enviada pelo painel, ela substitui o gauge/donut.
+  // SVG pode ser transparente, então é exibida sobre fundo branco com object-contain.
+  if (logoUrl) {
+    return (
+      <div className="flex flex-col items-center gap-2">
+        <div className="w-40 h-40 rounded-2xl border border-border bg-white p-4 flex items-center justify-center shadow-sm">
+          <img src={logoUrl} alt={`Nível ${level}`} className="w-full h-full object-contain" />
+        </div>
+        <div className="text-center">
+          <span className={`block text-sm font-bold uppercase tracking-wide ${meta.color}`}>{level}</span>
+          <span className="block text-xs font-semibold text-muted-foreground">{value}%</span>
+        </div>
+      </div>
+    )
+  }
+
+  return <Gauge value={value} level={level} />
 }
 
 function Gauge({ value, level }: { value: number; level: string }) {
@@ -251,7 +282,7 @@ function CriterionRow({ criterion }: { criterion: Criterion }) {
   )
 }
 
-export default function AtriconIndex({ matrix, scores, fortnight }: Props) {
+export default function AtriconIndex({ matrix, scores, fortnight, atriconLogoUrl }: Props) {
   const [dimensionFilter, setDimensionFilter] = useState<string>('')
   const [statusFilter, setStatusFilter] = useState<string>('')
 
@@ -310,7 +341,7 @@ export default function AtriconIndex({ matrix, scores, fortnight }: Props) {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
         {/* Índice geral */}
         <Card className="flex items-center gap-6">
-          <Gauge value={scores.index} level={scores.level} />
+          <LevelMedal value={scores.index} level={scores.level} logoUrl={atriconLogoUrl} />
           <div>
             <p className="text-sm font-semibold text-foreground flex items-center gap-1.5">
               <Gem className="w-4 h-4 text-cyan-600" /> Índice estimado

@@ -456,4 +456,10 @@ html.js-anim [data-reveal].no-transition {
     background: var(--gradient-gold);
   }
 
+  /* Variante alinhada à esquerda: o traço fica encostado à esquerda do título */
+  .heading-accent-left::after {
+    left: 0;
+    transform: none;
+  }
+
 }

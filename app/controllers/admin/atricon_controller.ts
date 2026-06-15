@@ -819,7 +819,11 @@ function currentFortnight(now: DateTime) {
 
 export default class AtriconController {
   async index({ inertia }: HttpContext) {
-    const [matrix, contentMap] = await Promise.all([buildMatrix(), buildContentMap()])
+    const [matrix, contentMap, atriconLogoUrl] = await Promise.all([
+      buildMatrix(),
+      buildContentMap(),
+      SiteSetting.getValue('atricon_logo_url'),
+    ])
     const scores = computeScores(matrix)
     const snapshots = await snapshotAndLoad(scores)
     return inertia.render('admin/atricon/index', {
@@ -827,6 +831,7 @@ export default class AtriconController {
       scores,
       contentMap,
       snapshots,
+      atriconLogoUrl: atriconLogoUrl || null,
       checkedAt: DateTime.now().toISO(),
       fortnight: currentFortnight(DateTime.now()),
     })
@@ -880,6 +885,7 @@ export default class AtriconController {
     const matrix = await buildMatrix()
     const scores = computeScores(matrix)
     const fortnight = currentFortnight(DateTime.now())
+    const atriconLogoUrl = (await SiteSetting.getValue('atricon_logo_url')) || null
 
     const pendings = matrix
       .filter((c) => c.status === 'pendente' || c.status === 'parcial')
@@ -937,6 +943,7 @@ export default class AtriconController {
       pendings,
       scores,
       fortnight,
+      atriconLogoUrl,
       generatedAt: DateTime.now().setLocale('pt-BR').toFormat("dd/MM/yyyy 'às' HH:mm"),
     })
   }
