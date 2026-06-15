@@ -53,45 +53,49 @@ export const HolidaysStrip = ({ variant = 'default' }: HolidaysStripProps) => {
   const todayHoliday = upcoming.find((h) => isHolidayToday(h))
 
   const isFooter = variant === 'footer'
-  const baseText = isFooter
-    ? 'text-primary-foreground/80'
-    : 'text-white/70'
 
-  if (todayHoliday) {
-    return (
-      <div
-        className={`flex items-center ${isFooter ? 'justify-center md:justify-start' : ''} gap-1.5 py-2 text-[11px] md:text-xs font-medium tracking-wide`}
-      >
-        <Calendar className="w-3 h-3 text-gold shrink-0" aria-hidden="true" />
-        <span className="text-gold">
-          Hoje: feriado de {todayHoliday.label} — sem expediente
-        </span>
-        <TypeChip type={todayHoliday.type} />
-      </div>
-    )
-  }
+  // Conteúdo interno (igual para footer e body, com cores de texto por variante)
+  const baseText = isFooter ? 'text-primary-foreground/80' : 'text-muted-foreground'
+  const labelText = isFooter ? 'text-primary-foreground/60' : 'text-muted-foreground'
 
-  return (
+  const inner = todayHoliday ? (
     <div
-      className={`flex items-center ${isFooter ? 'justify-center md:justify-start' : ''} gap-x-5 gap-y-0 flex-wrap py-2 text-[11px] md:text-xs font-medium tracking-wide`}
+      className={`flex items-center justify-center ${isFooter ? 'md:justify-start' : ''} gap-1.5 py-2 text-[11px] md:text-xs font-medium tracking-wide`}
     >
-      {isFooter && (
-        <span className="flex items-center gap-1.5 text-primary-foreground/60 uppercase tracking-wider text-[10px] font-semibold">
-          <Calendar className="w-3.5 h-3.5 text-gold/70 shrink-0" aria-hidden="true" />
-          Próximos feriados
-        </span>
-      )}
+      <Calendar className="w-3.5 h-3.5 text-gold shrink-0" aria-hidden="true" />
+      <span className="text-gold font-semibold">
+        Hoje: feriado de {todayHoliday.label} — sem expediente
+      </span>
+      <TypeChip type={todayHoliday.type} />
+    </div>
+  ) : (
+    <div
+      className={`flex items-center justify-center ${isFooter ? 'md:justify-start' : ''} gap-x-5 gap-y-0 flex-wrap py-2 text-[11px] md:text-xs font-medium tracking-wide`}
+    >
+      <span
+        className={`flex items-center gap-1.5 uppercase tracking-wider text-[10px] font-semibold ${labelText}`}
+      >
+        <Calendar className="w-3.5 h-3.5 text-gold shrink-0" aria-hidden="true" />
+        Próximos feriados
+      </span>
       {upcoming.map((holiday, i) => (
         <span key={i} className={`flex items-center gap-1.5 ${baseText}`}>
-          {!isFooter && (
-            <Calendar className="w-3 h-3 text-gold/70 shrink-0" aria-hidden="true" />
-          )}
           <span>
             {formatDay(holiday.date)} — {holiday.label}
           </span>
           <TypeChip type={holiday.type} />
         </span>
       ))}
+    </div>
+  )
+
+  // No rodapé é renderizado dentro do próprio container do footer (sem banda).
+  if (isFooter) return inner
+
+  // No corpo da home: banda discreta com tokens, alinhada ao container do site.
+  return (
+    <div className="bg-muted/50 border-b border-border">
+      <div className="container mx-auto">{inner}</div>
     </div>
   )
 }

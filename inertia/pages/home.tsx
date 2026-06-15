@@ -1,6 +1,7 @@
 import { GlobalEffects } from "~/components/GlobalEffects";
 import { TopBar } from "~/components/TopBar";
 import { Header } from "~/components/Header";
+import { HolidaysStrip } from "~/components/HolidaysStrip";
 import { Footer } from "~/components/Footer";
 import { SeoHead } from "~/components/SeoHead";
 import { NewsSection } from "~/components/NewsSection";
@@ -147,6 +148,7 @@ export default function Home({
         <Header logoUrl={logoUrl} />
         
         <main>
+          <HolidaysStrip />
           {visible('news') && <NewsSection news={news} backgroundImage={newsBackgroundImage} />}
           {visible('quickaccess') && (
             <QuickAccessSection

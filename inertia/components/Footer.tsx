@@ -1,7 +1,6 @@
 import { Link, usePage } from "@inertiajs/react";
 import { MapPin, Phone, Mail, Clock, Facebook, Instagram, Youtube } from "lucide-react";
 import { useSiteSettings } from "~/hooks/use_site_settings";
-import { HolidaysStrip } from "~/components/HolidaysStrip";
 
 interface FooterProps {
   logoUrl?: string | null;
@@ -237,11 +236,6 @@ export const Footer = ({ logoUrl }: FooterProps) => {
             </ul>
           </div>
         </div>
-      </div>
-
-      {/* Próximos feriados — linha discreta acima da bottom bar */}
-      <div className="container mx-auto">
-        <HolidaysStrip variant="footer" />
       </div>
 
       {/* Bottom Bar */}

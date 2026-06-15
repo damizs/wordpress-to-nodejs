@@ -145,7 +145,9 @@ export const AccessibilityBar = () => {
     } catch {
       saved = null;
     }
-    if (saved === "on") {
+    // VLibras fica ativo por padrão (widget oficial do governo sempre presente);
+    // só não carrega se a pessoa o desativou explicitamente.
+    if (saved !== "off") {
       setVlibrasOn(true);
       activateVLibras().catch(() => setVlibrasOn(false));
     }
