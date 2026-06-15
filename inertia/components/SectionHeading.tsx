@@ -51,7 +51,14 @@ export const SectionHeading = ({
 
   const block = (
     <div className={isLeft ? "" : "text-center"}>
-      {badge && <span className={badgeClass}>{badge}</span>}
+      {/* A badge fica em um bloco próprio: o título usa .heading-accent
+          (display:inline-block), então sem este wrapper a badge (também
+          inline-block) ficaria LADO A LADO com o título em vez de acima. */}
+      {badge && (
+        <div>
+          <span className={badgeClass}>{badge}</span>
+        </div>
+      )}
       <h2 className={titleClass}>{title}</h2>
       {subtitle && <p className={subtitleClass}>{subtitle}</p>}
     </div>

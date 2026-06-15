@@ -1,11 +1,14 @@
 import { useEffect, useRef, type ReactNode } from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface InfiniteCarouselProps {
   children: ReactNode;
   /** Classe de gap aplicada no trilho flex. Default: 'gap-6' */
   gapClass?: string;
-  /** Velocidade do auto-scroll em px por frame (~60fps). Default: 0.6 */
+  /** Velocidade do auto-scroll em px por frame (~60fps). Default: 0.3 (suave) */
   speed?: number;
+  /** Mostra os botões prev/next (passador). Default: true */
+  showArrows?: boolean;
   /** Rótulo acessível da região do carrossel */
   ariaLabel?: string;
   /** Classe extra opcional no container externo */
@@ -13,41 +16,37 @@ interface InfiniteCarouselProps {
 }
 
 /**
- * Carrossel "marquee" de loop infinito.
+ * Carrossel "marquee" de loop infinito, com auto-scroll suave + botões de
+ * navegação (passador).
  *
  * Renderiza os filhos DUAS vezes lado a lado dentro de um trilho flex `w-max`.
  * A cada frame (requestAnimationFrame) incrementa `scrollLeft`; quando o scroll
- * passa da largura de UMA cópia (medida real via offsetWidth da primeira cópia),
- * subtrai essa largura do scrollLeft. Como a segunda cópia é idêntica à
- * primeira, a emenda é imperceptível e o loop nunca termina.
+ * passa da largura de UMA cópia (posição da segunda cópia), subtrai essa largura
+ * — emenda imperceptível, loop infinito.
  *
- * Para a emenda ser perfeita, o gap ENTRE as duas cópias precisa ser igual ao
- * gap interno. Por isso o trilho aplica `gapClass` diretamente sobre os cards
- * (ambas as cópias são renderizadas via Fragment, sem wrappers que quebrariam o
- * espaçamento) e a largura de UMA cópia é medida pelo primeiro "trecho".
- *
- * Pausa: hover (pointerenter), foco interno (focusin/out) e interação manual
- * (arrasto/scroll/touch/wheel), retomando ~2s após a última interação.
- * Respeita prefers-reduced-motion (fica estático, mas ainda scrollável).
+ * Pausa: hover, foco interno e interação manual (arrasto/scroll/touch/wheel/
+ * clique nos botões), retomando ~2,5s após a última interação. Respeita
+ * prefers-reduced-motion (fica estático, mas ainda scrollável e navegável).
  */
 export const InfiniteCarousel = ({
   children,
   gapClass = "gap-6",
-  speed = 0.6,
+  speed = 0.3,
+  showArrows = true,
   ariaLabel,
   className = "",
 }: InfiniteCarouselProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const secondCopyRef = useRef<HTMLDivElement>(null);
-  // Largura de UMA volta cacheada. Recalculada só no mount, em resize e quando
-  // os filhos mudam — NUNCA dentro do loop rAF, que apenas escreve scrollLeft.
+  // Largura de UMA volta cacheada (offsetLeft da 2ª cópia). Recalculada só no
+  // mount, em resize e quando os filhos mudam — NUNCA dentro do loop rAF.
   const halfRef = useRef(0);
+  // Pausa por interação manual (timestamp) — compartilhada entre o loop e os
+  // botões de navegação (que ficam fora do container de scroll).
+  const manualPausedUntilRef = useRef(0);
 
-  // Remove a 2ª cópia (clone) da ordem de foco e de interação por teclado.
-  // `inert` não é tipado como atributo JSX em todas as versões de React, então
-  // aplicamos via ref para garantir o comportamento (cai para aria-hidden caso
-  // o ambiente não suporte).
+  // Remove a 2ª cópia (clone) da ordem de foco/interação por teclado.
   useEffect(() => {
     const secondCopy = secondCopyRef.current;
     if (secondCopy) secondCopy.inert = true;
@@ -59,41 +58,25 @@ export const InfiniteCarousel = ({
     const secondCopy = secondCopyRef.current;
     if (!container || !track || !secondCopy) return;
 
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduceMotion) return;
-
-    let rafId = 0;
-    let hoverPaused = false; // pausa por hover/foco
-    let manualPausedUntil = 0; // timestamp até quando ficar pausado por interação manual
-
-    // Distância exata de UMA volta = posição (offsetLeft) da segunda cópia
-    // dentro do trilho. Inclui o gap entre as cópias, então a emenda fica
-    // perfeita: ao subtrair esse valor o conteúdo coincide pixel a pixel.
-    // Lê layout (offsetLeft) só aqui — fora do rAF — e cacheia em halfRef.
     const measure = () => {
       halfRef.current = secondCopy.offsetLeft;
     };
     measure();
 
-    const step = () => {
-      const paused = hoverPaused || performance.now() < manualPausedUntil;
-      if (!paused) {
-        container.scrollLeft += speed;
-        const h = halfRef.current;
-        if (h > 0 && container.scrollLeft >= h) {
-          container.scrollLeft -= h;
-        }
-      }
-      rafId = requestAnimationFrame(step);
-    };
-    rafId = requestAnimationFrame(step);
-
-    // Recalcula a largura da volta em resize da janela e do trilho (children,
-    // fontes, breakpoints). O loop rAF nunca lê layout.
     const onResize = () => measure();
     window.addEventListener("resize", onResize);
     const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : null;
     ro?.observe(track);
+
+    let hoverPaused = false;
+
+    // Mantém o wraparound coerente durante arrasto/scroll/clique nos botões.
+    const onScroll = () => {
+      const h = halfRef.current;
+      if (h <= 0) return;
+      if (container.scrollLeft >= h) container.scrollLeft -= h;
+      else if (container.scrollLeft < 0) container.scrollLeft += h;
+    };
 
     const onEnter = () => {
       hoverPaused = true;
@@ -108,15 +91,7 @@ export const InfiniteCarousel = ({
       if (!container.contains(document.activeElement)) hoverPaused = false;
     };
     const pauseForManual = () => {
-      manualPausedUntil = performance.now() + 2000;
-    };
-
-    // Mantém o wraparound coerente durante arrasto/scroll manual
-    const onScroll = () => {
-      const h = halfRef.current;
-      if (h <= 0) return;
-      if (container.scrollLeft >= h) container.scrollLeft -= h;
-      else if (container.scrollLeft < 0) container.scrollLeft += h;
+      manualPausedUntilRef.current = performance.now() + 2500;
     };
 
     container.addEventListener("pointerenter", onEnter);
@@ -128,8 +103,24 @@ export const InfiniteCarousel = ({
     container.addEventListener("pointerdown", pauseForManual);
     container.addEventListener("scroll", onScroll, { passive: true });
 
+    // Auto-scroll só roda se o usuário não pediu redução de movimento.
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let rafId = 0;
+    if (!reduceMotion) {
+      const step = () => {
+        const paused = hoverPaused || performance.now() < manualPausedUntilRef.current;
+        if (!paused) {
+          container.scrollLeft += speed;
+          const h = halfRef.current;
+          if (h > 0 && container.scrollLeft >= h) container.scrollLeft -= h;
+        }
+        rafId = requestAnimationFrame(step);
+      };
+      rafId = requestAnimationFrame(step);
+    }
+
     return () => {
-      cancelAnimationFrame(rafId);
+      if (rafId) cancelAnimationFrame(rafId);
       window.removeEventListener("resize", onResize);
       ro?.disconnect();
       container.removeEventListener("pointerenter", onEnter);
@@ -143,21 +134,53 @@ export const InfiniteCarousel = ({
     };
   }, [speed, children]);
 
+  // Botões de navegação: rolam ~70% da largura visível e pausam o auto-scroll.
+  const nudge = (dir: 1 | -1) => {
+    const container = containerRef.current;
+    if (!container) return;
+    manualPausedUntilRef.current = performance.now() + 4000;
+    const amount = Math.max(260, container.clientWidth * 0.7);
+    container.scrollBy({ left: dir * amount, behavior: "smooth" });
+  };
+
   return (
-    <div
-      ref={containerRef}
-      role="region"
-      aria-label={ariaLabel}
-      className={`relative overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${className}`}
-    >
-      <div ref={trackRef} className={`flex w-max ${gapClass}`}>
-        {children}
-        {/* Segunda cópia idêntica para o loop; oculta para leitores de tela e
-            removida da ordem de foco/interação via `inert` (aplicado por ref). */}
-        <div ref={secondCopyRef} className={`flex w-max ${gapClass}`} aria-hidden="true">
+    <div className={`relative group ${className}`}>
+      <div
+        ref={containerRef}
+        role="region"
+        aria-label={ariaLabel}
+        className="overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        <div ref={trackRef} className={`flex w-max ${gapClass}`}>
           {children}
+          {/* Segunda cópia idêntica para o loop; oculta para leitores de tela e
+              fora da ordem de foco/interação via `inert` (aplicado por ref). */}
+          <div ref={secondCopyRef} className={`flex w-max ${gapClass}`} aria-hidden="true">
+            {children}
+          </div>
         </div>
       </div>
+
+      {showArrows && (
+        <>
+          <button
+            type="button"
+            onClick={() => nudge(-1)}
+            aria-label="Anterior"
+            className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-card border border-border shadow-md items-center justify-center text-foreground hover:bg-muted hover:border-primary/30 transition-colors z-10"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => nudge(1)}
+            aria-label="Próximo"
+            className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-10 h-10 rounded-full bg-card border border-border shadow-md items-center justify-center text-foreground hover:bg-muted hover:border-primary/30 transition-colors z-10"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </>
+      )}
     </div>
   );
 };
