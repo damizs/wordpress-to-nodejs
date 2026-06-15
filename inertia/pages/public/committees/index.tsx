@@ -69,8 +69,9 @@ export default function CommitteesIndex({ committees = [] }: Props) {
         <Header />
         <Breadcrumb items={[{ label: "Comissões Permanentes" }]} />
         <PageHero badge="Legislativo" title="Comissões Permanentes" subtitle="Órgãos técnicos que analisam as matérias antes da deliberação em Plenário" centered />
-        <main className="py-10 lg:py-14">
-          <div className="container mx-auto px-4">
+        <main>
+          <section className="py-10 lg:py-14">
+            <div className="container">
             {committees.length > 0 ? (
               <div className="grid md:grid-cols-2 gap-6 max-w-5xl mx-auto">
                 {committees.map((committee, i) => {
@@ -173,7 +174,8 @@ export default function CommitteesIndex({ committees = [] }: Props) {
                 <p className="text-muted-foreground text-sm">As comissões permanentes serão publicadas em breve</p>
               </div>
             )}
-          </div>
+            </div>
+          </section>
         </main>
         <Footer />
       </div>

@@ -8,11 +8,13 @@ export default class ActivitiesController {
     const type = request.input('tipo', '')
     const year = request.input('ano', '')
     const autor = request.input('autor', '')
+    const status = request.input('situacao', '')
     const search = request.input('busca', '')
 
     let query = LegislativeActivity.query().orderBy('year', 'desc').orderBy('created_at', 'desc')
     if (type) query = query.where('type', type)
     if (year) query = query.where('year', year)
+    if (status) query = query.where('status', status)
     if (search) {
       query = query.where((q) => {
         q.whereILike('title', `%${search}%`)
@@ -34,6 +36,11 @@ export default class ActivitiesController {
     // Opções dos filtros (tipos e anos existentes na base)
     const typeRows = await LegislativeActivity.query().distinct('type').orderBy('type', 'asc')
     const yearRows = await LegislativeActivity.query().distinct('year').orderBy('year', 'desc')
+    const statusRows = await LegislativeActivity.query()
+      .whereNotNull('status')
+      .where('status', '!=', '')
+      .distinct('status')
+      .orderBy('status', 'asc')
 
     return inertia.render('public/activities/index', {
       activities: activities.all().map((a) => ({
@@ -50,9 +57,10 @@ export default class ActivitiesController {
         lastPage: activities.lastPage,
         total: activities.total,
       },
-      filters: { type, year, autor, search },
+      filters: { type, year, autor, status, search },
       types: typeRows.map((r) => r.type).filter(Boolean),
       years: yearRows.map((r) => r.year).filter(Boolean),
+      statuses: statusRows.map((r) => r.status).filter(Boolean),
       siteSettings,
     })
   }

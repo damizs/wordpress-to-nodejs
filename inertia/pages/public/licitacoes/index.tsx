@@ -17,7 +17,23 @@ interface Props {
   filters?: Filters;
   years?: number[];
   modalities?: string[];
+  statuses?: string[];
 }
+
+const statusLabels: Record<string, string> = {
+  aberta: "Aberta",
+  em_andamento: "Em andamento",
+  encerrada: "Encerrada",
+  homologada: "Homologada",
+  cancelada: "Cancelada",
+  revogada: "Revogada",
+  suspensa: "Suspensa",
+  deserta: "Deserta",
+  concluida: "Concluída",
+};
+
+const statusLabel = (s: string) =>
+  statusLabels[s.toLowerCase()] || s.replace(/_/g, " ").replace(/^\w/, (c) => c.toUpperCase());
 
 const statusColors: Record<string, string> = {
   'aberta': 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
@@ -48,7 +64,7 @@ const pageUrl = (page: number, filters: Filters) => {
   return `/licitacoes${qs ? `?${qs}` : ""}`;
 };
 
-export default function LicitacoesIndex({ licitacoes = [], pagination, filters = {}, years = [], modalities = [] }: Props) {
+export default function LicitacoesIndex({ licitacoes = [], pagination, filters = {}, years = [], modalities = [], statuses = [] }: Props) {
   const [searchTerm, setSearchTerm] = useState(filters.search || "");
 
   function applyFilters(patch: Partial<Filters>) {
@@ -86,6 +102,16 @@ export default function LicitacoesIndex({ licitacoes = [], pagination, filters =
                   >
                     <option value="">Todas as modalidades</option>
                     {modalities.map((m) => <option key={m} value={m}>{m}</option>)}
+                  </select>
+                )}
+                {statuses.length > 0 && (
+                  <select
+                    value={filters.status || ""}
+                    onChange={(e) => applyFilters({ status: e.target.value })}
+                    className="px-4 py-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
+                  >
+                    <option value="">Todos os status</option>
+                    {statuses.map((s) => <option key={s} value={s}>{statusLabel(s)}</option>)}
                   </select>
                 )}
                 {years.length > 0 && (
@@ -129,7 +155,7 @@ export default function LicitacoesIndex({ licitacoes = [], pagination, filters =
                             {year && <span className="px-2.5 py-0.5 bg-primary/10 text-primary rounded-full text-xs font-bold">{year}</span>}
                             {lic.status && (
                               <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold ${statusColors[lic.status.toLowerCase()] || 'bg-muted text-muted-foreground'}`}>
-                                {lic.status}
+                                {statusLabel(lic.status)}
                               </span>
                             )}
                           </div>

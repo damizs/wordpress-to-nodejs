@@ -130,11 +130,32 @@ export default class CouncilorsController {
         fullName: councilor.fullName || councilor.name,
         slug: councilor.slug,
         party: councilor.party,
+        gender: councilor.gender,
+        maritalStatus: councilor.maritalStatus,
+        educationLevel: councilor.educationLevel,
         photo: councilor.photoUrl,
         role: positions.find((p) => p.biennium?.isCurrent)?.position || councilor.role || null,
         email: councilor.email,
         phone: councilor.phone,
+        bio: councilor.bio || null,
+        history: councilor.history || null,
+        // Mantém compat: abas usam `biography`
         biography: councilor.bio || councilor.history || null,
+        isActive: councilor.isActive,
+        legislature: councilor.legislature
+          ? {
+              name: councilor.legislature.name,
+              number: councilor.legislature.number,
+              period:
+                legStart && legEnd
+                  ? `${legStart}/${legEnd}`
+                  : councilor.legislature.startDate && councilor.legislature.endDate
+                    ? `${String(councilor.legislature.startDate).substring(0, 4)}/${String(
+                        councilor.legislature.endDate
+                      ).substring(0, 4)}`
+                    : null,
+            }
+          : null,
       },
       activities: activities.slice(0, 10).map((a) => {
         const d = activityDate(a)

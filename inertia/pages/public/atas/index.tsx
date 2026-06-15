@@ -14,23 +14,33 @@ interface Props {
   atas: Ata[];
   pagination?: { currentPage: number; lastPage: number; total?: number };
   years?: number[];
-  filters?: { year?: string; search?: string };
+  types?: string[];
+  filters?: { year?: string; type?: string; search?: string };
 }
 
-export default function AtasIndex({ atas = [], pagination, years = [], filters = {} }: Props) {
+const TYPE_LABELS: Record<string, string> = {
+  ordinaria: "Ordinária",
+  extraordinaria: "Extraordinária",
+  solene: "Solene",
+  especial: "Especial",
+};
+
+export default function AtasIndex({ atas = [], pagination, years = [], types = [], filters = {} }: Props) {
   const [searchTerm, setSearchTerm] = useState(filters.search || "");
 
   function applyFilters(patch: Record<string, string>) {
     const params: Record<string, string> = {};
     const year = patch.ano ?? filters.year ?? "";
+    const type = patch.tipo ?? filters.type ?? "";
     const search = patch.busca ?? filters.search ?? "";
     if (year) params.ano = year;
+    if (type) params.tipo = type;
     if (search) params.busca = search;
     router.get("/atas", params, { preserveScroll: true });
   }
 
-  const hasFilters = !!(filters.year || filters.search);
-  const queryString = `${filters.year ? `&ano=${filters.year}` : ""}${filters.search ? `&busca=${encodeURIComponent(filters.search)}` : ""}`;
+  const hasFilters = !!(filters.year || filters.type || filters.search);
+  const queryString = `${filters.year ? `&ano=${filters.year}` : ""}${filters.type ? `&tipo=${filters.type}` : ""}${filters.search ? `&busca=${encodeURIComponent(filters.search)}` : ""}`;
 
   return (
     <>
@@ -56,6 +66,16 @@ export default function AtasIndex({ atas = [], pagination, years = [], filters =
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                 />
               </form>
+              {types.length > 0 && (
+                <select
+                  value={filters.type || ""}
+                  onChange={(e) => applyFilters({ tipo: e.target.value })}
+                  className="px-4 py-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
+                >
+                  <option value="">Todos os tipos</option>
+                  {types.map((t) => <option key={t} value={t}>{TYPE_LABELS[t] || t}</option>)}
+                </select>
+              )}
               <select
                 value={filters.year || ""}
                 onChange={(e) => applyFilters({ ano: e.target.value })}

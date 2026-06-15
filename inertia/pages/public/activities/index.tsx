@@ -10,20 +10,22 @@ import { Calendar, FileText, ChevronLeft, ChevronRight, User, X, Search, ArrowRi
 import { formatDocumentDate } from "~/components/DocumentActions";
 
 interface Activity { id: number; title: string; slug: string; date: string; type?: string; author?: { name: string }; }
-interface Filters { type?: string; year?: string; autor?: string; search?: string; }
+interface Filters { type?: string; year?: string; autor?: string; status?: string; search?: string; }
 interface Props {
   activities: Activity[];
   pagination?: { currentPage: number; lastPage: number; total?: number };
   filters?: Filters;
   types?: string[];
   years?: number[];
+  statuses?: string[];
 }
 
 const buildParams = (filters?: Filters) => {
   const params = new URLSearchParams();
   if (filters?.type) params.set("tipo", filters.type);
-  if (filters?.year) params.set("ano", filters.year);
+  if (filters?.year) params.set("ano", String(filters.year));
   if (filters?.autor) params.set("autor", filters.autor);
+  if (filters?.status) params.set("situacao", filters.status);
   if (filters?.search) params.set("busca", filters.search);
   return params;
 };
@@ -35,20 +37,21 @@ const pageUrl = (page: number, filters?: Filters) => {
   return `/atividades-legislativas${qs ? `?${qs}` : ""}`;
 };
 
-export default function ActivitiesIndex({ activities = [], pagination, filters = {}, types = [], years = [] }: Props) {
+export default function ActivitiesIndex({ activities = [], pagination, filters = {}, types = [], years = [], statuses = [] }: Props) {
   const [searchTerm, setSearchTerm] = useState(filters.search || "");
 
   function applyFilters(patch: Partial<Filters>) {
     const next: Filters = { ...filters, ...patch };
     const params: Record<string, string> = {};
     if (next.type) params.tipo = next.type;
-    if (next.year) params.ano = next.year;
+    if (next.year) params.ano = String(next.year);
     if (next.autor) params.autor = next.autor;
+    if (next.status) params.situacao = next.status;
     if (next.search) params.busca = next.search;
     router.get("/atividades-legislativas", params, { preserveScroll: true });
   }
 
-  const hasFilters = !!(filters.type || filters.year || filters.search);
+  const hasFilters = !!(filters.type || filters.year || filters.status || filters.search);
 
   return (
     <>
@@ -102,9 +105,19 @@ export default function ActivitiesIndex({ activities = [], pagination, filters =
                   <option value="">Todos os anos</option>
                   {years.map((y) => <option key={y} value={y}>{y}</option>)}
                 </select>
+                {statuses.length > 0 && (
+                  <select
+                    value={filters.status || ""}
+                    onChange={(e) => applyFilters({ status: e.target.value })}
+                    className="px-4 py-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer capitalize"
+                  >
+                    <option value="">Todas as situações</option>
+                    {statuses.map((s) => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                )}
                 {hasFilters && (
                   <button
-                    onClick={() => { setSearchTerm(""); applyFilters({ type: "", year: "", search: "" }); }}
+                    onClick={() => { setSearchTerm(""); applyFilters({ type: "", year: "", status: "", search: "" }); }}
                     className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                   >
                     <X className="w-4 h-4" /> Limpar

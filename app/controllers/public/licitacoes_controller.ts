@@ -36,6 +36,12 @@ export default class LicitacoesController {
       .whereNotNull('modality')
       .distinct('modality')
       .orderBy('modality', 'asc')
+    const statusRows = await Licitacao.query()
+      .where('is_active', true)
+      .whereNotNull('status')
+      .where('status', '!=', '')
+      .distinct('status')
+      .orderBy('status', 'asc')
 
     return inertia.render('public/licitacoes/index', {
       licitacoes: licitacoes.all().map((l) => ({
@@ -55,6 +61,7 @@ export default class LicitacoesController {
       filters: { status, modality, year, search },
       years: yearRows.map((r) => r.year).filter(Boolean),
       modalities: modalityRows.map((r) => r.modality).filter(Boolean),
+      statuses: statusRows.map((r) => r.status).filter(Boolean),
       siteSettings,
     })
   }

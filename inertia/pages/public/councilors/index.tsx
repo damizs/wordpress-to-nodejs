@@ -42,8 +42,9 @@ export default function VereadoresIndex({ vereadores = [], legislature }: Props)
           centered
         />
 
-        <main className="py-10 lg:py-14">
-          <div className="container mx-auto px-4">
+        <main>
+          <section className="py-10 lg:py-14">
+            <div className="container">
             {vereadores.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {vereadores.map((vereador, i) => (
@@ -124,7 +125,8 @@ export default function VereadoresIndex({ vereadores = [], legislature }: Props)
                 <p className="text-muted-foreground">Nenhum vereador cadastrado.</p>
               </div>
             )}
-          </div>
+            </div>
+          </section>
         </main>
 
         <Footer />

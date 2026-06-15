@@ -26,6 +26,13 @@ export default class AtasController {
       .distinct('year')
       .orderBy('year', 'desc')
 
+    const typeRows = await PlenarySession.query()
+      .whereNotNull('file_url')
+      .where('status', 'realizada')
+      .whereNotNull('type')
+      .distinct('type')
+      .orderBy('type', 'asc')
+
     return inertia.render('public/atas/index', {
       atas: sessions.all().map((s) => ({
         id: s.id,
@@ -40,6 +47,7 @@ export default class AtasController {
         total: sessions.total,
       },
       years: yearRows.map((r) => r.year).filter(Boolean),
+      types: typeRows.map((r) => r.type).filter(Boolean),
       filters: { year, type, search },
       siteSettings,
     })

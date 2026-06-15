@@ -18,6 +18,12 @@ import {
   ExternalLink,
   PieChart,
   BarChart3,
+  GraduationCap,
+  Flag,
+  Heart,
+  User,
+  IdCard,
+  History,
 } from "lucide-react";
 
 interface Activity {
@@ -66,11 +72,22 @@ interface Props {
     fullName?: string;
     slug: string;
     party?: string;
+    gender?: string | null;
+    maritalStatus?: string | null;
+    educationLevel?: string | null;
     photo?: string;
     role?: string;
     email?: string;
     phone?: string;
+    bio?: string | null;
+    history?: string | null;
     biography?: string;
+    isActive?: boolean;
+    legislature?: {
+      name: string;
+      number?: number | null;
+      period?: string | null;
+    } | null;
   };
   activities?: Activity[];
   stats?: Stats;
@@ -214,12 +231,37 @@ export default function VereadorShow({
   mandatos = [],
   comissoes = [],
 }: Props) {
+  const hasBio = !!(vereador.bio || vereador.biography);
+  const hasHistory = !!vereador.history;
+
   const tabs = [
     { id: "producao", label: "Produção Legislativa", icon: FileText, show: true },
     { id: "comissoes", label: "Comissões", icon: Users, show: comissoes.length > 0 },
     { id: "mandatos", label: "Mandatos", icon: Landmark, show: mandatos.length > 0 },
-    { id: "biografia", label: "Biografia", icon: BookOpen, show: !!vereador.biography },
+    { id: "biografia", label: "Biografia", icon: BookOpen, show: hasBio || hasHistory },
   ].filter((t) => t.show);
+
+  // Itens "Dados do Parlamentar" — só os preenchidos
+  const dataItems = [
+    { icon: Flag, label: "Partido", value: vereador.party },
+    { icon: GraduationCap, label: "Grau de Instrução", value: vereador.educationLevel },
+    { icon: User, label: "Sexo", value: vereador.gender },
+    { icon: Heart, label: "Estado Civil", value: vereador.maritalStatus },
+    {
+      icon: Landmark,
+      label: "Legislatura",
+      value: vereador.legislature
+        ? [
+            vereador.legislature.number
+              ? `${vereador.legislature.number}ª Legislatura`
+              : vereador.legislature.name,
+            vereador.legislature.period,
+          ]
+            .filter(Boolean)
+            .join(" — ")
+        : null,
+    },
+  ].filter((i) => !!i.value);
 
   const [activeTab, setActiveTab] = useState(tabs[0]?.id ?? "producao");
 
@@ -277,11 +319,22 @@ export default function VereadorShow({
               </div>
 
               <div className="min-w-0 flex-1 pb-1">
-                {vereador.role && (
-                  <span className="inline-block px-3.5 py-1 bg-gold/15 text-gold border border-gold/25 text-xs font-bold rounded-full uppercase tracking-wider mb-3">
-                    {vereador.role}
-                  </span>
-                )}
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-3">
+                  {vereador.role && (
+                    <span className="inline-block px-3.5 py-1 bg-gold/15 text-gold border border-gold/25 text-xs font-bold rounded-full uppercase tracking-wider">
+                      {vereador.role}
+                    </span>
+                  )}
+                  {vereador.isActive === false ? (
+                    <span className="inline-block px-3 py-1 bg-primary-foreground/10 text-primary-foreground/80 border border-primary-foreground/20 text-[11px] font-semibold rounded-full uppercase tracking-wider">
+                      Mandato encerrado
+                    </span>
+                  ) : (
+                    <span className="inline-block px-3 py-1 bg-emerald-400/15 text-emerald-200 border border-emerald-300/25 text-[11px] font-semibold rounded-full uppercase tracking-wider">
+                      Em exercício
+                    </span>
+                  )}
+                </div>
                 <h1 className="text-3xl md:text-4xl font-bold leading-tight flex items-center justify-center sm:justify-start gap-2.5 flex-wrap">
                   {vereador.name}
                   <BadgeCheck className="w-7 h-7 text-gold shrink-0" aria-label="Vereador verificado" />
@@ -291,6 +344,19 @@ export default function VereadorShow({
                 )}
                 {vereador.party && (
                   <p className="text-base text-primary-foreground/85 font-medium mt-1.5">{vereador.party}</p>
+                )}
+                {vereador.legislature && (
+                  <p className="inline-flex items-center gap-1.5 text-sm text-primary-foreground/75 mt-1.5">
+                    <Landmark className="w-4 h-4 text-gold shrink-0" aria-hidden="true" />
+                    {[
+                      vereador.legislature.number
+                        ? `${vereador.legislature.number}ª Legislatura`
+                        : vereador.legislature.name,
+                      vereador.legislature.period,
+                    ]
+                      .filter(Boolean)
+                      .join(" — ")}
+                  </p>
                 )}
 
                 {(vereador.email || vereador.phone) && (
@@ -324,6 +390,72 @@ export default function VereadorShow({
 
         <main className="py-10 lg:py-14">
           <div className="container mx-auto px-4">
+            {/* ===== Dados do Parlamentar + Contato ===== */}
+            {(dataItems.length > 0 || vereador.email || vereador.phone) && (
+              <div className="grid lg:grid-cols-3 gap-5 mb-10" data-reveal="up">
+                {dataItems.length > 0 && (
+                  <div className="lg:col-span-2 bg-card border border-border rounded-2xl p-6 shadow-sm">
+                    <div className="flex items-center gap-2 mb-5">
+                      <IdCard className="w-4 h-4 text-gold" aria-hidden="true" />
+                      <h2 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                        Dados do Parlamentar
+                      </h2>
+                    </div>
+                    <dl className="grid sm:grid-cols-2 gap-x-8 gap-y-4">
+                      {dataItems.map((item) => (
+                        <div key={item.label} className="flex items-start gap-3">
+                          <item.icon className="w-4 h-4 text-gold mt-0.5 shrink-0" aria-hidden="true" />
+                          <div className="min-w-0">
+                            <dt className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                              {item.label}
+                            </dt>
+                            <dd className="text-sm font-medium text-foreground mt-0.5 break-words">
+                              {item.value}
+                            </dd>
+                          </div>
+                        </div>
+                      ))}
+                    </dl>
+                  </div>
+                )}
+
+                {(vereador.email || vereador.phone) && (
+                  <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
+                    <div className="flex items-center gap-2 mb-5">
+                      <Mail className="w-4 h-4 text-gold" aria-hidden="true" />
+                      <h2 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                        Contato
+                      </h2>
+                    </div>
+                    <ul className="space-y-3.5">
+                      {vereador.email && (
+                        <li>
+                          <a
+                            href={`mailto:${vereador.email}`}
+                            className="inline-flex items-center gap-2.5 text-sm text-foreground hover:text-primary transition-colors no-underline break-all"
+                          >
+                            <Mail className="w-4 h-4 text-gold shrink-0" aria-hidden="true" />
+                            <span>{vereador.email}</span>
+                          </a>
+                        </li>
+                      )}
+                      {vereador.phone && (
+                        <li>
+                          <a
+                            href={`tel:${vereador.phone}`}
+                            className="inline-flex items-center gap-2.5 text-sm text-foreground hover:text-primary transition-colors no-underline"
+                          >
+                            <Phone className="w-4 h-4 text-gold shrink-0" aria-hidden="true" />
+                            <span>{vereador.phone}</span>
+                          </a>
+                        </li>
+                      )}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* ===== Stats ===== */}
             {stats && stats.totalMaterias > 0 && (
               <div className="grid md:grid-cols-2 gap-5 mb-10" data-reveal="up">
@@ -540,12 +672,36 @@ export default function VereadorShow({
                   </div>
                 )}
 
-                {/* --- Biografia --- */}
-                {activeTab === "biografia" && vereador.biography && (
-                  <div
-                    className="prose prose-sm max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-strong:text-foreground"
-                    dangerouslySetInnerHTML={{ __html: vereador.biography }}
-                  />
+                {/* --- Biografia / Trajetória --- */}
+                {activeTab === "biografia" && (hasBio || hasHistory) && (
+                  <div className="max-w-3xl space-y-10">
+                    {hasBio && (
+                      <div>
+                        <h2 className="flex items-center gap-2 text-2xl font-bold text-foreground mb-5">
+                          <BookOpen className="w-5 h-5 text-gold" aria-hidden="true" />
+                          Biografia
+                        </h2>
+                        <div
+                          className="prose prose-sm dark:prose-invert max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-strong:text-foreground prose-a:text-primary"
+                          dangerouslySetInnerHTML={{
+                            __html: (vereador.bio || vereador.biography) as string,
+                          }}
+                        />
+                      </div>
+                    )}
+                    {hasHistory && (
+                      <div>
+                        <h2 className="flex items-center gap-2 text-2xl font-bold text-foreground mb-5">
+                          <History className="w-5 h-5 text-gold" aria-hidden="true" />
+                          História e Trajetória
+                        </h2>
+                        <div
+                          className="prose prose-sm dark:prose-invert max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-strong:text-foreground prose-a:text-primary"
+                          dangerouslySetInnerHTML={{ __html: vereador.history as string }}
+                        />
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
             </div>
