@@ -64,7 +64,7 @@ const MemberPhoto = ({
 );
 
 const RoleBadge = ({ role }: { role: string }) => (
-  <span className="inline-block px-3 py-1 bg-gold/10 text-gold border border-gold/25 text-[11px] font-bold rounded-full uppercase tracking-wider">
+  <span className="inline-block px-3 py-1 bg-gold/15 text-navy-dark dark:text-gold border border-gold/25 text-[11px] font-bold rounded-full uppercase tracking-wider">
     {role}
   </span>
 );

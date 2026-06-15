@@ -69,7 +69,7 @@ export default function LicitacaoShow({ licitacao, documentGroups = [] }: Props)
                 <article className="card-modern p-6 md:p-10">
                   {/* Cabeçalho */}
                   <div className="flex flex-wrap items-center gap-2 mb-4">
-                    {licitacao.modality && <span className="px-3 py-1 bg-gold/10 text-gold rounded-full text-xs font-semibold uppercase tracking-wide">{licitacao.modality}</span>}
+                    {licitacao.modality && <span className="px-3 py-1 bg-gold/15 text-navy-dark dark:text-gold rounded-full text-xs font-semibold uppercase tracking-wide">{licitacao.modality}</span>}
                     {licitacao.status && <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-semibold">{licitacao.status}</span>}
                   </div>
                   <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-6 leading-tight">{licitacao.title}</h1>

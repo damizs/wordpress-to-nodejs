@@ -85,7 +85,7 @@ export default function NewsShow({ news, related = [] }: Props) {
                 <div className="p-6 md:p-10">
                   {/* Categoria */}
                   {news.category && (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-gold/10 text-gold rounded-full text-xs font-semibold uppercase tracking-wide mb-4">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-gold/15 text-navy-dark dark:text-gold rounded-full text-xs font-semibold uppercase tracking-wide mb-4">
                       <Tag className="w-3.5 h-3.5" />
                       {news.category.name}
                     </span>

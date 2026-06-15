@@ -44,7 +44,7 @@ function roleWeight(role?: string) {
 
 function roleBadgeClass(role?: string) {
   const r = (role || "").toLowerCase();
-  if (r.includes("presidente") && !r.includes("vice")) return "bg-gold/15 text-gold border-gold/30";
+  if (r.includes("presidente") && !r.includes("vice")) return "bg-gold/15 text-navy-dark dark:text-gold border-gold/30";
   if (r.includes("vice")) return "bg-primary/10 text-primary border-primary/20";
   if (r.includes("relator")) return "bg-sky/10 text-sky border-sky/20";
   return "bg-muted text-muted-foreground border-border";
@@ -97,7 +97,7 @@ export default function CommitteesIndex({ committees = [] }: Props) {
                             </h2>
                             <div className="flex flex-wrap items-center gap-2 mt-2">
                               {committee.type && (
-                                <span className="inline-block px-2.5 py-0.5 rounded-full bg-gold/10 text-gold border border-gold/25 text-[11px] font-bold uppercase tracking-wide">
+                                <span className="inline-block px-2.5 py-0.5 rounded-full bg-gold/15 text-navy-dark dark:text-gold border border-gold/25 text-[11px] font-bold uppercase tracking-wide">
                                   {TYPE_LABELS[committee.type] || committee.type}
                                 </span>
                               )}

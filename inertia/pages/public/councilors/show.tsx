@@ -321,7 +321,7 @@ export default function VereadorShow({
               <div className="min-w-0 flex-1 pb-1">
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-3">
                   {vereador.role && (
-                    <span className="inline-block px-3.5 py-1 bg-gold/15 text-gold border border-gold/25 text-xs font-bold rounded-full uppercase tracking-wider">
+                    <span className="inline-block px-3.5 py-1 bg-gold/15 text-navy-dark dark:text-gold border border-gold/25 text-xs font-bold rounded-full uppercase tracking-wider">
                       {vereador.role}
                     </span>
                   )}
@@ -628,7 +628,7 @@ export default function VereadorShow({
                       <div key={m.id} className="bg-card border border-border rounded-2xl p-5 shadow-sm">
                         <p className="font-semibold text-foreground text-sm leading-snug">{m.committee?.name}</p>
                         <div className="flex flex-wrap items-center gap-2 mt-2.5">
-                          <span className="px-2.5 py-0.5 rounded-full bg-gold/10 text-gold border border-gold/25 text-[11px] font-semibold">
+                          <span className="px-2.5 py-0.5 rounded-full bg-gold/15 text-navy-dark dark:text-gold border border-gold/25 text-[11px] font-semibold">
                             {m.role}
                           </span>
                           {m.committee?.type && (

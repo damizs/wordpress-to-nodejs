@@ -70,8 +70,15 @@ fixos no chrome (quebra o modo escuro).
 - Cabeçalho de seção: **sempre** `SectionHeading` (badge ACIMA do título — a badge
   vai num `<div>` próprio porque `.heading-accent` é `inline-block`). `tone`
   light/dark, `align` center/left.
+- **Container padrão ÚNICO:** a classe Tailwind `.container` (em `tailwind.config.ts`:
+  centralizado, **max 1200px**, **padding lateral 20px**). Breadcrumb, header, footer
+  E o conteúdo de TODA página usam a MESMA `.container` → alinhamento perfeito em
+  qualquer tela. Componente reutilizável: `inertia/components/PageContainer.tsx`.
+  **Nunca** use `max-w-* mx-auto` no conteúdo principal (centraliza e desalinha do
+  breadcrumb) — o conteúdo deve preencher a largura do `.container`.
 - Página interna: `PageHero` + `Breadcrumb` + `<section className="py-10 lg:py-14"><div className="container">`.
-  Conteúdo de leitura em `max-w-4xl mx-auto`; grades podem usar o container cheio.
+- **Tags/badges douradas:** texto **navy escuro** (não branco nem dourado-sobre-
+  dourado) — contraste AA. Ex.: badge do PageHero = `bg-gold text-navy-dark`.
 - Painel: **UI kit** `inertia/components/admin/ui.tsx** (Button, Input, Select,
   Field, Card, Table, StatusBadge, ConfirmDelete, Pagination, EmptyState, Modal,
   Toolbar, PageHeader). Nunca reimplementar tabela/badge com cores soltas.
@@ -184,6 +191,10 @@ em Números, Diário, Instagram, Conheça Sumé, Certificações, Pesquisa) → 
 - [ ] **QR Code** em páginas de detalhe (publicações, atas, vereador, transparência).
 
 **Qualidade**
+- [x] Container padrão único (1200/20px), conteúdo alinhado ao breadcrumb em todas
+      as páginas, contraste das tags douradas corrigido, filtros com altura uniforme
+      e responsivos (empilham < md), gráfico do Legislativo com área 3D/4D + cards
+      numéricos com hierarquia.
 - [ ] Passada dedicada de **responsividade/UX** ("site bem preenchido", todas as
       telas) e de acessibilidade.
 - [ ] Rate limiting no login; bloquear/sanear upload de SVG; cache de

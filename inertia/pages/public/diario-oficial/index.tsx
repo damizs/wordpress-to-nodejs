@@ -86,8 +86,8 @@ export default function DiarioOficialIndex({ entries = [], pagination, years = [
           <section className="py-10 lg:py-14">
             <div className="container">
               {/* Filtro por ano (server-side, controller) */}
-              <div data-reveal="up" className="mb-6 flex flex-col sm:flex-row sm:items-center gap-3">
-                <p className="flex-1 text-sm text-muted-foreground">
+              <div data-reveal="up" className="mb-6 flex flex-col md:flex-row md:items-center gap-3">
+                <p className="md:flex-1 text-sm text-muted-foreground">
                   Filtre as edições por ano de publicação
                 </p>
                 <select
@@ -98,7 +98,7 @@ export default function DiarioOficialIndex({ entries = [], pagination, years = [
                     if (busca.trim()) params.busca = busca.trim();
                     router.get("/diario-oficial", params, { preserveScroll: true });
                   }}
-                  className="px-4 py-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
+                  className="w-full md:w-auto h-11 px-4 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
                 >
                   <option value="">Todos os anos</option>
                   {years.map((y) => <option key={y} value={y}>{y}</option>)}
@@ -132,7 +132,7 @@ export default function DiarioOficialIndex({ entries = [], pagination, years = [
                       value={busca}
                       onChange={(e) => setBusca(e.target.value)}
                       placeholder="Buscar publicação..."
-                      className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-muted/50 border border-border text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary focus:bg-background focus:ring-2 focus:ring-primary/10 transition-colors"
+                      className="w-full h-11 pl-10 pr-4 rounded-lg bg-muted/50 border border-border text-sm text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary focus:bg-background focus:ring-2 focus:ring-primary/10 transition-colors"
                     />
                   </form>
                 </div>
@@ -165,7 +165,7 @@ export default function DiarioOficialIndex({ entries = [], pagination, years = [
                             <span className="text-sm text-foreground flex-1 truncate group-hover:text-primary transition-colors">
                               {titulo(entry)}
                             </span>
-                            <span className="hidden sm:inline px-2.5 py-0.5 bg-gold/10 text-gold rounded-full text-[11px] font-semibold uppercase tracking-wide shrink-0 group-hover:opacity-0 transition-opacity">
+                            <span className="hidden sm:inline px-2.5 py-0.5 bg-gold/15 text-navy-dark dark:text-gold rounded-full text-[11px] font-semibold uppercase tracking-wide shrink-0 group-hover:opacity-0 transition-opacity">
                               Nº {entry.edition_number}
                             </span>
                             {entry.file_url ? (

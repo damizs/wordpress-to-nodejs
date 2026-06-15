@@ -46,7 +46,7 @@ export default function ActivityShow({ activity, authors = [] }: Props) {
                 <article className="card-modern p-6 md:p-10">
                   {/* Cabeçalho do documento */}
                   <div className="flex flex-wrap items-center gap-2 mb-4">
-                    {activity.type && <span className="px-3 py-1 bg-gold/10 text-gold rounded-full text-xs font-semibold uppercase tracking-wide">{activity.type}</span>}
+                    {activity.type && <span className="px-3 py-1 bg-gold/15 text-navy-dark dark:text-gold rounded-full text-xs font-semibold uppercase tracking-wide">{activity.type}</span>}
                     {activity.number && activity.year && (
                       <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-bold">Nº {activity.number}/{activity.year}</span>
                     )}

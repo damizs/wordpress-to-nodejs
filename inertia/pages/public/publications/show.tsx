@@ -40,7 +40,7 @@ export default function PublicationShow({ publication }: Props) {
                   {/* Cabeçalho do documento */}
                   <div className="flex flex-wrap items-center gap-2 mb-4">
                     {publication.type && (
-                      <span className="px-3 py-1 bg-gold/10 text-gold rounded-full text-xs font-semibold uppercase tracking-wide">{publication.type}</span>
+                      <span className="px-3 py-1 bg-gold/15 text-navy-dark dark:text-gold rounded-full text-xs font-semibold uppercase tracking-wide">{publication.type}</span>
                     )}
                     {publication.number && (
                       <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-bold">

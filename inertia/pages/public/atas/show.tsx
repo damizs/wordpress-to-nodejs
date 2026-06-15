@@ -28,7 +28,7 @@ export default function AtaShow({ ata }: Props) {
                 <article className="card-modern p-6 md:p-10">
                   {/* Cabeçalho do documento */}
                   <div className="flex flex-wrap items-center gap-2 mb-4">
-                    <span className="px-3 py-1 bg-gold/10 text-gold rounded-full text-xs font-semibold uppercase tracking-wide">Ata de Sessão</span>
+                    <span className="px-3 py-1 bg-gold/15 text-navy-dark dark:text-gold rounded-full text-xs font-semibold uppercase tracking-wide">Ata de Sessão</span>
                     {year && <span className="px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-bold">{year}</span>}
                   </div>
                   <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-4 leading-tight">{ata.title}</h1>

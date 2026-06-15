@@ -44,19 +44,30 @@ interface LegislativoSectionProps {
   subtitle?: string;
 }
 
-/** Converte pontos em um path SVG suave (Catmull-Rom → Bézier) */
-function smoothPath(points: [number, number][]): string {
+/**
+ * Converte pontos em um path SVG suave (Catmull-Rom → Bézier).
+ * `tension` menor = curva mais "orgânica"/arredondada. `yMin`/`yMax` travam os
+ * pontos de controle no eixo Y para a curva não estourar acima do topo nem
+ * afundar abaixo da base em picos isolados (overshoot).
+ */
+function smoothPath(
+  points: [number, number][],
+  tension = 5,
+  yMin = -Infinity,
+  yMax = Infinity
+): string {
   if (points.length < 2) return "";
+  const clampY = (y: number) => Math.min(yMax, Math.max(yMin, y));
   let d = `M ${points[0][0]},${points[0][1]}`;
   for (let i = 0; i < points.length - 1; i++) {
     const p0 = points[Math.max(i - 1, 0)];
     const p1 = points[i];
     const p2 = points[i + 1];
     const p3 = points[Math.min(i + 2, points.length - 1)];
-    const c1x = p1[0] + (p2[0] - p0[0]) / 6;
-    const c1y = p1[1] + (p2[1] - p0[1]) / 6;
-    const c2x = p2[0] - (p3[0] - p1[0]) / 6;
-    const c2y = p2[1] - (p3[1] - p1[1]) / 6;
+    const c1x = p1[0] + (p2[0] - p0[0]) / tension;
+    const c1y = clampY(p1[1] + (p2[1] - p0[1]) / tension);
+    const c2x = p2[0] - (p3[0] - p1[0]) / tension;
+    const c2y = clampY(p2[1] - (p3[1] - p1[1]) / tension);
     d += ` C ${c1x.toFixed(1)},${c1y.toFixed(1)} ${c2x.toFixed(1)},${c2y.toFixed(1)} ${p2[0]},${p2[1]}`;
   }
   return d;
@@ -76,7 +87,8 @@ const MateriasChart = ({ weekly }: { weekly: { label: string; count: number }[] 
     Math.round(xOf(i)),
     Math.round(yOf(p.count)),
   ]);
-  const line = smoothPath(points);
+  // tension menor = curva mais suave/orgânica; trava no topo e na base do gráfico
+  const line = smoothPath(points, 4, PAD.t, H - PAD.b);
   const area = `${line} L ${points[points.length - 1][0]},${H - PAD.b} L ${points[0][0]},${H - PAD.b} Z`;
 
   const yTicks = [0, niceMax / 2, niceMax];
@@ -305,21 +317,33 @@ export const LegislativoSection = ({ data, title, subtitle }: LegislativoSection
           }
         />
 
-        {/* Resumo do ano */}
+        {/* Resumo do ano — número em destaque, rótulo menor (hierarquia) */}
         <div className="flex flex-wrap gap-3 mb-10" data-reveal="up" data-reveal-delay="80">
-          <div className="flex items-center gap-2.5 bg-card border border-border/60 rounded-xl px-4 py-2.5 shadow-sm">
-            <Gavel className="w-4 h-4 text-gold" />
-            <span className="text-sm">
-              <strong className="text-foreground">{data.totalSessoesAno}</strong>{" "}
-              <span className="text-muted-foreground">sessões em {data.ano}</span>
-            </span>
+          <div className="flex items-center gap-3 bg-card border border-border/60 rounded-xl px-5 py-3 shadow-sm">
+            <div className="w-9 h-9 rounded-lg bg-gold/15 flex items-center justify-center shrink-0">
+              <Gavel className="w-[18px] h-[18px] text-gold" />
+            </div>
+            <div className="leading-none">
+              <span className="block text-2xl font-bold text-foreground tabular-nums">
+                {data.totalSessoesAno}
+              </span>
+              <span className="block text-xs text-muted-foreground mt-1">
+                sessões em {data.ano}
+              </span>
+            </div>
           </div>
-          <div className="flex items-center gap-2.5 bg-card border border-border/60 rounded-xl px-4 py-2.5 shadow-sm">
-            <FileText className="w-4 h-4 text-gold" />
-            <span className="text-sm">
-              <strong className="text-foreground">{data.totalMateriasAno}</strong>{" "}
-              <span className="text-muted-foreground">matérias em {data.ano}</span>
-            </span>
+          <div className="flex items-center gap-3 bg-card border border-border/60 rounded-xl px-5 py-3 shadow-sm">
+            <div className="w-9 h-9 rounded-lg bg-gold/15 flex items-center justify-center shrink-0">
+              <FileText className="w-[18px] h-[18px] text-gold" />
+            </div>
+            <div className="leading-none">
+              <span className="block text-2xl font-bold text-foreground tabular-nums">
+                {data.totalMateriasAno}
+              </span>
+              <span className="block text-xs text-muted-foreground mt-1">
+                matérias em {data.ano}
+              </span>
+            </div>
           </div>
         </div>
 

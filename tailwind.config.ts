@@ -7,14 +7,15 @@ export default {
   theme: {
     container: {
       center: true,
-      padding: '2rem',
-      // Conteúdo encaixotado em 1140px (padrão Elementor/WP usado nos portais)
+      // Container padrão ÚNICO do site (breadcrumb, header, footer e conteúdo das
+      // páginas usam esta mesma classe → alinhamento perfeito em qualquer tela).
+      padding: '1.25rem', // 20px de respiro lateral
       screens: {
         sm: '640px',
         md: '768px',
         lg: '1024px',
-        xl: '1140px',
-        '2xl': '1140px',
+        xl: '1200px',
+        '2xl': '1200px',
       },
     },
     extend: {

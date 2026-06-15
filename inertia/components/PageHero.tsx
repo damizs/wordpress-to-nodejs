@@ -26,7 +26,7 @@ export const PageHero = ({ title, subtitle, badge, centered = false }: PageHeroP
         {badge && (
           <span
             data-reveal="fade"
-            className="inline-block px-4 py-1.5 bg-gold/15 text-gold rounded-full text-xs font-semibold tracking-wider uppercase mb-4 border border-gold/20"
+            className="inline-block px-4 py-1.5 bg-gold text-navy-dark rounded-full text-xs font-semibold tracking-wider uppercase mb-4 border border-transparent"
           >
             {badge}
           </span>

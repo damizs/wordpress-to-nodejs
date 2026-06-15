@@ -78,7 +78,7 @@ export default function VereadoresIndex({ vereadores = [], legislature }: Props)
                       {/* Info */}
                       <div className="mt-5">
                         {vereador.role && (
-                          <span className="inline-block mb-2 px-2.5 py-0.5 bg-gold/10 text-gold border border-gold/25 text-[11px] font-bold rounded-full uppercase tracking-wide">
+                          <span className="inline-block mb-2 px-2.5 py-0.5 bg-gold/15 text-navy-dark dark:text-gold border border-gold/25 text-[11px] font-bold rounded-full uppercase tracking-wide">
                             {vereador.role}
                           </span>
                         )}
