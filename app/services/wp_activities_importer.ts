@@ -85,15 +85,21 @@ function cleanContent(c: string): string {
   return text
 }
 
-function mapStatus(situacao: string | null): string {
-  if (!situacao) return 'aprovado'
+/** Valores aceitos pelo CHECK/enum de `legislative_activities.status`. */
+const DB_STATUSES = ['tramitando', 'aprovado', 'rejeitado', 'arquivado'] as const
+type DbStatus = (typeof DB_STATUSES)[number]
+
+function mapStatus(situacao: string | null): DbStatus {
+  if (!situacao) return 'tramitando'
   const s = situacao.toLowerCase()
-  if (s.includes('aprov')) return 'aprovado'
+  if (s.includes('aprov') || s.includes('sancion')) return 'aprovado'
   if (s.includes('rejeit') || s.includes('reprov')) return 'rejeitado'
-  if (s.includes('tramit') || s.includes('andamento')) return 'em_tramitacao'
   if (s.includes('arquiv')) return 'arquivado'
-  if (s.includes('vet')) return 'vetado'
-  return situacao.toLowerCase().replace(/\s+/g, '_')
+  if (s.includes('vet')) return 'arquivado'
+  if (s.includes('apresent') || s.includes('tramit') || s.includes('andamento')) return 'tramitando'
+  const normalized = s.replace(/\s+/g, '_') as DbStatus
+  if (DB_STATUSES.includes(normalized)) return normalized
+  return 'tramitando'
 }
 
 const LIVE_SITE = 'https://camaradesume.pb.gov.br'
