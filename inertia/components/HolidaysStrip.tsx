@@ -54,9 +54,11 @@ export const HolidaysStrip = ({ variant = 'default' }: HolidaysStripProps) => {
 
   const isFooter = variant === 'footer'
 
-  // Conteúdo interno (igual para footer e body, com cores de texto por variante)
-  const baseText = isFooter ? 'text-primary-foreground/80' : 'text-muted-foreground'
-  const labelText = isFooter ? 'text-primary-foreground/60' : 'text-muted-foreground'
+  // Tanto no rodapé quanto no corpo a faixa fica sobre superfície ESCURA (navy):
+  // no corpo, logo abaixo do cabeçalho em gradiente — por isso texto claro, para
+  // ler como continuação do header em vez de um "risco" claro entre blocos escuros.
+  const baseText = 'text-primary-foreground/80'
+  const labelText = 'text-primary-foreground/60'
 
   const inner = todayHoliday ? (
     <div
@@ -92,10 +94,11 @@ export const HolidaysStrip = ({ variant = 'default' }: HolidaysStripProps) => {
   // No rodapé é renderizado dentro do próprio container do footer (sem banda).
   if (isFooter) return inner
 
-  // No corpo da home: banda discreta com tokens, alinhada ao container do site.
+  // No corpo da home: faixa navy que se cola ao cabeçalho (continuação do header),
+  // evitando a quebra visual de uma banda clara entre o header e seções escuras.
   return (
-    <div className="bg-muted/50 border-b border-border">
-      <div className="container mx-auto">{inner}</div>
+    <div className="bg-navy-dark text-primary-foreground border-b border-primary-foreground/10">
+      <div className="container">{inner}</div>
     </div>
   )
 }

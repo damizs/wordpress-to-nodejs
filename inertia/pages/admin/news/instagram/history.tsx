@@ -1,7 +1,6 @@
-import { Head, Link } from '@inertiajs/react'
+import { Head, Link, router } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
 import { Instagram, ArrowLeft, Trash2, Eye, Filter } from 'lucide-react'
-import { useState } from 'react'
 import {
   Badge,
   IconLink,
@@ -46,6 +45,7 @@ interface Props {
       lastPage: number
     }
   }
+  filters?: { status?: string }
 }
 
 function LogStatusBadge({ status }: { status: string }) {
@@ -54,12 +54,21 @@ function LogStatusBadge({ status }: { status: string }) {
   return <StatusBadge status={status} />
 }
 
-export default function InstagramHistory({ logs }: Props) {
-  const [statusFilter, setStatusFilter] = useState('')
+export default function InstagramHistory({ logs, filters }: Props) {
+  const statusFilter = filters?.status || ''
 
-  const filteredLogs = statusFilter
-    ? logs.data.filter(log => log.status === statusFilter)
-    : logs.data
+  // Filtro server-side: navega preservando o status (corrige a paginação).
+  const onStatusChange = (status: string) => {
+    router.get(
+      '/painel/noticias/instagram/historico',
+      status ? { status } : {},
+      { preserveState: false, preserveScroll: true }
+    )
+  }
+
+  const baseUrl = statusFilter
+    ? `/painel/noticias/instagram/historico?status=${encodeURIComponent(statusFilter)}`
+    : '/painel/noticias/instagram/historico'
 
   return (
     <AdminLayout>
@@ -77,7 +86,7 @@ export default function InstagramHistory({ logs }: Props) {
             <Filter className="w-4 h-4 text-muted-foreground" />
             <Select
               value={statusFilter}
-              onChange={e => setStatusFilter(e.target.value)}
+              onChange={e => onStatusChange(e.target.value)}
             >
               <option value="">Todos os status</option>
               <option value="published">Publicado</option>
@@ -89,7 +98,7 @@ export default function InstagramHistory({ logs }: Props) {
 
         <p className="text-sm text-muted-foreground">
           Total: <strong className="text-foreground">{logs.meta.total}</strong> registros
-          {statusFilter && ` (mostrando ${filteredLogs.length} filtrados)`}
+          {statusFilter && ` (filtrando por status)`}
         </p>
 
         <Table
@@ -101,7 +110,7 @@ export default function InstagramHistory({ logs }: Props) {
                 current_page: logs.meta.currentPage,
                 last_page: logs.meta.lastPage,
               }}
-              baseUrl="/painel/noticias/instagram/historico"
+              baseUrl={baseUrl}
               itemLabel="registro"
             />
           }
@@ -115,10 +124,10 @@ export default function InstagramHistory({ logs }: Props) {
             <TH className="text-right">Ações</TH>
           </THead>
           <TBody>
-            {filteredLogs.length === 0 ? (
+            {logs.data.length === 0 ? (
               <TableEmpty colSpan={6}>Nenhum registro encontrado</TableEmpty>
             ) : (
-              filteredLogs.map(log => (
+              logs.data.map(log => (
                 <TR key={log.id}>
                   <TD>
                     <div className="text-sm">

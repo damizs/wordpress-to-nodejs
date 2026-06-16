@@ -1,11 +1,8 @@
 import { Link } from "@inertiajs/react";
-import { SeoHead } from "~/components/SeoHead";
-import { TopBar } from "~/components/TopBar";
-import { Header } from "~/components/Header";
-import { Breadcrumb } from "~/components/Breadcrumb";
-import { Footer } from "~/components/Footer";
+import { PageLayout } from "~/components/PageLayout";
 import { Calendar, ArrowLeft, Hash, Tag } from "lucide-react";
-import { DocumentActionsPanel, formatDocumentDate } from "~/components/DocumentActions";
+import { formatDocumentDate } from "~/components/DocumentActions";
+import { OfficialDocument } from "~/components/OfficialDocument";
 
 interface Props {
   publication: {
@@ -25,18 +22,19 @@ export default function PublicationShow({ publication }: Props) {
   const year = String(publication.publicationDate || "").slice(0, 4);
 
   return (
-    <>
-      <SeoHead title={`${publication.title} - Câmara Municipal de Sumé`} url={`/publicacoes-oficiais/${publication.slug}`} />
-      <div className="min-h-screen bg-background">
-        <TopBar /><Header /><Breadcrumb items={[{ label: "Publicações Oficiais", href: "/publicacoes-oficiais" }, { label: publication.title }]} />
-        <main>
-          <section className="py-10 lg:py-14">
-            <div className="container">
-              <div>
-                <Link href="/publicacoes-oficiais" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-6 no-underline">
-                  <ArrowLeft className="w-4 h-4" />Voltar para Publicações Oficiais
-                </Link>
-                <article className="card-modern p-6 md:p-10">
+    <PageLayout
+      seo={{ title: `${publication.title} - Câmara Municipal de Sumé`, url: `/publicacoes-oficiais/${publication.slug}` }}
+      breadcrumb={[{ label: "Publicações Oficiais", href: "/publicacoes-oficiais" }, { label: publication.title }]}
+      width="reading"
+    >
+      <Link href="/publicacoes-oficiais" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-6 no-underline">
+        <ArrowLeft className="w-4 h-4" />Voltar para Publicações Oficiais
+      </Link>
+      <OfficialDocument
+        url={`/publicacoes-oficiais/${publication.slug}`}
+        fileUrl={publication.fileUrl}
+        shareTitle={publication.title}
+      >
                   {/* Cabeçalho do documento */}
                   <div className="flex flex-wrap items-center gap-2 mb-4">
                     {publication.type && (
@@ -81,19 +79,10 @@ export default function PublicationShow({ publication }: Props) {
                     )}
                   </div>
 
-                  {/* Ações do documento */}
-                  <DocumentActionsPanel fileUrl={publication.fileUrl} className="mb-8" />
-
-                  {publication.description && (
-                    <div className="prose prose-slate dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: publication.description }} />
-                  )}
-                </article>
-              </div>
-            </div>
-          </section>
-        </main>
-        <Footer />
-      </div>
-    </>
+      {publication.description && (
+        <div className="prose prose-slate dark:prose-invert max-w-none prose-p:text-justify" dangerouslySetInnerHTML={{ __html: publication.description }} />
+      )}
+      </OfficialDocument>
+    </PageLayout>
   );
 }

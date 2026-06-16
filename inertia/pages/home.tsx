@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import { GlobalEffects } from "~/components/GlobalEffects";
 import { TopBar } from "~/components/TopBar";
 import { Header } from "~/components/Header";
@@ -16,6 +17,8 @@ import { ConhecaSumeSection } from "~/components/ConhecaSumeSection";
 import { CertificationsSection } from "~/components/CertificationsSection";
 import { SatisfactionSurvey } from "~/components/SatisfactionSurvey";
 import { AssistenteVirtual } from "~/components/AssistenteVirtual";
+import { HomeHero } from "~/components/HomeHero";
+import { getSiteTemplate } from "~/lib/templates";
 
 interface NewsItem {
   id: number;
@@ -103,6 +106,7 @@ interface HomeProps {
   instagramProfileUrl?: string | null;
   quickLinks?: QuickLinkItem[];
   latestGazette?: GazetteEntry | null;
+  gazetteDates?: { date: string; editionNumber: string; fileUrl: string | null }[];
   legislatura?: string;
   newsBackgroundImage?: string | null;
   seals?: Seal[];
@@ -114,11 +118,11 @@ export default function Home({
   news = [], 
   vereadores = [], 
   legislativo = null,
-  publicacoes = [],
   instagramPosts = [],
   instagramProfileUrl = null,
   quickLinks = [],
   latestGazette = null,
+  gazetteDates = [],
   legislatura = "2025-2028",
   newsBackgroundImage = null,
   seals = [],
@@ -126,6 +130,10 @@ export default function Home({
   siteSettings = {}
 }: HomeProps) {
   const logoUrl = siteSettings?.logo_url || null;
+  const template = getSiteTemplate(siteSettings?.site_template);
+  const featuredNews = news[0]
+    ? { title: news[0].title, excerpt: news[0].excerpt, image: news[0].image, slug: news[0].slug }
+    : null;
 
   // Módulos da homepage: ativar/desativar pelo painel (Homepage > Visibilidade das Seções).
   // Sem configuração explícita ('false'), a seção fica visível.
@@ -148,70 +156,82 @@ export default function Home({
         <Header logoUrl={logoUrl} />
         
         <main>
+          {template.homeHero && <HomeHero template={template.key} featured={featuredNews} />}
           <HolidaysStrip />
-          {visible('news') && <NewsSection news={news} backgroundImage={newsBackgroundImage} />}
-          {visible('quickaccess') && (
-            <QuickAccessSection
-              quickLinks={quickLinks}
-              badge={setting('homepage_quickaccess_badge')}
-              title={setting('homepage_quickaccess_title')}
-              subtitle={setting('homepage_quickaccess_subtitle')}
-            />
-          )}
-          {visible('esic') && (
-            <ESicSection
-              title={setting('homepage_esic_title')}
-              subtitle={setting('homepage_esic_subtitle')}
-            />
-          )}
-          {visible('transparency') && (
-            <TransparencySection
-              categories={infoCategories}
-              title={setting('homepage_transparency_title')}
-              subtitle={setting('homepage_transparency_subtitle')}
-            />
-          )}
-          {visible('vereadores') && (
-            <VereadoresSection
-              vereadores={vereadores}
-              legislatura={legislatura}
-              title={setting('homepage_vereadores_title')}
-              subtitle={setting('homepage_vereadores_subtitle')}
-            />
-          )}
-          {visible('legislativo') && (
-            <LegislativoSection
-              data={legislativo}
-              title={setting('homepage_legislativo_title')}
-              subtitle={setting('homepage_legislativo_subtitle')}
-            />
-          )}
-          {visible('diario') && (
-            <DiarioOficialSection
-              publicacoes={publicacoes}
-              latestGazette={latestGazette}
-              title={setting('homepage_diario_title')}
-              subtitle={setting('homepage_diario_subtitle')}
-            />
-          )}
-          {visible('instagram') && (
-            <InstagramFeedSection posts={instagramPosts} instagramUrl={instagramProfileUrl || siteSettings?.instagram_url || undefined} />
-          )}
-          {visible('conheca') && (
-            <ConhecaSumeSection
-              images={siteSettings?.city_images ? JSON.parse(siteSettings.city_images) : []}
-              title={setting('homepage_conheca_title')}
-              subtitle={setting('homepage_conheca_subtitle')}
-            />
-          )}
-          {visible('seals') && (
-            <CertificationsSection
-              seals={seals}
-              title={setting('homepage_seals_title')}
-              subtitle={setting('homepage_seals_subtitle')}
-            />
-          )}
-          {visible('survey') && <SatisfactionSurvey />}
+          {/* Seções renderizadas na ordem do modelo (template.homeOrder); cada uma
+              respeita a visibilidade configurada no painel (section_*_visible). */}
+          {template.homeOrder.map((key) => {
+            if (!visible(key)) return null;
+            const node = {
+              news: <NewsSection news={news} backgroundImage={newsBackgroundImage} />,
+              quickaccess: (
+                <QuickAccessSection
+                  quickLinks={quickLinks}
+                  badge={setting('homepage_quickaccess_badge')}
+                  title={setting('homepage_quickaccess_title')}
+                  subtitle={setting('homepage_quickaccess_subtitle')}
+                />
+              ),
+              esic: (
+                <ESicSection
+                  title={setting('homepage_esic_title')}
+                  subtitle={setting('homepage_esic_subtitle')}
+                />
+              ),
+              transparency: (
+                <TransparencySection
+                  categories={infoCategories}
+                  title={setting('homepage_transparency_title')}
+                  subtitle={setting('homepage_transparency_subtitle')}
+                />
+              ),
+              vereadores: (
+                <VereadoresSection
+                  vereadores={vereadores}
+                  legislatura={legislatura}
+                  title={setting('homepage_vereadores_title')}
+                  subtitle={setting('homepage_vereadores_subtitle')}
+                />
+              ),
+              legislativo: (
+                <LegislativoSection
+                  data={legislativo}
+                  title={setting('homepage_legislativo_title')}
+                  subtitle={setting('homepage_legislativo_subtitle')}
+                />
+              ),
+              diario: (
+                <DiarioOficialSection
+                  latestGazette={latestGazette}
+                  gazetteDates={gazetteDates}
+                  title={setting('homepage_diario_title')}
+                  subtitle={setting('homepage_diario_subtitle')}
+                />
+              ),
+              instagram: (
+                <InstagramFeedSection
+                  posts={instagramPosts}
+                  instagramUrl={instagramProfileUrl || siteSettings?.instagram_url || undefined}
+                />
+              ),
+              conheca: (
+                <ConhecaSumeSection
+                  images={siteSettings?.city_images ? JSON.parse(siteSettings.city_images) : []}
+                  title={setting('homepage_conheca_title')}
+                  subtitle={setting('homepage_conheca_subtitle')}
+                />
+              ),
+              seals: (
+                <CertificationsSection
+                  seals={seals}
+                  title={setting('homepage_seals_title')}
+                  subtitle={setting('homepage_seals_subtitle')}
+                />
+              ),
+              survey: <SatisfactionSurvey />,
+            }[key];
+            return <Fragment key={key}>{node}</Fragment>;
+          })}
         </main>
         
         <Footer logoUrl={logoUrl} />

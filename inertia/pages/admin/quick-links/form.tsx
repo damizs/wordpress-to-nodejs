@@ -9,17 +9,14 @@ const ICONS = [
   'Download', 'ExternalLink', 'Globe', 'Mail', 'MapPin',
 ]
 
+// Valores = chaves entendidas pelo colorMap público (mapeadas para a paleta
+// institucional navy/gold/sky/emerald). Os rótulos indicam a cor escolhida.
 const COLORS = [
-  { label: 'Vermelho', value: 'from-red-500 to-rose-600' },
-  { label: 'Azul', value: 'from-blue-500 to-indigo-600' },
-  { label: 'Verde', value: 'from-green-500 to-emerald-600' },
-  { label: 'Amarelo', value: 'from-amber-500 to-orange-600' },
-  { label: 'Teal', value: 'from-teal-500 to-cyan-600' },
-  { label: 'Roxo', value: 'from-purple-500 to-violet-600' },
-  { label: 'Rosa', value: 'from-pink-500 to-rose-600' },
-  { label: 'Sky', value: 'from-sky-500 to-blue-600' },
-  { label: 'Emerald', value: 'from-emerald-500 to-green-600' },
-  { label: 'Indigo', value: 'from-indigo-500 to-purple-600' },
+  { label: 'Navy (principal)', value: 'navy' },
+  { label: 'Azul claro', value: 'blue' },
+  { label: 'Dourado', value: 'gold' },
+  { label: 'Sky (secundária)', value: 'sky' },
+  { label: 'Verde', value: 'emerald' },
 ]
 
 export default function QuickLinkForm({ link }: { link: any | null }) {
@@ -28,7 +25,7 @@ export default function QuickLinkForm({ link }: { link: any | null }) {
     title: link?.title || '',
     url: link?.url || '',
     icon: link?.icon || 'Scale',
-    color: link?.color || 'from-blue-500 to-indigo-600',
+    color: link?.color || 'navy',
     display_order: link?.display_order || 0,
     is_active: link?.is_active ?? true,
     open_mode: link?.open_mode || 'nova_aba',

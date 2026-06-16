@@ -215,8 +215,9 @@ export default function TransparenciaIndex({ sections = [], openLink = null }: P
           <section className="py-10 lg:py-14">
             <div className="container">
             <div className="lg:flex lg:items-start lg:gap-12 xl:gap-16">
-              {/* Sidebar de navegação (padrão dos portais) — fixa, com rolagem própria */}
-              <aside className="hidden lg:block w-[280px] shrink-0 sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto overscroll-contain rounded-2xl [scrollbar-width:thin]">
+              {/* Sidebar de navegação (padrão dos portais) — fixa, acompanha a
+                  rolagem (sticky) sem rolagem interna própria. */}
+              <aside className="hidden lg:block w-[280px] shrink-0 self-start sticky top-24 rounded-2xl">
                 <nav className="bg-card rounded-2xl shadow-md border border-border/60 overflow-hidden">
                   {filtered.map((section) => {
                     const Icon = iconMap[section.icon || ""] || FolderOpen;

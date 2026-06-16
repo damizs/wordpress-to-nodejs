@@ -10,12 +10,14 @@ import {
   Upload,
   Sparkles,
   LayoutGrid,
+  LayoutTemplate,
   type LucideIcon,
 } from 'lucide-react'
 import { useState, useRef } from 'react'
 import { Button, Card, CardHeader, Field, Input, Select } from '~/components/admin/ui'
 import { CAMPAIGNS, THEME_PRESETS, getCampaign, resolveActiveCampaign } from '~/lib/campaigns'
 import { LAYOUT_STYLES, type LayoutStyle } from '~/lib/layouts'
+import { SITE_TEMPLATES, type SiteTemplate } from '~/lib/templates'
 
 interface SettingItem {
   key: string
@@ -44,6 +46,7 @@ export default function Appearance({ settings }: Props) {
     theme_preset: getVal(appearance, 'theme_preset') || 'navy',
     campaign_mode: getVal(appearance, 'campaign_mode') || 'auto',
     layout_style: getVal(appearance, 'layout_style') || 'institucional',
+    site_template: getVal(appearance, 'site_template') || 'institucional',
     color_navy: getVal(appearance, 'color_navy'),
     color_gold: getVal(appearance, 'color_gold'),
     color_sky: getVal(appearance, 'color_sky'),
@@ -62,26 +65,30 @@ export default function Appearance({ settings }: Props) {
     esic_phone: getVal(esic, 'esic_phone'),
     esic_email: getVal(esic, 'esic_email'),
     logo_url: null as File | null,
+    document_brasao_url: null as File | null,
     favicon_url: null as File | null,
     atricon_logo_url: null as File | null,
     news_background_image: null as File | null,
   })
 
   const logoRef = useRef<HTMLInputElement>(null)
+  const brasaoRef = useRef<HTMLInputElement>(null)
   const faviconRef = useRef<HTMLInputElement>(null)
   const atriconLogoRef = useRef<HTMLInputElement>(null)
   const newsBackgroundRef = useRef<HTMLInputElement>(null)
   const [logoPreview, setLogoPreview] = useState<string | null>(getVal(appearance, 'logo_url'))
+  const [brasaoPreview, setBrasaoPreview] = useState<string | null>(getVal(appearance, 'document_brasao_url'))
   const [faviconPreview, setFaviconPreview] = useState<string | null>(getVal(appearance, 'favicon_url'))
   const [atriconLogoPreview, setAtriconLogoPreview] = useState<string | null>(getVal(appearance, 'atricon_logo_url'))
   const [newsBackgroundPreview, setNewsBackgroundPreview] = useState<string | null>(getVal(appearance, 'news_background_image'))
 
-  function handleFileChange(field: 'logo_url' | 'favicon_url' | 'atricon_logo_url' | 'news_background_image', file: File | null) {
+  function handleFileChange(field: 'logo_url' | 'document_brasao_url' | 'favicon_url' | 'atricon_logo_url' | 'news_background_image', file: File | null) {
     setData(field, file)
     if (file) {
       const reader = new FileReader()
       reader.onload = (e) => {
         if (field === 'logo_url') setLogoPreview(e.target?.result as string)
+        else if (field === 'document_brasao_url') setBrasaoPreview(e.target?.result as string)
         else if (field === 'favicon_url') setFaviconPreview(e.target?.result as string)
         else if (field === 'atricon_logo_url') setAtriconLogoPreview(e.target?.result as string)
         else setNewsBackgroundPreview(e.target?.result as string)
@@ -110,6 +117,11 @@ export default function Appearance({ settings }: Props) {
             onThemeChange={(v) => setData('theme_preset', v)}
             onCampaignChange={(v) => setData('campaign_mode', v)}
           />
+        </Section>
+
+        {/* Site template (structural model) */}
+        <Section icon={LayoutTemplate} title="Modelo do Site">
+          <SiteTemplatePicker value={data.site_template} onChange={(v) => setData('site_template', v)} />
         </Section>
 
         {/* Layout style */}
@@ -145,6 +157,18 @@ export default function Appearance({ settings }: Props) {
               inputRef={faviconRef}
               onChange={(f) => handleFileChange('favicon_url', f)}
             />
+          </div>
+
+          <div className="mt-4">
+            <FileField
+              label="Brasão (documentos oficiais)"
+              preview={brasaoPreview}
+              inputRef={brasaoRef}
+              onChange={(f) => handleFileChange('document_brasao_url', f)}
+            />
+            <p className="text-xs text-muted-foreground mt-1.5">
+              Usado no timbre das matérias (publicações, atas, pautas, atividades). Se vazio, usa a logo do cabeçalho.
+            </p>
           </div>
 
           {/* Logo ATRICON (Radar) */}
@@ -550,6 +574,105 @@ function LayoutStylePicker({ value, onChange }: { value: string; onChange: (v: s
               </span>
               <span className="block mt-0.5 text-xs text-muted-foreground leading-snug">
                 {layout.description}
+              </span>
+            </button>
+          )
+        })}
+      </div>
+    </Field>
+  )
+}
+
+/** Mini-mock do arranjo de cabeçalho de cada modelo, só para orientar a escolha. */
+function SiteTemplatePreview({ templateKey }: { templateKey: string }) {
+  const bar = 'rounded-sm bg-navy/70'
+  const dot = 'rounded-full bg-gold'
+  if (templateKey === 'classico') {
+    return (
+      <div className="aspect-[16/9] rounded-md border border-border bg-muted overflow-hidden flex flex-col">
+        <div className="h-2 bg-navy/30" />
+        <div className="flex items-center justify-between px-2 py-1.5 bg-card">
+          <span className={`${dot} w-3 h-3`} />
+          <span className={`${bar} w-8 h-1.5`} />
+        </div>
+        <div className="flex items-center gap-1 px-2 py-1 bg-navy/80 mt-auto">
+          {[0, 1, 2, 3].map((i) => <span key={i} className="rounded-sm bg-white/70 w-4 h-1" />)}
+        </div>
+      </div>
+    )
+  }
+  if (templateKey === 'moderno') {
+    return (
+      <div className="aspect-[16/9] rounded-md border border-border bg-gradient-to-br from-navy/80 to-navy/50 overflow-hidden flex flex-col">
+        <div className="flex items-center justify-between px-2 py-1.5">
+          <span className={`${dot} w-3 h-3`} />
+          <div className="flex items-center gap-1">
+            {[0, 1, 2].map((i) => <span key={i} className="rounded-sm bg-white/70 w-3 h-1" />)}
+            <span className="rounded-sm bg-gold w-2 h-2 ml-0.5" />
+          </div>
+        </div>
+        <div className="flex-1 flex flex-col items-center justify-center gap-1">
+          <span className="rounded-sm bg-white/80 w-16 h-1.5" />
+          <span className="rounded-sm bg-white/50 w-10 h-1" />
+        </div>
+      </div>
+    )
+  }
+  if (templateKey === 'compacto') {
+    return (
+      <div className="aspect-[16/9] rounded-md border border-border bg-muted overflow-hidden flex flex-col">
+        <div className="flex items-center justify-between px-2 py-1 bg-navy/80">
+          <span className={`${dot} w-2.5 h-2.5`} />
+          <div className="flex items-center gap-1">
+            {[0, 1, 2, 3].map((i) => <span key={i} className="rounded-sm bg-white/70 w-3 h-1" />)}
+          </div>
+          <span className="rounded-full bg-white/50 w-2 h-2" />
+        </div>
+        <div className="flex-1 grid grid-cols-3 gap-1 p-1.5">
+          {[0, 1, 2].map((i) => <span key={i} className="rounded-sm bg-card" />)}
+        </div>
+      </div>
+    )
+  }
+  // institucional (padrão)
+  return (
+    <div className="aspect-[16/9] rounded-md border border-border bg-gradient-to-b from-navy/80 to-navy/55 overflow-hidden flex flex-col items-center justify-center gap-1.5 py-2">
+      <span className={`${dot} w-4 h-4`} />
+      <span className="rounded-sm bg-white/80 w-14 h-1.5" />
+      <div className="flex items-center gap-1 mt-0.5 rounded-full bg-white/15 px-1.5 py-1">
+        {[0, 1, 2, 3].map((i) => <span key={i} className="rounded-sm bg-white/80 w-3 h-1" />)}
+      </div>
+    </div>
+  )
+}
+
+function SiteTemplatePicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  return (
+    <Field
+      label="Modelo do site"
+      hint="Muda a ESTRUTURA do front: arranjo do cabeçalho (logo/menu/busca) e a abertura da home. É independente do tema de cores e do estilo de layout — combina com qualquer um deles."
+    >
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        {SITE_TEMPLATES.map((tpl: SiteTemplate) => {
+          const selected = (value || 'institucional') === tpl.key
+          return (
+            <button
+              key={tpl.key}
+              type="button"
+              onClick={() => onChange(tpl.key)}
+              aria-pressed={selected}
+              className={`rounded-lg border p-3 text-left transition-all ${
+                selected
+                  ? 'border-navy ring-2 ring-navy/25 bg-navy/5'
+                  : 'border-border bg-card hover:border-navy/40'
+              }`}
+            >
+              <SiteTemplatePreview templateKey={tpl.key} />
+              <span className={`block mt-2.5 text-sm font-semibold ${selected ? 'text-navy' : 'text-foreground'}`}>
+                {tpl.label}
+              </span>
+              <span className="block mt-0.5 text-xs text-muted-foreground leading-snug">
+                {tpl.description}
               </span>
             </button>
           )

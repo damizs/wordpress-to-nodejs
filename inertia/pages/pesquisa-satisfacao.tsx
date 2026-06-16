@@ -12,12 +12,20 @@ interface Question {
   texto: string
 }
 
+interface MonthlyStat {
+  month: number
+  name: string
+  responses: number
+  average: number
+}
+
 interface Props {
   questions: Question[]
   serviceTypes: string[]
   siteSettings?: Record<string, string | null>
   currentYear?: number
   availableYears?: number[]
+  monthlyStats?: MonthlyStat[]
 }
 
 const ratingIcons = [
@@ -33,13 +41,49 @@ export default function PesquisaSatisfacao({
   serviceTypes = [],
   siteSettings = {},
   currentYear = new Date().getFullYear(),
-  availableYears = []
+  availableYears = [],
+  monthlyStats = []
 }: Props) {
   const [cpf, setCpf] = useState('')
   const [answers, setAnswers] = useState<Record<number, number>>({})
   const [suggestion, setSuggestion] = useState('')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
+
+  // Relatório / gráfico
+  const [selectedYear, setSelectedYear] = useState(currentYear)
+  const [stats, setStats] = useState<MonthlyStat[]>(monthlyStats)
+  const [totals, setTotals] = useState<{ total: number; average: number }>({
+    total: monthlyStats.reduce((a, m) => a + m.responses, 0),
+    average: 0,
+  })
+  const [reportLoading, setReportLoading] = useState(false)
+
+  const loadReport = async (year: number) => {
+    setReportLoading(true)
+    setSelectedYear(year)
+    try {
+      const res = await fetch(`/pesquisa-de-satisfacao/relatorio?year=${year}`, {
+        headers: { Accept: 'application/json' },
+      })
+      const json = await res.json()
+      setStats(json.monthlyStats || [])
+      setTotals(json.totals || { total: 0, average: 0 })
+    } catch {
+      setStats([])
+      setTotals({ total: 0, average: 0 })
+    } finally {
+      setReportLoading(false)
+    }
+  }
+
+  // Carrega os totais do ano corrente ao montar (monthlyStats já vem por SSR)
+  useEffect(() => {
+    loadReport(currentYear)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const maxResponses = Math.max(1, ...stats.map((m) => m.responses))
 
   const logoUrl = siteSettings?.logo_url || null
 
@@ -318,37 +362,84 @@ export default function PesquisaSatisfacao({
                   </h3>
 
                   {/* Ano atual */}
-                  <button className="w-full px-4 py-3 bg-primary text-white rounded-lg font-medium mb-4 hover:bg-primary/90 transition-colors flex items-center justify-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => loadReport(currentYear)}
+                    aria-pressed={selectedYear === currentYear}
+                    className={`w-full px-4 py-3 rounded-lg font-medium mb-4 transition-colors flex items-center justify-center gap-2 ${
+                      selectedYear === currentYear
+                        ? 'bg-primary text-white hover:bg-primary/90'
+                        : 'border-2 border-primary text-primary hover:bg-primary hover:text-white'
+                    }`}
+                  >
                     <FileText className="w-4 h-4" />
                     Relatório ano {currentYear}
                   </button>
 
                   {/* Anos anteriores */}
-                  <p className="text-sm text-gray-500 text-center mb-3">Relatórios anteriores</p>
-                  <div className="space-y-2">
-                    {years.slice(1).map(year => (
-                      <button 
-                        key={year}
-                        className="w-full px-4 py-2.5 border-2 border-primary text-primary rounded-lg font-medium hover:bg-primary hover:text-white transition-colors flex items-center justify-center gap-2"
-                      >
-                        <BarChart3 className="w-4 h-4" />
-                        Relatório ano {year}
-                      </button>
-                    ))}
-                  </div>
+                  {years.slice(1).length > 0 && (
+                    <>
+                      <p className="text-sm text-gray-500 text-center mb-3">Relatórios anteriores</p>
+                      <div className="space-y-2">
+                        {years.slice(1).map(year => (
+                          <button 
+                            key={year}
+                            type="button"
+                            onClick={() => loadReport(year)}
+                            aria-pressed={selectedYear === year}
+                            className={`w-full px-4 py-2.5 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${
+                              selectedYear === year
+                                ? 'bg-primary text-white'
+                                : 'border-2 border-primary text-primary hover:bg-primary hover:text-white'
+                            }`}
+                          >
+                            <BarChart3 className="w-4 h-4" />
+                            Relatório ano {year}
+                          </button>
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </div>
 
-                {/* Gráfico placeholder */}
+                {/* Gráfico de evolução (respostas por mês) */}
                 <div className="bg-white rounded-2xl shadow-sm border p-6 mb-6">
-                  <h4 className="text-center font-semibold text-gray-800 mb-4">
-                    Evolução das Avaliações - {currentYear}
+                  <h4 className="text-center font-semibold text-gray-800 mb-1">
+                    Evolução das Avaliações - {selectedYear}
                   </h4>
-                  <div className="h-48 bg-gray-50 rounded-lg flex items-center justify-center text-gray-400 text-sm">
-                    <div className="text-center">
-                      <BarChart3 className="w-12 h-12 mx-auto mb-2 opacity-30" />
-                      Gráfico de evolução
+                  <p className="text-center text-sm text-gray-500 mb-4">
+                    {totals.total} {totals.total === 1 ? 'resposta' : 'respostas'}
+                    {totals.average > 0 && ` · média geral ${totals.average.toFixed(1)}/5`}
+                  </p>
+
+                  {reportLoading ? (
+                    <div className="h-48 flex items-center justify-center text-gray-400">
+                      <Loader2 className="w-6 h-6 animate-spin" />
                     </div>
-                  </div>
+                  ) : totals.total === 0 ? (
+                    <div className="h-48 bg-gray-50 rounded-lg flex items-center justify-center text-gray-400 text-sm">
+                      <div className="text-center">
+                        <BarChart3 className="w-12 h-12 mx-auto mb-2 opacity-30" />
+                        Sem respostas em {selectedYear}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-end justify-between gap-1 h-48 px-1" role="img" aria-label={`Respostas por mês em ${selectedYear}`}>
+                      {stats.map((m) => (
+                        <div key={m.month} className="flex-1 flex flex-col items-center justify-end h-full gap-1.5">
+                          <span className="text-[10px] font-semibold text-gray-600 leading-none">
+                            {m.responses > 0 ? m.responses : ''}
+                          </span>
+                          <div
+                            className="w-full rounded-t bg-primary/80 hover:bg-primary transition-all min-h-[2px]"
+                            style={{ height: `${(m.responses / maxResponses) * 100}%` }}
+                            title={`${m.name}: ${m.responses} resposta(s)${m.average ? ` · média ${m.average}` : ''}`}
+                          />
+                          <span className="text-[9px] text-gray-400 leading-none">{m.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 {/* Info box */}

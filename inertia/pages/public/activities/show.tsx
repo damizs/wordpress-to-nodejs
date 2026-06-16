@@ -1,11 +1,8 @@
 import { Link } from "@inertiajs/react";
-import { SeoHead } from "~/components/SeoHead";
-import { TopBar } from "~/components/TopBar";
-import { Header } from "~/components/Header";
-import { Breadcrumb } from "~/components/Breadcrumb";
-import { Footer } from "~/components/Footer";
+import { PageLayout } from "~/components/PageLayout";
 import { Calendar, ArrowLeft, User, Hash } from "lucide-react";
-import { DocumentActionsPanel, formatDocumentDate } from "~/components/DocumentActions";
+import { formatDocumentDate } from "~/components/DocumentActions";
+import { OfficialDocument } from "~/components/OfficialDocument";
 
 interface Author { id: number; name: string; slug: string; photo: string | null; party: string | null; }
 interface Props {
@@ -32,18 +29,19 @@ export default function ActivityShow({ activity, authors = [] }: Props) {
   const dateLabel = formatDocumentDate(activity.sessionDate || activity.createdAt, true);
 
   return (
-    <>
-      <SeoHead title={`${title} - Câmara Municipal de Sumé`} url={`/atividades-legislativas/${activity.slug}`} />
-      <div className="min-h-screen bg-background">
-        <TopBar /><Header /><Breadcrumb items={[{ label: "Atividades Legislativas", href: "/atividades-legislativas" }, { label: title }]} />
-        <main>
-          <section className="py-10 lg:py-14">
-            <div className="container">
-              <div>
-                <Link href="/atividades-legislativas" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-6 no-underline">
-                  <ArrowLeft className="w-4 h-4" />Voltar para Atividades Legislativas
-                </Link>
-                <article className="card-modern p-6 md:p-10">
+    <PageLayout
+      seo={{ title: `${title} - Câmara Municipal de Sumé`, url: `/atividades-legislativas/${activity.slug}` }}
+      breadcrumb={[{ label: "Atividades Legislativas", href: "/atividades-legislativas" }, { label: title }]}
+      width="reading"
+    >
+      <Link href="/atividades-legislativas" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-6 no-underline">
+        <ArrowLeft className="w-4 h-4" />Voltar para Atividades Legislativas
+      </Link>
+      <OfficialDocument
+        url={`/atividades-legislativas/${activity.slug}`}
+        fileUrl={activity.fileUrl}
+        shareTitle={title}
+      >
                   {/* Cabeçalho do documento */}
                   <div className="flex flex-wrap items-center gap-2 mb-4">
                     {activity.type && <span className="px-3 py-1 bg-gold/15 text-navy-dark dark:text-gold rounded-full text-xs font-semibold uppercase tracking-wide">{activity.type}</span>}
@@ -113,22 +111,13 @@ export default function ActivityShow({ activity, authors = [] }: Props) {
                     </div>
                   )}
 
-                  {/* Ações do documento */}
-                  <DocumentActionsPanel fileUrl={activity.fileUrl} className="mb-8" />
-
                   {activity.summary && (
                     <p className="text-base text-muted-foreground border-l-4 border-gold/60 pl-4 mb-6">{activity.summary}</p>
                   )}
-                  {activity.content && (
-                    <div className="prose prose-slate dark:prose-invert max-w-none" dangerouslySetInnerHTML={{ __html: activity.content }} />
-                  )}
-                </article>
-              </div>
-            </div>
-          </section>
-        </main>
-        <Footer />
-      </div>
-    </>
+      {activity.content && (
+        <div className="prose prose-slate dark:prose-invert max-w-none prose-p:text-justify" dangerouslySetInnerHTML={{ __html: activity.content }} />
+      )}
+      </OfficialDocument>
+    </PageLayout>
   );
 }

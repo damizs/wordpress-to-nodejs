@@ -77,7 +77,10 @@ export default class InstagramController {
   async saveSettings({ request, response, session }: HttpContext) {
     const data = request.only([
       'instagram_profile_url',
+      'instagram_sessionid',
+      'instagram_useragent',
       'rapidapi_key',
+      'posts_fetch_count',
       'ai_provider',
       'ai_api_key',
       'ai_model',
@@ -86,6 +89,9 @@ export default class InstagramController {
       'default_status',
       'auto_import_enabled',
       'auto_import_limit',
+      'cron_mode',
+      'cron_hour',
+      'cron_minute',
     ])
 
     await InstagramSetting.setMany(data as Record<string, string | null>)
@@ -114,6 +120,7 @@ export default class InstagramController {
 
     return inertia.render('admin/news/instagram/history', {
       logs: logs.serialize(),
+      filters: { status },
     })
   }
 

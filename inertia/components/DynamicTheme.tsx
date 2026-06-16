@@ -6,6 +6,7 @@ import {
   type Campaign,
 } from '~/lib/campaigns'
 import { getLayoutStyle } from '~/lib/layouts'
+import { getSiteTemplate } from '~/lib/templates'
 
 interface SharedProps {
   siteSettings?: Record<string, string | null>
@@ -101,6 +102,17 @@ export function DynamicTheme() {
       localStorage.setItem('layoutStyle', layout)
     } catch {
       /* ignore (modo privado / storage indisponível) */
+    }
+
+    /* ---- Modelo do site (data-template): estrutura do header/home ----
+       Ortogonal a cores e ao layout_style. Persistido para o script
+       anti-flash reaplicar antes do paint na próxima visita. */
+    const template = getSiteTemplate(siteSettings?.site_template).key
+    root.dataset.template = template
+    try {
+      localStorage.setItem('siteTemplate', template)
+    } catch {
+      /* ignore */
     }
 
     /* ---- Campanha sazonal: apenas header, footer e botões ---- */

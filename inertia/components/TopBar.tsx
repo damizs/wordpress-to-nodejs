@@ -26,7 +26,7 @@ export const TopBar = () => {
 
   return (
     <div className="bg-navy-dark text-primary-foreground border-b border-white/5">
-      <div className="container mx-auto px-4">
+      <div className="container">
         <nav className="flex flex-wrap items-center justify-center gap-x-7 gap-y-0 text-[11px] md:text-xs font-medium tracking-wide">
           {topLinks.map((link, index) =>
             link.external ? (

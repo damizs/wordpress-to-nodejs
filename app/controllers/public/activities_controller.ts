@@ -11,7 +11,10 @@ export default class ActivitiesController {
     const status = request.input('situacao', '')
     const search = request.input('busca', '')
 
-    let query = LegislativeActivity.query().orderBy('year', 'desc').orderBy('created_at', 'desc')
+    let query = LegislativeActivity.query()
+      .preload('authors')
+      .orderBy('year', 'desc')
+      .orderBy('created_at', 'desc')
     if (type) query = query.where('type', type)
     if (year) query = query.where('year', year)
     if (status) query = query.where('status', status)
@@ -50,6 +53,11 @@ export default class ActivitiesController {
         date: a.sessionDate || a.createdAt?.toISODate() || null,
         type: a.type,
         author: a.author ? { name: a.author } : null,
+        authors: a.authors.map((c) => ({
+          id: c.id,
+          name: c.parliamentaryName || c.name,
+          slug: c.slug,
+        })),
         file_url: a.fileUrl || null,
       })),
       pagination: {

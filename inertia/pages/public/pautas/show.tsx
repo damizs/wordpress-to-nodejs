@@ -1,11 +1,8 @@
 import { Link } from "@inertiajs/react";
-import { SeoHead } from "~/components/SeoHead";
-import { TopBar } from "~/components/TopBar";
-import { Header } from "~/components/Header";
-import { Breadcrumb } from "~/components/Breadcrumb";
-import { Footer } from "~/components/Footer";
+import { PageLayout } from "~/components/PageLayout";
 import { Calendar, ArrowLeft, Clock, MapPin } from "lucide-react";
 import { formatDocumentDate } from "~/components/DocumentActions";
+import { OfficialDocument } from "~/components/OfficialDocument";
 
 interface Props { pauta: { id: number; title: string; slug: string; date: string; time?: string; location?: string; content?: string; items?: { id: number; title: string; description?: string }[]; }; }
 
@@ -14,18 +11,15 @@ export default function PautaShow({ pauta }: Props) {
   const year = String(pauta.date || "").slice(0, 4);
 
   return (
-    <>
-      <SeoHead title={`${pauta.title} - Câmara Municipal de Sumé`} url={`/pautas/${pauta.slug}`} />
-      <div className="min-h-screen bg-background">
-        <TopBar /><Header /><Breadcrumb items={[{ label: "Pautas", href: "/pautas" }, { label: pauta.title }]} />
-        <main>
-          <section className="py-10 lg:py-14">
-            <div className="container">
-              <div>
-                <Link href="/pautas" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-6 no-underline">
-                  <ArrowLeft className="w-4 h-4" />Voltar para Pautas
-                </Link>
-                <article className="card-modern p-6 md:p-10">
+    <PageLayout
+      seo={{ title: `${pauta.title} - Câmara Municipal de Sumé`, url: `/pautas/${pauta.slug}` }}
+      breadcrumb={[{ label: "Pautas", href: "/pautas" }, { label: pauta.title }]}
+      width="reading"
+    >
+      <Link href="/pautas" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-6 no-underline">
+        <ArrowLeft className="w-4 h-4" />Voltar para Pautas
+      </Link>
+      <OfficialDocument url={`/pautas/${pauta.slug}`} shareTitle={pauta.title}>
                   {/* Cabeçalho do documento */}
                   <div className="flex flex-wrap items-center gap-2 mb-4">
                     <span className="px-3 py-1 bg-gold/15 text-navy-dark dark:text-gold rounded-full text-xs font-semibold uppercase tracking-wide">Pauta de Sessão</span>
@@ -65,7 +59,7 @@ export default function PautaShow({ pauta }: Props) {
                   </div>
 
                   {pauta.content && (
-                    <div className="prose prose-slate dark:prose-invert max-w-none mb-8" dangerouslySetInnerHTML={{ __html: pauta.content }} />
+                    <div className="prose prose-slate dark:prose-invert max-w-none mb-8 prose-p:text-justify" dangerouslySetInnerHTML={{ __html: pauta.content }} />
                   )}
 
                   {pauta.items && pauta.items.length > 0 && (
@@ -81,13 +75,7 @@ export default function PautaShow({ pauta }: Props) {
                       </ol>
                     </div>
                   )}
-                </article>
-              </div>
-            </div>
-          </section>
-        </main>
-        <Footer />
-      </div>
-    </>
+      </OfficialDocument>
+    </PageLayout>
   );
 }

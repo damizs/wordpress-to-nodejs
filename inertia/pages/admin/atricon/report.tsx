@@ -22,6 +22,7 @@ interface Props {
   }
   fortnight: { label: string; start: string; end: string }
   generatedAt: string
+  atriconLogoUrl?: string | null
 }
 
 const CLASS_LABEL = { essencial: 'ESSENCIAL', obrigatoria: 'Obrigatória', recomendada: 'Recomendada' }
@@ -31,7 +32,7 @@ const CLASS_TONE: Record<Pending['classification'], BadgeTone> = {
   recomendada: 'neutral',
 }
 
-export default function AtriconReport({ pendings, scores, fortnight, generatedAt }: Props) {
+export default function AtriconReport({ pendings, scores, fortnight, generatedAt, atriconLogoUrl }: Props) {
   const byDimension = pendings.reduce<Record<string, Pending[]>>((acc, p) => {
     ;(acc[p.dimension] ||= []).push(p)
     return acc
@@ -63,11 +64,16 @@ export default function AtriconReport({ pendings, scores, fortnight, generatedAt
 
       {/* Documento */}
       <div className="max-w-4xl mx-auto bg-card my-6 print:my-0 rounded-xl print:rounded-none shadow-sm print:shadow-none p-10 print:p-0">
-        <header className="border-b-2 border-navy pb-4 mb-6">
-          <h1 className="text-2xl font-extrabold text-foreground">Relatório Quinzenal de Pendências — PNTP/ATRICON 2026</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            {fortnight.label} ({fortnight.start} a {fortnight.end}) · Gerado em {generatedAt}
-          </p>
+        <header className="border-b-2 border-navy pb-4 mb-6 flex items-start gap-4">
+          {atriconLogoUrl && (
+            <img src={atriconLogoUrl} alt="ATRICON" className="h-14 w-auto object-contain shrink-0 bg-white rounded p-1" />
+          )}
+          <div className="min-w-0">
+            <h1 className="text-2xl font-extrabold text-foreground">Relatório Quinzenal de Pendências — PNTP/ATRICON 2026</h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              {fortnight.label} ({fortnight.start} a {fortnight.end}) · Gerado em {generatedAt}
+            </p>
+          </div>
         </header>
 
         {/* Resumo executivo */}

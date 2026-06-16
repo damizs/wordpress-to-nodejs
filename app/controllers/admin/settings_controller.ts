@@ -47,6 +47,12 @@ const APPEARANCE_KEYS: Record<
     type: 'text',
     label: 'Estilo de Layout',
   },
+  site_template: {
+    group: 'appearance',
+    defaultValue: 'institucional',
+    type: 'text',
+    label: 'Modelo do Site',
+  },
   header_title: {
     group: 'appearance',
     defaultValue: 'CÂMARA MUNICIPAL DE SUMÉ',
@@ -60,6 +66,12 @@ const APPEARANCE_KEYS: Record<
     label: 'Subtítulo do Header',
   },
   logo_url: { group: 'appearance', defaultValue: '', type: 'image', label: 'Logo (PNG)' },
+  document_brasao_url: {
+    group: 'appearance',
+    defaultValue: '',
+    type: 'image',
+    label: 'Brasão (documentos oficiais)',
+  },
   favicon_url: { group: 'appearance', defaultValue: '', type: 'image', label: 'Favicon' },
   atricon_logo_url: {
     group: 'appearance',
@@ -121,9 +133,14 @@ const APPEARANCE_KEYS: Record<
 /** Text field keys (everything except image uploads and special fields) */
 const TEXT_KEYS = Object.keys(APPEARANCE_KEYS).filter(
   (k) =>
-    !['logo_url', 'favicon_url', 'atricon_logo_url', 'news_background_image', 'city_images'].includes(
-      k
-    )
+    ![
+      'logo_url',
+      'document_brasao_url',
+      'favicon_url',
+      'atricon_logo_url',
+      'news_background_image',
+      'city_images',
+    ].includes(k)
 )
 
 export default class SettingsController {
@@ -194,6 +211,21 @@ export default class SettingsController {
         await logo.move(uploadDir, { name: fileName })
         if (logo.state === 'moved') {
           await SiteSetting.setValue('logo_url', `/uploads/${fileName}`, 'appearance', 'image')
+        }
+      }
+
+      // Handle document brasão upload (timbre dos documentos oficiais)
+      const brasao = request.file('document_brasao_url', {
+        size: '2mb',
+        extnames: ['png', 'jpg', 'jpeg', 'svg', 'webp'],
+      })
+      if (brasao) {
+        const uploadDir = join(app.publicPath(), 'uploads')
+        if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true })
+        const fileName = `brasao-${cuid()}.${brasao.extname}`
+        await brasao.move(uploadDir, { name: fileName })
+        if (brasao.state === 'moved') {
+          await SiteSetting.setValue('document_brasao_url', `/uploads/${fileName}`, 'appearance', 'image')
         }
       }
 

@@ -22,7 +22,7 @@ export const PageHero = ({ title, subtitle, badge, centered = false }: PageHeroP
         />
       </div>
 
-      <div className={`relative container mx-auto px-4 sm:px-6 lg:px-8 ${centered ? 'text-center' : ''}`}>
+      <div className={`relative container ${centered ? 'text-center' : ''}`}>
         {badge && (
           <span
             data-reveal="fade"

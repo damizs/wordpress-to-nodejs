@@ -17,7 +17,10 @@ export const appKey = new Secret(env.get('APP_KEY'))
  */
 export const http = defineConfig({
   generateRequestId: true,
-  allowMethodSpoofing: false,
+  // Habilitado: os formulários de edição do painel enviam POST + ?_method=PUT
+  // (padrão do Inertia quando há upload de arquivo/FormData). Sem isso, todas as
+  // edições com arquivo caíam em 404.
+  allowMethodSpoofing: true,
 
   /**
    * Enabling async local storage will let you access HTTP context

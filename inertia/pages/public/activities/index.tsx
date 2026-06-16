@@ -9,7 +9,7 @@ import { Footer } from "~/components/Footer";
 import { Calendar, FileText, ChevronLeft, ChevronRight, User, X, Search, ArrowRight } from "lucide-react";
 import { formatDocumentDate } from "~/components/DocumentActions";
 
-interface Activity { id: number; title: string; slug: string; date: string; type?: string; author?: { name: string }; }
+interface Activity { id: number; title: string; slug: string; date: string; type?: string; author?: { name: string }; authors?: { id: number; name: string; slug: string | null }[]; }
 interface Filters { type?: string; year?: string; autor?: string; status?: string; search?: string; }
 interface Props {
   activities: Activity[];
@@ -135,26 +135,48 @@ export default function ActivitiesIndex({ activities = [], pagination, filters =
                 <div className="grid gap-4">
                   {activities.map((activity, i) => {
                     const year = String(activity.date || "").slice(0, 4);
+                    const linkedAuthors = activity.authors?.filter((a) => a.slug) ?? [];
                     return (
-                      <Link key={activity.id} href={`/atividades-legislativas/${activity.slug}`} className="group no-underline block" data-reveal="up" data-reveal-delay={String(Math.min(i, 6) * 60)}>
-                        <div className="card-modern p-5 flex flex-col sm:flex-row sm:items-center gap-4 hover-lift">
-                          <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0"><FileText className="w-6 h-6 text-primary" /></div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex flex-wrap items-center gap-2 mb-1.5">
-                              {activity.type && <span className="px-2.5 py-0.5 bg-gold/15 text-navy-dark dark:text-gold rounded-full text-xs font-semibold uppercase tracking-wide">{activity.type}</span>}
-                              {year && <span className="px-2.5 py-0.5 bg-primary/10 text-primary rounded-full text-xs font-bold">{year}</span>}
-                            </div>
-                            <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors leading-snug line-clamp-2">{activity.title}</h3>
-                            <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground mt-1">
-                              {activity.date && <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" />{formatDocumentDate(activity.date)}</span>}
-                              {activity.author && <span className="flex items-center gap-1.5"><User className="w-3.5 h-3.5" />{activity.author.name}</span>}
-                            </div>
+                      <div key={activity.id} className="card-modern p-5 flex flex-col sm:flex-row sm:items-center gap-4 hover-lift relative group" data-reveal="up" data-reveal-delay={String(Math.min(i, 6) * 60)}>
+                        <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0"><FileText className="w-6 h-6 text-primary" /></div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-wrap items-center gap-2 mb-1.5">
+                            {activity.type && <span className="px-2.5 py-0.5 bg-gold/15 text-navy-dark dark:text-gold rounded-full text-xs font-semibold uppercase tracking-wide">{activity.type}</span>}
+                            {year && <span className="px-2.5 py-0.5 bg-primary/10 text-primary rounded-full text-xs font-bold">{year}</span>}
                           </div>
-                          <span className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-2.5 rounded-xl border border-border bg-card text-sm font-medium text-foreground group-hover:border-primary/40 group-hover:text-primary transition-colors shrink-0">
-                            Detalhes <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-                          </span>
+                          {/* Link principal "esticado": cobre o card todo (before:inset-0) */}
+                          <h3 className="font-semibold leading-snug line-clamp-2">
+                            <Link
+                              href={`/atividades-legislativas/${activity.slug}`}
+                              className="text-foreground group-hover:text-primary transition-colors no-underline before:absolute before:inset-0 before:content-['']"
+                            >
+                              {activity.title}
+                            </Link>
+                          </h3>
+                          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground mt-1">
+                            {activity.date && <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" aria-hidden="true" />{formatDocumentDate(activity.date)}</span>}
+                            {linkedAuthors.length > 0 ? (
+                              <span className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
+                                <User className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+                                {linkedAuthors.map((a, idx) => (
+                                  <Link
+                                    key={a.id}
+                                    href={`/vereadores/${a.slug}`}
+                                    className="relative z-10 font-medium text-muted-foreground hover:text-primary transition-colors no-underline"
+                                  >
+                                    {a.name}{idx < linkedAuthors.length - 1 ? "," : ""}
+                                  </Link>
+                                ))}
+                              </span>
+                            ) : (
+                              activity.author && <span className="flex items-center gap-1.5"><User className="w-3.5 h-3.5" aria-hidden="true" />{activity.author.name}</span>
+                            )}
+                          </div>
                         </div>
-                      </Link>
+                        <span className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-2.5 rounded-xl border border-border bg-card text-sm font-medium text-foreground group-hover:border-primary/40 group-hover:text-primary transition-colors shrink-0">
+                          Detalhes <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                        </span>
+                      </div>
                     );
                   })}
                 </div>

@@ -60,6 +60,8 @@
         // paint a partir do valor persistido pelo DynamicTheme. Default
         // 'institucional' não tem overrides; 1ª visita pode ter leve flash.
         el.setAttribute('data-layout', localStorage.getItem('layoutStyle') || 'institucional')
+        // Modelo do site (estrutura do header/home) — reaplica antes do paint.
+        el.setAttribute('data-template', localStorage.getItem('siteTemplate') || 'institucional')
       } catch (e) {}
     })()
   </script>

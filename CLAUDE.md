@@ -59,11 +59,20 @@ fixos no chrome (quebra o modo escuro).
   `<html>` → Institucional (padrão), Minimalista, Moderno, Clássico. Sobrescreve
   raio/sombra/tipografia/densidade via CSS, **sem reescrever páginas**. Setting
   `layout_style`. Ortogonal ao tema de cor.
+- **Modelos de site (estrutura):** `inertia/lib/templates.ts` + atributo
+  `data-template` no `<html>` → Institucional (padrão), Clássico/Governamental,
+  Moderno/Destaque, Compacto/Notícias. Setting `site_template`. Muda a ESTRUTURA
+  do front: arranjo do `Header` (ramificado por template, com busca/menu-mobile/
+  widgets compartilhados), a abertura da home (`HomeHero` quando `homeHero:true`) e
+  a **ordem das seções internas da home** (`homeOrder` por modelo; a home renderiza
+  as seções nessa ordem, respeitando a visibilidade `section_*_visible`).
+  Ortogonal a cor e a `layout_style` — combina com qualquer um. Persistido para o
+  script anti-flash reaplicar antes do paint.
 - **Campanhas sazonais:** Outubro Rosa, Novembro Azul, Setembro Amarelo, Maio
   Amarelo, Junho Vermelho, Abril Azul. `campaign_mode` = `auto|off|<chave>`.
   Recolore **apenas header, footer e botões** (`--gradient-hero/-navy`,
   `--primary`) — o resto mantém a paleta institucional. Banner dispensável.
-- **`DynamicTheme.tsx`** aplica preset/custom/campanha/layout. **`DynamicFavicon`**
+- **`DynamicTheme.tsx`** aplica preset/custom/campanha/layout/modelo. **`DynamicFavicon`**
   ajusta o favicon.
 
 **Convenções visuais:**

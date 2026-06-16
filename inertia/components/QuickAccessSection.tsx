@@ -107,6 +107,17 @@ const colorMap: Record<string, string> = {
   indigo: "bg-navy",
   teal: "bg-emerald-600",
   orange: "bg-gold",
+  // Aliases para valores legados gravados como gradiente Tailwind pelo form
+  "from-red-500 to-rose-600": "bg-navy",
+  "from-blue-500 to-indigo-600": "bg-navy-light",
+  "from-green-500 to-emerald-600": "bg-emerald-600",
+  "from-amber-500 to-orange-600": "bg-gold",
+  "from-teal-500 to-cyan-600": "bg-emerald-600",
+  "from-purple-500 to-violet-600": "bg-navy-light",
+  "from-pink-500 to-rose-600": "bg-gold",
+  "from-sky-500 to-blue-600": "bg-sky",
+  "from-emerald-500 to-green-600": "bg-emerald-600",
+  "from-indigo-500 to-purple-600": "bg-navy",
 };
 
 const fallbackColors = [

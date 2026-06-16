@@ -73,6 +73,11 @@ export default class HomeController {
       PlenarySession.query().select('id', 'session_date', 'year', 'status'),
     ])
 
+    // Edições recentes do Diário Oficial para o calendário da home (widget)
+    const gazetteRecent = await OfficialGazetteEntry.query()
+      .orderBy('publication_date', 'desc')
+      .limit(400)
+
     // Fetch transparency links for each section
     const sectionIds = transparencySections.map((s) => s.id)
     const links = sectionIds.length
@@ -246,6 +251,16 @@ export default class HomeController {
             fileUrl: latestGazette.fileUrl,
           }
         : null,
+      gazetteDates: gazetteRecent.map((g) => {
+        const raw: unknown = g.publicationDate
+        const dt =
+          raw instanceof Date ? DateTime.fromJSDate(raw) : DateTime.fromISO(String(raw))
+        return {
+          date: dt.isValid ? dt.toISODate() : String(raw).slice(0, 10),
+          editionNumber: g.editionNumber,
+          fileUrl: g.fileUrl,
+        }
+      }),
       siteSettings,
       infoCategories: infoCategories.map((c) => ({ id: c.id, name: c.name, slug: c.slug })),
       newsBackgroundImage: siteSettings.news_background_image || null,
