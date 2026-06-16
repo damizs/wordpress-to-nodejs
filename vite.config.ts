@@ -15,17 +15,23 @@ export default defineConfig(({ isSsrBuild }) => ({
     },
   },
   build: {
+    cssCodeSplit: true,
     rollupOptions: isSsrBuild
-      ? {}
+      ? {
+          external: ['apexcharts', 'react-apexcharts'],
+        }
       : {
           output: {
             manualChunks: {
               'vendor-react': ['react', 'react-dom'],
               'vendor-inertia': ['@inertiajs/react'],
               'vendor-icons': ['lucide-react'],
+              'vendor-charts': ['apexcharts', 'react-apexcharts'],
             },
           },
         },
-    cssCodeSplit: true,
+  },
+  ssr: {
+    external: ['apexcharts', 'react-apexcharts'],
   },
 }))

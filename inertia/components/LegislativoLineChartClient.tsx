@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState, type ComponentType } from "react";
-import type { ApexOptions } from "apexcharts";
 import { useCssHsl } from "~/hooks/use_css_hsl";
+
+/** Subconjunto tipado localmente — evita resolver o pacote apexcharts no bundle SSR. */
+type ChartOptions = Record<string, unknown>;
 
 export interface WeeklyPoint {
   label: string;
@@ -34,7 +36,7 @@ export function LegislativoLineChartClient({ weekly }: Props) {
     [weekly]
   );
 
-  const options = useMemo<ApexOptions>(
+  const options = useMemo<ChartOptions>(
     () => ({
       chart: {
         id: "legislativo-weekly",

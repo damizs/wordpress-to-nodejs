@@ -4,6 +4,8 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 ENV NODE_ENV=development
+# Vite + ApexCharts/TinyMCE no SSR exigem heap maior em VPS pequenas (evita exit 137/255 no build)
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 
 COPY package.json package-lock.json ./
 RUN npm ci
