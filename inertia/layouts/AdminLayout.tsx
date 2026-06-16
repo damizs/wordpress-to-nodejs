@@ -322,8 +322,8 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
         </div>
       </aside>
 
-      {/* Main content */}
-      <div className={`transition-all duration-300 ${collapsed ? 'lg:ml-[68px]' : 'lg:ml-64'}`}>
+      {/* Main content — fluido (sem max-width); o site público continua com .container 1200px */}
+      <div className={`min-w-0 transition-all duration-300 ${collapsed ? 'lg:ml-[68px]' : 'lg:ml-64'}`}>
         {/* Top bar */}
         <header className="h-16 bg-card/90 backdrop-blur border-b border-border flex items-center justify-between px-4 lg:px-8 sticky top-0 z-30">
           <div className="flex items-center gap-3 min-w-0">
@@ -359,8 +359,8 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
           </div>
         </header>
 
-        {/* Page content */}
-        <main className="p-4 lg:p-8 max-w-[1400px] mx-auto">{children}</main>
+        {/* Page content — ocupa 100% da área útil; padding seguro nas bordas */}
+        <main className="w-full min-w-0 px-4 sm:px-6 lg:px-8 py-4 lg:py-8">{children}</main>
       </div>
     </div>
   )

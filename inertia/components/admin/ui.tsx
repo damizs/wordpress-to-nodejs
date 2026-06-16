@@ -332,16 +332,26 @@ export function Table({
   children,
   className = '',
   footer,
+  scrollLabel = 'Tabela — role horizontalmente para ver todas as colunas',
 }: {
   children: ReactNode
   className?: string
   /** Geralmente <Pagination />, renderizada dentro do mesmo card */
   footer?: ReactNode
+  /** Rótulo acessível da região de scroll horizontal */
+  scrollLabel?: string
 }) {
   return (
-    <div className={`bg-card rounded-xl border border-border shadow-sm overflow-hidden ${className}`}>
-      <div className="overflow-x-auto">
-        <table className="w-full">{children}</table>
+    <div
+      className={`w-full min-w-0 bg-card rounded-xl border border-border shadow-sm overflow-hidden ${className}`}
+    >
+      <div
+        role="region"
+        aria-label={scrollLabel}
+        tabIndex={0}
+        className="overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch] [scrollbar-width:thin] [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-track]:bg-transparent"
+      >
+        <table className="w-full min-w-[640px] border-collapse">{children}</table>
       </div>
       {footer}
     </div>
@@ -491,12 +501,12 @@ export function Pagination({
   const plural = itemLabelPlural ?? `${itemLabel}s`
   const sep = baseUrl.includes('?') ? '&' : '?'
   return (
-    <div className="flex items-center justify-between px-5 py-3 border-t border-border">
-      <span className="text-[13px] text-muted-foreground">
+    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between px-4 sm:px-5 py-3 border-t border-border">
+      <span className="text-[13px] text-muted-foreground text-center sm:text-left">
         {meta.total} {meta.total === 1 ? itemLabel : plural} • Página {meta.current_page} de{' '}
         {meta.last_page}
       </span>
-      <div className="flex items-center gap-1">
+      <div className="flex items-center justify-center sm:justify-end gap-1">
         <Link
           href={`${baseUrl}${sep}page=${meta.current_page - 1}`}
           preserveState
