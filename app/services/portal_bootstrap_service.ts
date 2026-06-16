@@ -260,7 +260,7 @@ async function applySiteSettings(externals: BootstrapData['atricon_externals'], 
     'text'
   )
 
-  const esicHref = '/esic'
+  const esicHref = '/#esic'
   const ouvHref = '/ouvidoria'
 
   const headerRaw = await SiteSetting.getValue('header_menu')
@@ -333,7 +333,7 @@ async function ensureSicPage(logger: Logger) {
         items: [
           { label: 'Publicações Oficiais', url: '/publicacoes-oficiais', variant: 'primary' },
           { label: 'Perguntas sobre LAI', url: '/perguntas-frequentes', variant: 'secondary' },
-          { label: 'Fazer pedido (e-SIC)', url: '/esic', variant: 'secondary' },
+          { label: 'Fazer pedido (e-SIC)', url: '/#esic', variant: 'secondary' },
         ],
       },
     ],

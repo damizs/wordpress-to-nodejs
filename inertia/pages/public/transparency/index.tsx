@@ -372,7 +372,7 @@ export default function TransparenciaIndex({ sections = [], openLink = null }: P
                     Utilize o Sistema Eletrônico de Informação ao Cidadão para solicitar informações
                   </p>
                   <Link
-                    href="/esic"
+                    href="/#esic"
                     className="inline-flex items-center gap-2 btn-modern bg-gold text-navy-dark no-underline"
                   >
                     <Search className="w-5 h-5" />

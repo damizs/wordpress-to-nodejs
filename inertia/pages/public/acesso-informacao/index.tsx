@@ -33,12 +33,7 @@ export default function AcessoInformacaoIndex() {
           centered
         />
         <main>
-          <ESicSection
-            title={title}
-            subtitle={subtitle}
-            showHeading={false}
-            className="pt-0 lg:pt-0"
-          />
+          <ESicSection title={title} subtitle={subtitle} hideHeading />
         </main>
         <Footer />
       </div>

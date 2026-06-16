@@ -7,7 +7,7 @@ export const TopBar = () => {
 
   const topLinks = [
     { icon: Search, label: "Portal da Transparência", href: "/transparencia", external: false },
-    { icon: FileText, label: "E-Sic", href: "/esic", external: false },
+    { icon: FileText, label: "E-Sic", href: "/#esic", external: false },
     { icon: MessageSquare, label: "Ouvidoria", href: "/ouvidoria", external: false },
     { icon: HelpCircle, label: "Perguntas Frequentes", href: "/perguntas-frequentes", external: false },
     { icon: Shield, label: "Política de Privacidade", href: "/politica-de-privacidade", external: false },

@@ -37,7 +37,7 @@ export const DEFAULT_HEADER_MENU: MenuItem[] = [
     href: '/ouvidoria',
     children: [
       { label: 'Ouvidoria', href: '/ouvidoria' },
-      { label: 'E-SIC', href: '/esic' },
+      { label: 'E-SIC', href: '/#esic' },
       { label: 'Perguntas Frequentes', href: '/perguntas-frequentes' },
       { label: 'Pesquisa de Satisfação', href: '/pesquisa-de-satisfacao' },
       { label: 'Política de Privacidade', href: '/politica-de-privacidade' },
@@ -53,7 +53,7 @@ export const DEFAULT_FOOTER_COLUMNS: FooterColumn[] = [
     links: [
       { label: 'Portal da Transparência', href: '/transparencia' },
       { label: 'Duodécimos', href: '/duodecimos' },
-      { label: 'E-SIC', href: '/esic' },
+      { label: 'E-SIC', href: '/#esic' },
       { label: 'Ouvidoria', href: '/ouvidoria' },
       { label: 'Licitações', href: '/licitacoes' },
       { label: 'Vereadores', href: '/vereadores' },
