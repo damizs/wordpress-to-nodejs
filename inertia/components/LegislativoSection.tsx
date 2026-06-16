@@ -1,13 +1,10 @@
-import { useRef } from "react";
+import { useState } from "react";
 import { Link } from "@inertiajs/react";
 import {
   Activity,
   ArrowRight,
   Award,
-  BadgeCheck,
   Calendar,
-  ChevronLeft,
-  ChevronRight,
   ExternalLink,
   FileCheck,
   FilePen,
@@ -23,15 +20,6 @@ import {
 import type { LucideIcon } from "lucide-react";
 import { SectionHeading } from "~/components/SectionHeading";
 
-interface LegislativoVereador {
-  id: number;
-  nome: string;
-  cargo: string;
-  foto: string | null;
-  slug: string;
-  materias: number;
-}
-
 interface LegislativoMateria {
   id: number;
   titulo: string;
@@ -44,7 +32,7 @@ interface LegislativoMateria {
 interface LegislativoData {
   weekly: { label: string; count: number }[];
   materias: LegislativoMateria[];
-  vereadores: LegislativoVereador[];
+  vereadores?: unknown[];
   totalMateriasAno: number;
   totalSessoesAno: number;
   ano: number;
@@ -56,56 +44,25 @@ interface LegislativoSectionProps {
   subtitle?: string;
 }
 
-/**
- * Converte pontos em um path SVG suave (Catmull-Rom → Bézier).
- * `tension` menor = curva mais "orgânica"/arredondada. `yMin`/`yMax` travam os
- * pontos de controle no eixo Y para a curva não estourar acima do topo nem
- * afundar abaixo da base em picos isolados (overshoot).
- */
-function smoothPath(
-  points: [number, number][],
-  tension = 5,
-  yMin = -Infinity,
-  yMax = Infinity
-): string {
-  if (points.length < 2) return "";
-  const clampY = (y: number) => Math.min(yMax, Math.max(yMin, y));
-  let d = `M ${points[0][0]},${points[0][1]}`;
-  for (let i = 0; i < points.length - 1; i++) {
-    const p0 = points[Math.max(i - 1, 0)];
-    const p1 = points[i];
-    const p2 = points[i + 1];
-    const p3 = points[Math.min(i + 2, points.length - 1)];
-    const c1x = p1[0] + (p2[0] - p0[0]) / tension;
-    const c1y = clampY(p1[1] + (p2[1] - p0[1]) / tension);
-    const c2x = p2[0] - (p3[0] - p1[0]) / tension;
-    const c2y = clampY(p2[1] - (p3[1] - p1[1]) / tension);
-    d += ` C ${c1x.toFixed(1)},${c1y.toFixed(1)} ${c2x.toFixed(1)},${c2y.toFixed(1)} ${p2[0]},${p2[1]}`;
-  }
-  return d;
-}
-
-/** Normaliza texto (sem acento, minúsculo) para casar tipos/situações. */
 const norm = (s: string | null | undefined) =>
   (s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
-/** Estilo (ícone + cores) por tipo de matéria, para tirar a timeline do "seco". */
 interface TypeStyle {
   icon: LucideIcon;
-  ring: string;
   chip: string;
 }
+
 const TYPE_STYLES: { match: string[]; style: TypeStyle }[] = [
-  { match: ["veto"], style: { icon: ShieldX, ring: "border-rose-500 text-rose-500", chip: "bg-rose-500/10 text-rose-600 dark:text-rose-400" } },
-  { match: ["projeto de lei", "lei municipal", "lei complementar", "lei ordinaria"], style: { icon: Scale, ring: "border-navy text-navy dark:border-sky dark:text-sky", chip: "bg-primary/10 text-primary" } },
-  { match: ["decreto"], style: { icon: ScrollText, ring: "border-sky text-sky", chip: "bg-sky/10 text-sky" } },
-  { match: ["indicacao"], style: { icon: Lightbulb, ring: "border-gold text-gold", chip: "bg-gold/15 text-navy-dark dark:text-gold" } },
-  { match: ["requerimento"], style: { icon: FileQuestion, ring: "border-violet-500 text-violet-500", chip: "bg-violet-500/10 text-violet-600 dark:text-violet-400" } },
-  { match: ["mocao"], style: { icon: Award, ring: "border-emerald-500 text-emerald-500", chip: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" } },
-  { match: ["resolucao"], style: { icon: FileCheck, ring: "border-teal-500 text-teal-500", chip: "bg-teal-500/10 text-teal-600 dark:text-teal-400" } },
-  { match: ["emenda"], style: { icon: FilePen, ring: "border-amber-500 text-amber-500", chip: "bg-amber-500/10 text-amber-600 dark:text-amber-400" } },
+  { match: ["veto"], style: { icon: ShieldX, chip: "bg-rose-500/10 text-rose-600 dark:text-rose-400" } },
+  { match: ["projeto de lei", "lei municipal", "lei complementar", "lei ordinaria"], style: { icon: Scale, chip: "bg-primary/10 text-primary" } },
+  { match: ["decreto"], style: { icon: ScrollText, chip: "bg-sky/10 text-sky" } },
+  { match: ["indicacao"], style: { icon: Lightbulb, chip: "bg-gold/15 text-navy-dark dark:text-gold" } },
+  { match: ["requerimento"], style: { icon: FileQuestion, chip: "bg-violet-500/10 text-violet-600 dark:text-violet-400" } },
+  { match: ["mocao"], style: { icon: Award, chip: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" } },
+  { match: ["resolucao"], style: { icon: FileCheck, chip: "bg-teal-500/10 text-teal-600 dark:text-teal-400" } },
+  { match: ["emenda"], style: { icon: FilePen, chip: "bg-amber-500/10 text-amber-600 dark:text-amber-400" } },
 ];
-const DEFAULT_TYPE_STYLE: TypeStyle = { icon: FileText, ring: "border-primary text-primary", chip: "bg-primary/10 text-primary" };
+const DEFAULT_TYPE_STYLE: TypeStyle = { icon: FileText, chip: "bg-primary/10 text-primary" };
 
 function typeStyle(tipo: string | null | undefined): TypeStyle {
   const n = norm(tipo);
@@ -116,7 +73,6 @@ function typeStyle(tipo: string | null | undefined): TypeStyle {
   return DEFAULT_TYPE_STYLE;
 }
 
-/** Classe da pill de situação (Aprovado, Em tramitação...). */
 function statusChipClass(status: string | null | undefined): string {
   const s = norm(status);
   if (!s) return "";
@@ -127,224 +83,150 @@ function statusChipClass(status: string | null | undefined): string {
   return "bg-muted text-muted-foreground";
 }
 
-const MateriasChart = ({ weekly }: { weekly: { label: string; count: number }[] }) => {
-  const W = 920;
-  const H = 280;
-  const PAD = { l: 40, r: 16, t: 20, b: 34 };
-
-  const max = Math.max(...weekly.map((p) => p.count), 4);
-  const niceMax = Math.ceil(max / 2) * 2;
-  const xOf = (i: number) => PAD.l + (i * (W - PAD.l - PAD.r)) / Math.max(weekly.length - 1, 1);
-  const yOf = (v: number) => H - PAD.b - (v * (H - PAD.t - PAD.b)) / niceMax;
-
-  const points: [number, number][] = weekly.map((p, i) => [
-    Math.round(xOf(i)),
-    Math.round(yOf(p.count)),
-  ]);
-  // tension menor = curva mais suave/orgânica; trava no topo e na base do gráfico
-  const line = smoothPath(points, 4, PAD.t, H - PAD.b);
-  const area = `${line} L ${points[points.length - 1][0]},${H - PAD.b} L ${points[0][0]},${H - PAD.b} Z`;
-
-  const yTicks = [0, niceMax / 2, niceMax];
-  const labelStep = Math.ceil(weekly.length / 8);
-  // Toque de distinção: destacar o pico de produção
-  const peakIndex = weekly.reduce((best, p, i, arr) => (p.count > arr[best].count ? i : best), 0);
+/** Gráfico de barras — últimas 12 semanas, tooltip visível no hover. */
+function WeeklyBarChart({ weekly }: { weekly: { label: string; count: number }[] }) {
+  const [active, setActive] = useState<number | null>(null);
+  const data = weekly.slice(-12);
+  const max = Math.max(...data.map((w) => w.count), 1);
 
   return (
-    <svg
-      viewBox={`0 0 ${W} ${H}`}
-      className="w-full h-auto"
-      role="img"
-      aria-label="Gráfico de matérias legislativas apresentadas por semana"
-    >
-      <defs>
-        {/* Gradiente vibrante da área (navy → sky → transparente) */}
-        <linearGradient id="materias-fill" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="hsl(var(--navy))" stopOpacity="0.55" />
-          <stop offset="45%" stopColor="hsl(var(--sky))" stopOpacity="0.28" />
-          <stop offset="100%" stopColor="hsl(var(--sky))" stopOpacity="0.02" />
-        </linearGradient>
-        {/* "Espessura" 3D (face/extrusão sob a área) */}
-        <linearGradient id="materias-depth" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="hsl(var(--navy-dark))" stopOpacity="0.45" />
-          <stop offset="100%" stopColor="hsl(var(--navy-dark))" stopOpacity="0.04" />
-        </linearGradient>
-        {/* Linha com gradiente navy → sky */}
-        <linearGradient id="materias-line" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="hsl(var(--navy))" />
-          <stop offset="100%" stopColor="hsl(var(--sky))" />
-        </linearGradient>
-        {/* Sombra projetada (lift 3D) */}
-        <filter id="materias-lift" x="-20%" y="-20%" width="140%" height="170%">
-          <feDropShadow
-            dx="0"
-            dy="9"
-            stdDeviation="8"
-            floodColor="hsl(var(--navy))"
-            floodOpacity="0.30"
-          />
-        </filter>
-        {/* Brilho neon na linha */}
-        <filter id="materias-glow" x="-20%" y="-60%" width="140%" height="220%">
-          <feGaussianBlur in="SourceGraphic" stdDeviation="3.5" result="blur" />
-          <feMerge>
-            <feMergeNode in="blur" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
-        {/* Faixa de luz que varre o gráfico (a 4ª dimensão: o tempo) */}
-        <linearGradient id="materias-sweep" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="hsl(var(--sky))" stopOpacity="0" />
-          <stop offset="50%" stopColor="hsl(var(--sky))" stopOpacity="0.55" />
-          <stop offset="100%" stopColor="hsl(var(--sky))" stopOpacity="0" />
-        </linearGradient>
-        {/* Recorte na forma da área para a luz varrer só dentro do gráfico */}
-        <clipPath id="materias-clip">
-          <path d={area} />
-        </clipPath>
-      </defs>
-
-      {/* Grade horizontal */}
-      {yTicks.map((tick) => (
-        <g key={tick}>
-          <line
-            x1={PAD.l}
-            x2={W - PAD.r}
-            y1={yOf(tick)}
-            y2={yOf(tick)}
-            stroke="hsl(var(--border))"
-            strokeDasharray={tick === 0 ? undefined : "4 4"}
-          />
-          <text
-            x={PAD.l - 8}
-            y={yOf(tick) + 4}
-            textAnchor="end"
-            fontSize="11"
-            fill="hsl(var(--muted-foreground))"
-          >
-            {tick}
-          </text>
-        </g>
-      ))}
-
-      {/* Camada de profundidade (extrusão 3D): a mesma área deslocada para baixo,
-          mais escura, dá a sensação de "espessura" sob o gráfico */}
-      <g transform="translate(0,9)">
-        <path d={area} fill="url(#materias-depth)" />
-      </g>
-
-      {/* Área principal com gradiente + sombra projetada (lift 3D) */}
-      <path d={area} fill="url(#materias-fill)" filter="url(#materias-lift)" />
-
-      {/* Luz que varre a área (movimento contínuo — sensação "4D") */}
-      <g clipPath="url(#materias-clip)">
-        <rect
-          className="animate-chart-sweep"
-          x="0"
-          y={PAD.t}
-          width="200"
-          height={H - PAD.t - PAD.b}
-          fill="url(#materias-sweep)"
-        />
-      </g>
-
-      {/* Linha com gradiente + brilho neon + brilho fino no topo (gloss) */}
-      <path
-        d={line}
-        fill="none"
-        stroke="url(#materias-line)"
-        strokeWidth="3.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        filter="url(#materias-glow)"
-      />
-      <path
-        d={line}
-        fill="none"
-        stroke="hsl(var(--card))"
-        strokeWidth="1.25"
-        strokeLinecap="round"
-        opacity="0.45"
-        transform="translate(0,-1.4)"
-      />
-
-      {/* Toque de distinção: markers nos pontos + destaque do pico */}
-      {points.map(([x, y], i) => {
-        const isPeak = i === peakIndex && weekly[i].count > 0;
-        return (
-          <g key={`pt-${i}`}>
-            {isPeak && (
-              <circle
-                className="animate-chart-peak"
-                cx={x}
-                cy={y}
-                r="8"
-                fill="hsl(var(--gold))"
-              />
-            )}
-            <circle
-              cx={x}
-              cy={y}
-              r={isPeak ? 4.5 : 3}
-              fill="hsl(var(--card))"
-              stroke={isPeak ? "hsl(var(--gold))" : "hsl(var(--navy))"}
-              strokeWidth="2"
-            />
-          </g>
-        );
-      })}
-
-      {/* Rótulos do eixo X */}
-      {weekly.map((p, i) =>
-        i % labelStep === 0 ? (
-          <text
-            key={i}
-            x={xOf(i)}
-            y={H - 10}
-            textAnchor="middle"
-            fontSize="11"
-            fill="hsl(var(--muted-foreground))"
-          >
-            {p.label}
-          </text>
-        ) : null
+    <div className="relative pt-2">
+      {/* Tooltip flutuante */}
+      {active !== null && (
+        <div
+          className="pointer-events-none absolute z-20 -translate-x-1/2 rounded-lg border border-border bg-card px-3 py-2 text-center shadow-lg"
+          style={{
+            left: `${((active + 0.5) / data.length) * 100}%`,
+            top: 0,
+          }}
+        >
+          <p className="text-xs font-semibold text-foreground capitalize">{data[active].label}</p>
+          <p className="text-lg font-bold text-primary tabular-nums">{data[active].count}</p>
+          <p className="text-[10px] text-muted-foreground">
+            matéria{data[active].count === 1 ? "" : "s"}
+          </p>
+        </div>
       )}
 
-      {/* Colunas invisíveis com tooltip nativo */}
-      {weekly.map((p, i) => (
-        <rect
-          key={`hover-${i}`}
-          x={xOf(i) - (W - PAD.l - PAD.r) / weekly.length / 2}
-          y={PAD.t}
-          width={(W - PAD.l - PAD.r) / weekly.length}
-          height={H - PAD.t - PAD.b}
-          fill="transparent"
-        >
-          <title>{`Semana de ${p.label}: ${p.count} matéria(s)`}</title>
-        </rect>
-      ))}
-    </svg>
+      <div
+        className="flex items-end gap-1.5 sm:gap-2 h-44 md:h-52 mt-8"
+        role="img"
+        aria-label="Gráfico de matérias apresentadas por semana"
+      >
+        {data.map((w, i) => {
+          const pct = w.count === 0 ? 0 : Math.max(8, (w.count / max) * 100);
+          const isActive = active === i;
+          return (
+            <button
+              key={i}
+              type="button"
+              className="group flex flex-1 flex-col items-center justify-end gap-2 min-w-0 h-full bg-transparent border-0 p-0 cursor-pointer"
+              onMouseEnter={() => setActive(i)}
+              onMouseLeave={() => setActive(null)}
+              onFocus={() => setActive(i)}
+              onBlur={() => setActive(null)}
+              aria-label={`${w.label}: ${w.count} matéria(s)`}
+            >
+              <div
+                className={`w-full max-w-[48px] rounded-t-md transition-all duration-200 ${
+                  isActive
+                    ? "bg-gradient-to-t from-navy to-sky shadow-md"
+                    : "bg-primary/25 group-hover:bg-primary/45"
+                }`}
+                style={{ height: `${pct}%` }}
+              />
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Eixo X — rótulos espaçados */}
+      <div className="flex gap-1.5 sm:gap-2 mt-2 border-t border-border pt-2">
+        {data.map((w, i) => (
+          <div key={i} className="flex-1 min-w-0 text-center">
+            {i % 2 === 0 || i === data.length - 1 ? (
+              <span className="block text-[10px] sm:text-xs text-muted-foreground capitalize truncate">
+                {w.label}
+              </span>
+            ) : null}
+          </div>
+        ))}
+      </div>
+    </div>
   );
-};
+}
+
+function MateriaCard({ m }: { m: LegislativoMateria }) {
+  const st = typeStyle(m.tipo);
+  const Icon = st.icon;
+  const statusCls = statusChipClass(m.status);
+  const external = m.url.startsWith("http") || m.url.startsWith("/uploads");
+
+  const inner = (
+    <>
+      <div className="flex items-start gap-3 mb-3">
+        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+          <Icon className="w-5 h-5 text-primary" aria-hidden />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap gap-1.5 mb-1.5">
+            {m.tipo && (
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide ${st.chip}`}>
+                {m.tipo}
+              </span>
+            )}
+            {m.status && statusCls && (
+              <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${statusCls}`}>
+                {m.status}
+              </span>
+            )}
+          </div>
+          <p className="text-sm font-semibold text-foreground leading-snug line-clamp-3 group-hover:text-primary transition-colors">
+            {m.titulo}
+          </p>
+        </div>
+      </div>
+      <div className="flex items-center justify-between gap-2 mt-auto pt-3 border-t border-border/60">
+        {m.data ? (
+          <span className="flex items-center gap-1 text-xs text-muted-foreground">
+            <Calendar className="w-3.5 h-3.5" aria-hidden />
+            {m.data}
+          </span>
+        ) : (
+          <span />
+        )}
+        <span className="inline-flex items-center gap-1 text-xs font-bold text-primary group-hover:text-gold transition-colors">
+          Acessar
+          <ArrowRight className="w-3.5 h-3.5" aria-hidden />
+        </span>
+      </div>
+    </>
+  );
+
+  const className =
+    "group flex flex-col h-full bg-card border border-border/60 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-primary/25 transition-all no-underline";
+
+  if (external) {
+    return (
+      <a href={m.url} target="_blank" rel="noopener noreferrer" className={className}>
+        {inner}
+      </a>
+    );
+  }
+  return (
+    <Link href={m.url} className={className}>
+      {inner}
+    </Link>
+  );
+}
 
 export const LegislativoSection = ({ data, title, subtitle }: LegislativoSectionProps) => {
-  const vereadoresRef = useRef<HTMLDivElement>(null);
-  const materiasRef = useRef<HTMLDivElement>(null);
-
   if (!data) return null;
 
   const hasChartData = data.weekly.some((w) => w.count > 0);
   const hasMaterias = data.materias.length > 0;
   if (!hasChartData && !hasMaterias) return null;
 
-  const scrollBy = (ref: React.RefObject<HTMLDivElement>, dir: 1 | -1) => {
-    ref.current?.scrollBy({ left: dir * 320, behavior: "smooth" });
-  };
-
-  const vereadoresAtivos = data.vereadores.filter((v) => v.materias > 0);
-  const showVereadores = vereadoresAtivos.length > 0;
-
-  // Indicador derivado para o chip de ritmo: média de matérias por semana
   const mediaSemanal =
     data.weekly.length > 0
       ? Math.round(
@@ -353,9 +235,8 @@ export const LegislativoSection = ({ data, title, subtitle }: LegislativoSection
       : 0;
 
   return (
-    <section className="py-14 lg:py-20 px-4 bg-background">
-      <div className="container mx-auto">
-        {/* Header */}
+    <section className="py-14 lg:py-20 bg-background">
+      <div className="container">
         <SectionHeading
           align="left"
           badge="Legislativo em Números"
@@ -371,8 +252,8 @@ export const LegislativoSection = ({ data, title, subtitle }: LegislativoSection
           }
         />
 
-        {/* Resumo do ano — número em destaque, rótulo menor (hierarquia) */}
-        <div className="flex flex-wrap gap-3 mb-10" data-reveal="up" data-reveal-delay="80">
+        {/* Resumo do ano */}
+        <div className="flex flex-wrap gap-3 mb-8" data-reveal="up">
           <div className="flex items-center gap-3 bg-card border border-border/60 rounded-xl px-5 py-3 shadow-sm">
             <div className="w-9 h-9 rounded-lg bg-gold/15 flex items-center justify-center shrink-0">
               <Gavel className="w-[18px] h-[18px] text-gold" />
@@ -401,196 +282,47 @@ export const LegislativoSection = ({ data, title, subtitle }: LegislativoSection
           </div>
         </div>
 
-        {/* Produção por vereador */}
-        {showVereadores && (
-          <div className="relative mb-10" data-reveal="up" data-reveal-delay="120">
-            <div
-              ref={vereadoresRef}
-              className="flex gap-4 overflow-x-auto pb-2 snap-x scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-            >
-              {vereadoresAtivos.map((v) => (
-                <Link
-                  key={v.id}
-                  href={`/vereadores/${v.slug}`}
-                  className="snap-start shrink-0 w-72 bg-card rounded-xl border border-border/60 shadow-sm hover:shadow-md hover:border-primary/25 transition-all no-underline overflow-hidden"
-                >
-                  <div className="flex items-center gap-3 p-4">
-                    {v.foto ? (
-                      <img
-                        src={v.foto}
-                        alt={v.nome}
-                        loading="lazy"
-                        className="w-12 h-12 rounded-full object-cover border-2 border-border"
-                      />
-                    ) : (
-                      <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center font-bold text-primary">
-                        {v.nome.charAt(0)}
-                      </div>
-                    )}
-                    <div className="min-w-0">
-                      <p className="font-semibold text-sm text-foreground flex items-center gap-1.5 truncate">
-                        {v.nome}
-                        <BadgeCheck className="w-4 h-4 text-emerald-500 shrink-0" />
-                      </p>
-                      <p className="text-xs text-muted-foreground truncate">{v.cargo}</p>
-                    </div>
-                  </div>
-                  <div className="border-t border-border/60 bg-muted/40 px-4 py-2.5 text-center">
-                    <span className="text-sm">
-                      <strong className="text-foreground">{v.materias}</strong>{" "}
-                      <span className="text-muted-foreground text-xs">
-                        Matéria{v.materias === 1 ? "" : "s"}
-                      </span>
-                    </span>
-                  </div>
-                </Link>
-              ))}
-            </div>
-            {vereadoresAtivos.length > 3 && (
-              <>
-                <button
-                  onClick={() => scrollBy(vereadoresRef, -1)}
-                  aria-label="Anterior"
-                  className="hidden md:flex absolute -left-4 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-card border border-border shadow-md items-center justify-center hover:bg-muted transition-colors"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => scrollBy(vereadoresRef, 1)}
-                  aria-label="Próximo"
-                  className="hidden md:flex absolute -right-4 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-card border border-border shadow-md items-center justify-center hover:bg-muted transition-colors"
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </>
-            )}
-          </div>
-        )}
-
-        {/* Gráfico — toque de distinção: acento gold no topo + chip de ritmo */}
+        {/* Gráfico */}
         {hasChartData && (
           <div
-            className="relative bg-card rounded-2xl border border-border/60 shadow-sm p-5 md:p-7 mb-10 overflow-hidden"
+            className="bg-card rounded-2xl border border-border/60 shadow-sm p-5 md:p-6 mb-10"
             data-reveal="up"
-            data-reveal-delay="160"
           >
-            <span
-              aria-hidden="true"
-              className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-gold/0 via-gold to-gold/0"
-            />
-            <div className="flex items-center justify-between gap-2 mb-4">
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
               <div className="flex items-center gap-2">
                 <TrendingUp className="w-4 h-4 text-gold" />
                 <h3 className="font-semibold text-foreground text-sm md:text-base">
                   Matérias apresentadas por semana
                 </h3>
               </div>
-              <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full bg-gold/10 px-3 py-1 text-xs font-semibold text-gold">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-gold/10 px-3 py-1 text-xs font-semibold text-gold">
                 <Activity className="w-3.5 h-3.5" />
-                {mediaSemanal}/sem.
+                média {mediaSemanal}/sem.
               </span>
             </div>
-            <MateriasChart weekly={data.weekly} />
+            <p className="text-xs text-muted-foreground mb-4">
+              Passe o mouse sobre as barras para ver a quantidade de cada semana (últimas 12 semanas).
+            </p>
+            <WeeklyBarChart weekly={data.weekly} />
           </div>
         )}
 
-        {/* Últimas matérias */}
+        {/* Últimas matérias — grade alinhada */}
         {hasMaterias && (
-          <div data-reveal="up" data-reveal-delay="200">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-xl font-bold text-foreground">Últimas matérias</h3>
+          <div data-reveal="up">
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-lg font-bold text-foreground">Últimas matérias</h3>
               <Link
                 href="/atividades-legislativas"
-                className="text-sm font-semibold text-primary hover:text-gold transition-colors no-underline link-underline"
+                className="text-sm font-semibold text-primary hover:text-gold transition-colors no-underline"
               >
-                Mais matérias
+                Ver todas
               </Link>
             </div>
-            <div className="relative">
-              <div
-                ref={materiasRef}
-                className="overflow-x-auto pb-2 scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-              >
-                <div className="relative inline-flex gap-6 px-6 pt-1 min-w-full">
-                  {/* Linha do tempo (gradiente) */}
-                  <div
-                    className="absolute top-[26px] left-0 right-0 h-0.5 bg-gradient-to-r from-primary/10 via-primary/30 to-primary/10"
-                    aria-hidden="true"
-                  />
-                  {data.materias.map((m) => {
-                    const st = typeStyle(m.tipo);
-                    const Icon = st.icon;
-                    const external = m.url.startsWith("http") || m.url.startsWith("/uploads");
-                    const statusCls = statusChipClass(m.status);
-                    return (
-                      <a
-                        key={m.id}
-                        href={m.url}
-                        target={external ? "_blank" : undefined}
-                        rel="noopener noreferrer"
-                        className="group relative flex flex-col items-center w-60 shrink-0 no-underline"
-                      >
-                        {/* Nó da timeline (cor por tipo) */}
-                        <div
-                          className={`w-[52px] h-[52px] rounded-full bg-card border-2 ${st.ring} flex items-center justify-center shadow-sm z-10 transition-transform group-hover:scale-110`}
-                        >
-                          <Icon className="w-5 h-5" aria-hidden="true" />
-                        </div>
-                        {/* Card */}
-                        <div className="mt-4 w-full text-left bg-card border border-border/60 rounded-xl p-4 shadow-sm transition-all group-hover:shadow-md group-hover:-translate-y-0.5 group-hover:border-primary/25">
-                          <div className="flex flex-wrap items-center gap-1.5 mb-2">
-                            {m.tipo && (
-                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide ${st.chip}`}>
-                                {m.tipo}
-                              </span>
-                            )}
-                            {m.status && statusCls && (
-                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${statusCls}`}>
-                                {m.status}
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-sm font-semibold text-foreground leading-snug line-clamp-2 min-h-[2.5rem] group-hover:text-primary transition-colors">
-                            {m.titulo}
-                          </p>
-                          <div className="mt-3 flex items-center justify-between gap-2">
-                            {m.data ? (
-                              <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                                <Calendar className="w-3 h-3" aria-hidden="true" />
-                                {m.data}
-                              </span>
-                            ) : (
-                              <span />
-                            )}
-                            <span className="inline-flex items-center gap-1 text-xs font-bold text-primary group-hover:text-gold transition-colors">
-                              Acessar
-                              <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
-                            </span>
-                          </div>
-                        </div>
-                      </a>
-                    );
-                  })}
-                </div>
-              </div>
-              {data.materias.length > 3 && (
-                <>
-                  <button
-                    onClick={() => scrollBy(materiasRef, -1)}
-                    aria-label="Matérias anteriores"
-                    className="hidden md:flex absolute -left-4 top-[26px] -translate-y-1/2 w-9 h-9 rounded-full bg-card border border-border shadow-md items-center justify-center hover:bg-muted transition-colors z-10"
-                  >
-                    <ChevronLeft className="w-4 h-4" />
-                  </button>
-                  <button
-                    onClick={() => scrollBy(materiasRef, 1)}
-                    aria-label="Próximas matérias"
-                    className="hidden md:flex absolute -right-4 top-[26px] -translate-y-1/2 w-9 h-9 rounded-full bg-card border border-border shadow-md items-center justify-center hover:bg-muted transition-colors z-10"
-                  >
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
-                </>
-              )}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {data.materias.map((m) => (
+                <MateriaCard key={m.id} m={m} />
+              ))}
             </div>
           </div>
         )}
