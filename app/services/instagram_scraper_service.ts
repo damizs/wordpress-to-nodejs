@@ -16,6 +16,12 @@ export interface InstagramPost {
   viewCount?: number
 }
 
+export interface InstagramProfileInfo {
+  username: string
+  fullName: string
+  profilePicUrl: string
+}
+
 export default class InstagramScraperService {
   private lastError: string = ''
 
@@ -409,6 +415,200 @@ export default class InstagramScraperService {
 
     // A API já devolve em ordem de recência; não reordenar (datas podem faltar).
     return allReels
+  }
+
+  /**
+   * Foto de perfil + metadados básicos via RapidAPI (Stable → Bulk).
+   */
+  async getProfileInfo(profileUrl: string): Promise<InstagramProfileInfo | null> {
+    if (!this.validateProfileUrl(profileUrl)) {
+      throw new Error('URL do perfil inválida.')
+    }
+
+    const apiKey = await InstagramSetting.get('rapidapi_key')
+    if (!apiKey) {
+      throw new Error('RapidAPI Key não configurada. Configure nas configurações.')
+    }
+
+    const username = this.extractUsername(profileUrl)
+    this.lastError = ''
+
+    const stableEndpoints = ['get_ig_user_about.php', 'get_ig_user_data.php']
+    for (const endpoint of stableEndpoints) {
+      try {
+        const info = await this.scrapeProfileWithStableApi(username, apiKey, endpoint)
+        if (info) return info
+      } catch (error: any) {
+        this.lastError = error.message
+        console.error(`Instagram Scraper (Stable ${endpoint}) perfil falhou: ${error.message}`)
+      }
+    }
+
+    try {
+      const info = await this.scrapeProfileWithBulkApi(username, apiKey)
+      if (info) return info
+    } catch (error: any) {
+      this.lastError = error.message
+      console.error(`Instagram Scraper (Bulk perfil) falhou: ${error.message}`)
+    }
+
+    return null
+  }
+
+  private async scrapeProfileWithStableApi(
+    username: string,
+    apiKey: string,
+    endpoint: string
+  ): Promise<InstagramProfileInfo | null> {
+    const host = 'instagram-scraper-stable-api.p.rapidapi.com'
+    const body = new URLSearchParams({
+      username_or_url: `https://www.instagram.com/${username}/`,
+    })
+
+    const response = await fetch(`https://${host}/${endpoint}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'x-rapidapi-host': host,
+        'x-rapidapi-key': apiKey,
+      },
+      body: body.toString(),
+    })
+
+    if (response.status === 401 || response.status === 403) {
+      throw new Error('API Key inválida ou sem assinatura desta API')
+    }
+    if (response.status === 429) {
+      throw new Error('Limite de requisições da API atingido. Tente novamente mais tarde.')
+    }
+    if (!response.ok) {
+      const text = await response.text()
+      throw new Error(`Stable API perfil erro ${response.status}: ${text.substring(0, 120)}`)
+    }
+
+    const data: any = await response.json()
+    const pic = this.extractProfilePicUrl(data)
+    if (!pic) return null
+
+    return {
+      username: this.extractProfileField(data, ['username', 'user_name']) || username,
+      fullName: this.extractProfileField(data, ['full_name', 'fullName', 'name']) || username,
+      profilePicUrl: pic,
+    }
+  }
+
+  private async scrapeProfileWithBulkApi(
+    username: string,
+    apiKey: string
+  ): Promise<InstagramProfileInfo | null> {
+    const paths = [
+      `v2/user_info?username_or_id=${encodeURIComponent(username)}`,
+      `v1/user_info?username_or_id=${encodeURIComponent(username)}`,
+      `v2/user?username=${encodeURIComponent(username)}`,
+    ]
+
+    for (const path of paths) {
+      const url = `https://instagram-public-bulk-scraper.p.rapidapi.com/${path}`
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'X-RapidAPI-Key': apiKey,
+          'X-RapidAPI-Host': 'instagram-public-bulk-scraper.p.rapidapi.com',
+        },
+      })
+
+      if (response.status === 401 || response.status === 403) {
+        throw new Error('API Key inválida ou sem créditos')
+      }
+      if (response.status === 429) {
+        throw new Error('Limite de requisições da API atingido. Tente novamente mais tarde.')
+      }
+      if (!response.ok) continue
+
+      const data: any = await response.json()
+      const pic = this.extractProfilePicUrl(data)
+      if (!pic) continue
+
+      return {
+        username: this.extractProfileField(data, ['username', 'user_name']) || username,
+        fullName: this.extractProfileField(data, ['full_name', 'fullName', 'name']) || username,
+        profilePicUrl: pic,
+      }
+    }
+
+    return null
+  }
+
+  /** Percorre o JSON da API em busca de URL de avatar (HD preferido). */
+  private extractProfilePicUrl(data: unknown): string | null {
+    const preferredKeys = [
+      'profile_pic_url_hd',
+      'hd_profile_pic_url',
+      'hd_profile_pic',
+      'profile_pic_url',
+      'profilePicUrl',
+      'profile_pic',
+    ]
+
+    const walk = (node: unknown, depth = 0): string | null => {
+      if (!node || depth > 10) return null
+
+      if (typeof node === 'string') {
+        const value = node.trim()
+        if (
+          value.startsWith('http') &&
+          (value.includes('cdninstagram') ||
+            value.includes('fbcdn.net') ||
+            value.includes('instagram.'))
+        ) {
+          return value
+        }
+        return null
+      }
+
+      if (Array.isArray(node)) {
+        for (const item of node) {
+          const found = walk(item, depth + 1)
+          if (found) return found
+        }
+        return null
+      }
+
+      if (typeof node === 'object') {
+        const record = node as Record<string, unknown>
+        for (const key of preferredKeys) {
+          const value = record[key]
+          if (typeof value === 'string' && value.startsWith('http')) return value
+        }
+        for (const value of Object.values(record)) {
+          const found = walk(value, depth + 1)
+          if (found) return found
+        }
+      }
+
+      return null
+    }
+
+    return walk(data)
+  }
+
+  private extractProfileField(data: unknown, keys: string[]): string {
+    const walk = (node: unknown, depth = 0): string => {
+      if (!node || depth > 8 || typeof node !== 'object') return ''
+      const record = node as Record<string, unknown>
+      for (const key of keys) {
+        const value = record[key]
+        if (typeof value === 'string' && value.trim()) return value.trim()
+      }
+      for (const value of Object.values(record)) {
+        if (value && typeof value === 'object') {
+          const found = walk(value, depth + 1)
+          if (found) return found
+        }
+      }
+      return ''
+    }
+    return walk(data)
   }
 
   private validateProfileUrl(url: string): boolean {

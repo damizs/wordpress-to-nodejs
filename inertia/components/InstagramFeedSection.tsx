@@ -16,11 +16,48 @@ interface InstagramPost {
 interface InstagramFeedSectionProps {
   posts?: InstagramPost[];
   instagramUrl?: string;
+  /** Foto de perfil cacheada (local ou proxy). */
+  profileImageUrl?: string | null;
 }
 
 const DEFAULT_PROFILE = "https://www.instagram.com/camaradesume";
 
-export const InstagramFeedSection = ({ posts = [], instagramUrl }: InstagramFeedSectionProps) => {
+function ProfileAvatar({
+  profileImageUrl,
+  size = "md",
+}: {
+  profileImageUrl?: string | null;
+  size?: "md" | "lg";
+}) {
+  const outer = size === "lg" ? "w-20 h-20 rounded-2xl" : "w-14 h-14 rounded-full";
+  const inner = size === "lg" ? "rounded-2xl" : "rounded-full";
+  const iconSize = size === "lg" ? "w-10 h-10" : "w-6 h-6";
+
+  return (
+    <div
+      className={`${outer} bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 p-[3px] shrink-0`}
+    >
+      <div className={`w-full h-full ${inner} overflow-hidden bg-primary flex items-center justify-center`}>
+        {profileImageUrl ? (
+          <img
+            src={profileImageUrl}
+            alt=""
+            loading="lazy"
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <Instagram className={`${iconSize} text-primary-foreground`} />
+        )}
+      </div>
+    </div>
+  );
+}
+
+export const InstagramFeedSection = ({
+  posts = [],
+  instagramUrl,
+  profileImageUrl = null,
+}: InstagramFeedSectionProps) => {
   const profileUrl = instagramUrl || DEFAULT_PROFILE;
   const handle = "@" + (profileUrl.replace(/\/+$/, "").split("/").pop() || "instagram");
   const scrollerRef = useRef<HTMLDivElement>(null);
@@ -65,11 +102,7 @@ export const InstagramFeedSection = ({ posts = [], instagramUrl }: InstagramFeed
           <>
             {/* Profile header */}
             <div className="flex items-center justify-center gap-3 mb-10" data-reveal>
-              <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 p-[3px]">
-                <div className="w-full h-full rounded-full bg-primary flex items-center justify-center">
-                  <Instagram className="w-6 h-6 text-primary-foreground" />
-                </div>
-              </div>
+              <ProfileAvatar profileImageUrl={profileImageUrl} />
               <div>
                 <a
                   href={profileUrl}
@@ -185,9 +218,7 @@ export const InstagramFeedSection = ({ posts = [], instagramUrl }: InstagramFeed
               rel="noopener noreferrer"
               className="group card-modern p-8 flex flex-col items-center gap-4 no-underline max-w-md w-full"
             >
-              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-500 via-pink-500 to-orange-500 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform duration-500">
-                <Instagram className="w-10 h-10 text-white" />
-              </div>
+              <ProfileAvatar profileImageUrl={profileImageUrl} size="lg" />
               <div className="text-center">
                 <h3 className="font-bold text-foreground text-xl mb-2">{handle}</h3>
                 <p className="text-muted-foreground text-sm mb-4">

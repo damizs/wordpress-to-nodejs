@@ -112,6 +112,7 @@ interface HomeProps {
   instagramPosts?: InstagramPost[];
   instagramReels?: ReelItem[];
   instagramProfileUrl?: string | null;
+  instagramProfilePic?: string | null;
   quickLinks?: QuickLinkItem[];
   latestGazette?: GazetteEntry | null;
   gazetteEntries?: GazetteEntry[];
@@ -130,6 +131,7 @@ export default function Home({
   instagramPosts = [],
   instagramReels = [],
   instagramProfileUrl = null,
+  instagramProfilePic = null,
   quickLinks = [],
   latestGazette = null,
   gazetteEntries = [],
@@ -252,6 +254,7 @@ export default function Home({
                 <InstagramFeedSection
                   posts={instagramPosts}
                   instagramUrl={instagramProfileUrl || siteSettings?.instagram_url || undefined}
+                  profileImageUrl={instagramProfilePic}
                 />
               ),
               reels: shell(

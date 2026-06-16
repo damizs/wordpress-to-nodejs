@@ -29,6 +29,7 @@ export default class HomeController {
 
     let instagramLogs: InstagramImportLog[] = []
     let instagramProfileUrl: string | null = null
+    let instagramProfilePic: string | null = null
     let instagramFeed: Awaited<ReturnType<typeof InstagramFeedService.getCached>>['items'] = []
     let instagramReels: Awaited<ReturnType<typeof InstagramFeedService.getCachedReels>>['items'] = []
     try {
@@ -39,6 +40,7 @@ export default class HomeController {
         .orderBy('instagram_post_date', 'desc')
         .limit(8)
       instagramProfileUrl = await InstagramSetting.get('instagram_profile_url')
+      instagramProfilePic = await InstagramFeedService.getCachedProfilePic()
 
       // Feed ao vivo (cache). Atualiza em segundo plano se estiver velho/vazio,
       // sem bloquear a renderização da página.
@@ -47,6 +49,10 @@ export default class HomeController {
       if (instagramProfileUrl && (await InstagramFeedService.isStale())) {
         InstagramFeedService.refresh().catch((err) =>
           console.log('Instagram feed refresh falhou:', err?.message)
+        )
+      } else if (instagramProfileUrl && (await InstagramFeedService.isProfilePicStale())) {
+        InstagramFeedService.refreshProfilePic().catch((err) =>
+          console.log('Instagram profile pic refresh falhou:', err?.message)
         )
       }
 
@@ -275,6 +281,7 @@ export default class HomeController {
       instagramPosts,
       instagramReels,
       instagramProfileUrl,
+      instagramProfilePic,
       legislatura,
       quickLinks: quickLinks.map((q) => q.serialize()),
       transparencySections: sectionsWithLinks,

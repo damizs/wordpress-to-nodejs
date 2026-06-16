@@ -53,6 +53,10 @@ const REELS_DIR_REL = 'uploads/instagram-reels'
 const REELS_CACHE_KEY = 'reels_cache'
 const REELS_CACHE_AT_KEY = 'reels_cached_at'
 
+const PROFILE_PIC_KEY = 'profile_pic_url'
+const PROFILE_PIC_AT_KEY = 'profile_pic_cached_at'
+const PROFILE_FILE = 'profile.jpg'
+
 export default class InstagramFeedService {
   /** TTL padrão do cache (horas) antes de considerar o feed "velho". */
   static STALE_HOURS = 6
@@ -74,6 +78,56 @@ export default class InstagramFeedService {
     return { items, cachedAt }
   }
 
+  /** URL local da foto de perfil cacheada (ou null). */
+  static async getCachedProfilePic(): Promise<string | null> {
+    const url = await InstagramSetting.get(PROFILE_PIC_KEY)
+    return url?.trim() || null
+  }
+
+  /**
+   * Busca avatar do perfil na API, baixa para disco e persiste no banco.
+   * Falhas não apagam o cache anterior.
+   */
+  static async refreshProfilePic(): Promise<string | null> {
+    const profileUrl = await InstagramSetting.get('instagram_profile_url')
+    if (!profileUrl) return null
+
+    const scraper = new InstagramScraperService()
+    const info = await scraper.getProfileInfo(profileUrl)
+    if (!info?.profilePicUrl) {
+      throw new Error(scraper.getLastError() || 'Foto de perfil não retornada pelo scraper')
+    }
+
+    const dirAbs = app.makePath('public', FEED_DIR_REL)
+    await mkdir(dirAbs, { recursive: true })
+    const destPath = path.join(dirAbs, PROFILE_FILE)
+
+    try {
+      await this.downloadImage(info.profilePicUrl, destPath)
+    } catch {
+      // Fallback: proxy se o CDN bloquear download direto
+      const proxied = `/painel/noticias/instagram/proxy-image?url=${encodeURIComponent(info.profilePicUrl)}`
+      await InstagramSetting.set(PROFILE_PIC_KEY, proxied)
+      await InstagramSetting.set(PROFILE_PIC_AT_KEY, DateTime.now().toISO())
+      return proxied
+    }
+
+    const localUrl = `/${FEED_DIR_REL}/${PROFILE_FILE}`
+    await InstagramSetting.set(PROFILE_PIC_KEY, localUrl)
+    await InstagramSetting.set(PROFILE_PIC_AT_KEY, DateTime.now().toISO())
+    return localUrl
+  }
+
+  /** Avatar: cache vazio ou mais velho que o TTL. */
+  static async isProfilePicStale(): Promise<boolean> {
+    const url = await this.getCachedProfilePic()
+    const at = await InstagramSetting.get(PROFILE_PIC_AT_KEY)
+    if (!url || !at) return true
+    const cachedAt = DateTime.fromISO(at)
+    if (!cachedAt.isValid) return true
+    return cachedAt.diffNow('hours').hours < -this.STALE_HOURS
+  }
+
   /** Indica se o cache está vazio ou mais velho que o TTL. */
   static async isStale(): Promise<boolean> {
     const { items, cachedAt } = await this.getCached()
@@ -92,6 +146,10 @@ export default class InstagramFeedService {
     }
 
     const scraper = new InstagramScraperService()
+    await this.refreshProfilePic().catch((err) =>
+      console.log('Instagram profile pic refresh falhou:', err?.message)
+    )
+
     const posts = await scraper.getPostsFromProfile(profileUrl, limit)
     if (posts.length === 0) {
       throw new Error(scraper.getLastError() || 'Nenhum post retornado pelo scraper')
@@ -264,7 +322,7 @@ export default class InstagramFeedService {
       const files = await readdir(dirAbs)
       await Promise.all(
         files
-          .filter((f) => f.endsWith('.jpg') && !keep.has(f))
+          .filter((f) => f.endsWith('.jpg') && f !== PROFILE_FILE && !keep.has(f))
           .map((f) => unlink(path.join(dirAbs, f)).catch(() => {}))
       )
     } catch {
