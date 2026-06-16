@@ -70,7 +70,7 @@ export default function CityImages({ images }: Props) {
     <AdminLayout title="Fotos da Cidade">
       <Head title="Fotos da Cidade - Painel" />
 
-      <div className="max-w-4xl">
+      <div className="w-full min-w-0">
         <Card>
           <CardHeader
             icon={Image}

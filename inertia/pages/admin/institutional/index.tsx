@@ -67,7 +67,7 @@ export default function InstitutionalIndex({ entries = [] }: Props) {
         title="Conteúdo Institucional"
         description="Edite os textos das páginas Sobre a Câmara e História da Câmara"
       />
-      <div className="max-w-4xl space-y-8">
+      <div className="w-full min-w-0 space-y-8">
         {pages.map((page) => (
           <section key={page}>
             <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-3">

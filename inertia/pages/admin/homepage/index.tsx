@@ -80,7 +80,7 @@ export default function HomepageEditor({ settings }: Props) {
     <AdminLayout title="Editor da Homepage">
       <Head title="Homepage - Painel" />
 
-      <form onSubmit={handleSubmit} className="max-w-4xl space-y-6">
+      <form onSubmit={handleSubmit} className="w-full min-w-0 space-y-6">
         {/* Section Visibility */}
         <Section icon={Eye} title="Visibilidade das Seções" description="Ative/desative seções na homepage">
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">

@@ -247,6 +247,11 @@ export function SearchInput({
 
 /* ============================== Card / PageHeader ============================== */
 
+/** Container fluido padrão do painel — usa 100% da área útil (sem max-width). */
+export function AdminPage({ children, className = '' }: { children: ReactNode; className?: string }) {
+  return <div className={`w-full min-w-0 ${className}`}>{children}</div>
+}
+
 export function Card({
   children,
   className = '',

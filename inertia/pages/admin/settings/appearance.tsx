@@ -153,9 +153,9 @@ export default function Appearance({ settings }: Props) {
     <AdminLayout title="Aparência">
       <Head title="Aparência - Painel" />
 
-      <form onSubmit={handleSubmit} className="max-w-4xl">
+      <form onSubmit={handleSubmit} className="w-full min-w-0">
         {/* Abas de navegação */}
-        <div className="sticky top-16 z-20 -mx-4 lg:mx-0 mb-6 bg-background/95 backdrop-blur border-b border-border px-4 lg:px-0 lg:border-0 lg:bg-transparent lg:backdrop-blur-none">
+        <div className="sticky top-16 z-20 mb-6 bg-background/95 backdrop-blur border-b border-border pb-2 lg:border-0 lg:bg-transparent lg:backdrop-blur-none">
           <div className="flex gap-1 overflow-x-auto py-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden lg:flex-wrap lg:rounded-xl lg:bg-muted lg:p-1.5">
             {TABS.map((t) => {
               const active = tab === t.key
@@ -402,7 +402,7 @@ export default function Appearance({ settings }: Props) {
         </div>
 
         {/* Submit (fixo no rodapé do formulário) */}
-        <div className="sticky bottom-0 mt-6 -mx-4 lg:mx-0 flex justify-end gap-3 border-t border-border bg-background/95 backdrop-blur px-4 lg:px-0 py-3 lg:py-4">
+        <div className="sticky bottom-0 mt-6 flex justify-end gap-3 border-t border-border bg-background/95 backdrop-blur py-3 lg:py-4">
           <Button type="submit" loading={processing}>
             {!processing && <Save className="w-4 h-4" />}
             {processing ? 'Salvando...' : 'Salvar Configurações'}
@@ -677,7 +677,7 @@ function LayoutStylePicker({ value, onChange }: { value: string; onChange: (v: s
       label="Estilo de layout"
       hint="Altera a forma (cantos, sombras), a tipografia e a densidade de todo o site. É independente das cores: combina com qualquer tema ou campanha sazonal."
     >
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-3">
         {LAYOUT_STYLES.map((layout: LayoutStyle) => {
           const selected = (value || 'institucional') === layout.key
           return (
@@ -782,7 +782,7 @@ function SiteTemplatePicker({
       label="Modelo do site"
       hint="Muda a ESTRUTURA do front: arranjo do cabeçalho (logo/menu/busca) e a abertura da home. Clique em um modelo para personalizar blocos e cores."
     >
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-3">
         {SITE_TEMPLATES.map((tpl: SiteTemplate) => {
           const selected = (value || 'institucional') === tpl.key
           return (
@@ -874,7 +874,7 @@ function NewsLayoutPicker({ value, onChange }: { value: string; onChange: (v: st
       label="Modelo dos cards"
       hint="Como as notícias aparecem na página inicial. Independente do tema e do modelo do site."
     >
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-3">
         {NEWS_LAYOUTS.map((nl) => {
           const selected = (value || 'mosaico') === nl.key
           return (
