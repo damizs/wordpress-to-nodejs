@@ -8,41 +8,43 @@ import { Download, ExternalLink, FileText } from "lucide-react";
 
 interface DocumentActionsProps {
   fileUrl?: string | null;
+  exportUrl?: string | null;
   label?: string;
   className?: string;
 }
 
 /** Par de botões: primário "Baixar PDF" + secundário "Visualizar" (abre em nova aba). */
-export function DocumentActions({ fileUrl, label = "Baixar PDF", className = "" }: DocumentActionsProps) {
-  if (!fileUrl) return null;
+export function DocumentActions({ fileUrl, exportUrl, label = "Baixar PDF", className = "" }: DocumentActionsProps) {
+  const href = fileUrl || exportUrl;
+  if (!href) return null;
   return (
     <div className={`flex flex-wrap gap-3 ${className}`}>
       <a
-        href={fileUrl}
-        download
-        target="_blank"
-        rel="noopener noreferrer"
+        href={href}
+        {...(fileUrl ? { download: true } : { target: "_blank", rel: "noopener noreferrer" })}
         className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground text-sm font-semibold shadow-md hover:bg-primary/90 hover:shadow-lg active:scale-[0.98] transition-all no-underline"
       >
         <Download className="w-5 h-5" />
         {label}
       </a>
-      <a
-        href={fileUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl border-2 border-primary/25 text-primary text-sm font-semibold hover:border-primary/50 hover:bg-primary/5 transition-all no-underline"
-      >
-        <ExternalLink className="w-4 h-4" />
-        Visualizar
-      </a>
+      {(fileUrl || exportUrl) && (
+        <a
+          href={fileUrl || exportUrl!}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl border-2 border-primary/25 text-primary text-sm font-semibold hover:border-primary/50 hover:bg-primary/5 transition-all no-underline"
+        >
+          <ExternalLink className="w-4 h-4" />
+          Visualizar
+        </a>
+      )}
     </div>
   );
 }
 
 /** Painel de destaque para páginas de detalhe: faixa "Documento disponível" + botões. */
-export function DocumentActionsPanel({ fileUrl, label = "Baixar PDF", className = "" }: DocumentActionsProps) {
-  if (!fileUrl) return null;
+export function DocumentActionsPanel({ fileUrl, exportUrl, label = "Baixar PDF", className = "" }: DocumentActionsProps) {
+  if (!fileUrl && !exportUrl) return null;
   return (
     <div
       className={`flex flex-col sm:flex-row sm:items-center gap-4 p-4 sm:p-5 rounded-2xl border border-primary/15 bg-primary/5 ${className}`}
@@ -56,7 +58,7 @@ export function DocumentActionsPanel({ fileUrl, label = "Baixar PDF", className 
           <p className="text-xs text-muted-foreground">Arquivo em PDF para download ou leitura online</p>
         </div>
       </div>
-      <DocumentActions fileUrl={fileUrl} label={label} className="shrink-0" />
+      <DocumentActions fileUrl={fileUrl} exportUrl={exportUrl} label={label} className="shrink-0" />
     </div>
   );
 }

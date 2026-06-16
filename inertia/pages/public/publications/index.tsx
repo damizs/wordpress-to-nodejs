@@ -7,10 +7,10 @@ import { Breadcrumb } from "~/components/Breadcrumb";
 import { PageHero } from "~/components/PageHero";
 import { Footer } from "~/components/Footer";
 import { Calendar, FileText, ChevronLeft, ChevronRight, Search, X, ArrowRight } from "lucide-react";
-import { DownloadPdfButton, formatDocumentDate } from "~/components/DocumentActions";
+import { ActivityPdfButton, formatDocumentDate } from "~/components/DocumentActions";
 import { FilterBar } from "~/components/FilterBar";
 
-interface Publication { id: number; title: string; slug: string; date: string; type?: string; file_url?: string; }
+interface Publication { id: number; title: string; slug: string; date: string; type?: string; file_url?: string; export_url?: string; }
 interface Filters { type?: string; year?: string; search?: string; }
 interface Props {
   publications: Publication[];
@@ -120,7 +120,10 @@ export default function PublicationsIndex({ publications = [], pagination, filte
                           </p>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
-                          <DownloadPdfButton fileUrl={pub.file_url} />
+                          <ActivityPdfButton
+                            fileUrl={pub.file_url}
+                            exportUrl={pub.export_url || `/publicacoes-oficiais/${pub.slug}/exportar`}
+                          />
                           <Link
                             href={`/publicacoes-oficiais/${pub.slug}`}
                             className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-2.5 rounded-xl border border-border bg-card text-sm font-medium text-foreground hover:border-primary/40 hover:text-primary transition-colors no-underline"

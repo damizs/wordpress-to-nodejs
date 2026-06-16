@@ -17,6 +17,7 @@ import FaqItem from '#models/faq_item'
 import User from '#models/user'
 import LegislativeActivity from '#models/legislative_activity'
 import OfficialPublication from '#models/official_publication'
+import { routeMateria } from '#helpers/materia_router'
 import PlenarySession from '#models/plenary_session'
 import TransparencySection from '#models/transparency_section'
 import TransparencyLink from '#models/transparency_link'
@@ -514,35 +515,9 @@ export default class WpMigrate extends BaseCommand {
   async importMaterias(materias: any[]) {
     this.logger.info(`\n━━━ Matérias: ${materias.length} items ━━━`)
 
-    const legislativeTypes = new Set([
-      'REQUERIMENTO',
-      'RESOLUÇÃO LEGISLATIVA',
-      'PROJETO DE LEI LEGISLATIVO',
-      'INDICACAO',
-      'EMENDA',
-      'DECRETO LEGISLATIVO',
-      'PROJETO DE RESOLUÇÃO',
-    ])
-    const licitacaoTypes = new Set([
-      'Aviso de Licitação',
-      'Extrato de Contrato',
-      'Termo de Adjudicação',
-      'Extrato de Dispensa de Licitação',
-      'Demais Atos de Licitação',
-      'Extrato de inexigibilidade',
-      'Extrato de Aditivo',
-      'Aviso de Habilitação',
-      'Extrato de Ratificação',
-      'Edital de Licitação',
-      'Termo de Homologação',
-      'Aditivo',
-      'RESULTADO',
-    ])
-
     if (this.force) {
       await LegislativeActivity.query().delete()
       await Licitacao.query().delete()
-      // Only delete matéria-sourced publications
       await OfficialPublication.query()
         .whereIn('type', [
           'Portaria',
@@ -551,26 +526,33 @@ export default class WpMigrate extends BaseCommand {
           'Decreto',
           'Ato Administrativo',
           'Outros',
+          'Resolução',
         ])
         .delete()
     }
 
-    let legOk = 0
+    let legSkip = 0
     let licOk = 0
     let pubOk = 0
     let skip = 0
+
     for (const m of materias) {
       const content = this.cleanContent(m.conteudo)
       const year = m.dt_publicacao ? Number.parseInt(m.dt_publicacao.substring(0, 4)) : 2025
       const slug = this.slugify(`${m.tipo}-${m.codigo}`)
+      const route = routeMateria({
+        tipo: m.tipo,
+        titulo: m.titulo,
+        conteudo: content,
+        codigo: m.codigo,
+      })
 
-      if (legislativeTypes.has(m.tipo)) {
-        // Atividades legislativas agora vêm do importador dedicado
-        // (importActivitiesWithAuthors), que traz a autoria dos vereadores.
-        // Mantido apenas para contagem; nada é criado aqui para evitar duplicatas.
-        skip++
+      if (route.target === 'skip') {
+        legSkip++
         continue
-      } else if (licitacaoTypes.has(m.tipo)) {
+      }
+
+      if (route.target === 'licitacao') {
         if (await Licitacao.findBy('slug', slug)) {
           skip++
           continue
@@ -580,47 +562,44 @@ export default class WpMigrate extends BaseCommand {
             title: m.titulo,
             slug,
             number: m.codigo,
-            modality: m.tipo,
+            modality: route.modality,
             status: 'concluida',
             object: m.titulo,
             content,
             year,
+            fileUrl: route.fileUrl,
             isActive: true,
           })
           licOk++
         } catch {
           /* skip */
         }
-      } else {
-        const typeMap: Record<string, string> = {
-          'Portaria': 'Portaria',
-          'Ata': 'Ata Administrativa',
-          'EDITAL': 'Edital',
-          'Decreto': 'Decreto',
-          'Atos Administrativos': 'Ato Administrativo',
-          'Outros Atos Administrativos': 'Ato Administrativo',
-        }
-        if (await OfficialPublication.findBy('slug', slug)) {
-          skip++
-          continue
-        }
-        try {
-          await OfficialPublication.create({
-            title: m.titulo,
-            slug,
-            type: typeMap[m.tipo] || 'Outros',
-            number: m.codigo,
-            publicationDate: m.dt_publicacao || `${year}-01-01`,
-            description: content.substring(0, 500) || null,
-          })
-          pubOk++
-        } catch {
-          /* skip */
-        }
+        continue
+      }
+
+      if (await OfficialPublication.findBy('slug', slug)) {
+        skip++
+        continue
+      }
+      try {
+        const description = content || null
+        await OfficialPublication.create({
+          title: m.titulo,
+          slug,
+          type: route.type,
+          number: m.codigo,
+          publicationDate: m.dt_publicacao || `${year}-01-01`,
+          description,
+          fileUrl: route.fileUrl,
+        })
+        pubOk++
+      } catch {
+        /* skip */
       }
     }
+
     this.logger.success(
-      `  Legislative: ${legOk}, Licitações: ${licOk}, Publications: ${pubOk}, skipped: ${skip}`
+      `  Legislative skipped: ${legSkip}, Licitações: ${licOk}, Publications: ${pubOk}, dup skip: ${skip}`
     )
   }
 

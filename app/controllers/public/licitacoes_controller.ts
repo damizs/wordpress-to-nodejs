@@ -2,6 +2,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import Licitacao from '#models/licitacao'
 import SiteSetting from '#models/site_setting'
 import { DOCUMENT_TYPES, checklistFor } from '#helpers/licitacao_documents'
+import { resolveDocumentFileUrl } from '#helpers/document_file_url'
 
 export default class LicitacoesController {
   async index({ inertia, request }: HttpContext) {
@@ -52,6 +53,7 @@ export default class LicitacoesController {
         modality: l.modality,
         date: l.openingDate || l.createdAt?.toISODate() || null,
         status: l.status,
+        file_url: resolveDocumentFileUrl(l.fileUrl, l.content, l.number),
       })),
       pagination: {
         currentPage: licitacoes.currentPage,
@@ -97,14 +99,18 @@ export default class LicitacoesController {
       done: typesWithFiles.has(type),
     }))
 
+    const fileUrl = resolveDocumentFileUrl(licitacao.fileUrl, licitacao.content, licitacao.number)
+    const pdfLabel =
+      licitacao.modality?.includes('Ata') || licitacao.title.toLowerCase().includes('ata')
+        ? 'Documento (PDF)'
+        : 'Edital (PDF)'
+
     return inertia.render('public/licitacoes/show', {
       licitacao: {
         ...licitacao.serialize({ relations: {} }),
         date: licitacao.openingDate || licitacao.createdAt?.toISODate() || null,
-        // Compatibilidade: PDF único antigo aparece como anexo avulso
-        attachments: licitacao.fileUrl
-          ? [{ id: 0, name: 'Edital (PDF)', url: licitacao.fileUrl }]
-          : [],
+        file_url: fileUrl,
+        attachments: fileUrl ? [{ id: 0, name: pdfLabel, url: fileUrl }] : [],
       },
       documentGroups: groups,
       phases,
