@@ -444,7 +444,12 @@ export default class WpMigrate extends BaseCommand {
   // 7. QUICK LINKS (28)
   // ═══════════════════════════════════════
   async importQuickLinks(links: any[]) {
-    this.logger.info(`\n━━━ Quick Links: ${links.length} items ━━━`)
+    // No WP, secao_id 1 = Acesso Rápido (legislativo); secao_id 2 = Acesso à Informação
+    // (categorias PNTP — já importadas em information_records / system_categories).
+    const legislative = links.filter((l) => String(l.secao_id) === '1')
+    this.logger.info(
+      `\n━━━ Quick Links: ${legislative.length} legislativos (${links.length - legislative.length} AI ignorados) ━━━`
+    )
     if (this.force) {
       await QuickLink.query().delete()
     }
@@ -481,7 +486,7 @@ export default class WpMigrate extends BaseCommand {
 
     let ok = 0
     let skip = 0
-    for (const [i, l] of links.entries()) {
+    for (const [i, l] of legislative.entries()) {
       if (!l.active) continue
       let url = l.url
         .replace('https://camaradesume.pb.gov.br/', '/')
