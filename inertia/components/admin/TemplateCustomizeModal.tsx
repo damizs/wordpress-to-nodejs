@@ -8,6 +8,7 @@ import {
   Settings2,
 } from 'lucide-react'
 import { Modal, Button, Field, Select } from '~/components/admin/ui'
+import { SectionBlockPreview } from '~/components/admin/SectionBlockPreview'
 import { NEWS_LAYOUTS } from '~/lib/news-layouts'
 import {
   HOME_SECTION_LABELS,
@@ -65,7 +66,7 @@ export function TemplateCustomizeModal({
   }
 
   return (
-    <Modal open={open} onClose={onClose} maxWidth="max-w-2xl">
+    <Modal open={open} onClose={onClose} maxWidth="max-w-3xl">
       <div className="p-6 border-b border-border">
         <div className="flex items-start gap-3">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-navy/10 text-navy">
@@ -82,7 +83,7 @@ export function TemplateCustomizeModal({
         <div>
           <p className="text-sm font-semibold text-foreground mb-1">Ordem das seções na home</p>
           <p className="text-xs text-muted-foreground mb-3">
-            Use as setas para reordenar. Expanda uma seção para ajustar o fundo.
+            Use as setas para reordenar. Expanda uma seção para ajustar o fundo e ver a prévia.
           </p>
           <ul className="space-y-2">
             {draft.homeOrder.map((key, index) => {
@@ -138,7 +139,9 @@ export function TemplateCustomizeModal({
                   </div>
 
                   {isOpen && (
-                    <div className="px-3 pb-3 pt-0 border-t border-border/60 bg-muted/20 space-y-3">
+                    <div className="px-3 pb-3 pt-0 border-t border-border/60 bg-muted/20">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-3">
+                        <div className="space-y-3 min-w-0">
                       <Field label="Fundo da seção">
                         <Select
                           value={sec.bgTone}
@@ -196,6 +199,10 @@ export function TemplateCustomizeModal({
                           </Field>
                         </div>
                       )}
+                        </div>
+
+                        <SectionBlockPreview section={key} style={sec} draft={draft} />
+                      </div>
                     </div>
                   )}
                 </li>

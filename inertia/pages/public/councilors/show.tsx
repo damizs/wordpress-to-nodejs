@@ -369,23 +369,23 @@ function ProductionExplorer({ timeline }: { timeline: TimelineItem[] }) {
       </div>
 
       {/* KPIs do período */}
-      <div className="grid grid-cols-3 gap-3 mb-5">
-        <div className="rounded-xl bg-muted/50 p-3 text-center">
-          <p className="text-2xl font-bold text-foreground tabular-nums leading-none">{totalPeriod}</p>
-          <p className="text-[11px] text-muted-foreground mt-1">
+      <div className="grid grid-cols-1 min-[360px]:grid-cols-3 gap-2 sm:gap-3 mb-5">
+        <div className="rounded-xl bg-muted/50 p-3 text-center min-w-0">
+          <p className="text-xl sm:text-2xl font-bold text-foreground tabular-nums leading-none">{totalPeriod}</p>
+          <p className="text-[10px] sm:text-[11px] text-muted-foreground mt-1 leading-snug">
             matéria{totalPeriod === 1 ? "" : "s"}
             {period === "all" ? "" : ` em ${period}`}
           </p>
         </div>
-        <div className="rounded-xl bg-emerald-500/10 p-3 text-center">
-          <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 tabular-nums leading-none">
+        <div className="rounded-xl bg-emerald-500/10 p-3 text-center min-w-0">
+          <p className="text-xl sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400 tabular-nums leading-none">
             {aprovadas}
           </p>
-          <p className="text-[11px] text-muted-foreground mt-1">aprovadas/sancionadas</p>
+          <p className="text-[10px] sm:text-[11px] text-muted-foreground mt-1 leading-snug">aprovadas/sancionadas</p>
         </div>
-        <div className="rounded-xl bg-gold/10 p-3 text-center">
-          <p className="text-2xl font-bold text-gold tabular-nums leading-none">{approvalRate}%</p>
-          <p className="text-[11px] text-muted-foreground mt-1">taxa de aprovação</p>
+        <div className="rounded-xl bg-gold/10 p-3 text-center min-w-0">
+          <p className="text-xl sm:text-2xl font-bold text-gold tabular-nums leading-none">{approvalRate}%</p>
+          <p className="text-[10px] sm:text-[11px] text-muted-foreground mt-1 leading-snug">taxa de aprovação</p>
         </div>
       </div>
 
@@ -540,7 +540,7 @@ export default function VereadorShow({
         url={`/vereadores/${vereador.slug}`}
         image={vereador.photo}
       />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar />
         <Header />
         <Breadcrumb items={[{ label: "Vereadores", href: "/vereadores" }, { label: vereador.name }]} />

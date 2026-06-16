@@ -170,7 +170,7 @@ export default function Home({
         description="Portal oficial da Câmara Municipal de Sumé, Paraíba. Acesse informações sobre vereadores, transparência, notícias e serviços ao cidadão."
       />
       
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar />
         <Header logoUrl={logoUrl} />
         

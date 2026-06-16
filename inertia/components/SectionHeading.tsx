@@ -42,12 +42,12 @@ export const SectionHeading = ({
 
   const titleColor = isDark ? "text-white" : "text-foreground";
   const titleAccent = isLeft ? "heading-accent heading-accent-left" : "heading-accent";
-  const titleClass = `${titleAccent} text-2xl md:text-3xl lg:text-4xl font-bold ${titleColor} mb-4`;
+  const titleClass = `${titleAccent} text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold ${titleColor} mb-3 sm:mb-4`;
 
   const subtitleColor = isDark ? "text-white/70" : "text-muted-foreground";
   const subtitleClass = isLeft
-    ? `${subtitleColor} max-w-2xl text-lg`
-    : `${subtitleColor} max-w-2xl mx-auto text-lg`;
+    ? `${subtitleColor} max-w-2xl text-base sm:text-lg`
+    : `${subtitleColor} max-w-2xl mx-auto text-base sm:text-lg`;
 
   const block = (
     <div className={isLeft ? "" : "text-center"}>
@@ -67,11 +67,11 @@ export const SectionHeading = ({
   if (isLeft) {
     return (
       <div
-        className={`flex flex-col gap-4 md:flex-row md:items-end md:justify-between mb-12 lg:mb-14 ${className}`.trim()}
+        className={`flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between mb-10 sm:mb-12 lg:mb-14 ${className}`.trim()}
         data-reveal
       >
-        {block}
-        {action && <div className="shrink-0">{action}</div>}
+        <div className="min-w-0 flex-1">{block}</div>
+        {action && <div className="shrink-0 w-full sm:w-auto">{action}</div>}
       </div>
     );
   }

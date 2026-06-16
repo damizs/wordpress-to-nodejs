@@ -65,7 +65,7 @@ export default function DynamicInfoPage({ records, category, allCategories = [],
   return (
     <>
       <SeoHead title={`${category.name} - Câmara Municipal de Sumé`} url={`/${category.slug}`} />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar /><Header /><Breadcrumb items={[{ label: "Acesso à Informação" }, { label: category.name }]} />
         <PageHero badge="Acesso à Informação" title={category.name} subtitle="Documentos publicados em cumprimento à Lei de Acesso à Informação" />
         <main>

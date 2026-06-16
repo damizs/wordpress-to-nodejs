@@ -8,6 +8,7 @@ import { PageHero } from "~/components/PageHero";
 import { Footer } from "~/components/Footer";
 import { Calendar, FileText, ChevronLeft, ChevronRight, User, X, Search, ArrowRight } from "lucide-react";
 import { formatDocumentDate, ActivityPdfButton } from "~/components/DocumentActions";
+import { FilterBar } from "~/components/FilterBar";
 
 interface Activity { id: number; title: string; slug: string; summary?: string | null; date: string; type?: string; author?: { name: string }; authors?: { id: number; name: string; slug: string | null }[]; file_url?: string | null; export_url: string; }
 interface Filters { type?: string; year?: string; autor?: string; status?: string; search?: string; }
@@ -56,7 +57,7 @@ export default function ActivitiesIndex({ activities = [], pagination, filters =
   return (
     <>
       <SeoHead title="Atividades Legislativas - Câmara Municipal de Sumé" description="Acompanhe as atividades legislativas: projetos de lei, requerimentos, indicações e moções." url="/atividades-legislativas" />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar /><Header /><Breadcrumb items={[{ label: "Atividades Legislativas" }]} />
         <PageHero badge="Legislativo" title="Atividades Legislativas" subtitle="Projetos de Lei, Requerimentos, Indicações e Moções" centered />
         <main>
@@ -78,8 +79,8 @@ export default function ActivitiesIndex({ activities = [], pagination, filters =
               )}
 
               {/* Toolbar de filtros */}
-              <div data-reveal="up" className="mb-8 card-modern p-4 flex flex-col md:flex-row md:items-center gap-3">
-                <form className="relative md:flex-1" onSubmit={(e) => { e.preventDefault(); applyFilters({ search: searchTerm }); }}>
+              <FilterBar>
+                <form className="filter-search" onSubmit={(e) => { e.preventDefault(); applyFilters({ search: searchTerm }); }}>
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <input
                     type="search"
@@ -122,8 +123,7 @@ export default function ActivitiesIndex({ activities = [], pagination, filters =
                   >
                     <X className="w-4 h-4" /> Limpar
                   </button>
-                )}
-              </div>
+                )}</FilterBar>
 
               {pagination?.total !== undefined && (
                 <p data-reveal="fade" className="mb-6 text-sm text-muted-foreground text-right">

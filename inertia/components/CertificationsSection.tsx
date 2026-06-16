@@ -30,8 +30,8 @@ export const CertificationsSection = ({ seals = [], title, subtitle }: Certifica
         : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto";
 
   return (
-    <section className="py-14 lg:py-20 px-4 bg-gradient-hero">
-      <div className="container mx-auto">
+    <section className="section-block bg-gradient-hero">
+      <div className="container min-w-0">
         <SectionHeading
           tone="dark"
           badge="Certificações"
@@ -46,7 +46,7 @@ export const CertificationsSection = ({ seals = [], title, subtitle }: Certifica
           {seals.map((seal, index) => (
             <div
               key={seal.id}
-              className="flex flex-col items-center bg-white/5 hover:bg-white/10 border border-white/10 rounded-3xl p-8 transition-colors duration-300 hover-lift group"
+              className="flex flex-col items-center bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl sm:rounded-3xl p-5 sm:p-8 transition-colors duration-300 hover-lift group"
               data-reveal="zoom"
               data-reveal-delay={index * 100}
             >

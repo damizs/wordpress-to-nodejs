@@ -53,8 +53,8 @@ export const InstagramFeedSection = ({ posts = [], instagramUrl }: InstagramFeed
   }, []);
 
   return (
-    <section className="py-14 lg:py-20 px-4 bg-background">
-      <div className="container mx-auto">
+    <section className="section-block bg-background">
+      <div className="container min-w-0">
         <SectionHeading
           badge="Redes Sociais"
           title="Siga-nos no Instagram"
@@ -84,10 +84,10 @@ export const InstagramFeedSection = ({ posts = [], instagramUrl }: InstagramFeed
             </div>
 
             {/* Carousel */}
-            <div className="relative px-8" data-reveal>
+            <div className="relative max-w-full min-w-0" data-reveal>
               <div
                 ref={scrollerRef}
-                className="flex gap-6 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                className="flex gap-4 sm:gap-6 overflow-x-auto overscroll-x-contain snap-x snap-mandatory scroll-smooth pb-1 max-w-full [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
               >
                 {posts.map((post) => {
                   const card = (
@@ -120,7 +120,7 @@ export const InstagramFeedSection = ({ posts = [], instagramUrl }: InstagramFeed
                   return (
                     <div
                       key={post.id}
-                      className="snap-start shrink-0 w-[85%] sm:w-[45%] lg:w-[23.5%] animate-fade-in"
+                      className="snap-start carousel-slide-md animate-fade-in"
                     >
                       {post.slug ? (
                         <Link href={`/noticias/${post.slug}`} className="no-underline block h-full">
@@ -148,7 +148,7 @@ export const InstagramFeedSection = ({ posts = [], instagramUrl }: InstagramFeed
                     aria-label="Posts anteriores"
                     onClick={() => scrollByPage(-1)}
                     disabled={!canPrev}
-                    className="absolute left-0 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-card border border-border shadow-lg flex items-center justify-center hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="absolute left-0 sm:-left-2 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-card border border-border shadow-lg flex items-center justify-center hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed z-10"
                   >
                     <ChevronLeft className="w-5 h-5 text-foreground" />
                   </button>
@@ -157,7 +157,7 @@ export const InstagramFeedSection = ({ posts = [], instagramUrl }: InstagramFeed
                     aria-label="Próximos posts"
                     onClick={() => scrollByPage(1)}
                     disabled={!canNext}
-                    className="absolute right-0 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-card border border-border shadow-lg flex items-center justify-center hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                    className="absolute right-0 sm:-right-2 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-card border border-border shadow-lg flex items-center justify-center hover:bg-muted transition-colors disabled:opacity-40 disabled:cursor-not-allowed z-10"
                   >
                     <ChevronRight className="w-5 h-5 text-foreground" />
                   </button>

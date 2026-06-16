@@ -73,7 +73,7 @@ export default function SealForm({ seal }: Props) {
         </h1>
       </div>
 
-      <form onSubmit={handleSubmit} className="max-w-2xl">
+      <form onSubmit={handleSubmit} className="admin-form admin-form-narrow">
         <Card>
           <CardHeader title="Dados do selo" icon={Award} />
           <div className="space-y-6">

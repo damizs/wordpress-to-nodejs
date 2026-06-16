@@ -7,7 +7,7 @@ import {
   Gavel, ClipboardCheck, Image, Radar, Vote, ExternalLink, Award, Files,
   BookOpen, FolderOpen, Coins, FileSignature, FileBarChart,
 } from 'lucide-react'
-import { useState, type ReactNode } from 'react'
+import { useState, useEffect, type ReactNode } from 'react'
 
 interface AdminLayoutProps {
   children: ReactNode
@@ -176,6 +176,25 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
     router.post('/logout')
   }
 
+  function closeMobile() {
+    setMobileOpen(false)
+  }
+
+  // Bloqueia scroll do body quando o menu mobile está aberto
+  useEffect(() => {
+    if (!mobileOpen) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = prev
+    }
+  }, [mobileOpen])
+
+  // Fecha o menu ao navegar (Inertia)
+  useEffect(() => {
+    setMobileOpen(false)
+  }, [currentUrl])
+
   const userName: string = auth?.user?.fullName || 'Usuário'
   const initials = userName
     .split(' ')
@@ -186,7 +205,7 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
     .toUpperCase()
 
   const itemClass = (active: boolean) =>
-    `relative flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] font-medium transition-colors ${
+    `relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-colors ${
       active
         ? 'bg-white/10 text-white before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-[3px] before:rounded-full before:bg-gold'
         : 'text-white/60 hover:text-white hover:bg-white/5'
@@ -266,7 +285,8 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
                             <Link
                               key={child.href}
                               href={child.href}
-                              className={`block px-2.5 py-1.5 rounded-md text-[12.5px] transition-colors ${
+                              onClick={closeMobile}
+                              className={`block px-2.5 py-2 rounded-md text-[12.5px] transition-colors ${
                                 isActive(child.href)
                                   ? 'text-gold font-medium'
                                   : 'text-white/50 hover:text-white'
@@ -282,6 +302,7 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
                     <Link
                       key={item.href}
                       href={item.href!}
+                      onClick={closeMobile}
                       className={itemClass(isActive(item.href!))}
                       title={collapsed ? item.label : undefined}
                     >
@@ -329,7 +350,8 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
           <div className="flex items-center gap-3 min-w-0">
             <button
               onClick={() => setMobileOpen(true)}
-              className="lg:hidden p-2 rounded-lg hover:bg-muted text-muted-foreground"
+              className="lg:hidden p-2.5 min-h-[2.75rem] min-w-[2.75rem] rounded-lg hover:bg-muted text-muted-foreground"
+              aria-label="Abrir menu"
             >
               <Menu className="w-5 h-5" />
             </button>

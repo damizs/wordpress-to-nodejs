@@ -41,7 +41,7 @@ export default function PublicationForm({ publication, types = [] }: Props) {
       >
         <ArrowLeft className="w-4 h-4" /> Voltar
       </Link>
-      <form onSubmit={handleSubmit} className="max-w-3xl space-y-6">
+      <form onSubmit={handleSubmit} className="admin-form">
         <Card className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <Field label="Tipo" required>

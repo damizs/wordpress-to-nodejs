@@ -187,7 +187,7 @@ function MateriasTimeline({ materias }: { materias: LegislativoMateria[] }) {
     <div
       key={m.id}
       role="listitem"
-      className="shrink-0 w-[min(100vw-2.5rem,288px)] sm:w-[300px]"
+      className="carousel-slide-sm"
     >
       <MateriaTimelineItem m={m} showConnector={i < materias.length - 1} />
     </div>
@@ -231,8 +231,8 @@ export const LegislativoSection = ({ data, title, subtitle }: LegislativoSection
       : 0;
 
   return (
-    <section className="py-14 lg:py-20 bg-background">
-      <div className="container">
+    <section className="section-block bg-background">
+      <div className="container min-w-0">
         <SectionHeading
           align="left"
           badge="Legislativo em Números"

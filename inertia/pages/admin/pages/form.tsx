@@ -504,7 +504,7 @@ export default function PageForm({ page }: Props) {
         </h1>
       </div>
 
-      <form onSubmit={handleSubmit} className="max-w-3xl space-y-6">
+      <form onSubmit={handleSubmit} className="admin-form">
         {/* ===== Dados gerais ===== */}
         <Card>
           <CardHeader title="Dados da página" icon={FileText} />

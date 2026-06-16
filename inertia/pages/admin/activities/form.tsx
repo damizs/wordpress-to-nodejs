@@ -86,7 +86,7 @@ export default function ActivityForm({ activity, councilors = [], authorIds = []
         <ArrowLeft className="w-4 h-4" /> Voltar
       </Link>
 
-      <form onSubmit={handleSubmit} className="max-w-3xl space-y-6">
+      <form onSubmit={handleSubmit} className="admin-form">
         <Card>
           <CardHeader title="Dados da Atividade" icon={ScrollText} />
 

@@ -79,7 +79,7 @@ export default function DiarioOficialIndex({ entries = [], pagination, years = [
   return (
     <>
       <SeoHead title="Diário Oficial - Câmara Municipal de Sumé" description="Acesse as edições do Diário Oficial da Câmara Municipal de Sumé." url="/diario-oficial" />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar /><Header /><Breadcrumb items={[{ label: "Diário Oficial" }]} />
         <PageHero badge="Documentos Oficiais" title="Diário Oficial" subtitle="Edições do Diário Oficial da Câmara Municipal, disponíveis para download em PDF" centered />
         <main>

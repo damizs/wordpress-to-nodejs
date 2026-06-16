@@ -37,7 +37,7 @@ export default function FaqForm({ item, categories = [] }: Props) {
       >
         <ArrowLeft className="w-4 h-4" /> Voltar
       </Link>
-      <form onSubmit={handleSubmit} className="max-w-3xl space-y-6">
+      <form onSubmit={handleSubmit} className="admin-form">
         <Card>
           <CardHeader title="Dados da Pergunta" />
           <div className="space-y-4">

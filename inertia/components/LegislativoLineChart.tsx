@@ -27,5 +27,9 @@ export function LegislativoLineChart({ weekly }: Props) {
     );
   }
 
-  return <Client weekly={weekly} />;
+  return (
+    <div className="legislativo-line-chart w-full min-w-0 overflow-hidden">
+      <Client weekly={weekly} />
+    </div>
+  );
 }

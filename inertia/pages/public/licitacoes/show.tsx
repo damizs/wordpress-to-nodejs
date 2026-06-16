@@ -94,7 +94,7 @@ export default function LicitacaoShow({ licitacao, documentGroups = [], phases =
   return (
     <>
       <SeoHead title={`${licitacao.number} - ${licitacao.title}`} url={`/licitacoes/${licitacao.slug}`} />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar /><Header /><Breadcrumb items={[{ label: "Licitações", href: "/licitacoes" }, { label: licitacao.number }]} />
         <main>
           <section className="py-10 lg:py-14">

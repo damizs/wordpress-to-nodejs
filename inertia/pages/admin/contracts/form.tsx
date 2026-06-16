@@ -71,7 +71,7 @@ export default function ContractForm({ contract, licitacoes }: Props) {
         <ArrowLeft className="w-4 h-4" /> Voltar
       </Link>
 
-      <form onSubmit={handleSubmit} className="max-w-4xl space-y-6">
+      <form onSubmit={handleSubmit} className="admin-form admin-form-wide">
         {/* Identificação */}
         <Card className="space-y-4">
           <CardHeader title="Identificação do contrato" icon={FileText} />

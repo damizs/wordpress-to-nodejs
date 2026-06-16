@@ -29,6 +29,7 @@ export function HomeHero({ template, news = [], backgroundImage, newsLimit }: Ho
   const tagline =
     settings.footer_description ||
     "Acompanhe o trabalho do Legislativo: transparência, participação e serviço ao cidadão.";
+  const [titleFirstWord, ...titleRest] = title.split(" ");
 
   const primaryBtn =
     "inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gold text-navy-dark text-sm font-semibold hover:opacity-90 transition-opacity no-underline";
@@ -44,7 +45,7 @@ export function HomeHero({ template, news = [], backgroundImage, newsLimit }: Ho
         {backgroundImage ? (
           <div className="absolute inset-0 overflow-hidden">
             <img src={backgroundImage} alt="" className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-navy-dark/85" />
+            <div className="absolute inset-0 bg-navy-dark/80" />
           </div>
         ) : (
           <div className="absolute inset-0 bg-gradient-hero">
@@ -53,18 +54,26 @@ export function HomeHero({ template, news = [], backgroundImage, newsLimit }: Ho
           </div>
         )}
 
-        <div className="relative container py-14 lg:py-20">
+        {/* Ornamentos modernos — mesh + grade sobre o fundo */}
+        <div className="absolute inset-0 template-modern-grid opacity-60 pointer-events-none" aria-hidden="true" />
+        <div className="absolute inset-0 template-modern-mesh pointer-events-none" aria-hidden="true" />
+
+        <div className="relative container py-10 sm:py-14 lg:py-20">
           <div
-            className={`grid gap-10 lg:gap-14 items-start ${
-              hasNews ? "lg:grid-cols-2 lg:items-center" : "max-w-3xl"
+            className={`grid gap-8 lg:gap-10 xl:gap-12 items-start ${
+              hasNews ? "lg:grid-cols-2" : "max-w-3xl"
             }`}
           >
             <div data-reveal="fade-right">
-              <span className="inline-block text-xs font-semibold uppercase tracking-wider text-gold mb-3">
-                {subtitle}
-              </span>
-              <h1 className="text-4xl md:text-5xl font-bold leading-tight tracking-tight">
-                {title}
+              <div className="flex items-center gap-3 mb-4">
+                <span className="inline-block text-xs font-semibold uppercase tracking-[0.14em] text-gold">
+                  {subtitle}
+                </span>
+                <span className="h-px flex-1 max-w-16 bg-gradient-to-r from-gold/70 to-transparent" aria-hidden="true" />
+              </div>
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight tracking-tight">
+                {titleFirstWord}{" "}
+                <span className="text-gradient-gold">{titleRest.join(" ")}</span>
               </h1>
               <p className="mt-5 text-lg text-primary-foreground/80 max-w-xl leading-relaxed">
                 {tagline}
@@ -80,16 +89,32 @@ export function HomeHero({ template, news = [], backgroundImage, newsLimit }: Ho
               </div>
             </div>
 
-            {hasNews && <NewsHeroPanel news={news} limit={newsLimit} />}
+            {hasNews && (
+              <div
+                className="relative rounded-2xl border border-primary-foreground/15 bg-primary-foreground/[0.04] backdrop-blur-md p-1.5 sm:p-2 shadow-2xl"
+                data-reveal="fade-left"
+              >
+                <div
+                  className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-gold/25 to-transparent rounded-tr-2xl pointer-events-none"
+                  aria-hidden="true"
+                />
+                <div
+                  className="absolute bottom-0 left-0 w-12 h-12 border-b-2 border-l-2 border-gold/40 rounded-bl-2xl pointer-events-none"
+                  aria-hidden="true"
+                />
+                <NewsHeroPanel news={news} limit={newsLimit} />
+              </div>
+            )}
           </div>
         </div>
 
         {hasNews && (
           <div className="relative bg-navy-dark/90 backdrop-blur-sm border-t border-primary-foreground/10">
-            <div className="container py-4 flex justify-end">
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold/50 to-transparent" aria-hidden="true" />
+            <div className="container py-4 flex justify-center sm:justify-end">
               <Link
                 href="/noticias"
-                className="group inline-flex items-center gap-3 px-6 py-2.5 bg-primary-foreground/10 hover:bg-gold hover:text-navy-dark rounded-full text-primary-foreground font-medium no-underline transition-all duration-300"
+                className="group inline-flex items-center justify-center gap-3 w-full sm:w-auto px-6 py-2.5 bg-primary-foreground/10 hover:bg-gold hover:text-navy-dark rounded-full text-primary-foreground font-medium no-underline transition-all duration-300"
               >
                 Ver mais notícias
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -101,19 +126,34 @@ export function HomeHero({ template, news = [], backgroundImage, newsLimit }: Ho
     );
   }
 
-  // Modelo clássico: hero institucional centralizado e enxuto.
+  // Modelo clássico: hero institucional ornamentado (governamental).
   return (
-    <section className="bg-gradient-hero text-primary-foreground">
-      <div className="container py-12 lg:py-16">
-        <div className="max-w-3xl mx-auto text-center">
-          <span className="inline-block text-xs font-semibold uppercase tracking-wider text-gold mb-3">
+    <section className="relative bg-gradient-hero text-primary-foreground overflow-hidden">
+      <div className="absolute inset-0 template-classico-grid opacity-55 pointer-events-none" aria-hidden="true" />
+      <div className="absolute top-0 left-0 right-0 template-gold-rule-solid opacity-90" aria-hidden="true" />
+
+      <div className="relative container py-14 lg:py-20">
+        <div className="max-w-3xl mx-auto text-center relative px-2">
+          {/* Moldura ornamental */}
+          <div
+            className="absolute -inset-x-3 sm:-inset-x-6 -inset-y-4 sm:-inset-y-6 border border-gold/25 rounded-sm pointer-events-none hidden md:block"
+            aria-hidden="true"
+          >
+            <span className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-gold rotate-45" />
+            <span className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-2.5 h-2.5 bg-gold rotate-45" />
+          </div>
+
+          <span className="inline-block text-[10px] sm:text-xs font-semibold uppercase tracking-[0.2em] text-gold mb-4">
             {subtitle}
           </span>
-          <h1 className="text-3xl md:text-4xl font-bold leading-tight tracking-tight">
-            {title}
+          <div className="template-gold-rule w-28 mx-auto mb-5 opacity-90" aria-hidden="true" />
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight template-serif">
+            {titleFirstWord}{" "}
+            <span className="text-gradient-gold">{titleRest.join(" ")}</span>
           </h1>
-          <p className="mt-4 text-primary-foreground/80 leading-relaxed">{tagline}</p>
-          <div className="mt-7 flex flex-wrap justify-center gap-3">
+          <p className="mt-5 text-primary-foreground/85 leading-relaxed max-w-2xl mx-auto">{tagline}</p>
+          <div className="template-gold-rule w-20 mx-auto mt-6 mb-7 opacity-60" aria-hidden="true" />
+          <div className="flex flex-wrap justify-center gap-3">
             <Link href="/transparencia" className={primaryBtn}>
               <Shield className="w-4 h-4" aria-hidden="true" />
               Transparência
@@ -125,6 +165,8 @@ export function HomeHero({ template, news = [], backgroundImage, newsLimit }: Ho
           </div>
         </div>
       </div>
+
+      <div className="relative template-gold-rule-solid opacity-90" aria-hidden="true" />
     </section>
   );
 }

@@ -83,7 +83,7 @@ export const ESicSection = ({ title, subtitle, hideHeading = false }: ESicSectio
   ];
 
   return (
-    <section id="esic" className="relative py-20 overflow-hidden">
+    <section id="esic" className="relative section-block overflow-hidden">
       {/* Fundo navy de ponta a ponta (full-bleed) */}
       <div className="absolute inset-0 bg-gradient-hero" aria-hidden />
       <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden>
@@ -94,20 +94,20 @@ export const ESicSection = ({ title, subtitle, hideHeading = false }: ESicSectio
       <div className="relative container">
         {/* Cabeçalho — badge + título sobre o fundo azul */}
         {!hideHeading && (
-        <div className="text-center mb-14" data-reveal>
+        <div className="text-center mb-8 sm:mb-14" data-reveal>
           <span className="inline-block px-4 py-1.5 bg-gold/20 text-gold rounded-full text-xs font-semibold tracking-wider uppercase mb-4">
             Acesso à Informação
           </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-primary-foreground mb-4 leading-tight">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-primary-foreground mb-4 leading-tight px-1">
             {headingTitle}
           </h2>
-          <p className="text-primary-foreground/80 max-w-2xl mx-auto text-lg">{headingSubtitle}</p>
+          <p className="text-primary-foreground/80 max-w-2xl mx-auto text-base sm:text-lg px-1">{headingSubtitle}</p>
         </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 max-w-6xl mx-auto items-stretch">
           {/* Sistema E-SIC */}
-          <div data-reveal="left" className="card-modern p-8 flex flex-col bg-card shadow-lg">
+          <div data-reveal="left" className="card-modern p-5 sm:p-8 flex flex-col bg-card shadow-lg">
             <h3 className="text-xl font-bold text-foreground mb-8">Sistema E-SIC</h3>
 
             <div className="flex flex-col sm:flex-row gap-4 mb-10">
@@ -153,7 +153,7 @@ export const ESicSection = ({ title, subtitle, hideHeading = false }: ESicSectio
           {/* Atendimento Presencial */}
           <div
             data-reveal="right"
-            className="relative overflow-hidden rounded-3xl p-8 text-primary-foreground shadow-xl min-h-[320px] border border-primary-foreground/10"
+            className="relative overflow-hidden rounded-2xl sm:rounded-3xl p-5 sm:p-8 text-primary-foreground shadow-xl min-h-[280px] sm:min-h-[320px] border border-primary-foreground/10"
           >
             <div className="absolute inset-0 bg-gradient-navy" />
             <div className="absolute inset-0 bg-gradient-to-br from-gold/10 via-transparent to-sky/10" />

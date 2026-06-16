@@ -58,7 +58,7 @@ export default function UserForm({ user, roles }: { user: UserData | null; roles
         <ArrowLeft className="w-4 h-4" /> Voltar para usuários
       </Link>
 
-      <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
+      <form onSubmit={handleSubmit} className="admin-form admin-form-narrow">
         <Card>
           <CardHeader title="Dados do usuário" icon={User} />
           <div className="space-y-4">

@@ -130,7 +130,7 @@ interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 export function IconButton({ tone = 'neutral', className = '', ...props }: IconButtonProps) {
   return (
     <button
-      className={`p-2 rounded-lg transition-colors ${iconTones[tone]} ${className}`}
+      className={`inline-flex items-center justify-center min-h-[2.75rem] min-w-[2.75rem] p-2 rounded-lg transition-colors ${iconTones[tone]} ${className}`}
       {...props}
     />
   )
@@ -156,7 +156,7 @@ export function IconLink({
       href={href}
       title={title}
       target={target}
-      className={`p-2 rounded-lg transition-colors inline-flex ${iconTones[tone]} ${className}`}
+      className={`inline-flex items-center justify-center min-h-[2.75rem] min-w-[2.75rem] p-2 rounded-lg transition-colors ${iconTones[tone]} ${className}`}
     >
       {children}
     </Link>
@@ -310,12 +310,16 @@ export function PageHeader({
   actions?: ReactNode
 }) {
   return (
-    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-      <div>
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-6">
+      <div className="min-w-0">
         <h1 className="text-xl font-bold text-foreground tracking-tight">{title}</h1>
         {description && <p className="text-sm text-muted-foreground mt-1">{description}</p>}
       </div>
-      {actions && <div className="flex items-center gap-2 shrink-0">{actions}</div>}
+      {actions && (
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto sm:shrink-0 sm:justify-end">
+          {actions}
+        </div>
+      )}
     </div>
   )
 }
@@ -324,7 +328,7 @@ export function PageHeader({
 export function Toolbar({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
     <div
-      className={`flex flex-col sm:flex-row sm:items-center gap-3 mb-5 [&>*]:w-full sm:[&>*]:w-auto ${className}`}
+      className={`flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3 mb-5 [&>*]:w-full sm:[&>*]:w-auto sm:[&>*]:min-w-0 ${className}`}
     >
       {children}
     </div>
@@ -374,7 +378,7 @@ export function THead({ children }: { children: ReactNode }) {
 export function TH({ className = '', ...props }: ThHTMLAttributes<HTMLTableCellElement>) {
   return (
     <th
-      className={`text-left px-5 py-3 text-[11px] font-bold text-muted-foreground uppercase tracking-wider whitespace-nowrap ${className}`}
+      className={`text-left px-3 sm:px-5 py-3 text-[11px] font-bold text-muted-foreground uppercase tracking-wider whitespace-nowrap ${className}`}
       {...props}
     />
   )
@@ -389,7 +393,7 @@ export function TR({ children, className = '' }: { children: ReactNode; classNam
 }
 
 export function TD({ className = '', ...props }: TdHTMLAttributes<HTMLTableCellElement>) {
-  return <td className={`px-5 py-3.5 text-sm text-foreground ${className}`} {...props} />
+  return <td className={`px-3 sm:px-5 py-3.5 text-sm text-foreground ${className}`} {...props} />
 }
 
 /** Célula de ações alinhada à direita */
@@ -581,10 +585,10 @@ export function Modal({
 }) {
   if (!open) return null
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
       <div className="absolute inset-0 bg-navy-dark/50 backdrop-blur-sm" onClick={onClose} />
       <div
-        className={`relative bg-card rounded-xl shadow-lg w-full ${maxWidth} animate-scale-in border border-border`}
+        className={`relative bg-card rounded-t-2xl sm:rounded-xl shadow-lg w-full ${maxWidth} max-h-[min(92dvh,calc(100vh-1rem))] sm:max-h-[min(90dvh,calc(100vh-2rem))] overflow-y-auto animate-scale-in border border-border`}
       >
         {children}
       </div>

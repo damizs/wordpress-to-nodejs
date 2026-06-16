@@ -173,26 +173,26 @@ export const QuickAccessSection = ({
   const [modalLink, setModalLink] = useState<LinkModalLink | null>(null);
 
   return (
-    <section className="py-14 lg:py-20 px-4 bg-background">
-      <div className="container mx-auto">
+    <section className="section-block bg-background">
+      <div className="container">
         <SectionHeading
           badge={badge}
           title={title}
           subtitle={subtitle || "Acompanhe as funções legislativa, fiscalizadora e deliberativa da Casa do Povo."}
         />
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
+        <div className="grid grid-cols-1 min-[400px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-5">
           {items.map((item, index) => {
             const IconComponent = iconMap[item.icon || ""] || FileText;
             const color = colorMap[item.color || ""] || fallbackColors[index % fallbackColors.length];
             const description = descriptionMap[item.title.toLowerCase().trim()];
             const cardClass =
-              "group card-modern p-6 no-underline flex flex-col items-center text-center";
+              "group card-modern p-4 sm:p-6 no-underline flex flex-col items-center text-center min-h-[140px] sm:min-h-0";
             const cardStyle = {};
             const inner = (
               <>
-                <div className={`w-14 h-14 rounded-full ${color} flex items-center justify-center mb-4 shadow-sm`}>
-                  <IconComponent className="w-7 h-7 text-white" />
+                <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full ${color} flex items-center justify-center mb-3 sm:mb-4 shadow-sm`}>
+                  <IconComponent className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
                 </div>
                 <h3 className="font-bold text-foreground text-sm group-hover:text-primary transition-colors duration-300">
                   {item.title}
@@ -242,10 +242,10 @@ export const QuickAccessSection = ({
           })}
         </div>
 
-        <div className="text-center mt-12">
+        <div className="text-center mt-10 sm:mt-12">
           <Link
             href="/transparencia"
-            className="btn-modern inline-flex items-center gap-3 bg-gradient-to-r from-primary to-navy-light text-primary-foreground shadow-lg hover:shadow-xl hover:gap-4 no-underline"
+            className="btn-modern inline-flex items-center justify-center gap-3 w-full sm:w-auto bg-gradient-to-r from-primary to-navy-light text-primary-foreground shadow-lg hover:shadow-xl hover:gap-4 no-underline"
           >
             Acessar portal transparência
             <ArrowRight className="w-5 h-5" />

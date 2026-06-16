@@ -22,7 +22,7 @@ export default function AcessoInformacaoIndex() {
         description="Serviço de Informação ao Cidadão (SIC) da Câmara Municipal de Sumé. Endereço, telefone, horário e pedidos via e-SIC."
         url="/acesso-a-informacao"
       />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar />
         <Header />
         <Breadcrumb items={[{ label: "Acesso à Informação" }]} />

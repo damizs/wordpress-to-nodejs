@@ -200,7 +200,7 @@ export default function TransparenciaIndex({ sections = [], openLink = null }: P
         description="Acesse informações sobre a gestão dos recursos públicos da Câmara Municipal de Sumé. Transparência e acesso à informação."
         url="/transparencia"
       />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar />
         <Header />
         <Breadcrumb items={[{ label: "Transparência" }]} />
@@ -338,7 +338,7 @@ export default function TransparenciaIndex({ sections = [], openLink = null }: P
                           </span>
                         </header>
 
-                        <div className="grid gap-4 grid-cols-2 sm:grid-cols-[repeat(auto-fill,minmax(170px,1fr))]">
+                        <div className="grid gap-3 sm:gap-4 grid-cols-1 min-[400px]:grid-cols-2 sm:grid-cols-[repeat(auto-fill,minmax(170px,1fr))]">
                           {section.links.map((link) => (
                             <CardLink key={link.id} link={link} onOpenModal={openModal} />
                           ))}

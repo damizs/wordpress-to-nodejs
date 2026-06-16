@@ -37,7 +37,7 @@ export default function LegislatureForm({ legislature }: Props) {
         <ArrowLeft className="w-4 h-4" /> Voltar
       </Link>
 
-      <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
+      <form onSubmit={handleSubmit} className="admin-form admin-form-narrow">
         <Card>
           <CardHeader title="Dados da Legislatura" icon={Landmark} />
 

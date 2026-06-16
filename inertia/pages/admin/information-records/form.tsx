@@ -40,7 +40,7 @@ export default function InformationRecordForm({ record, categories = [] }: Props
       <Link href="/painel/acesso-informacao" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4">
         <ArrowLeft className="w-4 h-4" /> Voltar
       </Link>
-      <form onSubmit={handleSubmit} className="max-w-3xl space-y-6">
+      <form onSubmit={handleSubmit} className="admin-form">
         <Card className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="Categoria" required>

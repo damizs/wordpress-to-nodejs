@@ -219,7 +219,7 @@ export default function DuodecimosIndex({
         description="Repasses mensais de duodécimos (1/12 do orçamento) do Poder Executivo à Câmara Municipal de Sumé."
         url="/duodecimos"
       />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar />
         <Header />
         <Breadcrumb

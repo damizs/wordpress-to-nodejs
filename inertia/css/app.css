@@ -309,6 +309,25 @@
   html[data-layout='classico'] .card-modern {
     border-top: 3px solid hsl(var(--gold) / 0.85);
   }
+
+  /* ===== Modelos de site (data-template) — ornamento do header/hero =====
+     Ortogonal a data-layout (forma) e às cores. */
+
+  html[data-template='classico'] h1,
+  html[data-template='classico'] .template-serif {
+    font-family: Georgia, 'Times New Roman', serif;
+    letter-spacing: 0.01em;
+  }
+
+  html[data-template='classico'] .card-modern {
+    border-top: 3px solid hsl(var(--gold) / 0.85);
+    border-radius: 0.25rem;
+  }
+
+  html[data-template='moderno'] h1,
+  html[data-template='moderno'] h2 {
+    letter-spacing: -0.02em;
+  }
 }
 
 @layer base {
@@ -458,6 +477,36 @@ html.js-anim [data-reveal].no-transition {
     background: var(--gradient-gold);
   }
 
+  /** Grade sutil — faixa institucional / governamental */
+  .template-classico-grid {
+    background-image:
+      linear-gradient(hsl(var(--gold) / 0.07) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--gold) / 0.07) 1px, transparent 1px);
+    background-size: 22px 22px;
+  }
+
+  /** Mesh + grade — hero moderno */
+  .template-modern-mesh {
+    background-image:
+      radial-gradient(ellipse 70% 55% at 15% 0%, hsl(var(--gold) / 0.14), transparent 55%),
+      radial-gradient(ellipse 55% 45% at 85% 100%, hsl(var(--sky) / 0.18), transparent 50%);
+  }
+
+  .template-modern-grid {
+    background-image:
+      linear-gradient(hsl(var(--primary-foreground) / 0.045) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--primary-foreground) / 0.045) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+
+  .template-gold-rule {
+    @apply h-1 bg-gradient-to-r from-transparent via-gold to-transparent;
+  }
+
+  .template-gold-rule-solid {
+    @apply h-1 bg-gold;
+  }
+
   /* Fundo suave de seções (home E-SIC, transparência, etc.) */
   .section-gradient {
     @apply relative;
@@ -525,6 +574,64 @@ html.js-anim [data-reveal].no-transition {
 
   .btn-modern:active {
     transform: scale(0.98);
+  }
+
+  /** Seções públicas — padding vertical consistente */
+  .section-block {
+    @apply py-10 sm:py-14 lg:py-20;
+  }
+
+  /** Slide de carrossel — largura fixa segura (não usa vw, evita overflow) */
+  .carousel-slide-sm {
+    @apply shrink-0 w-[260px] min-[400px]:w-[280px] sm:w-[300px] md:w-[320px];
+  }
+  .carousel-slide-md {
+    @apply shrink-0 w-[280px] min-[400px]:w-[300px] sm:w-[340px] lg:w-[360px];
+  }
+
+  /** Linha de listagem pública (diário, etc.) — empilha no mobile */
+  .pub-list-row {
+    @apply flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4 px-4 sm:px-6 py-4 min-w-0;
+  }
+
+  /** Faixa de feriados — ticker contínuo (mais lento que os carrosséis da home) */
+  .holidays-marquee {
+    @apply overflow-hidden min-w-0 flex-1;
+  }
+
+  .holidays-marquee-track {
+    @apply flex w-max items-center;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .holidays-marquee-track {
+      animation: holidays-marquee 50s linear infinite;
+    }
+
+    .holidays-marquee:hover .holidays-marquee-track,
+    .holidays-marquee:focus-within .holidays-marquee-track {
+      animation-play-state: paused;
+    }
+  }
+
+  @keyframes holidays-marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* Mobile: sem “lift” no hover (evita saltos e overflow em telas touch) */
+  @media (max-width: 767px) {
+    .card-modern:hover {
+      transform: none;
+      box-shadow: var(--shadow-sm);
+    }
+    .hover-lift:hover {
+      transform: none;
+    }
   }
 
   /* ===== Polish pack ===== */
@@ -598,4 +705,52 @@ html.js-anim [data-reveal].no-transition {
     stroke: hsl(var(--gold));
   }
 
+  /* --- Responsividade transversal --- */
+
+  /** Barra de filtros (páginas públicas de listagem) */
+  .filter-bar {
+    @apply w-full min-w-0 card-modern p-4 flex flex-col md:flex-row md:flex-wrap md:items-stretch gap-3;
+  }
+  .filter-bar > form.filter-search,
+  .filter-bar > .filter-search {
+    @apply relative w-full min-w-0 md:flex-1 md:min-w-[12rem];
+  }
+  .filter-bar > select,
+  .filter-bar > button:not(.filter-search-btn) {
+    @apply w-full min-w-0 md:w-auto md:min-w-[9rem];
+  }
+
+  /** Tabela pública com scroll horizontal no mobile */
+  .table-scroll {
+    @apply w-full min-w-0 overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch] [scrollbar-width:thin];
+  }
+  .table-scroll > table {
+    @apply w-full min-w-[640px] border-collapse;
+  }
+
+  /** Formulários do painel — largura total no mobile, limitada no desktop */
+  .admin-form {
+    @apply w-full min-w-0 space-y-6 lg:max-w-3xl;
+  }
+  .admin-form-wide {
+    @apply lg:max-w-4xl;
+  }
+  .admin-form-narrow {
+    @apply lg:max-w-2xl;
+  }
+
+}
+
+@layer base {
+  html {
+    overflow-x: clip;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    overflow-x: clip;
+    min-width: 0;
+  }
+  #app {
+    min-width: 0;
+  }
 }

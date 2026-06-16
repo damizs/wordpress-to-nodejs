@@ -27,7 +27,7 @@ export default function PesquisaSatisfacaoIndex() {
     return (
       <>
         <SeoHead title="Obrigado! - Pesquisa de Satisfação" url="/pesquisa-de-satisfacao" />
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-background overflow-x-clip">
           <TopBar /><Header /><Breadcrumb items={[{ label: "Pesquisa de Satisfação" }]} />
           <main className="py-20">
             <div className="container text-center">
@@ -47,7 +47,7 @@ export default function PesquisaSatisfacaoIndex() {
   return (
     <>
       <SeoHead title="Pesquisa de Satisfação - Câmara Municipal de Sumé" description="Participe da nossa pesquisa de satisfação e ajude-nos a melhorar nossos serviços." url="/pesquisa-de-satisfacao" />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar /><Header /><Breadcrumb items={[{ label: "Pesquisa de Satisfação" }]} />
         <PageHero badge="Sua Opinião" title="Pesquisa de Satisfação" subtitle="Avaliação contínua dos serviços prestados pela Câmara Municipal" centered />
         <main>

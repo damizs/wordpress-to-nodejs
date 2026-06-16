@@ -65,9 +65,9 @@ export const ConhecaSumeSection = ({ images, title, subtitle }: ConhecaSumeSecti
 
   return (
     <>
-      <section className="py-14 lg:py-20 px-4 bg-muted/40">
-        <div className="container mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+      <section className="section-block bg-muted/40">
+        <div className="container">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Image Carousel */}
             <div
               className="relative"

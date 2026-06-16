@@ -8,6 +8,7 @@ import { PageHero } from "~/components/PageHero";
 import { Footer } from "~/components/Footer";
 import { Calendar, FileText, ChevronLeft, ChevronRight, Search, X, ArrowRight } from "lucide-react";
 import { formatDocumentDate } from "~/components/DocumentActions";
+import { FilterBar } from "~/components/FilterBar";
 
 interface Pauta { id: number; title: string; slug: string; date: string; session_type?: string; }
 interface Props {
@@ -45,14 +46,14 @@ export default function PautasIndex({ pautas = [], pagination, years = [], types
   return (
     <>
       <SeoHead title="Pautas - Câmara Municipal de Sumé" description="Confira as pautas das sessões plenárias." url="/pautas" />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar /><Header /><Breadcrumb items={[{ label: "Pautas" }]} />
         <PageHero badge="Sessões Plenárias" title="Pautas das Sessões" subtitle="Ordem do dia e matérias em discussão nas sessões da Câmara Municipal" />
         <main>
           <section className="py-10 lg:py-14">
           <div className="container">
-            <div data-reveal="up" className="mb-8 card-modern p-4 flex flex-col md:flex-row md:items-center gap-3">
-              <form className="relative md:flex-1" onSubmit={(e) => { e.preventDefault(); applyFilters({ busca: searchTerm }); }}>
+            <FilterBar>
+              <form className="filter-search" onSubmit={(e) => { e.preventDefault(); applyFilters({ busca: searchTerm }); }}>
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <input
                   type="search"
@@ -85,7 +86,7 @@ export default function PautasIndex({ pautas = [], pagination, years = [], types
                   <X className="w-4 h-4" /> Limpar
                 </button>
               )}
-            </div>
+            </FilterBar>
 
             {pautas.length > 0 ? (
               <div className="space-y-4">

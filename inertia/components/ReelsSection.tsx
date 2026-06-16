@@ -24,18 +24,18 @@ export function ReelsSection({
   const hasMore = reels.length > limit;
 
   return (
-    <section className="py-14 lg:py-20 px-4 bg-muted/30">
-      <div className="container mx-auto">
+    <section className="section-block bg-muted/30">
+      <div className="container min-w-0">
         <SectionHeading badge={badge} title={title} subtitle={subtitle} />
 
         <div data-reveal>
           <ReelsGallery reels={shown} />
         </div>
 
-        <div className="mt-10 text-center">
+        <div className="mt-8 sm:mt-10 text-center">
           <Link
             href="/videos"
-            className="inline-flex items-center gap-2 rounded-lg bg-navy px-5 py-2.5 text-sm font-semibold text-white no-underline shadow-sm transition-colors hover:bg-navy-dark"
+            className="inline-flex items-center justify-center gap-2 w-full sm:w-auto rounded-lg bg-navy px-5 py-2.5 text-sm font-semibold text-primary-foreground no-underline shadow-sm transition-colors hover:bg-navy-dark"
           >
             <Film className="h-4 w-4" />
             {hasMore ? "Ver todos os vídeos" : "Abrir galeria de vídeos"}

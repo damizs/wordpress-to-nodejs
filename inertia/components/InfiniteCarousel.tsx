@@ -144,12 +144,12 @@ export const InfiniteCarousel = ({
   };
 
   return (
-    <div className={`relative group ${className}`}>
+    <div className={`relative group max-w-full min-w-0 ${className}`}>
       <div
         ref={containerRef}
         role="region"
         aria-label={ariaLabel}
-        className="overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="overflow-x-auto overscroll-x-contain max-w-full [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         <div ref={trackRef} className={`flex w-max ${gapClass}`}>
           {children}

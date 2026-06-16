@@ -20,7 +20,7 @@ export default function EsicPage() {
         description={subtitle}
         url="/esic"
       />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar />
         <Header />
         <Breadcrumb items={[{ label: "E-SIC" }]} />

@@ -8,6 +8,7 @@ import { PageHero } from "~/components/PageHero";
 import { Footer } from "~/components/Footer";
 import { Calendar, Search, X, ArrowRight, ChevronLeft, ChevronRight, FileSignature, UserCheck, Coins, CheckCircle2, BarChart3 } from "lucide-react";
 import { formatDocumentDate } from "~/components/DocumentActions";
+import { FilterBar } from "~/components/FilterBar";
 
 interface Contract {
   id: number;
@@ -93,7 +94,7 @@ export default function ContractsIndex({ contracts = [], pagination, filters = {
   return (
     <>
       <SeoHead title="Contratos - Câmara Municipal de Sumé" description="Relação dos contratos da Câmara Municipal de Sumé: contratado, objeto, valor, vigência e fiscal responsável." url="/contratos" />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar /><Header /><Breadcrumb items={[{ label: "Contratos" }]} />
         <PageHero badge="Transparência" title="Contratos" subtitle="Relação dos contratos com contratado, objeto, valor, vigência e fiscal responsável" centered />
         <main id="conteudo">
@@ -169,8 +170,8 @@ export default function ContractsIndex({ contracts = [], pagination, filters = {
               )}
 
               {/* Toolbar de filtros */}
-              <div data-reveal="up" className="mb-8 card-modern p-4 flex flex-col md:flex-row md:items-center gap-3">
-                <form className="relative md:flex-1" onSubmit={(e) => { e.preventDefault(); applyFilters({ search: searchTerm }); }}>
+              <FilterBar>
+                <form className="filter-search" onSubmit={(e) => { e.preventDefault(); applyFilters({ search: searchTerm }); }}>
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <input
                     type="search"
@@ -207,8 +208,7 @@ export default function ContractsIndex({ contracts = [], pagination, filters = {
                   >
                     <X className="w-4 h-4" /> Limpar
                   </button>
-                )}
-              </div>
+                )}</FilterBar>
 
               {pagination?.total !== undefined && (
                 <p data-reveal="fade" className="mb-6 text-sm text-muted-foreground text-right">

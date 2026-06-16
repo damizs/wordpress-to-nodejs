@@ -163,7 +163,7 @@ export default function VotacoesIndex({ votacoes = [], pagination, years = [], f
   return (
     <>
       <SeoHead title="Votações Nominais - Câmara Municipal de Sumé" description="Acompanhe como cada vereador votou nas matérias apreciadas pela Câmara Municipal de Sumé." url="/votacoes" />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar /><Header /><Breadcrumb items={[{ label: "Votações Nominais" }]} />
         <PageHero badge="Atividade Legislativa" title="Votações Nominais" subtitle="Veja como cada vereador votou nas matérias apreciadas em Plenário" />
         <main>

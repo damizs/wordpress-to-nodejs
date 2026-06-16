@@ -31,8 +31,8 @@ export const VereadoresSection = ({
   }
 
   return (
-    <section className="py-14 lg:py-20 px-4 bg-background">
-      <div className="container mx-auto">
+    <section className="section-block bg-background">
+      <div className="container">
         {/* Header */}
         <SectionHeading
           badge={`Legislatura ${legislatura}`}
@@ -44,10 +44,7 @@ export const VereadoresSection = ({
         <div data-reveal>
           <InfiniteCarousel ariaLabel="Vereadores" gapClass="gap-6" className="pb-1">
             {vereadores.map((vereador) => (
-              <div
-                key={vereador.id}
-                className="shrink-0 w-[85vw] sm:w-[42vw] lg:w-[28vw] xl:w-[21vw]"
-              >
+              <div key={vereador.id} className="carousel-slide-md">
                 <Link href={`/vereadores/${vereador.slug}`} className="no-underline">
                   <div className="card-modern overflow-hidden group">
                     <div className="relative aspect-[3/4] overflow-hidden">
@@ -80,10 +77,10 @@ export const VereadoresSection = ({
         </div>
 
         {/* View More Link */}
-        <div className="text-center mt-12">
+        <div className="text-center mt-10 sm:mt-12">
           <Link
             href="/vereadores"
-            className="btn-modern inline-flex items-center gap-3 bg-gradient-to-r from-primary to-navy-light text-primary-foreground shadow-lg hover:shadow-xl hover:gap-4 no-underline"
+            className="btn-modern inline-flex items-center justify-center gap-3 w-full sm:w-auto bg-gradient-to-r from-primary to-navy-light text-primary-foreground shadow-lg hover:shadow-xl hover:gap-4 no-underline"
           >
             Ver todos os vereadores
             <ArrowRight className="w-5 h-5" />

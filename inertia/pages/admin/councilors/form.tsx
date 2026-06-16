@@ -90,7 +90,7 @@ export default function CouncilorForm({ councilor, legislatures, biennia }: Prop
         <ArrowLeft className="w-4 h-4" /> Voltar
       </Link>
 
-      <form onSubmit={handleSubmit} className="max-w-3xl space-y-6">
+      <form onSubmit={handleSubmit} className="admin-form">
         {/* Dados Pessoais */}
         <Card>
           <CardHeader title="Dados Pessoais" icon={User} />

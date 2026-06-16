@@ -98,7 +98,7 @@ export default function LicitacaoForm({ licitacao, documents, documentTypes, mod
       <Link href="/painel/licitacoes" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4">
         <ArrowLeft className="w-4 h-4" /> Voltar
       </Link>
-      <form onSubmit={handleSubmit} className="max-w-4xl space-y-6">
+      <form onSubmit={handleSubmit} className="admin-form admin-form-wide">
         <Card className="space-y-4">
           <Field label="Título" required>
             <Input type="text" value={data.title} onChange={(e) => setData('title', e.target.value)} required />

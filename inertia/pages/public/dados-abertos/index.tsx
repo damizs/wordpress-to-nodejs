@@ -46,7 +46,7 @@ export default function DadosAbertos({ datasets = [] }: Props) {
         description="Baixe os dados públicos da Câmara Municipal de Sumé em formato aberto (JSON e CSV): vereadores, matérias legislativas, licitações, publicações, votações e sessões."
         url="/dados-abertos"
       />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar />
         <Header />
         <Breadcrumb items={[{ label: "Dados Abertos" }]} />

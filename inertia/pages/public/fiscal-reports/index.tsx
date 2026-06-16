@@ -86,7 +86,7 @@ export default function FiscalReportsIndex({ reports = [], filters = {}, years =
         description="Relatórios de Gestão Fiscal (RGF) e demais relatórios fiscais da Câmara Municipal de Sumé, organizados por ano e período."
         url="/relatorios-fiscais"
       />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar />
         <Header />
         <Breadcrumb items={[{ label: "Transparência", href: "/transparencia" }, { label: "Relatórios Fiscais" }]} />

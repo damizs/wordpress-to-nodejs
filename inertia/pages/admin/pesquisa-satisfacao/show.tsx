@@ -30,7 +30,7 @@ export default function PesquisaSatisfacaoShow({ survey }: Props) {
         <ArrowLeft className="w-4 h-4" /> Voltar
       </Link>
 
-      <div className="max-w-2xl space-y-6">
+      <div className="admin-form admin-form-narrow">
         {/* Identificação */}
         <Card>
           <CardHeader title="Identificação" />

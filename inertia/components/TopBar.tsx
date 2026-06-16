@@ -23,7 +23,7 @@ export const TopBar = () => {
   return (
     <div className="bg-navy-dark text-primary-foreground border-b border-white/5">
       <div className="container">
-        <nav className="flex flex-wrap items-center justify-center gap-x-7 gap-y-0 text-[11px] md:text-xs font-medium tracking-wide">
+        <nav className="flex items-center gap-x-5 sm:gap-x-7 overflow-x-auto py-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden text-[11px] md:text-xs font-medium tracking-wide whitespace-nowrap">
           {topLinks.map((link, index) =>
             link.external ? (
               <a key={index} href={link.href} target="_blank" rel="noopener noreferrer" className={linkClass}>

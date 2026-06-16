@@ -51,7 +51,7 @@ export default function MapaDoSite({ groups = [] }: Props) {
         description="Encontre rapidamente todas as seções e páginas do portal da Câmara Municipal de Sumé."
         url="/mapa-do-site"
       />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar />
         <Header />
         <Breadcrumb items={[{ label: "Mapa do Site" }]} />

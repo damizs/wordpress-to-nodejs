@@ -50,7 +50,7 @@ export default function NewsShow({ news, related = [] }: Props) {
         url={`/noticias/${news.slug}`}
         image={featuredImage}
       />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar />
         <Header />
         <Breadcrumb items={[{ label: "Notícias", href: "/noticias" }, { label: news.title }]} />

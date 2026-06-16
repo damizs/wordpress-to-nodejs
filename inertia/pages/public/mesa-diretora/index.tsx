@@ -80,7 +80,7 @@ export default function MesaDiretoraIndex({ members = [], biennium }: Props) {
         description="Conheça a Mesa Diretora da Câmara Municipal de Sumé."
         url="/mesa-diretora"
       />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar />
         <Header />
         <Breadcrumb items={[{ label: "Mesa Diretora" }]} />

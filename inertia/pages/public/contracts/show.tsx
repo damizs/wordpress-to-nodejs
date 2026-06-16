@@ -66,7 +66,7 @@ export default function ContractShow({ contract }: Props) {
   return (
     <>
       <SeoHead title={`${heading} - Câmara Municipal de Sumé`} description={contract.object || heading} url={`/contratos/${contract.slug}`} />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar /><Header />
         <Breadcrumb items={[{ label: "Contratos", href: "/contratos" }, { label: heading }]} />
         <PageHero badge="Transparência" title={heading} subtitle={contract.contractor_name || contract.object || undefined} centered />

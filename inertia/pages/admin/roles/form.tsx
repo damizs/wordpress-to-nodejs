@@ -88,13 +88,13 @@ export default function RoleForm({
       </Link>
 
       {readonly && (
-        <div className="max-w-2xl mb-6 flex items-center gap-2 px-4 py-3 rounded-xl bg-gold/15 text-amber-700 text-sm">
+        <div className="admin-form-narrow mb-6 flex items-center gap-2 px-4 py-3 rounded-xl bg-gold/15 text-amber-700 text-sm">
           <Lock className="w-4 h-4 flex-shrink-0" />
           Este é um papel do sistema: tem acesso total e não pode ser alterado.
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
+      <form onSubmit={handleSubmit} className="admin-form admin-form-narrow">
         <Card>
           <CardHeader title="Dados do papel" icon={ShieldCheck} />
           <div className="space-y-4">

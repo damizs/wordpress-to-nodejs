@@ -172,21 +172,21 @@ function LatestPublications({ entries }: { entries: GazetteEntry[] }) {
       className="mb-6 rounded-2xl overflow-hidden shadow-xl bg-card border border-border/60"
     >
       {/* Cabeçalho + contador */}
-      <div className="bg-gradient-hero px-6 py-5 flex items-center justify-between gap-4 text-primary-foreground">
-        <div className="flex items-center gap-3">
+      <div className="bg-gradient-hero px-4 sm:px-6 py-4 sm:py-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-primary-foreground">
+        <div className="flex items-center gap-3 min-w-0">
           <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
             <FileText className="w-5 h-5" aria-hidden="true" />
           </div>
-          <h3 className="text-lg font-semibold m-0">Últimas Publicações</h3>
+          <h3 className="text-base sm:text-lg font-semibold m-0">Últimas Publicações</h3>
         </div>
-        <span className="text-xs font-medium px-3.5 py-1.5 rounded-full bg-white/20 whitespace-nowrap">
+        <span className="text-xs font-medium px-3.5 py-1.5 rounded-full bg-white/20 self-start sm:self-auto">
           {entries.length.toLocaleString("pt-BR")} {entries.length === 1 ? "publicação" : "publicações"}
         </span>
       </div>
 
       {/* Controles: busca + tipo + limpar */}
-      <div className="px-6 py-4 border-b border-border/60 flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
+      <div className="px-4 sm:px-6 py-4 border-b border-border/60 flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1 min-w-0">
           <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/60 pointer-events-none" />
           <input
             type="search"
@@ -207,7 +207,7 @@ function LatestPublications({ entries }: { entries: GazetteEntry[] }) {
             setPage(1);
           }}
           aria-label="Filtrar por tipo"
-          className="h-11 px-4 rounded-lg bg-muted/50 border border-border text-sm text-foreground focus:outline-none focus:border-primary focus:bg-background focus:ring-2 focus:ring-primary/10 transition-colors cursor-pointer"
+          className="w-full sm:w-auto h-11 px-4 rounded-lg bg-muted/50 border border-border text-sm text-foreground focus:outline-none focus:border-primary focus:bg-background focus:ring-2 focus:ring-primary/10 transition-colors cursor-pointer"
         >
           <option value="">Todos os tipos</option>
           {types.map((t) => (
@@ -224,7 +224,7 @@ function LatestPublications({ entries }: { entries: GazetteEntry[] }) {
               setTipo("");
               setPage(1);
             }}
-            className="h-11 px-4 inline-flex items-center justify-center gap-1.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+            className="w-full sm:w-auto h-11 px-4 inline-flex items-center justify-center gap-1.5 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
           >
             <X className="w-4 h-4" /> Limpar
           </button>
@@ -239,18 +239,22 @@ function LatestPublications({ entries }: { entries: GazetteEntry[] }) {
               const dataFmt = formatShortDate(entry.publicationDate);
               const inner = (
                 <>
-                  <span className="text-sm font-medium text-muted-foreground shrink-0 w-24">{dataFmt}</span>
-                  <span className="text-sm text-foreground flex-1 truncate group-hover:text-primary transition-colors">
-                    {titulo(entry)}
-                  </span>
-                  <span className="hidden sm:inline px-2.5 py-0.5 bg-sky/10 text-sky rounded-full text-[11px] font-semibold uppercase tracking-wide shrink-0">
+                  <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-4 min-w-0 flex-1">
+                    <span className="text-sm font-medium text-muted-foreground shrink-0 sm:w-24">{dataFmt}</span>
+                    <span className="text-sm text-foreground flex-1 line-clamp-2 sm:truncate group-hover:text-primary transition-colors">
+                      {titulo(entry)}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0 self-start sm:self-center">
+                  <span className="inline px-2.5 py-0.5 bg-sky/10 text-sky rounded-full text-[11px] font-semibold uppercase tracking-wide">
                     {entry.tipo}
                   </span>
                   {entry.fileUrl ? (
-                    <Download className="w-4 h-4 text-muted-foreground/40 shrink-0 group-hover:text-primary transition-colors" />
+                    <Download className="w-4 h-4 text-muted-foreground/40 group-hover:text-primary transition-colors" />
                   ) : (
-                    <ArrowRight className="w-4 h-4 text-muted-foreground/30 shrink-0" />
+                    <ArrowRight className="w-4 h-4 text-muted-foreground/30" />
                   )}
+                  </div>
                 </>
               );
               return entry.fileUrl ? (
@@ -261,7 +265,7 @@ function LatestPublications({ entries }: { entries: GazetteEntry[] }) {
                   target="_blank"
                   rel="noopener noreferrer"
                   title="Baixar PDF"
-                  className="flex items-center gap-4 px-6 py-4 no-underline hover:bg-muted/60 transition-colors group"
+                  className="pub-list-row no-underline hover:bg-muted/60 transition-colors group"
                 >
                   {inner}
                 </a>
@@ -269,7 +273,7 @@ function LatestPublications({ entries }: { entries: GazetteEntry[] }) {
                 <Link
                   key={entry.id}
                   href="/diario-oficial"
-                  className="flex items-center gap-4 px-6 py-4 no-underline hover:bg-muted/60 transition-colors group"
+                  className="pub-list-row no-underline hover:bg-muted/60 transition-colors group"
                 >
                   {inner}
                 </Link>
@@ -400,8 +404,8 @@ export const DiarioOficialSection = ({
     setView((v) => (v.month === 11 ? { year: v.year + 1, month: 0 } : { year: v.year, month: v.month + 1 }));
 
   return (
-    <section className="py-14 lg:py-20 bg-muted/40">
-      <div className="container max-w-5xl">
+    <section className="section-block bg-muted/40">
+      <div className="container max-w-5xl min-w-0">
         <SectionHeading
           badge="Diário Oficial"
           title={title}
@@ -412,9 +416,9 @@ export const DiarioOficialSection = ({
         {entries.length > 0 && <LatestPublications entries={entries} />}
 
         {/* Módulo 2: edição atual + calendário */}
-        <div data-reveal className="rounded-2xl overflow-hidden shadow-xl bg-card border border-border/60 grid md:grid-cols-[1fr_300px]">
+        <div data-reveal className="rounded-2xl overflow-hidden shadow-xl bg-card border border-border/60 grid grid-cols-1 lg:grid-cols-[1fr_300px]">
           {/* Coluna de informação + ações */}
-          <div className="p-6 md:p-8 flex flex-col justify-center gap-7">
+          <div className="p-5 sm:p-6 md:p-8 flex flex-col justify-center gap-5 sm:gap-7 min-w-0">
             <div className="flex items-start gap-4">
               <div className="w-12 h-12 rounded-xl bg-gradient-hero flex items-center justify-center shrink-0 shadow-md">
                 <FileText className="w-6 h-6 text-primary-foreground" aria-hidden="true" />

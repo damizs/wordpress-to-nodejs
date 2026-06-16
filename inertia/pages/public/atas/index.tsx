@@ -8,6 +8,7 @@ import { PageHero } from "~/components/PageHero";
 import { Footer } from "~/components/Footer";
 import { Calendar, FileText, ChevronLeft, ChevronRight, Search, X, ArrowRight } from "lucide-react";
 import { DownloadPdfButton, formatDocumentDate } from "~/components/DocumentActions";
+import { FilterBar } from "~/components/FilterBar";
 
 interface Ata { id: number; title: string; slug: string; date: string; file_url?: string; }
 interface Props {
@@ -45,16 +46,15 @@ export default function AtasIndex({ atas = [], pagination, years = [], types = [
   return (
     <>
       <SeoHead title="Atas das Sessões - Câmara Municipal de Sumé" description="Acesse as atas das sessões plenárias da Câmara Municipal de Sumé." url="/atas" />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar /><Header /><Breadcrumb items={[{ label: "Atas das Sessões" }]} />
         <PageHero badge="Documentos Oficiais" title="Atas das Sessões" subtitle="Registros oficiais das sessões plenárias realizadas pela Câmara Municipal" />
         <main>
           <section className="py-10 lg:py-14">
           <div className="container">
             {/* Toolbar de filtros */}
-            <div data-reveal="up" className="mb-8 card-modern p-4 flex flex-col md:flex-row md:items-center gap-3">
-              <form
-                className="relative md:flex-1"
+            <FilterBar>
+              <form className="filter-search"
                 onSubmit={(e) => { e.preventDefault(); applyFilters({ busca: searchTerm }); }}
               >
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -91,8 +91,7 @@ export default function AtasIndex({ atas = [], pagination, years = [], types = [
                 >
                   <X className="w-4 h-4" /> Limpar
                 </button>
-              )}
-            </div>
+              )}</FilterBar>
 
             {pagination?.total !== undefined && (
               <p data-reveal="fade" className="mb-6 text-sm text-muted-foreground text-right">

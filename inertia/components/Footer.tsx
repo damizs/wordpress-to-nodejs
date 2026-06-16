@@ -105,7 +105,7 @@ export const Footer = ({ logoUrl }: FooterProps) => {
       <div className="h-0.5 w-full bg-gold/60" />
 
       {/* Main Footer */}
-      <div className="container mx-auto py-14 lg:py-16">
+      <div className="container py-14 lg:py-16 min-w-0">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12">
           {/* Logo & Description */}
           <div className="lg:max-w-xs">

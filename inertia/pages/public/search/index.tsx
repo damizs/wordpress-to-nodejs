@@ -104,7 +104,7 @@ export default function SearchIndex({ q = "", results = [], total = 0 }: Props) 
         description="Pesquise notícias, atas, pautas, licitações, publicações e mais no portal da Câmara Municipal de Sumé."
         url="/busca"
       />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar />
         <Header />
         <Breadcrumb items={[{ label: "Busca" }]} />

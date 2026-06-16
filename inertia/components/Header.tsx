@@ -106,11 +106,41 @@ export const Header = ({ logoUrl }: HeaderProps) => {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const handleLinkClick = (href: string) => {
+  const submitSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const value = searchTerm.trim();
+    if (value.length < 2) return;
+    setSearchOpen(false);
+    setMobileMenuOpen(false);
+    setSearchTerm("");
+    router.get("/busca", { q: value });
+  };
+
+  const closeMobileMenu = () => {
     setMobileMenuOpen(false);
     setMobileExpandedItem(null);
+  };
+
+  const handleLinkClick = (href: string) => {
+    closeMobileMenu();
     router.visit(href);
   };
+
+  // Fecha menu mobile ao navegar
+  useEffect(() => {
+    closeMobileMenu();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUrl]);
+
+  // Bloqueia scroll do body com menu aberto
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [mobileMenuOpen]);
 
   // Foco automático no campo de busca quando o overlay abre
   useEffect(() => {
@@ -126,16 +156,6 @@ export const Header = ({ logoUrl }: HeaderProps) => {
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [searchOpen]);
-
-  const submitSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    const value = searchTerm.trim();
-    if (value.length < 2) return;
-    setSearchOpen(false);
-    setMobileMenuOpen(false);
-    setSearchTerm("");
-    router.get("/busca", { q: value });
-  };
 
   if (isEmbed) return null;
 
@@ -270,6 +290,35 @@ export const Header = ({ logoUrl }: HeaderProps) => {
       </li>
     ));
 
+  /** Menu governamental — uppercase, filete dourado no hover */
+  const renderClassicoNavLinks = () =>
+    navItems.map((item, index) => (
+      <li key={index} className="relative group">
+        <Link
+          href={item.href}
+          className="flex items-center gap-1 px-4 py-3.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-primary-foreground/90 hover:text-gold hover:bg-primary-foreground/[0.06] transition-colors no-underline border-b-2 border-transparent hover:border-gold"
+        >
+          {item.label}
+          {item.hasDropdown && (
+            <ChevronDown className="w-3 h-3 opacity-60 group-hover:rotate-180 transition-transform duration-300" />
+          )}
+        </Link>
+        {item.hasDropdown && item.subItems && (
+          <div className="invisible group-hover:visible group-focus-within:visible opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 absolute top-full left-0 mt-0 min-w-[220px] rounded-sm shadow-xl z-[9999] transition-all duration-200 py-2 bg-background text-foreground border border-border border-t-2 border-t-gold">
+            {item.subItems.map((sub, subIndex) => (
+              <Link
+                key={subIndex}
+                href={sub.href}
+                className="block w-full text-left px-4 py-2.5 text-sm hover:bg-muted hover:text-primary transition-colors duration-200 no-underline"
+              >
+                {sub.label}
+              </Link>
+            ))}
+          </div>
+        )}
+      </li>
+    ));
+
   const searchButtonDark = (
     <button
       type="button"
@@ -332,11 +381,32 @@ export const Header = ({ logoUrl }: HeaderProps) => {
     </button>
   );
 
-  /* Menu mobile neutro (bg-card) — modelos novos. */
+  /* Menu mobile neutro (bg-card) — overlay fullscreen nos modelos novos. */
   const mobileNavNeutral = mobileMenuOpen && (
-    <nav id="menu-mobile" className="md:hidden bg-card border-t border-border p-4 animate-fade-in">
+    <>
+      <div
+        className="fixed inset-0 z-[55] bg-black/50 md:hidden"
+        onClick={closeMobileMenu}
+        aria-hidden
+      />
+      <nav
+        id="menu-mobile"
+        className="fixed inset-x-0 top-0 z-[56] max-h-[100dvh] overflow-y-auto md:hidden bg-card border-b border-border shadow-xl animate-fade-in"
+      >
+        <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-3 border-b border-border bg-card/95 backdrop-blur">
+          <span className="text-sm font-semibold text-foreground">Menu</span>
+          <button
+            type="button"
+            onClick={closeMobileMenu}
+            aria-label="Fechar menu"
+            className="p-2.5 min-h-[2.75rem] min-w-[2.75rem] rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted"
+          >
+            <X className="w-5 h-5" aria-hidden="true" />
+          </button>
+        </div>
+        <div className="p-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
       <form onSubmit={submitSearch} role="search" className="flex items-center gap-2 mb-3">
-        <div className="relative flex-1">
+        <div className="relative flex-1 min-w-0">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" aria-hidden="true" />
           <input
             type="search"
@@ -350,7 +420,7 @@ export const Header = ({ logoUrl }: HeaderProps) => {
         <button
           type="submit"
           aria-label="Buscar"
-          className="px-3 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90 transition-opacity"
+          className="px-3 py-2.5 min-h-[2.75rem] rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90 transition-opacity shrink-0"
         >
           Buscar
         </button>
@@ -366,7 +436,7 @@ export const Header = ({ logoUrl }: HeaderProps) => {
                   handleLinkClick(item.href);
                 }
               }}
-              className="flex items-center justify-between w-full py-3 px-4 text-sm font-medium text-foreground hover:bg-muted rounded-xl transition-colors"
+              className="flex items-center justify-between w-full py-3 px-4 text-sm font-medium text-foreground hover:bg-muted rounded-xl transition-colors min-h-[2.75rem]"
             >
               {item.label}
               {item.hasDropdown && (
@@ -379,7 +449,7 @@ export const Header = ({ logoUrl }: HeaderProps) => {
                   <li key={subIndex}>
                     <button
                       onClick={() => handleLinkClick(sub.href)}
-                      className="block w-full text-left py-2 px-3 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
+                      className="block w-full text-left py-2.5 px-3 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors min-h-[2.75rem]"
                     >
                       {sub.label}
                     </button>
@@ -390,7 +460,9 @@ export const Header = ({ logoUrl }: HeaderProps) => {
           </li>
         ))}
       </ul>
-    </nav>
+        </div>
+      </nav>
+    </>
   );
 
   const logoOrInitial = (imgClass: string) =>
@@ -416,34 +488,48 @@ export const Header = ({ logoUrl }: HeaderProps) => {
         {widgets}
         {compactBar}
 
-        <div className="bg-navy-dark text-primary-foreground">
-          <div className="container flex items-center justify-between h-8 text-xs">
-            <span className="opacity-90">{headerSubtitle}</span>
-            <span className="hidden sm:inline opacity-70">Portal Oficial</span>
+        {/* Faixa de identificação governamental */}
+        <div className="bg-navy-dark text-primary-foreground border-b border-gold/30">
+          <div className="container flex items-center justify-between h-9 text-xs">
+            <span className="flex items-center gap-2 font-medium tracking-wide">
+              <span className="w-1 h-3.5 bg-gold rounded-sm shrink-0" aria-hidden="true" />
+              {headerSubtitle}
+            </span>
+            <span className="hidden sm:flex items-center gap-2 opacity-85">
+              <span className="w-1.5 h-1.5 rounded-full bg-gold shrink-0" aria-hidden="true" />
+              Portal Oficial
+            </span>
           </div>
         </div>
 
-        <div className="bg-card border-b border-border">
-          <div className="container flex items-center justify-between gap-4 py-3">
-            <Link href="/" className="flex items-center gap-3 no-underline min-w-0">
-              {logoOrInitial("h-14 md:h-16 w-auto object-contain")}
-              {!resolvedLogo && (
-                <span className="min-w-0">
-                  <span className="block text-base md:text-lg font-bold text-foreground leading-tight truncate">
-                    {headerTitle}
-                  </span>
-                  <span className="block text-xs text-muted-foreground">{headerSubtitle}</span>
+        {/* Barra de identidade — grade sutil + logo + título */}
+        <div className="bg-card border-b border-border relative">
+          <div className="absolute inset-0 template-classico-grid opacity-50 pointer-events-none" aria-hidden="true" />
+          <div className="relative container flex items-center justify-between gap-4 py-4 md:py-5">
+            <Link href="/" className="flex items-center gap-3 md:gap-4 no-underline min-w-0 flex-1">
+              <span
+                className="hidden sm:block w-1 shrink-0 self-stretch min-h-[3rem] rounded-full bg-gradient-to-b from-gold via-gold/70 to-gold/20"
+                aria-hidden="true"
+              />
+              {logoOrInitial("h-12 md:h-16 w-auto object-contain shrink-0")}
+              <span className="min-w-0 border-l border-gold/30 pl-3 md:pl-4">
+                <span className="block text-[10px] md:text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+                  {headerSubtitle}
                 </span>
-              )}
+                <span className="block text-sm md:text-base lg:text-lg font-bold text-foreground leading-tight template-serif">
+                  {headerTitle}
+                </span>
+              </span>
             </Link>
-            <div className="md:hidden">{mobileButton("light")}</div>
+            <div className="md:hidden shrink-0">{mobileButton("light")}</div>
           </div>
+          <div className="template-gold-rule-solid opacity-80" aria-hidden="true" />
         </div>
 
-        <nav className="hidden md:block bg-navy text-primary-foreground border-b-2 border-gold">
-          <div className="container flex items-center gap-0.5">
-            <ul className="flex items-center gap-0.5">{renderNavLinks("left")}</ul>
-            <div className="ml-auto">{searchButtonDark}</div>
+        <nav className="hidden md:block bg-navy text-primary-foreground border-b-[3px] border-gold shadow-md">
+          <div className="container flex items-center">
+            <ul className="flex items-center">{renderClassicoNavLinks()}</ul>
+            <div className="ml-auto pl-4 border-l border-primary-foreground/15">{searchButtonDark}</div>
           </div>
         </nav>
 
@@ -464,34 +550,41 @@ export const Header = ({ logoUrl }: HeaderProps) => {
         {widgets}
         {compactBar}
 
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute -top-1/2 -right-1/4 w-96 h-96 bg-gold/5 rounded-full blur-3xl" />
-          <div className="absolute -bottom-1/2 -left-1/4 w-96 h-96 bg-sky/5 rounded-full blur-3xl" />
+        <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
+          <div className="absolute inset-0 template-modern-grid opacity-80" />
+          <div className="absolute inset-0 template-modern-mesh" />
+          <div className="absolute -top-1/2 -right-1/4 w-[28rem] h-[28rem] bg-gold/10 rounded-full blur-3xl" />
+          <div className="absolute -bottom-1/2 -left-1/4 w-[28rem] h-[28rem] bg-sky/10 rounded-full blur-3xl" />
         </div>
 
-        <div className="relative container flex items-center justify-between gap-4 py-4">
-          <Link href="/" className="flex items-center gap-3 no-underline min-w-0">
-            {logoOrInitial("h-12 md:h-16 w-auto object-contain")}
-            {!resolvedLogo && (
-              <span className="text-lg md:text-xl font-bold text-primary-foreground truncate">
+        <div className="relative container flex items-center justify-between gap-4 py-4 md:py-5">
+          <Link href="/" className="flex items-center gap-3 md:gap-4 no-underline min-w-0 group">
+            {logoOrInitial("h-11 md:h-14 w-auto object-contain shrink-0 drop-shadow-md")}
+            <span className="min-w-0 hidden sm:block border-l border-primary-foreground/20 pl-3 md:pl-4">
+              <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-gold/90">
+                {headerSubtitle}
+              </span>
+              <span className="block text-sm md:text-base font-bold text-primary-foreground leading-tight truncate">
                 {headerTitle}
               </span>
-            )}
+            </span>
           </Link>
 
           <nav className="hidden md:block">
-            <ul className="flex items-center gap-0.5">
-              {renderNavLinks("right")}
-              <li>{searchButtonDark}</li>
-            </ul>
+            <div className="glass rounded-full px-1.5 py-1 border border-primary-foreground/15 shadow-lg">
+              <ul className="flex items-center gap-0.5">
+                {renderNavLinks("right")}
+                <li className="pl-0.5">{searchButtonDark}</li>
+              </ul>
+            </div>
           </nav>
 
-          <div className="md:hidden">{mobileButton("dark")}</div>
+          <div className="md:hidden shrink-0">{mobileButton("dark")}</div>
         </div>
 
         {searchStripNeutral}
         {mobileNavNeutral}
-        {goldBottomLine}
+        <div className="relative h-1 bg-gradient-to-r from-transparent via-gold to-transparent" aria-hidden="true" />
       </header>
     );
   }
@@ -541,18 +634,18 @@ export const Header = ({ logoUrl }: HeaderProps) => {
         <div className="absolute -bottom-1/2 -left-1/4 w-96 h-96 bg-sky/[0.04] rounded-full blur-3xl" />
       </div>
 
-      <div className="relative container py-8 md:py-10">
+      <div className="relative container py-6 sm:py-8 md:py-10">
         {/* Logo and Title */}
-        <Link href="/" className="flex items-center justify-center gap-4 mb-7 animate-fade-in no-underline">
+        <Link href="/" className="flex items-center justify-center gap-3 sm:gap-4 mb-5 sm:mb-7 animate-fade-in no-underline px-1">
           {resolvedLogo ? (
-            <img src={resolvedLogo} alt={headerTitle} className="h-24 md:h-32 w-auto object-contain" />
+            <img src={resolvedLogo} alt={headerTitle} className="h-20 sm:h-24 md:h-32 w-auto object-contain max-w-[85vw]" />
           ) : (
             <>
               <div className="relative w-16 h-16 md:w-[72px] md:h-[72px] rounded-2xl glass flex items-center justify-center border border-primary-foreground/15 group-hover:border-gold/40 transition-colors duration-300">
                 <span className="text-2xl md:text-3xl font-bold text-gradient-gold">{titleFirstWord.charAt(0)}</span>
               </div>
               <div className="text-center md:text-left">
-                <h1 className="text-2xl md:text-4xl font-bold tracking-tight leading-tight text-primary-foreground">
+                <h1 className="text-xl sm:text-2xl md:text-4xl font-bold tracking-tight leading-tight text-primary-foreground">
                   {titleFirstWord}{" "}
                   <span className="text-gradient-gold">{titleRest.join(" ")}</span>
                 </h1>
@@ -656,73 +749,14 @@ export const Header = ({ logoUrl }: HeaderProps) => {
             aria-expanded={mobileMenuOpen}
             aria-controls="menu-mobile"
             aria-label={mobileMenuOpen ? "Fechar menu" : "Abrir menu"}
-            className="p-3 glass rounded-xl hover:bg-primary-foreground/10 transition-all duration-300"
+            className="p-3 min-h-[2.75rem] min-w-[2.75rem] glass rounded-xl hover:bg-primary-foreground/10 transition-all duration-300"
           >
             {mobileMenuOpen ? <X className="w-6 h-6" aria-hidden="true" /> : <Menu className="w-6 h-6" aria-hidden="true" />}
           </button>
         </div>
-
-        {/* Mobile Navigation */}
-        {mobileMenuOpen && (
-          <nav id="menu-mobile" className="md:hidden mt-6 glass rounded-2xl p-4 animate-fade-in">
-            <form onSubmit={submitSearch} role="search" className="flex items-center gap-2 mb-3">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-primary-foreground/50 pointer-events-none" aria-hidden="true" />
-                <input
-                  type="search"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Buscar no portal…"
-                  aria-label="Termo de busca"
-                  className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-primary-foreground/10 border border-primary-foreground/20 text-primary-foreground placeholder:text-primary-foreground/50 text-sm outline-none focus:border-gold/60"
-                />
-              </div>
-              <button
-                type="submit"
-                aria-label="Buscar"
-                className="px-3 py-2.5 rounded-xl bg-gold text-navy-dark text-sm font-semibold hover:opacity-90 transition-opacity"
-              >
-                Buscar
-              </button>
-            </form>
-            <ul className="flex flex-col gap-1">
-              {navItems.map((item, index) => (
-                <li key={index}>
-                  <button
-                    onClick={() => {
-                      if (item.hasDropdown) {
-                        setMobileExpandedItem(mobileExpandedItem === item.label ? null : item.label);
-                      } else {
-                        handleLinkClick(item.href);
-                      }
-                    }}
-                    className="flex items-center justify-between w-full py-3 px-4 text-sm font-medium hover:bg-primary-foreground/10 rounded-xl transition-all duration-300"
-                  >
-                    {item.label}
-                    {item.hasDropdown && (
-                      <ChevronDown className={`w-4 h-4 opacity-60 transition-transform duration-300 ${mobileExpandedItem === item.label ? "rotate-180" : ""}`} />
-                    )}
-                  </button>
-                  {item.hasDropdown && item.subItems && mobileExpandedItem === item.label && (
-                    <ul className="ml-4 border-l border-primary-foreground/20 pl-4 py-1">
-                      {item.subItems.map((sub, subIndex) => (
-                        <li key={subIndex}>
-                          <button
-                            onClick={() => handleLinkClick(sub.href)}
-                            className="block w-full text-left py-2 px-3 text-sm opacity-80 hover:opacity-100 hover:bg-primary-foreground/10 rounded-lg transition-all duration-200"
-                          >
-                            {sub.label}
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </nav>
-        )}
       </div>
+
+      {mobileNavNeutral}
 
       {goldBottomLine}
     </header>

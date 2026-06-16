@@ -95,7 +95,7 @@ export default function NewsForm({ news: existing, categories }: Props) {
     <AdminLayout title={isEditing ? 'Editar Notícia' : 'Nova Notícia'}>
       <Head title={`${isEditing ? 'Editar' : 'Nova'} Notícia - Painel`} />
 
-      <div className="max-w-4xl">
+      <div className="admin-form admin-form-wide">
         {/* Back */}
         <Link
           href="/painel/noticias"

@@ -18,7 +18,7 @@ export default function HistoriaIndex({ institutional }: Props) {
       width="reading"
     >
       {/* Stats */}
-      <div data-reveal="up" className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+      <div data-reveal="up" className="grid grid-cols-1 min-[400px]:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-10 sm:mb-12">
                 <div className="card-modern p-5 text-center">
                   <Building2 className="w-8 h-8 mx-auto text-primary mb-2" />
                   <p className="text-2xl font-bold text-foreground">1951</p>

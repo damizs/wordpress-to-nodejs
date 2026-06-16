@@ -8,6 +8,7 @@ import { PageHero } from "~/components/PageHero";
 import { Footer } from "~/components/Footer";
 import { Calendar, FileText, Search, X, ArrowRight, ChevronLeft, ChevronRight, Gavel } from "lucide-react";
 import { formatDocumentDate } from "~/components/DocumentActions";
+import { FilterBar } from "~/components/FilterBar";
 
 interface Licitacao { id: number; title: string; slug: string; number: string; modality?: string; date: string; status?: string; }
 interface Filters { status?: string; modality?: string; year?: string; search?: string; }
@@ -72,15 +73,14 @@ export default function LicitacoesIndex({ licitacoes = [], pagination, filters =
   return (
     <>
       <SeoHead title="Licitações - Câmara Municipal de Sumé" description="Consulte os processos licitatórios da Câmara Municipal de Sumé." url="/licitacoes" />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar /><Header /><Breadcrumb items={[{ label: "Licitações" }]} />
         <PageHero badge="Transparência" title="Licitações" subtitle="Processos licitatórios e contratações da Câmara Municipal, com documentos por fase do processo" centered />
         <main>
           <section className="py-10 lg:py-14">
             <div className="container">
-              {/* Toolbar de filtros */}
-              <div data-reveal="up" className="mb-8 card-modern p-4 flex flex-col md:flex-row md:items-center gap-3">
-                <form className="relative md:flex-1" onSubmit={(e) => { e.preventDefault(); applyFilters({ search: searchTerm }); }}>
+              <FilterBar>
+                <form className="filter-search" onSubmit={(e) => { e.preventDefault(); applyFilters({ search: searchTerm }); }}>
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <input
                     type="search"
@@ -128,7 +128,7 @@ export default function LicitacoesIndex({ licitacoes = [], pagination, filters =
                     <X className="w-4 h-4" /> Limpar
                   </button>
                 )}
-              </div>
+              </FilterBar>
 
               {pagination?.total !== undefined && (
                 <p data-reveal="fade" className="mb-6 text-sm text-muted-foreground text-right">

@@ -61,7 +61,7 @@ export default function OuvidoriaIndex() {
         description="Canal de Ouvidoria da Câmara Municipal de Sumé. Denúncias, reclamações, sugestões e elogios."
         url="/ouvidoria"
       />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar />
         <Header />
         <Breadcrumb items={[{ label: "Ouvidoria" }]} />
@@ -74,9 +74,9 @@ export default function OuvidoriaIndex() {
         <main>
           <section className="py-10 lg:py-14">
             <div className="container">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+              <div className="grid grid-cols-1 min-[400px]:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-10 sm:mb-12">
                 {channels.map((channel, index) => (
-                  <div key={index} className="card-modern p-5 text-center">
+                  <div key={index} className="card-modern p-4 sm:p-5 text-center">
                     <div
                       className={`w-12 h-12 mx-auto rounded-xl ${channel.color} flex items-center justify-center mb-3`}
                     >

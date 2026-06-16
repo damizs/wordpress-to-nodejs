@@ -56,8 +56,8 @@ export const TransparencySection = ({
   const radarUrl = settings.radar_atricon_url || "https://radardatransparencia.atricon.org.br/";
 
   return (
-    <section className="py-14 lg:py-20 px-4 bg-muted/40">
-      <div className="container mx-auto">
+    <section className="section-block bg-muted/40">
+      <div className="container">
         <SectionHeading
           badge="Portal da Transparência"
           title={title}
@@ -67,7 +67,7 @@ export const TransparencySection = ({
         {/* Radar da Transparência ATRICON */}
         <div
           data-reveal="zoom"
-          className="bg-gradient-hero rounded-3xl p-8 md:p-10 mb-10 flex flex-col md:flex-row items-center gap-6 text-primary-foreground shadow-xl"
+          className="bg-gradient-hero rounded-2xl sm:rounded-3xl p-6 sm:p-8 md:p-10 mb-8 sm:mb-10 flex flex-col md:flex-row items-center gap-5 sm:gap-6 text-primary-foreground shadow-xl"
         >
           <div className="w-20 h-20 rounded-full bg-white flex items-center justify-center shrink-0 shadow-lg">
             <Award className="w-10 h-10 text-navy" />
@@ -83,7 +83,7 @@ export const TransparencySection = ({
             href={radarUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 bg-white text-navy rounded-xl text-sm font-semibold no-underline hover:bg-gold hover:text-navy-dark transition-colors"
+            className="w-full sm:w-auto shrink-0 inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-white text-navy rounded-xl text-sm font-semibold no-underline hover:bg-gold hover:text-navy-dark transition-colors"
           >
             Acessar Radar
             <ExternalLink className="w-4 h-4" />
@@ -101,7 +101,7 @@ export const TransparencySection = ({
                   <Link
                     key={cat.id}
                     href={`/${cat.slug}`}
-                    className="shrink-0 w-[80vw] sm:w-[42vw] lg:w-[22vw] card-modern p-6 flex flex-col items-center text-center gap-4 no-underline hover-lift min-h-[150px] justify-center"
+                    className="carousel-slide-sm card-modern p-5 sm:p-6 flex flex-col items-center text-center gap-3 sm:gap-4 no-underline hover-lift min-h-[140px] sm:min-h-[150px] justify-center"
                   >
                     <div className={`w-14 h-14 rounded-full ${palette.circle} flex items-center justify-center`}>
                       <Icon className={`w-7 h-7 ${palette.icon}`} />

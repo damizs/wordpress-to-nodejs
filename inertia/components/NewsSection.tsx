@@ -25,7 +25,7 @@ interface NewsSectionProps {
 
 /**
  * Painel de notícias para a coluna direita do hero (modelo Moderno):
- * destaque + lista vertical compacta.
+ * destaque em cima + demais cards em grade 2×2 (não empilhados em coluna).
  */
 export function NewsHeroPanel({ news, limit }: { news: NewsItem[]; limit?: number }) {
   if (news.length === 0) return null;
@@ -34,27 +34,31 @@ export function NewsHeroPanel({ news, limit }: { news: NewsItem[]; limit?: numbe
   const others = capped.filter((n) => n.id !== featured?.id).slice(0, 4);
 
   return (
-    <div className="flex flex-col gap-4" data-reveal="fade-left">
+    <div className="flex flex-col gap-3 lg:gap-4 min-w-0" data-reveal="fade-left">
       {featured && (
-        <Link href={`/noticias/${featured.slug}`} className="no-underline">
+        <Link href={`/noticias/${featured.slug}`} className="no-underline block">
           <article className="relative group cursor-pointer">
-            <div className="relative min-h-[200px] sm:min-h-[220px] rounded-2xl overflow-hidden shadow-2xl border border-primary-foreground/10">
+            <div
+              className={`relative rounded-2xl overflow-hidden shadow-2xl border border-primary-foreground/10 ${
+                others.length > 0 ? "min-h-[160px] sm:min-h-[180px] lg:min-h-[200px]" : "min-h-[200px] sm:min-h-[220px]"
+              }`}
+            >
               <img
                 src={featured.image || NEWS_PLACEHOLDER}
                 alt={featured.title}
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-navy-dark via-navy-dark/60 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-5">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full glass text-gold text-xs mb-2">
-                  <Calendar className="w-3.5 h-3.5" />
+              <div className="absolute inset-0 bg-gradient-to-t from-navy-dark via-navy-dark/55 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5">
+                <div className="inline-flex items-center gap-2 px-2.5 py-0.5 rounded-full glass text-gold text-[11px] mb-1.5">
+                  <Calendar className="w-3 h-3" />
                   <span>{featured.date}</span>
                 </div>
-                <h2 className="text-lg lg:text-xl font-bold text-primary-foreground group-hover:text-gold transition-colors leading-snug line-clamp-2">
+                <h2 className="text-base sm:text-lg lg:text-xl font-bold text-primary-foreground group-hover:text-gold transition-colors leading-snug line-clamp-2">
                   {featured.title}
                 </h2>
                 {featured.excerpt && (
-                  <p className="mt-1.5 text-primary-foreground/75 text-sm line-clamp-2 hidden sm:block">
+                  <p className="mt-1 text-primary-foreground/75 text-sm line-clamp-1 hidden md:block">
                     {featured.excerpt}
                   </p>
                 )}
@@ -64,23 +68,24 @@ export function NewsHeroPanel({ news, limit }: { news: NewsItem[]; limit?: numbe
         </Link>
       )}
       {others.length > 0 && (
-        <div className="flex flex-col gap-2.5">
+        <div className="grid grid-cols-2 gap-2.5 lg:gap-3">
           {others.map((item, index) => (
-            <Link href={`/noticias/${item.slug}`} key={item.id} className="no-underline">
+            <Link href={`/noticias/${item.slug}`} key={item.id} className="no-underline min-w-0">
               <article
-                className="group cursor-pointer flex gap-3 rounded-xl bg-primary-foreground/[0.07] border border-primary-foreground/10 hover:border-gold/40 hover:bg-primary-foreground/10 transition-all duration-300 p-2.5"
+                className="group cursor-pointer h-full flex flex-col rounded-xl overflow-hidden bg-primary-foreground/[0.07] border border-primary-foreground/10 hover:border-gold/40 hover:bg-primary-foreground/10 transition-all duration-300"
                 style={{ animationDelay: `${index * 60}ms` }}
               >
-                <div className="relative w-16 sm:w-[4.5rem] shrink-0 rounded-lg overflow-hidden aspect-square">
+                <div className="relative aspect-[16/10] overflow-hidden">
                   <img
                     src={item.image || NEWS_PLACEHOLDER}
                     alt={item.title}
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
+                  <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/70 to-transparent opacity-80" />
                 </div>
-                <div className="flex flex-col justify-center min-w-0">
-                  <span className="text-gold/90 text-[11px] mb-0.5">{item.date}</span>
-                  <h3 className="text-sm font-semibold text-primary-foreground group-hover:text-gold transition-colors line-clamp-2 leading-snug">
+                <div className="p-2.5 flex flex-col flex-1 min-w-0">
+                  <span className="text-gold/90 text-[10px] mb-0.5 tabular-nums">{item.date}</span>
+                  <h3 className="text-xs sm:text-[13px] font-semibold text-primary-foreground group-hover:text-gold transition-colors line-clamp-2 leading-snug">
                     {item.title}
                   </h3>
                 </div>
@@ -113,7 +118,7 @@ export const NewsSection = ({ news = [], backgroundImage, layout, limit }: NewsS
         </div>
       )}
 
-      <div className="relative container py-14 lg:py-20">
+      <div className="relative container py-10 sm:py-14 lg:py-20 min-w-0">
         {variant === "grade" && <GridLayout news={items} />}
         {variant === "lista" && <ListLayout news={items} />}
         {variant === "destaque" && <HighlightListLayout news={items} />}
@@ -122,10 +127,10 @@ export const NewsSection = ({ news = [], backgroundImage, layout, limit }: NewsS
 
       {/* Barra "ver mais" */}
       <div className="relative bg-navy-dark/90 backdrop-blur-sm border-t border-white/10">
-        <div className="container py-4 flex justify-end">
+        <div className="container py-4 flex justify-center sm:justify-end">
           <Link
             href="/noticias"
-            className="group inline-flex items-center gap-3 px-6 py-2.5 bg-white/10 hover:bg-gold hover:text-navy-dark rounded-full text-white font-medium no-underline transition-all duration-300"
+            className="group inline-flex items-center justify-center gap-3 w-full sm:w-auto px-6 py-2.5 bg-white/10 hover:bg-gold hover:text-navy-dark rounded-full text-white font-medium no-underline transition-all duration-300"
           >
             Ver mais notícias
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -145,7 +150,7 @@ function MosaicLayout({ news }: { news: NewsItem[] }) {
       {featured && (
         <Link href={`/noticias/${featured.slug}`} className="no-underline">
           <article className="relative group cursor-pointer h-full animate-fade-in">
-            <div className="relative h-full min-h-[400px] lg:min-h-[520px] rounded-2xl overflow-hidden shadow-2xl">
+            <div className="relative h-full min-h-[280px] sm:min-h-[360px] lg:min-h-[520px] rounded-2xl overflow-hidden shadow-2xl">
               <img
                 src={featured.image || NEWS_PLACEHOLDER}
                 alt={featured.title}
@@ -168,14 +173,14 @@ function MosaicLayout({ news }: { news: NewsItem[] }) {
           </article>
         </Link>
       )}
-      <div className="grid grid-cols-2 gap-4 lg:gap-5 h-full">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 lg:gap-5 h-full">
         {others.map((item, index) => (
           <Link href={`/noticias/${item.slug}`} key={item.id} className="no-underline">
             <article
               className="relative group cursor-pointer h-full animate-fade-in"
               style={{ animationDelay: `${index * 100}ms` }}
             >
-              <div className="relative h-full min-h-[180px] lg:min-h-[250px] rounded-2xl overflow-hidden shadow-lg">
+              <div className="relative h-full min-h-[200px] sm:min-h-[180px] lg:min-h-[250px] rounded-2xl overflow-hidden shadow-lg">
                 <img
                   src={item.image || NEWS_PLACEHOLDER}
                   alt={item.title}

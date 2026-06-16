@@ -31,7 +31,7 @@ export default function VereadoresIndex({ vereadores = [], legislature }: Props)
         description="Conheça os vereadores da Câmara Municipal de Sumé. Veja informações de contato, partido e atividades parlamentares."
         url="/vereadores"
       />
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar />
         <Header />
         <Breadcrumb items={[{ label: "Vereadores" }]} />
