@@ -1,12 +1,9 @@
-import { useRef } from "react";
 import { Link } from "@inertiajs/react";
 import {
   Activity,
   ArrowRight,
   Award,
   Calendar,
-  ChevronLeft,
-  ChevronRight,
   ExternalLink,
   FileCheck,
   FilePen,
@@ -22,6 +19,7 @@ import {
 import type { LucideIcon } from "lucide-react";
 import { SectionHeading } from "~/components/SectionHeading";
 import { LegislativoLineChart } from "~/components/LegislativoLineChart";
+import { InfiniteCarousel } from "~/components/InfiniteCarousel";
 
 interface LegislativoMateria {
   id: number;
@@ -150,20 +148,53 @@ function MateriaCard({ m }: { m: LegislativoMateria }) {
   );
 }
 
-/** Timeline horizontal com scroll-snap — matérias mais recentes à esquerda. */
-function MateriasTimeline({ materias }: { materias: LegislativoMateria[] }) {
-  const trackRef = useRef<HTMLDivElement>(null);
+function MateriaTimelineItem({
+  m,
+  showConnector,
+}: {
+  m: LegislativoMateria;
+  showConnector?: boolean;
+}) {
+  return (
+    <div className="flex flex-col h-full">
+      <div className="flex items-center gap-2 mb-3 px-1">
+        <span
+          className="flex h-3 w-3 shrink-0 rounded-full bg-gold ring-4 ring-gold/20"
+          aria-hidden
+        />
+        {showConnector && (
+          <span className="hidden sm:block h-px flex-1 bg-border" aria-hidden />
+        )}
+        {m.data && (
+          <time
+            dateTime={m.data.split("/").reverse().join("-")}
+            className="ml-auto text-[10px] font-bold uppercase tracking-wide text-muted-foreground tabular-nums"
+          >
+            {m.data}
+          </time>
+        )}
+      </div>
+      <MateriaCard m={m} />
+    </div>
+  );
+}
 
-  const nudge = (dir: 1 | -1) => {
-    const el = trackRef.current;
-    if (!el) return;
-    const card = el.querySelector<HTMLElement>("[data-timeline-item]");
-    const step = card ? card.offsetWidth + 16 : Math.max(280, el.clientWidth * 0.75);
-    el.scrollBy({ left: dir * step, behavior: "smooth" });
-  };
+/** Carrossel animado (loop infinito) — últimas matérias legislativas. */
+function MateriasTimeline({ materias }: { materias: LegislativoMateria[] }) {
+  if (materias.length === 0) return null;
+
+  const items = materias.map((m, i) => (
+    <div
+      key={m.id}
+      role="listitem"
+      className="shrink-0 w-[min(100vw-2.5rem,288px)] sm:w-[300px]"
+    >
+      <MateriaTimelineItem m={m} showConnector={i < materias.length - 1} />
+    </div>
+  ));
 
   return (
-    <div className="relative group/timeline -mx-1 px-1">
+    <div className="relative -mx-1 px-1" role="list" aria-label="Linha do tempo das últimas matérias legislativas">
       <div
         className="pointer-events-none absolute left-0 top-0 bottom-4 w-8 bg-gradient-to-r from-background to-transparent z-10 md:w-12"
         aria-hidden
@@ -173,61 +204,14 @@ function MateriasTimeline({ materias }: { materias: LegislativoMateria[] }) {
         aria-hidden
       />
 
-      <div
-        ref={trackRef}
-        role="list"
-        aria-label="Linha do tempo das últimas matérias legislativas"
-        className="flex gap-4 overflow-x-auto overscroll-x-contain pb-4 pt-2 snap-x snap-mandatory scroll-smooth [scrollbar-width:thin] [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-track]:bg-transparent"
+      <InfiniteCarousel
+        ariaLabel="Últimas matérias legislativas"
+        gapClass="gap-4"
+        speed={0.35}
+        className="pb-1 pt-2"
       >
-        {materias.map((m, i) => (
-          <div
-            key={m.id}
-            role="listitem"
-            data-timeline-item
-            className="snap-start shrink-0 w-[min(100%,288px)] sm:w-[300px] flex flex-col"
-          >
-            <div className="flex items-center gap-2 mb-3 px-1">
-              <span
-                className="flex h-3 w-3 shrink-0 rounded-full bg-gold ring-4 ring-gold/20"
-                aria-hidden
-              />
-              {i < materias.length - 1 && (
-                <span className="hidden sm:block h-px flex-1 bg-border" aria-hidden />
-              )}
-              {m.data && (
-                <time
-                  dateTime={m.data.split("/").reverse().join("-")}
-                  className="ml-auto text-[10px] font-bold uppercase tracking-wide text-muted-foreground tabular-nums"
-                >
-                  {m.data}
-                </time>
-              )}
-            </div>
-            <MateriaCard m={m} />
-          </div>
-        ))}
-      </div>
-
-      {materias.length > 1 && (
-        <>
-          <button
-            type="button"
-            onClick={() => nudge(-1)}
-            aria-label="Matérias anteriores"
-            className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-card border border-border shadow-md items-center justify-center text-foreground hover:bg-muted hover:border-primary/30 transition-colors z-20 opacity-0 group-hover/timeline:opacity-100 focus:opacity-100"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
-          <button
-            type="button"
-            onClick={() => nudge(1)}
-            aria-label="Próximas matérias"
-            className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-10 h-10 rounded-full bg-card border border-border shadow-md items-center justify-center text-foreground hover:bg-muted hover:border-primary/30 transition-colors z-20 opacity-0 group-hover/timeline:opacity-100 focus:opacity-100"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-        </>
-      )}
+        {items}
+      </InfiniteCarousel>
     </div>
   );
 }
