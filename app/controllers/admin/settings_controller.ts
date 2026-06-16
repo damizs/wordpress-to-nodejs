@@ -59,6 +59,18 @@ const APPEARANCE_KEYS: Record<
     type: 'text',
     label: 'Modelo dos cards de Notícias',
   },
+  news_count: {
+    group: 'appearance',
+    defaultValue: '5',
+    type: 'text',
+    label: 'Quantidade de cards de Notícias na home',
+  },
+  template_config: {
+    group: 'appearance',
+    defaultValue: '{}',
+    type: 'json',
+    label: 'Configuração avançada por modelo de site',
+  },
   header_title: {
     group: 'appearance',
     defaultValue: 'CÂMARA MUNICIPAL DE SUMÉ',

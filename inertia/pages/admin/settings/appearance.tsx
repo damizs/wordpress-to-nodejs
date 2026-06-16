@@ -18,8 +18,16 @@ import { useState, useRef } from 'react'
 import { Button, Card, CardHeader, Field, Input, Select } from '~/components/admin/ui'
 import { CAMPAIGNS, THEME_PRESETS, getCampaign, resolveActiveCampaign } from '~/lib/campaigns'
 import { LAYOUT_STYLES, type LayoutStyle } from '~/lib/layouts'
-import { SITE_TEMPLATES, type SiteTemplate } from '~/lib/templates'
+import { SITE_TEMPLATES, type SiteTemplate, type SiteTemplateKey } from '~/lib/templates'
 import { NEWS_LAYOUTS } from '~/lib/news-layouts'
+import { TemplateCustomizeModal } from '~/components/admin/TemplateCustomizeModal'
+import {
+  getTemplateCustomConfig,
+  parseTemplateConfig,
+  serializeTemplateConfig,
+  type TemplateConfigStore,
+  type TemplateCustomConfig,
+} from '~/lib/template-config'
 
 interface SettingItem {
   key: string
@@ -50,6 +58,8 @@ export default function Appearance({ settings }: Props) {
     layout_style: getVal(appearance, 'layout_style') || 'institucional',
     site_template: getVal(appearance, 'site_template') || 'institucional',
     news_layout: getVal(appearance, 'news_layout') || 'mosaico',
+    news_count: getVal(appearance, 'news_count') || '5',
+    template_config: getVal(appearance, 'template_config') || '{}',
     color_navy: getVal(appearance, 'color_navy'),
     color_gold: getVal(appearance, 'color_gold'),
     color_sky: getVal(appearance, 'color_sky'),
@@ -101,6 +111,27 @@ export default function Appearance({ settings }: Props) {
   }
 
   const [tab, setTab] = useState<string>('tema')
+  const [customizeOpen, setCustomizeOpen] = useState(false)
+  const [customizeTemplate, setCustomizeTemplate] = useState<SiteTemplateKey>(
+    (getVal(appearance, 'site_template') || 'institucional') as SiteTemplateKey
+  )
+
+  const templateConfigStore = parseTemplateConfig(data.template_config)
+
+  function openTemplateCustomize(key: SiteTemplateKey) {
+    setData('site_template', key)
+    setCustomizeTemplate(key)
+    setCustomizeOpen(true)
+  }
+
+  function applyTemplateCustomize(config: TemplateCustomConfig) {
+    const store: TemplateConfigStore = { ...parseTemplateConfig(data.template_config) }
+    store[customizeTemplate] = config
+    setData('template_config', serializeTemplateConfig(store))
+    if (config.newsLayout) setData('news_layout', config.newsLayout)
+    if (config.newsCount) setData('news_count', String(config.newsCount))
+    setCustomizeOpen(false)
+  }
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -162,7 +193,21 @@ export default function Appearance({ settings }: Props) {
           {tab === 'modelo' && (
             <>
               <Section icon={LayoutTemplate} title="Modelo do Site">
-                <SiteTemplatePicker value={data.site_template} onChange={(v) => setData('site_template', v)} />
+                <SiteTemplatePicker
+                  value={data.site_template}
+                  onSelect={openTemplateCustomize}
+                />
+                <p className="text-xs text-muted-foreground mt-3">
+                  Ao escolher um modelo, abre o painel para reordenar seções, ajustar fundos e
+                  configurar notícias. Salve o formulário ao terminar.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => openTemplateCustomize(data.site_template as SiteTemplateKey)}
+                  className="mt-2 text-sm font-semibold text-navy hover:text-gold transition-colors"
+                >
+                  Personalizar modelo ativo novamente
+                </button>
               </Section>
               <Section icon={LayoutGrid} title="Estilo de Layout">
                 <LayoutStylePicker value={data.layout_style} onChange={(v) => setData('layout_style', v)} />
@@ -265,6 +310,24 @@ export default function Appearance({ settings }: Props) {
             <Section icon={Newspaper} title="Seção de Notícias">
               <NewsLayoutPicker value={data.news_layout} onChange={(v) => setData('news_layout', v)} />
 
+              <div className="mt-4">
+                <Field
+                  label="Quantidade de cards na home"
+                  hint="Também configurável ao personalizar o modelo (aba Modelo & Layout). Máximo 12."
+                >
+                  <Select
+                    value={data.news_count || '5'}
+                    onChange={(e) => setData('news_count', e.target.value)}
+                  >
+                    {[3, 4, 5, 6, 8, 10, 12].map((n) => (
+                      <option key={n} value={String(n)}>
+                        {n} cards
+                      </option>
+                    ))}
+                  </Select>
+                </Field>
+              </div>
+
               <div className="mt-6">
                 <Field label="Imagem de Fundo - Seção Notícias">
                   <p className="text-xs text-muted-foreground mb-3">Imagem que aparece atrás dos cards de notícias na página inicial</p>
@@ -346,6 +409,14 @@ export default function Appearance({ settings }: Props) {
           </Button>
         </div>
       </form>
+
+      <TemplateCustomizeModal
+        open={customizeOpen}
+        templateKey={customizeTemplate}
+        config={getTemplateCustomConfig(templateConfigStore, customizeTemplate)}
+        onClose={() => setCustomizeOpen(false)}
+        onApply={applyTemplateCustomize}
+      />
     </AdminLayout>
   )
 }
@@ -699,11 +770,17 @@ function SiteTemplatePreview({ templateKey }: { templateKey: string }) {
   )
 }
 
-function SiteTemplatePicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+function SiteTemplatePicker({
+  value,
+  onSelect,
+}: {
+  value: string
+  onSelect: (key: SiteTemplateKey) => void
+}) {
   return (
     <Field
       label="Modelo do site"
-      hint="Muda a ESTRUTURA do front: arranjo do cabeçalho (logo/menu/busca) e a abertura da home. É independente do tema de cores e do estilo de layout — combina com qualquer um deles."
+      hint="Muda a ESTRUTURA do front: arranjo do cabeçalho (logo/menu/busca) e a abertura da home. Clique em um modelo para personalizar blocos e cores."
     >
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {SITE_TEMPLATES.map((tpl: SiteTemplate) => {
@@ -712,7 +789,7 @@ function SiteTemplatePicker({ value, onChange }: { value: string; onChange: (v: 
             <button
               key={tpl.key}
               type="button"
-              onClick={() => onChange(tpl.key)}
+              onClick={() => onSelect(tpl.key as SiteTemplateKey)}
               aria-pressed={selected}
               className={`rounded-lg border p-3 text-left transition-all ${
                 selected

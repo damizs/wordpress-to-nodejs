@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { Fragment, type ReactNode } from "react";
 import { GlobalEffects } from "~/components/GlobalEffects";
 import { TopBar } from "~/components/TopBar";
 import { Header } from "~/components/Header";
@@ -20,7 +20,12 @@ import { CertificationsSection } from "~/components/CertificationsSection";
 import { SatisfactionSurvey } from "~/components/SatisfactionSurvey";
 import { AssistenteVirtual } from "~/components/AssistenteVirtual";
 import { HomeHero } from "~/components/HomeHero";
+import { HomeSectionShell } from "~/components/HomeSectionShell";
 import { getSiteTemplate } from "~/lib/templates";
+import {
+  getTemplateCustomConfig,
+  parseTemplateConfig,
+} from "~/lib/template-config";
 
 interface NewsItem {
   id: number;
@@ -137,6 +142,15 @@ export default function Home({
 }: HomeProps) {
   const logoUrl = siteSettings?.logo_url || null;
   const template = getSiteTemplate(siteSettings?.site_template);
+  const templateConfig = parseTemplateConfig(siteSettings?.template_config);
+  const customConfig = getTemplateCustomConfig(templateConfig, template.key);
+  const homeOrder = customConfig.homeOrder;
+  const newsLimit = Math.min(
+    12,
+    Math.max(3, Number(siteSettings?.news_count || customConfig.newsCount || 5))
+  );
+  const newsLayout = siteSettings?.news_layout || customConfig.newsLayout || "mosaico";
+  const newsForHome = news.slice(0, newsLimit);
   /** Modelo Moderno: notícias ficam no hero unificado — não repetir seção abaixo. */
   const newsInHero = template.key === "moderno" && template.homeHero;
 
@@ -164,19 +178,32 @@ export default function Home({
           {template.homeHero && (
             <HomeHero
               template={template.key}
-              news={news}
+              news={newsForHome}
               backgroundImage={newsBackgroundImage}
+              newsLimit={newsLimit}
             />
           )}
           <HolidaysStrip />
-          {/* Seções renderizadas na ordem do modelo (template.homeOrder); cada uma
-              respeita a visibilidade configurada no painel (section_*_visible). */}
-          {template.homeOrder.map((key) => {
+          {homeOrder.map((key) => {
             if (!visible(key)) return null;
             if (key === "news" && newsInHero) return null;
+
+            const shell = (node: ReactNode) => (
+              <HomeSectionShell style={customConfig.sections[key]}>
+                {node}
+              </HomeSectionShell>
+            );
+
             const node = {
-              news: <NewsSection news={news} backgroundImage={newsBackgroundImage} layout={siteSettings?.news_layout} />,
-              quickaccess: (
+              news: shell(
+                <NewsSection
+                  news={newsForHome}
+                  backgroundImage={newsBackgroundImage}
+                  layout={newsLayout}
+                  limit={newsLimit}
+                />
+              ),
+              quickaccess: shell(
                 <QuickAccessSection
                   quickLinks={quickLinks}
                   badge={setting('homepage_quickaccess_badge')}
@@ -184,20 +211,20 @@ export default function Home({
                   subtitle={setting('homepage_quickaccess_subtitle')}
                 />
               ),
-              esic: (
+              esic: shell(
                 <ESicSection
                   title={setting('homepage_esic_title')}
                   subtitle={setting('homepage_esic_subtitle')}
                 />
               ),
-              transparency: (
+              transparency: shell(
                 <TransparencySection
                   categories={infoCategories}
                   title={setting('homepage_transparency_title')}
                   subtitle={setting('homepage_transparency_subtitle')}
                 />
               ),
-              vereadores: (
+              vereadores: shell(
                 <VereadoresSection
                   vereadores={vereadores}
                   legislatura={legislatura}
@@ -205,14 +232,14 @@ export default function Home({
                   subtitle={setting('homepage_vereadores_subtitle')}
                 />
               ),
-              legislativo: (
+              legislativo: shell(
                 <LegislativoSection
                   data={legislativo}
                   title={setting('homepage_legislativo_title')}
                   subtitle={setting('homepage_legislativo_subtitle')}
                 />
               ),
-              diario: (
+              diario: shell(
                 <DiarioOficialSection
                   latestGazette={latestGazette}
                   entries={gazetteEntries}
@@ -221,34 +248,34 @@ export default function Home({
                   subtitle={setting('homepage_diario_subtitle')}
                 />
               ),
-              instagram: (
+              instagram: shell(
                 <InstagramFeedSection
                   posts={instagramPosts}
                   instagramUrl={instagramProfileUrl || siteSettings?.instagram_url || undefined}
                 />
               ),
-              reels: (
+              reels: shell(
                 <ReelsSection
                   reels={instagramReels}
                   title={setting('homepage_reels_title')}
                   subtitle={setting('homepage_reels_subtitle')}
                 />
               ),
-              conheca: (
+              conheca: shell(
                 <ConhecaSumeSection
                   images={siteSettings?.city_images ? JSON.parse(siteSettings.city_images) : []}
                   title={setting('homepage_conheca_title')}
                   subtitle={setting('homepage_conheca_subtitle')}
                 />
               ),
-              seals: (
+              seals: shell(
                 <CertificationsSection
                   seals={seals}
                   title={setting('homepage_seals_title')}
                   subtitle={setting('homepage_seals_subtitle')}
                 />
               ),
-              survey: <SatisfactionSurvey />,
+              survey: shell(<SatisfactionSurvey />),
             }[key];
             return <Fragment key={key}>{node}</Fragment>;
           })}

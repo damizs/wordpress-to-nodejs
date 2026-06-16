@@ -10,6 +10,8 @@ interface HomeHeroProps {
   news?: NewsItem[];
   /** Imagem de fundo (mesma da seção de notícias). */
   backgroundImage?: string | null;
+  /** Limite de cards no painel de notícias do hero */
+  newsLimit?: number;
 }
 
 /**
@@ -20,7 +22,7 @@ interface HomeHeroProps {
  * Modelo Moderno: hero unificado — texto institucional à esquerda, notícias à
  * direita, fundo com a imagem configurada no painel (Homepage → Notícias).
  */
-export function HomeHero({ template, news = [], backgroundImage }: HomeHeroProps) {
+export function HomeHero({ template, news = [], backgroundImage, newsLimit }: HomeHeroProps) {
   const settings = useSiteSettings();
   const title = settings.header_title || "Câmara Municipal de Sumé";
   const subtitle = settings.header_subtitle || "Estado da Paraíba";
@@ -78,7 +80,7 @@ export function HomeHero({ template, news = [], backgroundImage }: HomeHeroProps
               </div>
             </div>
 
-            {hasNews && <NewsHeroPanel news={news} />}
+            {hasNews && <NewsHeroPanel news={news} limit={newsLimit} />}
           </div>
         </div>
 

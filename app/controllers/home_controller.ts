@@ -77,7 +77,7 @@ export default class HomeController {
       News.query()
         .where('status', 'published')
         .orderBy('published_at', 'desc')
-        .limit(5)
+        .limit(12)
         .preload('category'),
       Councilor.query().where('is_active', true).orderBy('display_order', 'asc'),
       QuickLink.query().where('is_active', true).orderBy('display_order', 'asc'),

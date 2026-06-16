@@ -19,16 +19,19 @@ interface NewsSectionProps {
   backgroundImage?: string | null;
   /** Modelo de exibição: mosaico | grade | lista | destaque (Aparência → Notícias) */
   layout?: string | null;
+  /** Máximo de cards exibidos (painel → personalizar modelo) */
+  limit?: number;
 }
 
 /**
  * Painel de notícias para a coluna direita do hero (modelo Moderno):
  * destaque + lista vertical compacta.
  */
-export function NewsHeroPanel({ news }: { news: NewsItem[] }) {
+export function NewsHeroPanel({ news, limit }: { news: NewsItem[]; limit?: number }) {
   if (news.length === 0) return null;
-  const featured = news.find((n) => n.featured) || news[0];
-  const others = news.filter((n) => n.id !== featured?.id).slice(0, 4);
+  const capped = limit ? news.slice(0, limit) : news;
+  const featured = capped.find((n) => n.featured) || capped[0];
+  const others = capped.filter((n) => n.id !== featured?.id).slice(0, 4);
 
   return (
     <div className="flex flex-col gap-4" data-reveal="fade-left">
@@ -90,8 +93,9 @@ export function NewsHeroPanel({ news }: { news: NewsItem[] }) {
   );
 }
 
-export const NewsSection = ({ news = [], backgroundImage, layout }: NewsSectionProps) => {
-  if (news.length === 0) return null;
+export const NewsSection = ({ news = [], backgroundImage, layout, limit }: NewsSectionProps) => {
+  const items = limit ? news.slice(0, limit) : news;
+  if (items.length === 0) return null;
   const variant = getNewsLayout(layout);
 
   return (
@@ -110,10 +114,10 @@ export const NewsSection = ({ news = [], backgroundImage, layout }: NewsSectionP
       )}
 
       <div className="relative container py-14 lg:py-20">
-        {variant === "grade" && <GridLayout news={news} />}
-        {variant === "lista" && <ListLayout news={news} />}
-        {variant === "destaque" && <HighlightListLayout news={news} />}
-        {variant === "mosaico" && <MosaicLayout news={news} />}
+        {variant === "grade" && <GridLayout news={items} />}
+        {variant === "lista" && <ListLayout news={items} />}
+        {variant === "destaque" && <HighlightListLayout news={items} />}
+        {variant === "mosaico" && <MosaicLayout news={items} />}
       </div>
 
       {/* Barra "ver mais" */}
