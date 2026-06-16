@@ -137,9 +137,8 @@ export default function Home({
 }: HomeProps) {
   const logoUrl = siteSettings?.logo_url || null;
   const template = getSiteTemplate(siteSettings?.site_template);
-  const featuredNews = news[0]
-    ? { title: news[0].title, excerpt: news[0].excerpt, image: news[0].image, slug: news[0].slug }
-    : null;
+  /** Modelo Moderno: notícias ficam no hero unificado — não repetir seção abaixo. */
+  const newsInHero = template.key === "moderno" && template.homeHero;
 
   // Módulos da homepage: ativar/desativar pelo painel (Homepage > Visibilidade das Seções).
   // Sem configuração explícita ('false'), a seção fica visível.
@@ -162,12 +161,19 @@ export default function Home({
         <Header logoUrl={logoUrl} />
         
         <main>
-          {template.homeHero && <HomeHero template={template.key} featured={featuredNews} />}
+          {template.homeHero && (
+            <HomeHero
+              template={template.key}
+              news={news}
+              backgroundImage={newsBackgroundImage}
+            />
+          )}
           <HolidaysStrip />
           {/* Seções renderizadas na ordem do modelo (template.homeOrder); cada uma
               respeita a visibilidade configurada no painel (section_*_visible). */}
           {template.homeOrder.map((key) => {
             if (!visible(key)) return null;
+            if (key === "news" && newsInHero) return null;
             const node = {
               news: <NewsSection news={news} backgroundImage={newsBackgroundImage} layout={siteSettings?.news_layout} />,
               quickaccess: (

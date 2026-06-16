@@ -2,7 +2,7 @@ import { Link } from "@inertiajs/react";
 import { Calendar, ArrowRight } from "lucide-react";
 import { getNewsLayout } from "~/lib/news-layouts";
 
-interface NewsItem {
+export interface NewsItem {
   id: number;
   title: string;
   excerpt: string;
@@ -12,6 +12,8 @@ interface NewsItem {
   featured?: boolean;
 }
 
+export const NEWS_PLACEHOLDER = "/images/placeholder-news.jpg";
+
 interface NewsSectionProps {
   news?: NewsItem[];
   backgroundImage?: string | null;
@@ -19,7 +21,74 @@ interface NewsSectionProps {
   layout?: string | null;
 }
 
-const PLACEHOLDER = "/images/placeholder-news.jpg";
+/**
+ * Painel de notícias para a coluna direita do hero (modelo Moderno):
+ * destaque + lista vertical compacta.
+ */
+export function NewsHeroPanel({ news }: { news: NewsItem[] }) {
+  if (news.length === 0) return null;
+  const featured = news.find((n) => n.featured) || news[0];
+  const others = news.filter((n) => n.id !== featured?.id).slice(0, 4);
+
+  return (
+    <div className="flex flex-col gap-4" data-reveal="fade-left">
+      {featured && (
+        <Link href={`/noticias/${featured.slug}`} className="no-underline">
+          <article className="relative group cursor-pointer">
+            <div className="relative min-h-[200px] sm:min-h-[220px] rounded-2xl overflow-hidden shadow-2xl border border-primary-foreground/10">
+              <img
+                src={featured.image || NEWS_PLACEHOLDER}
+                alt={featured.title}
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-navy-dark via-navy-dark/60 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-5">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full glass text-gold text-xs mb-2">
+                  <Calendar className="w-3.5 h-3.5" />
+                  <span>{featured.date}</span>
+                </div>
+                <h2 className="text-lg lg:text-xl font-bold text-primary-foreground group-hover:text-gold transition-colors leading-snug line-clamp-2">
+                  {featured.title}
+                </h2>
+                {featured.excerpt && (
+                  <p className="mt-1.5 text-primary-foreground/75 text-sm line-clamp-2 hidden sm:block">
+                    {featured.excerpt}
+                  </p>
+                )}
+              </div>
+            </div>
+          </article>
+        </Link>
+      )}
+      {others.length > 0 && (
+        <div className="flex flex-col gap-2.5">
+          {others.map((item, index) => (
+            <Link href={`/noticias/${item.slug}`} key={item.id} className="no-underline">
+              <article
+                className="group cursor-pointer flex gap-3 rounded-xl bg-primary-foreground/[0.07] border border-primary-foreground/10 hover:border-gold/40 hover:bg-primary-foreground/10 transition-all duration-300 p-2.5"
+                style={{ animationDelay: `${index * 60}ms` }}
+              >
+                <div className="relative w-16 sm:w-[4.5rem] shrink-0 rounded-lg overflow-hidden aspect-square">
+                  <img
+                    src={item.image || NEWS_PLACEHOLDER}
+                    alt={item.title}
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  />
+                </div>
+                <div className="flex flex-col justify-center min-w-0">
+                  <span className="text-gold/90 text-[11px] mb-0.5">{item.date}</span>
+                  <h3 className="text-sm font-semibold text-primary-foreground group-hover:text-gold transition-colors line-clamp-2 leading-snug">
+                    {item.title}
+                  </h3>
+                </div>
+              </article>
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export const NewsSection = ({ news = [], backgroundImage, layout }: NewsSectionProps) => {
   if (news.length === 0) return null;
@@ -40,7 +109,7 @@ export const NewsSection = ({ news = [], backgroundImage, layout }: NewsSectionP
         </div>
       )}
 
-      <div className="relative container mx-auto px-4 py-14 lg:py-20">
+      <div className="relative container py-14 lg:py-20">
         {variant === "grade" && <GridLayout news={news} />}
         {variant === "lista" && <ListLayout news={news} />}
         {variant === "destaque" && <HighlightListLayout news={news} />}
@@ -49,7 +118,7 @@ export const NewsSection = ({ news = [], backgroundImage, layout }: NewsSectionP
 
       {/* Barra "ver mais" */}
       <div className="relative bg-navy-dark/90 backdrop-blur-sm border-t border-white/10">
-        <div className="container mx-auto px-4 py-4 flex justify-end">
+        <div className="container py-4 flex justify-end">
           <Link
             href="/noticias"
             className="group inline-flex items-center gap-3 px-6 py-2.5 bg-white/10 hover:bg-gold hover:text-navy-dark rounded-full text-white font-medium no-underline transition-all duration-300"
@@ -74,7 +143,7 @@ function MosaicLayout({ news }: { news: NewsItem[] }) {
           <article className="relative group cursor-pointer h-full animate-fade-in">
             <div className="relative h-full min-h-[400px] lg:min-h-[520px] rounded-2xl overflow-hidden shadow-2xl">
               <img
-                src={featured.image || PLACEHOLDER}
+                src={featured.image || NEWS_PLACEHOLDER}
                 alt={featured.title}
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               />
@@ -104,7 +173,7 @@ function MosaicLayout({ news }: { news: NewsItem[] }) {
             >
               <div className="relative h-full min-h-[180px] lg:min-h-[250px] rounded-2xl overflow-hidden shadow-lg">
                 <img
-                  src={item.image || PLACEHOLDER}
+                  src={item.image || NEWS_PLACEHOLDER}
                   alt={item.title}
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
@@ -137,7 +206,7 @@ function GridLayout({ news }: { news: NewsItem[] }) {
           >
             <div className="relative aspect-[16/10] overflow-hidden">
               <img
-                src={item.image || PLACEHOLDER}
+                src={item.image || NEWS_PLACEHOLDER}
                 alt={item.title}
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               />
@@ -173,7 +242,7 @@ function ListLayout({ news }: { news: NewsItem[] }) {
           >
             <div className="relative w-28 sm:w-36 shrink-0 rounded-xl overflow-hidden aspect-[4/3]">
               <img
-                src={item.image || PLACEHOLDER}
+                src={item.image || NEWS_PLACEHOLDER}
                 alt={item.title}
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               />
@@ -208,7 +277,7 @@ function HighlightListLayout({ news }: { news: NewsItem[] }) {
           <article className="relative group cursor-pointer h-full animate-fade-in">
             <div className="relative h-full min-h-[320px] lg:min-h-[460px] rounded-2xl overflow-hidden shadow-2xl">
               <img
-                src={featured.image || PLACEHOLDER}
+                src={featured.image || NEWS_PLACEHOLDER}
                 alt={featured.title}
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               />
@@ -238,7 +307,7 @@ function HighlightListLayout({ news }: { news: NewsItem[] }) {
             >
               <div className="relative w-20 shrink-0 rounded-lg overflow-hidden aspect-square">
                 <img
-                  src={item.image || PLACEHOLDER}
+                  src={item.image || NEWS_PLACEHOLDER}
                   alt={item.title}
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
