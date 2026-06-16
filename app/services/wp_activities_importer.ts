@@ -174,47 +174,55 @@ export async function importActivitiesWithAuthors(
 
   let ok = 0
   let links = 0
+  let failed = 0
   const unmatched = new Set<string>()
   for (const a of activities) {
-    const slug = a.slug || slugify(`${a.type}-${a.number ?? a.wpId}`)
-    const year = a.year || (a.date ? Number.parseInt(String(a.date).slice(0, 4)) : 2025)
-    const content = cleanContent(a.content || '')
-    const summary = buildActivitySummary(a.ementa, content, a.title)
-    const fileUrl = await resolvePdfUrl(a.anexoPath, wpDir, slug)
+    try {
+      const slug = a.slug || slugify(`${a.type}-${a.number ?? a.wpId}`)
+      const year = a.year || (a.date ? Number.parseInt(String(a.date).slice(0, 4)) : 2025)
+      const content = cleanContent(a.content || '')
+      const summary = buildActivitySummary(a.ementa, content, a.title)
+      const fileUrl = await resolvePdfUrl(a.anexoPath, wpDir, slug)
+      const status = mapStatus(a.situacao)
 
-    const activity = await LegislativeActivity.updateOrCreate(
-      { slug },
-      {
-        title: a.title,
-        slug,
-        type: a.type || 'Matéria',
-        number: a.number || '',
-        year,
-        summary,
-        content,
-        status: mapStatus(a.situacao),
-        author: a.authors?.[0]?.parliamentaryName || a.authors?.[0]?.name || null,
-        sessionDate: a.date || null,
-        fileUrl,
-        isActive: a.status ? a.status === 'publish' : true,
+      const activity = await LegislativeActivity.updateOrCreate(
+        { slug },
+        {
+          title: a.title,
+          slug,
+          type: a.type || 'Matéria',
+          number: a.number || '',
+          year,
+          summary,
+          content,
+          status,
+          author: a.authors?.[0]?.parliamentaryName || a.authors?.[0]?.name || null,
+          sessionDate: a.date || null,
+          fileUrl,
+          isActive: a.status ? a.status === 'publish' : true,
+        }
+      )
+
+      const ids: number[] = []
+      for (const au of a.authors || []) {
+        const id =
+          byKey.get(normName(au.slug)) ??
+          byKey.get(normName(au.name)) ??
+          byKey.get(normName(au.parliamentaryName))
+        if (id) ids.push(id)
+        else if (au.name) unmatched.add(au.name)
       }
-    )
-
-    const ids: number[] = []
-    for (const au of a.authors || []) {
-      const id =
-        byKey.get(normName(au.slug)) ??
-        byKey.get(normName(au.name)) ??
-        byKey.get(normName(au.parliamentaryName))
-      if (id) ids.push(id)
-      else if (au.name) unmatched.add(au.name)
+      await activity.related('authors').sync([...new Set(ids)])
+      links += ids.length
+      ok++
+    } catch (err) {
+      failed++
+      const msg = err instanceof Error ? err.message : String(err)
+      logger.warning(`  FAIL ${a.slug || a.title}: ${msg.slice(0, 120)}`)
     }
-    await activity.related('authors').sync([...new Set(ids)])
-    links += ids.length
-    ok++
   }
 
-  logger.success(`  Atividades: ${ok} upsert, ${links} vínculos de autoria`)
+  logger.success(`  Atividades: ${ok} upsert, ${links} vínculos de autoria${failed ? `, ${failed} falha(s)` : ''}`)
   if (unmatched.size > 0) {
     logger.warning(`  Autores sem vereador: ${[...unmatched].join('; ')}`)
   }

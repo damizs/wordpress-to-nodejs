@@ -11,7 +11,7 @@ node ace db:seed || true
 # Roda automaticamente UMA vez por versao do dataset: o marcador fica no volume
 # de uploads (persistente). Para reimportar (ex.: backup novo do WP), suba o
 # numero do marcador aqui ou rode com FORCE_ACTIVITIES_IMPORT=true.
-ACT_MARKER="/app/public/uploads/.activities-imported-v3"
+ACT_MARKER="/app/public/uploads/.activities-imported-v4"
 if [ "$FORCE_ACTIVITIES_IMPORT" = "true" ] || [ ! -f "$ACT_MARKER" ]; then
   echo "=== Importing legislative activities + authorship ==="
   if node ace wp:activities; then
