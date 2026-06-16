@@ -71,6 +71,7 @@
     "@adonisjs/vite": "^4.0.0",
     "@fontsource-variable/inter": "^5.2.8",
     "@inertiajs/react": "^2.3.14",
+    "@tinymce/tinymce-react": "^6.3.0",
     "@types/compression": "^1.8.1",
     "@vinejs/vine": "^3.0.1",
     "compression": "^1.8.1",
@@ -82,7 +83,8 @@
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "reflect-metadata": "^0.2.2",
-    "sharp": "^0.35.1"
+    "sharp": "^0.35.1",
+    "tinymce": "^8.6.0"
   },
   "hotHook": {
     "boundaries": [

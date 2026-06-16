@@ -21,7 +21,7 @@ const defaultFooterColumns: FooterColumn[] = [
     title: "Links Úteis",
     links: [
       { label: "Portal da Transparência", href: "/transparencia" },
-      { label: "E-SIC", href: "/transparencia" },
+      { label: "E-SIC", href: "/esic" },
       { label: "Ouvidoria", href: "/ouvidoria" },
       { label: "Licitações", href: "/licitacoes" },
       { label: "Vereadores", href: "/vereadores" },

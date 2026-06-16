@@ -18,6 +18,7 @@ import {
   ExternalLink,
   PieChart,
   BarChart3,
+  Activity as ActivityIcon,
   GraduationCap,
   Flag,
   Heart,
@@ -65,6 +66,12 @@ interface Comissao {
   } | null;
 }
 
+interface TimelineItem {
+  year: number | null;
+  status: string;
+  type: string;
+}
+
 interface Props {
   vereador: {
     id: number;
@@ -91,8 +98,42 @@ interface Props {
   };
   activities?: Activity[];
   stats?: Stats;
+  timeline?: TimelineItem[];
   mandatos?: Mandato[];
   comissoes?: Comissao[];
+}
+
+/** Situações canônicas das matérias, com ordem de empilhamento e cor. */
+const STATUS_ORDER = [
+  "Aprovado",
+  "Sancionado",
+  "Em tramitação",
+  "Rejeitado",
+  "Vetado",
+  "Arquivado",
+  "Outros",
+] as const;
+
+const STATUS_COLOR: Record<string, string> = {
+  Aprovado: "hsl(160 70% 38%)",
+  Sancionado: "hsl(200 85% 45%)",
+  "Em tramitação": "hsl(38 92% 50%)",
+  Rejeitado: "hsl(0 75% 55%)",
+  Vetado: "hsl(345 70% 45%)",
+  Arquivado: "hsl(220 9% 55%)",
+  Outros: "hsl(var(--navy))",
+};
+
+/** Mapeia o status (texto livre) para uma das situações canônicas. */
+function normStatus(s: string | null | undefined): string {
+  const x = (s || "").toLowerCase();
+  if (x.includes("aprovad")) return "Aprovado";
+  if (x.includes("sancion")) return "Sancionado";
+  if (x.includes("tramita")) return "Em tramitação";
+  if (x.includes("rejeit")) return "Rejeitado";
+  if (x.includes("vetad")) return "Vetado";
+  if (x.includes("arquiv")) return "Arquivado";
+  return "Outros";
 }
 
 const CHART_COLORS = [
@@ -224,10 +265,231 @@ const TypeBars = ({ byType }: { byType: { type: string; count: number }[] }) => 
   );
 };
 
+/**
+ * Gráfico interativo da produção legislativa por situação.
+ * - Seletor de período (Tudo + cada ano).
+ * - Barras empilhadas por ano (cada cor = uma situação).
+ * - Hover mostra o detalhe; legenda clicável liga/desliga situações.
+ */
+function ProductionExplorer({ timeline }: { timeline: TimelineItem[] }) {
+  const items = useMemo(
+    () => timeline.map((t) => ({ year: t.year, status: normStatus(t.status) })),
+    [timeline]
+  );
+
+  const years = useMemo(
+    () =>
+      Array.from(new Set(items.map((i) => i.year).filter((y): y is number => y != null))).sort(
+        (a, b) => a - b
+      ),
+    [items]
+  );
+
+  const statuses = useMemo(
+    () => STATUS_ORDER.filter((s) => items.some((i) => i.status === s)),
+    [items]
+  );
+
+  const [period, setPeriod] = useState<number | "all">("all");
+  const [hidden, setHidden] = useState<Set<string>>(new Set());
+  const [hover, setHover] = useState<{ year: number; status: string; count: number } | null>(null);
+
+  const toggle = (s: string) =>
+    setHidden((prev) => {
+      const next = new Set(prev);
+      if (next.has(s)) next.delete(s);
+      else next.add(s);
+      return next;
+    });
+
+  // Contagem por ano e situação (respeitando situações ocultas para a altura).
+  const byYear = years.map((y) => {
+    const map: Record<string, number> = {};
+    for (const s of statuses) map[s] = 0;
+    for (const i of items) if (i.year === y) map[i.status] = (map[i.status] ?? 0) + 1;
+    const total = statuses.reduce((acc, s) => acc + (hidden.has(s) ? 0 : map[s]), 0);
+    return { year: y, map, total };
+  });
+  const maxYear = Math.max(1, ...byYear.map((b) => b.total));
+
+  // Resumo do período selecionado.
+  const periodItems = period === "all" ? items : items.filter((i) => i.year === period);
+  const totalPeriod = periodItems.length;
+  const summary = statuses.map((s) => ({
+    status: s,
+    count: periodItems.filter((i) => i.status === s).length,
+  }));
+  const aprovadas = periodItems.filter(
+    (i) => i.status === "Aprovado" || i.status === "Sancionado"
+  ).length;
+  const approvalRate = totalPeriod > 0 ? Math.round((aprovadas / totalPeriod) * 100) : 0;
+
+  if (items.length === 0 || years.length === 0) return null;
+
+  return (
+    <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
+      {/* Cabeçalho + seletor de período */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-5">
+        <div className="flex items-center gap-2">
+          <ActivityIcon className="w-4 h-4 text-gold" aria-hidden="true" />
+          <h3 className="font-semibold text-foreground text-sm">Produção por situação</h3>
+        </div>
+        <div className="flex items-center gap-1 flex-wrap" role="group" aria-label="Selecionar período">
+          <button
+            type="button"
+            onClick={() => setPeriod("all")}
+            aria-pressed={period === "all"}
+            className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+              period === "all"
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            Tudo
+          </button>
+          {years
+            .slice()
+            .reverse()
+            .map((y) => (
+              <button
+                key={y}
+                type="button"
+                onClick={() => setPeriod(y)}
+                aria-pressed={period === y}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold tabular-nums transition-colors ${
+                  period === y
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {y}
+              </button>
+            ))}
+        </div>
+      </div>
+
+      {/* KPIs do período */}
+      <div className="grid grid-cols-3 gap-3 mb-5">
+        <div className="rounded-xl bg-muted/50 p-3 text-center">
+          <p className="text-2xl font-bold text-foreground tabular-nums leading-none">{totalPeriod}</p>
+          <p className="text-[11px] text-muted-foreground mt-1">
+            matéria{totalPeriod === 1 ? "" : "s"}
+            {period === "all" ? "" : ` em ${period}`}
+          </p>
+        </div>
+        <div className="rounded-xl bg-emerald-500/10 p-3 text-center">
+          <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 tabular-nums leading-none">
+            {aprovadas}
+          </p>
+          <p className="text-[11px] text-muted-foreground mt-1">aprovadas/sancionadas</p>
+        </div>
+        <div className="rounded-xl bg-gold/10 p-3 text-center">
+          <p className="text-2xl font-bold text-gold tabular-nums leading-none">{approvalRate}%</p>
+          <p className="text-[11px] text-muted-foreground mt-1">taxa de aprovação</p>
+        </div>
+      </div>
+
+      {/* Detalhe do hover (interação) */}
+      <div className="h-5 mb-1.5 text-center">
+        {hover ? (
+          <span className="text-xs font-medium text-foreground">
+            <span className="tabular-nums">{hover.year}</span> · {hover.status}:{" "}
+            <span className="tabular-nums font-bold">{hover.count}</span>
+          </span>
+        ) : (
+          <span className="text-xs text-muted-foreground/70">
+            Passe o mouse nas barras ou clique num ano para filtrar
+          </span>
+        )}
+      </div>
+
+      {/* Barras empilhadas por ano */}
+      <div
+        className="flex items-end justify-between gap-2 sm:gap-3 h-52"
+        role="img"
+        aria-label={`Matérias por ano e situação. Total ${
+          period === "all" ? "geral" : `de ${period}`
+        }: ${totalPeriod}.`}
+      >
+        {byYear.map((b) => {
+          const dim = period !== "all" && period !== b.year;
+          const visibleStatuses = statuses.filter((s) => !hidden.has(s) && b.map[s] > 0);
+          return (
+            <div key={b.year} className="flex-1 h-full flex flex-col items-center justify-end gap-2 min-w-0">
+              <button
+                type="button"
+                onClick={() => setPeriod(period === b.year ? "all" : b.year)}
+                aria-label={`Filtrar por ${b.year}`}
+                className="w-full h-full flex flex-col justify-end items-center"
+              >
+                {b.total > 0 ? (
+                  <div
+                    className={`relative w-9 sm:w-12 flex flex-col-reverse rounded-t-md overflow-hidden transition-opacity ${
+                      dim ? "opacity-30" : ""
+                    }`}
+                    style={{ height: `${(b.total / maxYear) * 100}%` }}
+                  >
+                    {visibleStatuses.map((s) => (
+                      <div
+                        key={s}
+                        className="w-full hover:brightness-110 transition-[filter]"
+                        style={{ height: `${(b.map[s] / b.total) * 100}%`, background: STATUS_COLOR[s] }}
+                        onMouseEnter={() => setHover({ year: b.year, status: s, count: b.map[s] })}
+                        onMouseLeave={() => setHover(null)}
+                        title={`${b.year} · ${s}: ${b.map[s]}`}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="w-9 sm:w-12 h-1 rounded bg-muted" />
+                )}
+              </button>
+              <span
+                className={`text-xs tabular-nums transition-colors ${
+                  period === b.year ? "text-primary font-bold" : "text-muted-foreground"
+                }`}
+              >
+                {b.year}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Legenda clicável (liga/desliga situações) */}
+      <div className="mt-5 flex flex-wrap gap-x-4 gap-y-2">
+        {summary.map((s) => {
+          const off = hidden.has(s.status);
+          return (
+            <button
+              key={s.status}
+              type="button"
+              onClick={() => toggle(s.status)}
+              aria-pressed={!off}
+              className={`flex items-center gap-1.5 text-xs transition-opacity ${
+                off ? "opacity-40" : ""
+              }`}
+              title={off ? "Mostrar" : "Ocultar"}
+            >
+              <span
+                className="w-3 h-3 rounded-sm shrink-0"
+                style={{ background: STATUS_COLOR[s.status] }}
+              />
+              <span className={`text-foreground ${off ? "line-through" : ""}`}>{s.status}</span>
+              <span className="text-muted-foreground tabular-nums font-semibold">{s.count}</span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 export default function VereadorShow({
   vereador,
   activities = [],
   stats,
+  timeline = [],
   mandatos = [],
   comissoes = [],
 }: Props) {
@@ -542,6 +804,8 @@ export default function VereadorShow({
                   <div className="space-y-10">
                     {activities.length > 0 ? (
                       <>
+                        {timeline.length > 0 && <ProductionExplorer timeline={timeline} />}
+
                         <div>
                           <h2 className="text-2xl font-bold text-foreground mb-6">
                             Últimas matérias vinculadas

@@ -5,7 +5,7 @@ import {
   LogOut, Menu, User, Home, Users, FileText, Link2, Shield, UserCog,
   ScrollText, Settings, Monitor, HelpCircle, Info, Tags, Calendar, Users2,
   Gavel, ClipboardCheck, Image, Radar, Vote, ExternalLink, Award, Files,
-  BookOpen, FolderOpen, Coins,
+  BookOpen, FolderOpen, Coins, FileSignature, FileBarChart,
 } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 
@@ -55,7 +55,9 @@ const navGroups: NavGroup[] = [
       { label: 'Comissões', href: '/painel/comissoes', icon: Users2, permissions: ['legislativo.gerenciar'] },
       { label: 'Legislaturas', href: '/painel/legislaturas', icon: Settings, permissions: ['legislativo.gerenciar'] },
       { label: 'Biênios', href: '/painel/bienios', icon: Calendar, permissions: ['legislativo.gerenciar'] },
-      { label: 'Sessões / Atas', href: '/painel/sessoes', icon: FileText, permissions: ['sessao.gerenciar'] },
+      { label: 'Sessões', href: '/painel/sessoes', icon: FileText, permissions: ['sessao.gerenciar'] },
+      { label: 'Atas', href: '/painel/atas', icon: FileText, permissions: ['sessao.gerenciar'] },
+      { label: 'Pautas', href: '/painel/pautas', icon: ScrollText, permissions: ['sessao.gerenciar'] },
       { label: 'Ativ. Legislativas', href: '/painel/atividades', icon: ScrollText, permissions: ['atividade.gerenciar'] },
       { label: 'Votações Nominais', href: '/painel/votacoes', icon: Vote, permissions: ['votacao.gerenciar'] },
     ],
@@ -65,7 +67,9 @@ const navGroups: NavGroup[] = [
     items: [
       { label: 'Transparência', href: '/painel/transparencia', icon: Shield, permissions: ['transparencia.gerenciar'] },
       { label: 'Duodécimos', href: '/painel/duodecimos', icon: Coins, permissions: ['transparencia.gerenciar'] },
+      { label: 'Relatórios Fiscais', href: '/painel/relatorios-fiscais', icon: FileBarChart, permissions: ['transparencia.gerenciar'] },
       { label: 'Licitações', href: '/painel/licitacoes', icon: Gavel, permissions: ['licitacao.gerenciar'] },
+      { label: 'Contratos', href: '/painel/contratos', icon: FileSignature, permissions: ['licitacao.gerenciar'] },
       { label: 'Acesso à Informação', href: '/painel/acesso-informacao', icon: Info, permissions: ['pntp.gerenciar'] },
       { label: 'Radar ATRICON', href: '/painel/atricon', icon: Radar, permissions: ['pntp.gerenciar'] },
       { label: 'Pesquisa Satisfação', href: '/painel/pesquisa-satisfacao', icon: ClipboardCheck, permissions: ['pesquisa.gerenciar'] },
@@ -114,6 +118,14 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [expandedMenus, setExpandedMenus] = useState<string[]>([])
+  const [collapsedGroups, setCollapsedGroups] = useState<string[]>(() => {
+    if (typeof window === 'undefined') return []
+    try {
+      return JSON.parse(window.localStorage.getItem('admin_collapsed_groups') || '[]')
+    } catch {
+      return []
+    }
+  })
   const currentUrl = usePage().url
 
   const userPermissions: string[] = auth?.permissions ?? []
@@ -146,6 +158,18 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
     setExpandedMenus((prev) =>
       prev.includes(label) ? prev.filter((l) => l !== label) : [...prev, label]
     )
+  }
+
+  function toggleGroup(label: string) {
+    setCollapsedGroups((prev) => {
+      const next = prev.includes(label) ? prev.filter((l) => l !== label) : [...prev, label]
+      try {
+        window.localStorage.setItem('admin_collapsed_groups', JSON.stringify(next))
+      } catch {
+        /* ignore */
+      }
+      return next
+    })
   }
 
   function handleLogout() {
@@ -198,15 +222,24 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
 
         {/* Nav */}
         <nav className="flex-1 py-3 px-3 overflow-y-auto [scrollbar-width:thin] [scrollbar-color:rgba(255,255,255,0.15)_transparent]">
-          {visibleGroups.map((group, gi) => (
+          {visibleGroups.map((group, gi) => {
+            const groupCollapsed = !!group.label && collapsedGroups.includes(group.label)
+            return (
             <div key={group.label ?? gi} className={gi > 0 ? 'mt-4' : ''}>
               {group.label && !collapsed && (
-                <p className="px-3 mb-1.5 text-[10px] font-bold uppercase tracking-widest text-white/30">
-                  {group.label}
-                </p>
+                <button
+                  type="button"
+                  onClick={() => toggleGroup(group.label!)}
+                  className="group/gh w-full flex items-center justify-between px-3 mb-1.5 text-[10px] font-bold uppercase tracking-widest text-white/30 hover:text-white/60 transition-colors"
+                >
+                  <span>{group.label}</span>
+                  <ChevronDown
+                    className={`w-3 h-3 transition-transform ${groupCollapsed ? '-rotate-90' : ''}`}
+                  />
+                </button>
               )}
               {group.label && collapsed && <div className="mx-3 my-3 border-t border-white/10" />}
-              <div className="space-y-0.5">
+              <div className={`space-y-0.5 ${groupCollapsed && !collapsed ? 'hidden' : ''}`}>
                 {group.items.map((item) =>
                   item.children ? (
                     <div key={item.label}>
@@ -259,7 +292,8 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
                 )}
               </div>
             </div>
-          ))}
+            )
+          })}
         </nav>
 
         {/* Footer */}

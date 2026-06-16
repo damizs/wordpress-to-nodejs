@@ -119,14 +119,47 @@
 <body>
   @inertia()
 
-  {{-- VLibras (tradução para Língua Brasileira de Sinais).
-       O script oficial só é injetado quando o usuário ativa o recurso na barra
-       de acessibilidade (AccessibilityBar.tsx); o container fica oculto até lá. --}}
+  {{-- VLibras (tradução para Língua Brasileira de Sinais) — widget oficial do
+       governo carregado em TODO o site, independente do React/SSR (presente em
+       qualquer página, inclusive o painel). Inicializa direto aqui no layout
+       raiz; a barra de acessibilidade (AccessibilityBar.tsx) apenas mostra/
+       esconde este mesmo widget. Respeita a preferência do usuário (localStorage
+       'vlibras' = 'off') e não aparece em conteúdo embedado em modais (?embed=1). --}}
   <div vw class="enabled" style="display: none">
     <div vw-access-button class="active"></div>
     <div vw-plugin-wrapper>
       <div class="vw-plugin-top-wrapper"></div>
     </div>
   </div>
+  <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+  <script>
+    (function () {
+      function startVLibras() {
+        var container = document.querySelector('[vw]')
+        try {
+          // Não exibe dentro de conteúdo embedado (modais da transparência)
+          if (/[?&]embed=1/.test(window.location.search)) {
+            if (container) container.style.display = 'none'
+            return
+          }
+          var off = false
+          try { off = localStorage.getItem('vlibras') === 'off' } catch (e) {}
+          if (off) {
+            if (container) container.style.display = 'none'
+            return
+          }
+          if (window.VLibras && window.VLibras.Widget) {
+            if (!window.__vlibrasWidget) {
+              new window.VLibras.Widget('https://vlibras.gov.br/app')
+              window.__vlibrasWidget = true
+            }
+            if (container) container.style.display = ''
+          }
+        } catch (e) {}
+      }
+      if (window.VLibras && window.VLibras.Widget) startVLibras()
+      else window.addEventListener('load', startVLibras)
+    })()
+  </script>
 </body>
 </html>

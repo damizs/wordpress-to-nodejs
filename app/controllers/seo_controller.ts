@@ -1,7 +1,8 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import News from '#models/news'
 import Councilor from '#models/councilor'
-import PlenarySession from '#models/plenary_session'
+import Ata from '#models/ata'
+import Pauta from '#models/pauta'
 import OfficialPublication from '#models/official_publication'
 import LegislativeActivity from '#models/legislative_activity'
 import Licitacao from '#models/licitacao'
@@ -10,17 +11,19 @@ const BASE_URL = 'https://node.camaradesume.pb.gov.br'
 
 export default class SeoController {
   async sitemap({ response }: HttpContext) {
-    const [news, councilors, sessions, publications, activities, licitacoes] = await Promise.all([
-      News.query()
-        .where('status', 'published')
-        .orderBy('published_at', 'desc')
-        .select('slug', 'updated_at', 'published_at'),
-      Councilor.query().where('is_active', true).select('slug', 'updated_at'),
-      PlenarySession.query().whereNotNull('slug').select('slug', 'updated_at'),
-      OfficialPublication.query().whereNotNull('slug').select('slug', 'updated_at'),
-      LegislativeActivity.query().whereNotNull('slug').select('slug', 'updated_at'),
-      Licitacao.query().select('slug', 'updated_at'),
-    ])
+    const [news, councilors, atas, pautas, publications, activities, licitacoes] =
+      await Promise.all([
+        News.query()
+          .where('status', 'published')
+          .orderBy('published_at', 'desc')
+          .select('slug', 'updated_at', 'published_at'),
+        Councilor.query().where('is_active', true).select('slug', 'updated_at'),
+        Ata.query().where('is_published', true).select('slug', 'updated_at'),
+        Pauta.query().where('is_published', true).select('slug', 'updated_at'),
+        OfficialPublication.query().whereNotNull('slug').select('slug', 'updated_at'),
+        LegislativeActivity.query().whereNotNull('slug').select('slug', 'updated_at'),
+        Licitacao.query().select('slug', 'updated_at'),
+      ])
 
     // Static pages
     const staticPages = [
@@ -75,10 +78,20 @@ export default class SeoController {
       xml += `  </url>\n`
     }
 
-    // Sessions
-    for (const item of sessions) {
+    // Atas
+    for (const item of atas) {
       xml += `  <url>\n`
       xml += `    <loc>${BASE_URL}/atas/${item.slug}</loc>\n`
+      xml += `    <lastmod>${item.updatedAt?.toISO()}</lastmod>\n`
+      xml += `    <changefreq>monthly</changefreq>\n`
+      xml += `    <priority>0.6</priority>\n`
+      xml += `  </url>\n`
+    }
+
+    // Pautas
+    for (const item of pautas) {
+      xml += `  <url>\n`
+      xml += `    <loc>${BASE_URL}/pautas/${item.slug}</loc>\n`
       xml += `    <lastmod>${item.updatedAt?.toISO()}</lastmod>\n`
       xml += `    <changefreq>monthly</changefreq>\n`
       xml += `    <priority>0.6</priority>\n`

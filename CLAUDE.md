@@ -98,17 +98,28 @@ fixos no chrome (quebra o modo escuro).
 
 ## 4. Módulos do painel (`/painel`)
 
-Menu em `inertia/layouts/AdminLayout.tsx` (`navGroups`).
+Menu em `inertia/layouts/AdminLayout.tsx` (`navGroups`) — grupos **recolhíveis**
+(estado em `localStorage: admin_collapsed_groups`).
 
 **Conteúdo:** Notícias (+ Automação Instagram via RapidAPI+IA), Publicações, FAQ.
-**Legislativo:** Vereadores, Comissões, Legislaturas, Biênios, Sessões/Atas,
-Atividades Legislativas (multi-autoria → perfil do vereador), Votações Nominais
-(importação por HTML).
+**Legislativo:** Vereadores, Comissões, Legislaturas, Biênios, **Sessões**
+(agendamento/vídeo), **Atas** e **Pautas** (módulos INDEPENDENTES — tabelas
+`atas`/`pautas`, models `Ata`/`Pauta`, mesmos campos: título, data, tipo de
+sessão, conteúdo textual e PDF; páginas públicas `/atas` e `/pautas` leem dessas
+tabelas; busca/sitemap/ATRICON repontados), Atividades Legislativas (multi-autoria
+→ perfil do vereador), Votações Nominais (importação por HTML).
 **Transparência:** Transparência (seções+links, link com `open_mode` nova-aba/
-modal e `hide_chrome`), **Duodécimos**, Licitações (+ documentos), Acesso à
-Informação (categorias PNTP), **Radar ATRICON**, Pesquisa de Satisfação.
+modal e `hide_chrome`), **Duodécimos**, **Relatórios Fiscais** (RGF/RREO —
+ramificação ano→período: bimestre/trimestre/quadrimestre/semestre por documento
+"a depender da câmara"; upload de PDF; PNTP 11.5), Licitações (+ documentos), **Contratos**
+(estruturado: modalidade/base legal, contratado/valor/vigência (datas ou texto
+"12 meses"), **gestor e fiscal técnico com cargos + portaria** — PNTP 9.1/9.3;
+importável dos anexos "contrato" das licitações via `POST /painel/contratos/importar`),
+Acesso à Informação (categorias PNTP), **Radar ATRICON**, Pesquisa de Satisfação.
 **Site:** Homepage, **Páginas** (editor de blocos), Conteúdo Institucional,
-Biblioteca de Mídia, Aparência (tema/cor/campanha/layout/logos), Menus do Site,
+Biblioteca de Mídia, Aparência (**em abas**: Tema/Campanhas · Modelo & Layout ·
+Cores · Identidade/logos · **Notícias** (modelo de card: `news_layout` =
+mosaico/grade/lista/destaque) · Rodapé & Contato), Menus do Site,
 Feriados, Selos, Links Rápidos, Categorias, Fotos da Cidade.
 **Sistema:** Usuários, Papéis e Permissões (RBAC).
 
@@ -119,7 +130,8 @@ Feriados, Selos, Links Rápidos, Categorias, Fotos da Cidade.
 `/` (home), `/noticias[/:slug]`, `/vereadores[/:slug]`, `/mesa-diretora`,
 `/comissoes`, `/atas[/:slug]`, `/pautas[/:slug]`, `/atividades-legislativas[/:slug]`,
 `/publicacoes-oficiais[/:slug]`, `/transparencia[/:slug]` (deep-link modal),
-`/licitacoes[/:slug]`, `/diario-oficial`, `/votacoes`, `/duodecimos`,
+`/licitacoes[/:slug]`, `/contratos[/:slug]`, `/diario-oficial`, `/votacoes`, `/duodecimos`,
+`/relatorios-fiscais` (RGF/RREO em árvore ano→período),
 `/dados-abertos[/:dataset/:format]` (JSON/CSV), `/perguntas-frequentes`,
 `/historia-da-camara`, `/sobre`, `/ouvidoria`, `/politica-de-privacidade`,
 `/pesquisa-de-satisfacao`, `/mapa-do-site`, `/busca`, e o catch-all `/:slug`
@@ -134,8 +146,11 @@ em Números, Diário, Instagram, Conheça Sumé, Certificações, Pesquisa) → 
 ## 6. Funcionalidades transversais
 
 - **Acessibilidade (e-MAG):** `AccessibilityBar` (FAB acima do assistente) — A−/A/
-  A+, alto contraste, modo escuro, **VLibras (carrega por padrão)**; skip-link;
-  foco visível.
+  A+, alto contraste, modo escuro, **VLibras**; skip-link; foco visível. O widget
+  oficial do VLibras é inicializado no layout raiz (`resources/views/inertia_layout.edge`),
+  então fica em **todo o site** (qualquer página, inclusive painel), independente
+  do React; só não aparece em conteúdo embedado (`?embed=1`). A barra apenas
+  mostra/esconde esse widget global (preferência persistida em `localStorage`).
 - **Busca global:** lupa no header → `/busca` (ILIKE em 9 entidades).
 - **Menus editáveis:** header e rodapé lidos de `site_settings` (JSON), com
   fallback nos defaults de `menus_controller.ts`. TopBar tem links próprios.
@@ -147,6 +162,9 @@ em Números, Diário, Instagram, Conheça Sumé, Certificações, Pesquisa) → 
   editáveis. `HolidaysStrip` no corpo da home.
 - **Dados abertos:** `/dados-abertos` com export JSON/CSV (6 datasets).
 - **Radar ATRICON:** verificação automática REAL do conteúdo (`runAutoChecks`),
+  **auditoria inteligente dos links da transparência** (`TransparencyAuditService`:
+  URL válida, módulo interno preenchido/atualizado, HTTP em links externos),
+  metas de frescor **quinzenais** (15 dias) para atas/pautas/votações,
   **mapa de conteúdo** módulo a módulo (frescor/total/última data + link),
   snapshots de evolução, painel "o que falta", precedência auto→manual com alerta
   de divergência. Logo ATRICON enviável. Ouvidoria/e-SIC contam como `externo`.
@@ -166,8 +184,9 @@ em Números, Diário, Instagram, Conheça Sumé, Certificações, Pesquisa) → 
 - ✅ Acessibilidade e-MAG + VLibras; ✅ LGPD (Política de Privacidade completa);
   ✅ Dados Abertos (JSON/CSV) — ⚠️ falta declarar **licença aberta (CC-BY)** e
   documentar os campos.
-- ✅ Licitações/contratos nativos; ✅ **Duodécimos** nativo. ⚠️ Despesas, folha,
-  diárias, balancetes, RGF e **remuneração individualizada**: em parte **externos**
+- ✅ Licitações/contratos nativos; ✅ **Duodécimos** nativo; ✅ **RGF/RREO** nativo
+  (módulo Relatórios Fiscais, ano→período). ⚠️ Despesas, folha,
+  diárias, balancetes e **remuneração individualizada**: em parte **externos**
   (Portal da Transparência contratado) via Links da Transparência; parte pode ser
   nativa (o cliente decide caso a caso). Garantir que os links externos existam/
   estejam visíveis.
@@ -193,8 +212,22 @@ em Números, Diário, Instagram, Conheça Sumé, Certificações, Pesquisa) → 
       **API** (a especificar).
 - [ ] **Linha do tempo de tramitação** das matérias (idealmente via API do
       sistema de votação).
-- [ ] **Feed do Instagram** na seção "Siga-nos" (reaproveitar scraper RapidAPI já
-      existente; precisa da chave no painel).
+- [x] **Feed do Instagram** na seção "Siga-nos": feed ao vivo via scraper público
+      (RapidAPI, **sem senha/sessionid** da câmara). Provedor primário =
+      `instagram-scraper-stable-api` (`get_ig_user_posts.php`); fallback =
+      `instagram-public-bulk-scraper`. `InstagramFeedService` baixa as miniaturas
+      para `public/uploads/instagram-feed/` (a URL do CDN expira) e cacheia em
+      `instagram_settings` (`feed_cache`/`feed_cached_at`). A home usa o cache e
+      dispara refresh em 2º plano quando passa de ~6h. Atualização manual no painel
+      (Notícias → Instagram → "Atualizar feed agora") ou via `node ace instagram:feed`.
+- [x] **Galeria de Vídeos (Reels)**: seção `reels` na home (entra nos modelos de
+      site, após `instagram`) + página pública **`/videos`**. Usa
+      `get_ig_user_reels.php` (o conteúdo vem em `node.media`, **sem caption/data**;
+      traz `play_count`/`code`/thumbnail). Capas baixadas para
+      `public/uploads/instagram-reels/`, cache em `reels_cache`/`reels_cached_at`.
+      Componente `ReelsGallery` (grade 9:16 + **lightbox com embed oficial** do
+      Instagram via `embed.js`). Mesmo refresh do feed (botão + `instagram:feed`).
+      Para o item de menu, adicionar `/videos` em Menus do Site.
 - [ ] **Avisos de licitação** (definir formato com o cliente: mural de abertas /
       tipo de conteúdo novo / aba).
 - [ ] **QR Code** em páginas de detalhe (publicações, atas, vereador, transparência).
@@ -245,7 +278,8 @@ Fontes de referência em `.acervo/plugins/`.
 - **Typecheck antes de commitar:** `npm run typecheck`. Commits em PT-BR,
   co-autoria Claude. `git config` local: Luiz Miguel <luizmiguel.dev@gmail.com>.
 - **Pós-deploy:** rodar `node ace migration:run` para as tabelas novas (Páginas,
- Mídia, ATRICON snapshots, open_mode, slug transparência, Duodécimos, cores Sumé).
+ Mídia, ATRICON snapshots, open_mode, slug transparência, Duodécimos, cores Sumé,
+ **Contratos**, **Relatórios Fiscais**). O `startup.sh` já roda `migration:run --force` no boot.
 - **Migração WP — atividades + autoria:** as Atividades Legislativas e a **autoria
  dos vereadores** vêm do CPT `a-legislativa` + relação JetEngine `jet_rel_21`
  (VEREADOR>>ATIVIDADE). Para um backup novo: extrair o `database.sql` do zip e rodar
@@ -255,6 +289,17 @@ Fontes de referência em `.acervo/plugins/`.
  `legislative_activities`: limpa + reimporta + sincroniza o pivô
  `legislative_activity_authors`, casando autor↔vereador por slug/nome). O branch
  legislativo do `importMaterias` foi desativado para não duplicar.
+- **Migração WP — registros PNTP + arquivos:** o plugin `portal-transparencia`
+ mantém 4 tabelas (`pntp_registros`, `pntp_anexos`, `pntp_declaracoes`, `pntp_secoes`).
+ `node scripts/extract_wp_pntp.mjs <database.sql>` gera `database/wp_pntp.json`
+ (98 registros, 27 seções, anexos com a URL do PDF no site ao vivo). O comando
+ `wp:pntp` (serviço `wp_pntp_importer`) cria as categorias por **slug**, faz
+ upsert por (slug+título+ano) sem apagar registros manuais e **baixa os PDFs**
+ do site antigo para `public/uploads/acesso-informacao/wp/` (fallback p/ link
+ remoto se o download falhar). Roda 1× no boot via marcador
+ `.pntp-imported-v1` (ou `FORCE_PNTP_IMPORT=true`). ⚠️ As páginas dinâmicas de
+ Acesso à Informação filtram por **slug** (`information_records.category` = slug,
+ não o nome) — o import antigo do `wp:migrate` (por nome) foi desativado.
 
 ---
 

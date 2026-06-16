@@ -1,7 +1,8 @@
 import { Head, useForm } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
 import { Landmark, Save } from 'lucide-react'
-import { Button, Card, CardHeader, Field, Input, PageHeader, Textarea } from '~/components/admin/ui'
+import { Button, Card, CardHeader, Field, Input, PageHeader } from '~/components/admin/ui'
+import RichTextEditor from '~/components/admin/RichTextEditor'
 
 interface Entry {
   key: string
@@ -14,9 +15,6 @@ interface Entry {
 interface Props {
   entries: Entry[]
 }
-
-const MARKDOWN_HINT =
-  'Formatação: **negrito**, *itálico*, [link](https://url), linhas com "- " viram lista e "## " vira subtítulo. Linha em branco separa parágrafos.'
 
 function EntryCard({ entry }: { entry: Entry }) {
   const { data, setData, put, processing } = useForm({
@@ -41,13 +39,12 @@ function EntryCard({ entry }: { entry: Entry }) {
             required
           />
         </Field>
-        <Field label="Conteúdo" required hint={MARKDOWN_HINT}>
-          <Textarea
-            value={data.content}
-            onChange={(e) => setData('content', e.target.value)}
-            rows={8}
-            required
-          />
+        <Field
+          label="Conteúdo"
+          required
+          hint="Editor visual — negrito, listas, links e imagens (enviadas para a Biblioteca de Mídia)."
+        >
+          <RichTextEditor value={data.content} onChange={(html) => setData('content', html)} minHeight={280} />
         </Field>
         <div className="flex justify-end">
           <Button type="submit" loading={processing}>
@@ -70,7 +67,7 @@ export default function InstitutionalIndex({ entries = [] }: Props) {
         title="Conteúdo Institucional"
         description="Edite os textos das páginas Sobre a Câmara e História da Câmara"
       />
-      <div className="max-w-3xl space-y-8">
+      <div className="max-w-4xl space-y-8">
         {pages.map((page) => (
           <section key={page}>
             <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-3">

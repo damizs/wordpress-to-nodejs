@@ -1,6 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import News from '#models/news'
-import PlenarySession from '#models/plenary_session'
+import Ata from '#models/ata'
+import Pauta from '#models/pauta'
 import Licitacao from '#models/licitacao'
 import OfficialPublication from '#models/official_publication'
 import LegislativeActivity from '#models/legislative_activity'
@@ -91,24 +92,22 @@ export default class SearchController {
         .orderBy('published_at', 'desc')
         .limit(PER_TYPE),
 
-      // Atas: sessões realizadas com texto de ata (minutes) / título
-      PlenarySession.query()
-        .where('status', 'realizada')
-        .whereNotNull('file_url')
+      // Atas publicadas (título / conteúdo)
+      Ata.query()
+        .where('is_published', true)
         .where((sub) => {
-          sub.whereILike('title', term).orWhereILike('minutes', term)
+          sub.whereILike('title', term).orWhereILike('content', term)
         })
-        .orderBy('session_date', 'desc')
+        .orderBy('document_date', 'desc')
         .limit(PER_TYPE),
 
-      // Pautas: sessões com pauta (agenda) preenchida
-      PlenarySession.query()
-        .whereNotNull('agenda')
-        .where('agenda', '!=', '')
+      // Pautas publicadas (título / conteúdo)
+      Pauta.query()
+        .where('is_published', true)
         .where((sub) => {
-          sub.whereILike('title', term).orWhereILike('agenda', term)
+          sub.whereILike('title', term).orWhereILike('content', term)
         })
-        .orderBy('session_date', 'desc')
+        .orderBy('document_date', 'desc')
         .limit(PER_TYPE),
 
       // Licitações ativas
@@ -193,9 +192,9 @@ export default class SearchController {
       results.push({
         type: 'Ata',
         title: a.title,
-        excerpt: makeExcerpt(a.minutes, q),
+        excerpt: makeExcerpt(a.content, q),
         url: a.slug ? `/atas/${a.slug}` : '/atas',
-        date: a.sessionDate,
+        date: a.documentDate,
       })
     }
 
@@ -203,9 +202,9 @@ export default class SearchController {
       results.push({
         type: 'Pauta',
         title: p.title,
-        excerpt: makeExcerpt(p.agenda, q),
+        excerpt: makeExcerpt(p.content, q),
         url: p.slug ? `/pautas/${p.slug}` : '/pautas',
-        date: p.sessionDate,
+        date: p.documentDate,
       })
     }
 

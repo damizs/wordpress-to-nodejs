@@ -7,9 +7,9 @@ import { Breadcrumb } from "~/components/Breadcrumb";
 import { PageHero } from "~/components/PageHero";
 import { Footer } from "~/components/Footer";
 import { Calendar, FileText, ChevronLeft, ChevronRight, User, X, Search, ArrowRight } from "lucide-react";
-import { formatDocumentDate } from "~/components/DocumentActions";
+import { formatDocumentDate, ActivityPdfButton } from "~/components/DocumentActions";
 
-interface Activity { id: number; title: string; slug: string; date: string; type?: string; author?: { name: string }; authors?: { id: number; name: string; slug: string | null }[]; }
+interface Activity { id: number; title: string; slug: string; summary?: string | null; date: string; type?: string; author?: { name: string }; authors?: { id: number; name: string; slug: string | null }[]; file_url?: string | null; export_url: string; }
 interface Filters { type?: string; year?: string; autor?: string; status?: string; search?: string; }
 interface Props {
   activities: Activity[];
@@ -153,6 +153,11 @@ export default function ActivitiesIndex({ activities = [], pagination, filters =
                               {activity.title}
                             </Link>
                           </h3>
+                          {activity.summary && (
+                            <p className="text-sm text-muted-foreground mt-2 line-clamp-2 leading-relaxed">
+                              {activity.summary}
+                            </p>
+                          )}
                           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground mt-1">
                             {activity.date && <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" aria-hidden="true" />{formatDocumentDate(activity.date)}</span>}
                             {linkedAuthors.length > 0 ? (
@@ -173,9 +178,12 @@ export default function ActivitiesIndex({ activities = [], pagination, filters =
                             )}
                           </div>
                         </div>
-                        <span className="inline-flex items-center gap-1.5 px-3 sm:px-4 py-2.5 rounded-xl border border-border bg-card text-sm font-medium text-foreground group-hover:border-primary/40 group-hover:text-primary transition-colors shrink-0">
-                          Detalhes <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
-                        </span>
+                        <div className="flex flex-col sm:flex-row gap-2 shrink-0 relative z-10">
+                          <span className="inline-flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2.5 rounded-xl border border-border bg-card text-sm font-medium text-foreground group-hover:border-primary/40 group-hover:text-primary transition-colors">
+                            Detalhes <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                          </span>
+                          <ActivityPdfButton fileUrl={activity.file_url} exportUrl={activity.export_url} />
+                        </div>
                       </div>
                     );
                   })}

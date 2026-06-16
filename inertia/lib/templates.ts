@@ -34,6 +34,7 @@ export type HomeSectionKey =
   | 'legislativo'
   | 'diario'
   | 'instagram'
+  | 'reels'
   | 'conheca'
   | 'seals'
   | 'survey'
@@ -48,6 +49,7 @@ export const DEFAULT_HOME_ORDER: HomeSectionKey[] = [
   'legislativo',
   'diario',
   'instagram',
+  'reels',
   'conheca',
   'seals',
   'survey',
@@ -90,6 +92,7 @@ export const SITE_TEMPLATES: SiteTemplate[] = [
       'seals',
       'conheca',
       'instagram',
+      'reels',
       'survey',
     ],
   },
@@ -109,6 +112,7 @@ export const SITE_TEMPLATES: SiteTemplate[] = [
       'esic',
       'diario',
       'instagram',
+      'reels',
       'conheca',
       'seals',
       'survey',
@@ -130,6 +134,7 @@ export const SITE_TEMPLATES: SiteTemplate[] = [
       'esic',
       'vereadores',
       'instagram',
+      'reels',
       'conheca',
       'seals',
       'survey',

@@ -11,6 +11,7 @@ import {
   Select,
   Textarea,
 } from '~/components/admin/ui'
+import RichTextEditor from '~/components/admin/RichTextEditor'
 
 interface NewsItem {
   id: number
@@ -127,13 +128,11 @@ export default function NewsForm({ news: existing, categories }: Props) {
               />
             </Field>
 
-            <Field label="Conteúdo" hint="Suporta HTML. Em breve: editor visual.">
-              <Textarea
+            <Field label="Conteúdo" hint="Editor visual — formatação, links e imagens (upload pela biblioteca de mídia).">
+              <RichTextEditor
                 value={data.content}
-                onChange={(e) => setData('content', e.target.value)}
-                rows={15}
-                className="font-mono"
-                placeholder="Conteúdo da notícia (HTML suportado)"
+                onChange={(html) => setData('content', html)}
+                minHeight={420}
               />
             </Field>
           </Card>

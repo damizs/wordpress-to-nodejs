@@ -48,6 +48,7 @@ export default class InstagramController {
       categories,
       aiProviders: [
         { value: 'gemini', label: 'Google Gemini' },
+        { value: 'deepseek', label: 'DeepSeek' },
         { value: 'openai', label: 'OpenAI GPT' },
         { value: 'claude', label: 'Anthropic Claude' },
       ],
@@ -56,6 +57,10 @@ export default class InstagramController {
           { value: 'gemini-2.0-flash', label: 'Gemini 2.0 Flash (Recomendado)' },
           { value: 'gemini-1.5-flash', label: 'Gemini 1.5 Flash' },
           { value: 'gemini-1.5-pro', label: 'Gemini 1.5 Pro' },
+        ],
+        deepseek: [
+          { value: 'deepseek-chat', label: 'DeepSeek Chat (V3 - Recomendado)' },
+          { value: 'deepseek-reasoner', label: 'DeepSeek Reasoner (R1)' },
         ],
         openai: [
           { value: 'gpt-4o-mini', label: 'GPT-4o Mini (Recomendado)' },
@@ -239,6 +244,33 @@ export default class InstagramController {
         title: result.title,
         content: result.content,
         tokensUsed: result.tokensUsed,
+      })
+    } catch (error: any) {
+      return response.json({ success: false, error: error.message })
+    }
+  }
+
+  /**
+   * Atualizar o feed ao vivo exibido na home ("Siga-nos")
+   */
+  async refreshFeed({ response }: HttpContext) {
+    try {
+      const { default: InstagramFeedService } = await import('#services/instagram_feed_service')
+      const count = await InstagramFeedService.refresh()
+      let reels = 0
+      let reelsError = ''
+      try {
+        reels = await InstagramFeedService.refreshReels()
+      } catch (e: any) {
+        reelsError = e.message
+      }
+      return response.json({
+        success: true,
+        count,
+        reels,
+        message:
+          `Feed atualizado: ${count} publicação(ões), ${reels} reel(s).` +
+          (reelsError ? ` (reels: ${reelsError})` : ''),
       })
     } catch (error: any) {
       return response.json({ success: false, error: error.message })

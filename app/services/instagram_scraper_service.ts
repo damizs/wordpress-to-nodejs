@@ -13,6 +13,7 @@ export interface InstagramPost {
   caption: string
   takenAtTimestamp: number
   isVideo: boolean
+  viewCount?: number
 }
 
 export default class InstagramScraperService {
@@ -34,25 +35,111 @@ export default class InstagramScraperService {
 
     console.log(`Instagram Scraper: Buscando até ${maxPosts} posts de @${username}`)
 
-    // Tentar via RapidAPI
     const rapidapiKey = await InstagramSetting.get('rapidapi_key')
-    if (rapidapiKey) {
-      try {
-        const posts = await this.scrapeWithRapidapi(username, rapidapiKey, maxPosts)
-        if (posts.length > 0) {
-          console.log(`Instagram Scraper: Sucesso - ${posts.length} posts únicos`)
-          return posts
-        }
-      } catch (error: any) {
-        this.lastError = error.message
-        console.error(`Instagram Scraper Error: ${error.message}`)
-        throw error
-      }
-    } else {
+    if (!rapidapiKey) {
       throw new Error('RapidAPI Key não configurada. Configure nas configurações.')
     }
 
+    // Provedor primário: Instagram Scraper Stable API (a que o cliente assina).
+    // Só precisa do username público — sem senha/sessionid da câmara.
+    try {
+      const posts = await this.scrapeWithStableApi(username, rapidapiKey, maxPosts)
+      if (posts.length > 0) {
+        console.log(`Instagram Scraper (Stable API): ${posts.length} posts únicos`)
+        return posts
+      }
+    } catch (error: any) {
+      this.lastError = error.message
+      console.error(`Instagram Scraper (Stable API) falhou: ${error.message}`)
+      // não relança: tenta o provedor de fallback abaixo
+    }
+
+    // Fallback: Instagram Public Bulk Scraper
+    try {
+      const posts = await this.scrapeWithRapidapi(username, rapidapiKey, maxPosts)
+      if (posts.length > 0) {
+        console.log(`Instagram Scraper (Bulk): ${posts.length} posts únicos`)
+        return posts
+      }
+    } catch (error: any) {
+      this.lastError = error.message
+      console.error(`Instagram Scraper (Bulk) falhou: ${error.message}`)
+      throw error
+    }
+
     return []
+  }
+
+  /**
+   * Busca posts via "Instagram Scraper Stable API" (RapidAPI).
+   * Endpoint: POST get_ig_user_posts.php → { posts: [{ node }], pagination_token }
+   */
+  private async scrapeWithStableApi(
+    username: string,
+    apiKey: string,
+    max: number
+  ): Promise<InstagramPost[]> {
+    const host = 'instagram-scraper-stable-api.p.rapidapi.com'
+    const seenIds = new Set<string>()
+    const allPosts: InstagramPost[] = []
+    let token = ''
+    const maxIterations = Math.ceil(max / 12) + 2
+    let iteration = 0
+
+    while (allPosts.length < max && iteration < maxIterations) {
+      iteration++
+
+      const body = new URLSearchParams({
+        username_or_url: `https://www.instagram.com/${username}/`,
+        amount: String(Math.min(max - allPosts.length + 2, 50)),
+        pagination_token: token,
+      })
+
+      const response = await fetch(`https://${host}/get_ig_user_posts.php`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'x-rapidapi-host': host,
+          'x-rapidapi-key': apiKey,
+        },
+        body: body.toString(),
+      })
+
+      if (response.status === 401 || response.status === 403) {
+        throw new Error('API Key inválida ou sem assinatura desta API')
+      }
+      if (response.status === 429) {
+        throw new Error('Limite de requisições da API atingido. Tente novamente mais tarde.')
+      }
+      if (!response.ok) {
+        const text = await response.text()
+        throw new Error(`Stable API erro ${response.status}: ${text.substring(0, 120)}`)
+      }
+
+      const data: any = await response.json()
+      const entries: any[] = Array.isArray(data?.posts) ? data.posts : []
+      if (entries.length === 0) break
+
+      for (const entry of entries) {
+        if (allPosts.length >= max) break
+        const node = entry?.node ?? entry
+        const post = this.parseRapidapiItem(node)
+        if (post && !seenIds.has(post.id)) {
+          seenIds.add(post.id)
+          allPosts.push(post)
+        }
+      }
+
+      token = typeof data?.pagination_token === 'string' ? data.pagination_token : ''
+      if (!token) break
+
+      if (allPosts.length < max) {
+        await new Promise((resolve) => setTimeout(resolve, 300))
+      }
+    }
+
+    allPosts.sort((a, b) => b.takenAtTimestamp - a.takenAtTimestamp)
+    return allPosts
   }
 
   /**
@@ -226,7 +313,10 @@ export default class InstagramScraperService {
       timestamp = Math.floor(Date.now() / 1000)
     }
 
-    const isVideo = item.media_type === 2 || item.is_video === true
+    const isVideo =
+      item.media_type === 2 || item.is_video === true || item.product_type === 'clips'
+
+    const viewCount = Number(item.play_count ?? item.view_count ?? 0) || undefined
 
     return {
       id,
@@ -236,7 +326,89 @@ export default class InstagramScraperService {
       caption,
       takenAtTimestamp: timestamp,
       isVideo,
+      viewCount,
     }
+  }
+
+  /**
+   * Busca SOMENTE os reels (vídeos) do perfil via "Instagram Scraper Stable API".
+   * Endpoint: POST get_ig_user_reels.php → { reels: [{ node }], pagination_token }
+   */
+  async getReelsFromProfile(profileUrl: string, limit = 12): Promise<InstagramPost[]> {
+    if (!this.validateProfileUrl(profileUrl)) {
+      throw new Error('URL do perfil inválida.')
+    }
+    const apiKey = await InstagramSetting.get('rapidapi_key')
+    if (!apiKey) {
+      throw new Error('RapidAPI Key não configurada. Configure nas configurações.')
+    }
+    const username = this.extractUsername(profileUrl)
+    this.lastError = ''
+
+    const host = 'instagram-scraper-stable-api.p.rapidapi.com'
+    const seenIds = new Set<string>()
+    const allReels: InstagramPost[] = []
+    let token = ''
+    const maxIterations = Math.ceil(limit / 12) + 2
+    let iteration = 0
+
+    while (allReels.length < limit && iteration < maxIterations) {
+      iteration++
+
+      const body = new URLSearchParams({
+        username_or_url: `https://www.instagram.com/${username}/`,
+        amount: String(Math.min(limit - allReels.length + 2, 50)),
+        pagination_token: token,
+      })
+
+      const response = await fetch(`https://${host}/get_ig_user_reels.php`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'x-rapidapi-host': host,
+          'x-rapidapi-key': apiKey,
+        },
+        body: body.toString(),
+      })
+
+      if (response.status === 401 || response.status === 403) {
+        throw new Error('API Key inválida ou sem assinatura desta API')
+      }
+      if (response.status === 429) {
+        throw new Error('Limite de requisições da API atingido. Tente novamente mais tarde.')
+      }
+      if (!response.ok) {
+        const text = await response.text()
+        throw new Error(`Stable API (reels) erro ${response.status}: ${text.substring(0, 120)}`)
+      }
+
+      const data: any = await response.json()
+      const entries: any[] = Array.isArray(data?.reels) ? data.reels : []
+      if (entries.length === 0) break
+
+      for (const entry of entries) {
+        if (allReels.length >= limit) break
+        // No endpoint de reels o conteúdo vem em node.media (sem taken_at/caption).
+        const node = entry?.node?.media ?? entry?.node ?? entry
+        const post = this.parseRapidapiItem(node)
+        if (post && !seenIds.has(post.id)) {
+          post.isVideo = true
+          // Reels deste endpoint não trazem data — não fabricar.
+          if (!node?.taken_at && !node?.taken_at_timestamp) post.takenAtTimestamp = 0
+          seenIds.add(post.id)
+          allReels.push(post)
+        }
+      }
+
+      token = typeof data?.pagination_token === 'string' ? data.pagination_token : ''
+      if (!token) break
+      if (allReels.length < limit) {
+        await new Promise((resolve) => setTimeout(resolve, 300))
+      }
+    }
+
+    // A API já devolve em ordem de recência; não reordenar (datas podem faltar).
+    return allReels
   }
 
   private validateProfileUrl(url: string): boolean {

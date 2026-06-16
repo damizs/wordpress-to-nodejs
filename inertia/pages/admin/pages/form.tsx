@@ -79,25 +79,8 @@ function slugify(text: string) {
     .replace(/(^-|-$)/g, '')
 }
 
-function getCsrfToken() {
-  const match = document.cookie.match(/(?:^|;\s*)XSRF-TOKEN=([^;]+)/)
-  return match ? decodeURIComponent(match[1]) : ''
-}
-
-async function uploadFile(file: File): Promise<string> {
-  const fd = new FormData()
-  fd.append('file', file)
-  const res = await fetch('/painel/midia/upload', {
-    method: 'POST',
-    headers: { 'X-CSRF-TOKEN': getCsrfToken() },
-    body: fd,
-    credentials: 'same-origin',
-  })
-  if (!res.ok) throw new Error(`Falha no upload (HTTP ${res.status})`)
-  const json = await res.json()
-  if (!json?.url) throw new Error('Resposta de upload sem URL')
-  return json.url as string
-}
+import { uploadMediaFile } from '~/lib/media_upload'
+import RichTextEditor from '~/components/admin/RichTextEditor'
 
 /** Botão de upload que envia para /painel/midia/upload e devolve a URL. */
 function UploadButton({
@@ -120,7 +103,7 @@ function UploadButton({
     setBusy(true)
     setError(null)
     try {
-      onUploaded(await uploadFile(file))
+      onUploaded(await uploadMediaFile(file))
     } catch (err: any) {
       setError(err?.message || 'Falha no upload')
     } finally {
@@ -185,15 +168,11 @@ function HeadingEditor({ block, onChange }: BlockEditorProps) {
 
 function TextEditor({ block, onChange }: BlockEditorProps) {
   return (
-    <Field
-      label="Texto"
-      hint="Formatação: **negrito**, *itálico*, [link](https://url), linhas com '- ' viram lista, '## ' vira subtítulo."
-    >
-      <Textarea
+    <Field label="Texto" hint="Editor visual — negrito, listas, links e imagens.">
+      <RichTextEditor
         value={block.text || ''}
-        onChange={(e) => onChange({ text: e.target.value })}
-        rows={6}
-        placeholder="Escreva o conteúdo..."
+        onChange={(html) => onChange({ text: html })}
+        minHeight={260}
       />
     </Field>
   )

@@ -47,8 +47,8 @@ export default function PlenarySessionsIndex({ sessions, filters }: Props) {
   const [deleteTarget, setDeleteTarget] = useState<{ id: number; label: string } | null>(null)
 
   return (
-    <AdminLayout title="Sessões / Atas">
-      <Head title="Sessões / Atas - Painel" />
+    <AdminLayout title="Sessões">
+      <Head title="Sessões - Painel" />
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div className="flex items-center gap-3">

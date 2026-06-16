@@ -1,6 +1,18 @@
 import { Head, useForm } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Instagram, Save, TestTube, ArrowLeft, Key, Bot, Clock } from 'lucide-react'
+import {
+  Instagram,
+  Save,
+  TestTube,
+  ArrowLeft,
+  Key,
+  Bot,
+  Clock,
+  BookOpen,
+  AlertTriangle,
+  CheckCircle2,
+  XCircle,
+} from 'lucide-react'
 import { useState } from 'react'
 import {
   Button,
@@ -98,11 +110,13 @@ export default function InstagramSettings({ settings, categories, aiProviders, a
           <Card>
             <CardHeader
               icon={Key}
-              title="🚀 RapidAPI (Recomendado)"
+              title="RapidAPI (Recomendado)"
               description="Método mais confiável para buscar posts. Funciona mesmo com IP bloqueado."
             />
             <details className="mb-4 p-4 bg-muted rounded-lg border border-border">
-              <summary className="cursor-pointer font-medium text-navy">📖 Como obter a API Key</summary>
+              <summary className="flex items-center gap-1.5 cursor-pointer font-medium text-navy">
+                <BookOpen className="w-4 h-4" /> Como obter a API Key
+              </summary>
               <ol className="mt-2 ml-4 text-sm space-y-1 list-decimal text-foreground">
                 <li>Acesse <a href="https://rapidapi.com/social-api1-instagram/api/instagram-public-bulk-scraper" target="_blank" className="text-navy underline">RapidAPI Instagram Scraper</a></li>
                 <li>Crie conta gratuita ou faça login</li>
@@ -119,13 +133,17 @@ export default function InstagramSettings({ settings, categories, aiProviders, a
           <Card>
             <CardHeader title="Autenticação Instagram (Alternativo)" />
             <details className="mb-4 p-4 bg-muted rounded-lg">
-              <summary className="cursor-pointer font-medium text-foreground">📖 Como obter o sessionid</summary>
+              <summary className="flex items-center gap-1.5 cursor-pointer font-medium text-foreground">
+                <BookOpen className="w-4 h-4" /> Como obter o sessionid
+              </summary>
               <ol className="mt-2 ml-4 text-sm space-y-1 list-decimal text-foreground">
                 <li>Abra Instagram no navegador e faça login</li>
                 <li>Pressione F12 → Application → Cookies → instagram.com</li>
                 <li>Copie o valor de "sessionid"</li>
               </ol>
-              <p className="mt-2 text-sm text-amber-700">⚠️ O cookie expira a cada ~90 dias</p>
+              <p className="mt-2 flex items-center gap-1.5 text-sm text-amber-700">
+                <AlertTriangle className="w-4 h-4 shrink-0" /> O cookie expira a cada ~90 dias
+              </p>
             </details>
             <div className="space-y-4">
               <Field label="Session ID">
@@ -162,7 +180,18 @@ export default function InstagramSettings({ settings, categories, aiProviders, a
                   </Button>
                 </div>
               </Field>
-              {aiTestResult && <p className={`text-sm mt-2 ${aiTestResult.success ? 'text-emerald-700' : 'text-destructive'}`}>{aiTestResult.success ? '✅' : '❌'} {aiTestResult.message}</p>}
+              {aiTestResult && (
+                <p
+                  className={`flex items-center gap-1.5 text-sm mt-2 ${aiTestResult.success ? 'text-emerald-700' : 'text-destructive'}`}
+                >
+                  {aiTestResult.success ? (
+                    <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  ) : (
+                    <XCircle className="w-4 h-4 shrink-0" />
+                  )}
+                  {aiTestResult.message}
+                </p>
+              )}
             </div>
             <Field label="Prompt Personalizado (opcional)">
               <Textarea value={data.ai_prompt} onChange={e => setData('ai_prompt', e.target.value)} rows={8} placeholder="Use {CAPTION} para inserir a legenda do Instagram." className="font-mono" />
@@ -195,7 +224,7 @@ export default function InstagramSettings({ settings, categories, aiProviders, a
           <Card>
             <CardHeader
               icon={Clock}
-              title="🤖 Importação Automática"
+              title="Importação Automática"
               description="Importa automaticamente os posts do dia no horário configurado (fuso de Brasília)."
             />
             <div className="space-y-4">
@@ -206,10 +235,14 @@ export default function InstagramSettings({ settings, categories, aiProviders, a
               <div className="grid grid-cols-3 gap-4">
                 <Field label="Modo">
                   <Select value={data.cron_mode} onChange={e => setData('cron_mode', e.target.value)}>
-                    <option value="daily">📅 Diário (Produção)</option>
-                    <option value="test">🧪 Teste (a cada 2 min)</option>
+                    <option value="daily">Diário (Produção)</option>
+                    <option value="test">Teste (a cada 2 min)</option>
                   </Select>
-                  {data.cron_mode === 'test' && <p className="text-xs text-destructive mt-1">⚠️ Use apenas para testes!</p>}
+                  {data.cron_mode === 'test' && (
+                    <p className="flex items-center gap-1.5 text-xs text-destructive mt-1">
+                      <AlertTriangle className="w-3.5 h-3.5 shrink-0" /> Use apenas para testes!
+                    </p>
+                  )}
                 </Field>
                 <Field label="Horário">
                   <div className="flex gap-1">

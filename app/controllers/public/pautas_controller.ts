@@ -1,5 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
-import PlenarySession from '#models/plenary_session'
+import Pauta from '#models/pauta'
 import SiteSetting from '#models/site_setting'
 
 export default class PautasController {
@@ -9,42 +9,37 @@ export default class PautasController {
     const type = request.input('tipo', '')
     const search = request.input('busca', '')
 
-    let query = PlenarySession.query()
-      .whereNotNull('agenda')
-      .where('agenda', '!=', '')
-      .orderBy('session_date', 'desc')
+    let query = Pauta.query().where('is_published', true).orderBy('document_date', 'desc')
     if (year) query = query.where('year', year)
     if (type) query = query.where('type', type)
     if (search) query = query.whereILike('title', `%${search}%`)
 
-    const sessions = await query.paginate(page, 20)
+    const pautas = await query.paginate(page, 20)
     const siteSettings = await SiteSetting.allAsObject()
 
-    const yearRows = await PlenarySession.query()
-      .whereNotNull('agenda')
-      .where('agenda', '!=', '')
+    const yearRows = await Pauta.query()
+      .where('is_published', true)
       .distinct('year')
       .orderBy('year', 'desc')
 
-    const typeRows = await PlenarySession.query()
-      .whereNotNull('agenda')
-      .where('agenda', '!=', '')
+    const typeRows = await Pauta.query()
+      .where('is_published', true)
       .whereNotNull('type')
       .distinct('type')
       .orderBy('type', 'asc')
 
     return inertia.render('public/pautas/index', {
-      pautas: sessions.all().map((s) => ({
+      pautas: pautas.all().map((s) => ({
         id: s.id,
         title: s.title,
         slug: s.slug,
-        date: s.sessionDate,
+        date: s.documentDate,
         session_type: s.type,
       })),
       pagination: {
-        currentPage: sessions.currentPage,
-        lastPage: sessions.lastPage,
-        total: sessions.total,
+        currentPage: pautas.currentPage,
+        lastPage: pautas.lastPage,
+        total: pautas.total,
       },
       years: yearRows.map((r) => r.year).filter(Boolean),
       types: typeRows.map((r) => r.type).filter(Boolean),
@@ -54,17 +49,18 @@ export default class PautasController {
   }
 
   async show({ params, inertia, response }: HttpContext) {
-    const session = await PlenarySession.query().where('slug', params.slug).first()
-    if (!session) return response.redirect().status(301).toPath('/pautas')
+    const pauta = await Pauta.query().where('slug', params.slug).first()
+    if (!pauta) return response.redirect().status(301).toPath('/pautas')
     const siteSettings = await SiteSetting.allAsObject()
     return inertia.render('public/pautas/show', {
       pauta: {
-        id: session.id,
-        title: session.title,
-        slug: session.slug,
-        date: session.sessionDate,
-        time: session.startTime,
-        content: session.agenda,
+        id: pauta.id,
+        title: pauta.title,
+        slug: pauta.slug,
+        date: pauta.documentDate,
+        time: pauta.docTime,
+        content: pauta.content,
+        file_url: pauta.fileUrl,
       },
       siteSettings,
     })

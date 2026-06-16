@@ -22,9 +22,10 @@ interface Props {
     createdAt?: string;
   };
   authors?: Author[];
+  exportUrl?: string;
 }
 
-export default function ActivityShow({ activity, authors = [] }: Props) {
+export default function ActivityShow({ activity, authors = [], exportUrl }: Props) {
   const title = activity.title || `${activity.type} nº ${activity.number}/${activity.year}`;
   const dateLabel = formatDocumentDate(activity.sessionDate || activity.createdAt, true);
 
@@ -40,6 +41,7 @@ export default function ActivityShow({ activity, authors = [] }: Props) {
       <OfficialDocument
         url={`/atividades-legislativas/${activity.slug}`}
         fileUrl={activity.fileUrl}
+        exportUrl={exportUrl}
         shareTitle={title}
       >
                   {/* Cabeçalho do documento */}

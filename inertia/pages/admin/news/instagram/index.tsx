@@ -1,6 +1,6 @@
 import { Head, router } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Instagram, Settings, History, Play, Search, CheckCircle, XCircle, Clock, Loader2, X, Edit3 } from 'lucide-react'
+import { Instagram, Settings, History, Play, Search, CheckCircle, XCircle, Clock, Loader2, X, Edit3, ClipboardCheck } from 'lucide-react'
 import { useState } from 'react'
 import {
   Badge,
@@ -55,6 +55,7 @@ interface Props {
 export default function InstagramDashboard({ settings, logs, stats }: Props) {
   const [loading, setLoading] = useState(false)
   const [loadingPosts, setLoadingPosts] = useState(false)
+  const [loadingFeed, setLoadingFeed] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [posts, setPosts] = useState<InstagramPost[]>([])
   const [importedIds, setImportedIds] = useState<string[]>([])
@@ -116,6 +117,27 @@ export default function InstagramDashboard({ settings, logs, stats }: Props) {
       setMessage({ type: 'error', text: error.message })
     } finally {
       setLoading(false)
+    }
+  }
+
+  const refreshSiteFeed = async () => {
+    setLoadingFeed(true)
+    setMessage(null)
+    try {
+      const response = await fetch('/painel/noticias/instagram/refresh-feed', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-XSRF-TOKEN': getCsrfToken() },
+      })
+      const data = await response.json()
+      if (data.success) {
+        setMessage({ type: 'success', text: data.message })
+      } else {
+        setMessage({ type: 'error', text: data.error })
+      }
+    } catch (error: any) {
+      setMessage({ type: 'error', text: error.message })
+    } finally {
+      setLoadingFeed(false)
     }
   }
 
@@ -349,6 +371,20 @@ export default function InstagramDashboard({ settings, logs, stats }: Props) {
           />
         </Card>
 
+        {/* Feed ao vivo da home */}
+        <Card className="mb-6">
+          <CardHeader
+            title="Feed do site (seção “Siga-nos” na home)"
+            description="Exibe as publicações mais recentes do perfil, atualizadas pelo scraper (sem precisar de senha do Instagram). As imagens são baixadas e cacheadas. Atualiza sozinho a cada poucas horas; use o botão para forçar agora."
+            actions={
+              <Button variant="secondary" onClick={refreshSiteFeed} loading={loadingFeed}>
+                {!loadingFeed && <Instagram className="w-4 h-4" />}
+                Atualizar feed agora
+              </Button>
+            }
+          />
+        </Card>
+
         {/* Posts Grid */}
         {posts.length > 0 && (
           <Card>
@@ -410,11 +446,27 @@ export default function InstagramDashboard({ settings, logs, stats }: Props) {
         <div className="flex flex-col max-h-[85vh]">
           {/* Header */}
           <div className="p-4 border-b border-border flex items-center justify-between bg-muted/50 rounded-t-xl">
-            <h2 className="text-lg font-semibold text-foreground">
-              {currentStep === 'processing' && '🤖 Processando com IA...'}
-              {currentStep === 'review' && '📝 Revise antes de publicar'}
-              {currentStep === 'publishing' && '🚀 Publicando...'}
-              {currentStep === 'done' && '✅ Concluído!'}
+            <h2 className="flex items-center gap-2 text-lg font-semibold text-foreground">
+              {currentStep === 'processing' && (
+                <>
+                  <Loader2 className="w-5 h-5 text-sky animate-spin" /> Processando com IA...
+                </>
+              )}
+              {currentStep === 'review' && (
+                <>
+                  <ClipboardCheck className="w-5 h-5 text-navy" /> Revise antes de publicar
+                </>
+              )}
+              {currentStep === 'publishing' && (
+                <>
+                  <Loader2 className="w-5 h-5 text-sky animate-spin" /> Publicando...
+                </>
+              )}
+              {currentStep === 'done' && (
+                <>
+                  <CheckCircle className="w-5 h-5 text-emerald-600" /> Concluído!
+                </>
+              )}
             </h2>
             <IconButton tone="neutral" onClick={closeModal}>
               <X className="w-5 h-5" />

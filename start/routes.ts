@@ -27,6 +27,10 @@ const PublicNominalVotingsController = () =>
 const SitemapPageController = () => import('#controllers/public/sitemap_page_controller')
 const OpenDataController = () => import('#controllers/public/open_data_controller')
 const PublicDuodecimosController = () => import('#controllers/public/duodecimos_controller')
+const PublicContractsController = () => import('#controllers/public/contracts_controller')
+const PublicFiscalReportsController = () => import('#controllers/public/fiscal_reports_controller')
+const PublicVideosController = () => import('#controllers/public/videos_controller')
+const AcessoInformacaoController = () => import('#controllers/public/acesso_informacao_controller')
 const SearchController = () => import('#controllers/public/search_controller')
 const SeoController = () => import('#controllers/seo_controller')
 
@@ -45,6 +49,8 @@ const AdminBienniaController = () => import('#controllers/admin/biennia_controll
 const AdminCommitteesController = () => import('#controllers/admin/committees_controller')
 const AdminPlenarySessionsController = () =>
   import('#controllers/admin/plenary_sessions_controller')
+const AdminAtasController = () => import('#controllers/admin/atas_controller')
+const AdminPautasController = () => import('#controllers/admin/pautas_controller')
 const AdminPublicationsController = () =>
   import('#controllers/admin/official_publications_controller')
 const AdminFaqController = () => import('#controllers/admin/faq_controller')
@@ -68,6 +74,8 @@ const AdminRolesController = () => import('#controllers/admin/roles_controller')
 const AdminNominalVotingsController = () =>
   import('#controllers/admin/nominal_votings_controller')
 const AdminDuodecimosController = () => import('#controllers/admin/duodecimos_controller')
+const AdminContractsController = () => import('#controllers/admin/contracts_controller')
+const AdminFiscalReportsController = () => import('#controllers/admin/fiscal_reports_controller')
 
 // ========= HEALTH CHECK =========
 router.get('/health', async () => ({ status: 'ok', timestamp: new Date().toISOString() }))
@@ -96,13 +104,17 @@ router.get('/atas/:slug', [PublicAtasController, 'show'])
 router.get('/pautas', [PublicPautasController, 'index'])
 router.get('/pautas/:slug', [PublicPautasController, 'show'])
 router.get('/atividades-legislativa', [PublicActivitiesController, 'index'])
+router.get('/atividades-legislativa/:slug/exportar', [PublicActivitiesController, 'export'])
 router.get('/atividades-legislativa/:slug', [PublicActivitiesController, 'show'])
 router.get('/atividades-legislativas', [PublicActivitiesController, 'index'])
+router.get('/atividades-legislativas/:slug/exportar', [PublicActivitiesController, 'export'])
 router.get('/atividades-legislativas/:slug', [PublicActivitiesController, 'show'])
 router.get('/publicacoes-oficiais', [PublicPublicationsController, 'index'])
 router.get('/publicacoes-oficiais/:slug', [PublicPublicationsController, 'show'])
 router.get('/licitacoes', [PublicLicitacoesController, 'index'])
 router.get('/licitacoes/:slug', [PublicLicitacoesController, 'show'])
+router.get('/contratos', [PublicContractsController, 'index'])
+router.get('/contratos/:slug', [PublicContractsController, 'show'])
 router.get('/perguntas-frequentes', [PublicFaqController, 'index'])
 router.get('/pesquisa-de-satisfacao', [PublicSatisfactionSurveyController, 'index'])
 router.post('/pesquisa-de-satisfacao', [PublicSatisfactionSurveyController, 'store'])
@@ -111,10 +123,21 @@ router.get('/politica-de-privacidade', [PublicPrivacyPolicyController, 'index'])
 router.get('/historia-da-camara', [StaticPagesController, 'historia'])
 router.get('/sobre', [StaticPagesController, 'sobre'])
 router.get('/ouvidoria', [StaticPagesController, 'ouvidoria'])
+router.get('/acesso-a-informacao', [AcessoInformacaoController, 'index'])
+router.get('/acesso-a-informacao/lai', [AcessoInformacaoController, 'lai'])
+router.get('/esic', async ({ response }) => {
+  const { default: SiteSetting } = await import('#models/site_setting')
+  const url = await SiteSetting.getValue('esic_new_url')
+  const target =
+    url && url !== '#' ? url : 'https://doc3.inf.br/cmsu2516300/esic'
+  return response.redirect(target)
+})
 router.get('/diario-oficial', [PublicDiarioOficialController, 'index'])
 router.get('/votacoes', [PublicNominalVotingsController, 'index'])
 router.get('/mapa-do-site', [SitemapPageController, 'index'])
 router.get('/duodecimos', [PublicDuodecimosController, 'index'])
+router.get('/relatorios-fiscais', [PublicFiscalReportsController, 'index'])
+router.get('/videos', [PublicVideosController, 'index'])
 router.get('/busca', [SearchController, 'index'])
 router.get('/dados-abertos', [OpenDataController, 'index'])
 router
@@ -134,7 +157,7 @@ router
     'slug',
     // Anclado com $: bloqueia só o slug exato reservado, não slugs que começam igual
     // (ex.: notícia antiga "vereadores-acompanham-..." deve passar pelo catch-all)
-    /^(?!(?:login|painel|api|health|noticias|vereadores|transparencia|mesa-diretora|comissoes|atas|pautas|atividades-legislativa|atividades-legislativas|publicacoes-oficiais|licitacoes|perguntas-frequentes|pesquisa-de-satisfacao|politica-de-privacidade|historia-da-camara|sobre|ouvidoria|diario-oficial|votacoes|leis|mapa-do-site|duodecimos|dados-abertos|busca)$).+$/
+    /^(?!(?:login|painel|api|health|noticias|vereadores|transparencia|mesa-diretora|comissoes|atas|pautas|atividades-legislativa|atividades-legislativas|publicacoes-oficiais|licitacoes|contratos|perguntas-frequentes|pesquisa-de-satisfacao|politica-de-privacidade|historia-da-camara|sobre|ouvidoria|acesso-a-informacao|esic|diario-oficial|votacoes|leis|mapa-do-site|duodecimos|relatorios-fiscais|videos|dados-abertos|busca)$).+$/
   )
 
 // ========= API =========
@@ -300,6 +323,7 @@ router
         router.post('/noticias/instagram/test-ai', [AdminInstagramController, 'testAiConnection'])
         router.post('/noticias/instagram/publish', [AdminInstagramController, 'publishPost'])
         router.post('/noticias/instagram/auto-import', [AdminInstagramController, 'runAutoImport'])
+        router.post('/noticias/instagram/refresh-feed', [AdminInstagramController, 'refreshFeed'])
       })
       .use(middleware.can(['instagram.gerenciar']))
 
@@ -348,7 +372,7 @@ router
       })
       .use(middleware.can(['atividade.gerenciar']))
 
-    // Sessões Plenárias (atas/pautas)
+    // Sessões Plenárias (agendamento, vídeo)
     router
       .group(() => {
         router.get('/sessoes', [AdminPlenarySessionsController, 'index'])
@@ -357,6 +381,30 @@ router
         router.get('/sessoes/:id/editar', [AdminPlenarySessionsController, 'edit'])
         router.put('/sessoes/:id', [AdminPlenarySessionsController, 'update'])
         router.delete('/sessoes/:id', [AdminPlenarySessionsController, 'destroy'])
+      })
+      .use(middleware.can(['sessao.gerenciar']))
+
+    // Atas (módulo independente)
+    router
+      .group(() => {
+        router.get('/atas', [AdminAtasController, 'index'])
+        router.get('/atas/criar', [AdminAtasController, 'create'])
+        router.post('/atas', [AdminAtasController, 'store'])
+        router.get('/atas/:id/editar', [AdminAtasController, 'edit'])
+        router.put('/atas/:id', [AdminAtasController, 'update'])
+        router.delete('/atas/:id', [AdminAtasController, 'destroy'])
+      })
+      .use(middleware.can(['sessao.gerenciar']))
+
+    // Pautas (módulo independente)
+    router
+      .group(() => {
+        router.get('/pautas', [AdminPautasController, 'index'])
+        router.get('/pautas/criar', [AdminPautasController, 'create'])
+        router.post('/pautas', [AdminPautasController, 'store'])
+        router.get('/pautas/:id/editar', [AdminPautasController, 'edit'])
+        router.put('/pautas/:id', [AdminPautasController, 'update'])
+        router.delete('/pautas/:id', [AdminPautasController, 'destroy'])
       })
       .use(middleware.can(['sessao.gerenciar']))
 
@@ -447,6 +495,14 @@ router
         router.post('/duodecimos/gerar-ano', [AdminDuodecimosController, 'generateYear'])
         router.put('/duodecimos/:id', [AdminDuodecimosController, 'update'])
         router.delete('/duodecimos/:id', [AdminDuodecimosController, 'destroy'])
+
+        // Relatórios Fiscais (RGF/RREO) — ramificação ano → período (LRF / PNTP 11.5)
+        router.get('/relatorios-fiscais', [AdminFiscalReportsController, 'index'])
+        router.get('/relatorios-fiscais/criar', [AdminFiscalReportsController, 'create'])
+        router.post('/relatorios-fiscais', [AdminFiscalReportsController, 'store'])
+        router.get('/relatorios-fiscais/:id/editar', [AdminFiscalReportsController, 'edit'])
+        router.put('/relatorios-fiscais/:id', [AdminFiscalReportsController, 'update'])
+        router.delete('/relatorios-fiscais/:id', [AdminFiscalReportsController, 'destroy'])
       })
       .use(middleware.can(['transparencia.gerenciar']))
 
@@ -460,6 +516,19 @@ router
         router.put('/licitacoes/:id', [AdminLicitacoesController, 'update'])
         router.delete('/licitacoes/:id', [AdminLicitacoesController, 'destroy'])
         router.delete('/licitacoes/documentos/:id', [AdminLicitacoesController, 'destroyDocument'])
+      })
+      .use(middleware.can(['licitacao.gerenciar']))
+
+    // Contratos + Fiscais (deriva das licitações; exigência PNTP 9.1/9.3)
+    router
+      .group(() => {
+        router.get('/contratos', [AdminContractsController, 'index'])
+        router.get('/contratos/criar', [AdminContractsController, 'create'])
+        router.post('/contratos', [AdminContractsController, 'store'])
+        router.post('/contratos/importar', [AdminContractsController, 'importFromLicitacoes'])
+        router.get('/contratos/:id/editar', [AdminContractsController, 'edit'])
+        router.put('/contratos/:id', [AdminContractsController, 'update'])
+        router.delete('/contratos/:id', [AdminContractsController, 'destroy'])
       })
       .use(middleware.can(['licitacao.gerenciar']))
 

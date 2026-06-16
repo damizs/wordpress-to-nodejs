@@ -10,6 +10,7 @@ import OfficialPublication from '#models/official_publication'
 import Legislature from '#models/legislature'
 import InstagramImportLog from '#models/instagram_import_log'
 import InstagramSetting from '#models/instagram_setting'
+import InstagramFeedService from '#services/instagram_feed_service'
 import SiteSetting from '#models/site_setting'
 import Seal from '#models/seal'
 import SystemCategory from '#models/system_category'
@@ -28,6 +29,8 @@ export default class HomeController {
 
     let instagramLogs: InstagramImportLog[] = []
     let instagramProfileUrl: string | null = null
+    let instagramFeed: Awaited<ReturnType<typeof InstagramFeedService.getCached>>['items'] = []
+    let instagramReels: Awaited<ReturnType<typeof InstagramFeedService.getCachedReels>>['items'] = []
     try {
       instagramLogs = await InstagramImportLog.query()
         .where('status', 'published')
@@ -36,8 +39,26 @@ export default class HomeController {
         .orderBy('instagram_post_date', 'desc')
         .limit(8)
       instagramProfileUrl = await InstagramSetting.get('instagram_profile_url')
+
+      // Feed ao vivo (cache). Atualiza em segundo plano se estiver velho/vazio,
+      // sem bloquear a renderização da página.
+      const cached = await InstagramFeedService.getCached()
+      instagramFeed = cached.items
+      if (instagramProfileUrl && (await InstagramFeedService.isStale())) {
+        InstagramFeedService.refresh().catch((err) =>
+          console.log('Instagram feed refresh falhou:', err?.message)
+        )
+      }
+
+      const cachedReels = await InstagramFeedService.getCachedReels()
+      instagramReels = cachedReels.items
+      if (instagramProfileUrl && (await InstagramFeedService.isReelsStale())) {
+        InstagramFeedService.refreshReels().catch((err) =>
+          console.log('Instagram reels refresh falhou:', err?.message)
+        )
+      }
     } catch (e) {
-      console.log('Instagram logs unavailable:', e.message)
+      console.log('Instagram unavailable:', e.message)
     }
 
     const [
@@ -132,15 +153,27 @@ export default class HomeController {
       arquivo: p.fileUrl,
     }))
 
-    const instagramPosts = instagramLogs.map((log) => ({
-      id: log.id,
-      title: log.news?.title || log.generatedTitle || '',
-      excerpt: log.news?.excerpt || '',
-      image: log.news?.coverImageUrl || log.instagramImageUrl,
-      slug: log.news?.slug || null,
-      instagramUrl: log.instagramUrl,
-      date: log.instagramPostDate?.toFormat('dd/MM/yyyy') || '',
-    }))
+    // Preferir o feed ao vivo (scraper). Se vazio, cai para posts que viraram notícia.
+    const instagramPosts =
+      instagramFeed.length > 0
+        ? instagramFeed.map((item, index) => ({
+            id: index,
+            title: item.title,
+            excerpt: item.caption,
+            image: item.image,
+            slug: null as string | null,
+            instagramUrl: item.instagramUrl,
+            date: item.date,
+          }))
+        : instagramLogs.map((log) => ({
+            id: log.id,
+            title: log.news?.title || log.generatedTitle || '',
+            excerpt: log.news?.excerpt || '',
+            image: log.news?.coverImageUrl || log.instagramImageUrl,
+            slug: log.news?.slug || null,
+            instagramUrl: log.instagramUrl,
+            date: log.instagramPostDate?.toFormat('dd/MM/yyyy') || '',
+          }))
 
     // ===== Seção "Legislativo em números" =====
     const toDateTime = (value: unknown): DateTime | null => {
@@ -175,6 +208,8 @@ export default class HomeController {
       .map(({ a, d }) => ({
         id: a.id,
         titulo: a.title || `${a.type}: ${a.number}/${a.year}`,
+        tipo: a.type || null,
+        status: a.status || null,
         data: d ? d.toFormat('dd/MM/yyyy') : '',
         url: a.fileUrl || (a.slug ? `/atividades-legislativas/${a.slug}` : '/atividades-legislativas'),
       }))
@@ -238,6 +273,7 @@ export default class HomeController {
       legislativo,
       publicacoes,
       instagramPosts,
+      instagramReels,
       instagramProfileUrl,
       legislatura,
       quickLinks: quickLinks.map((q) => q.serialize()),
@@ -251,6 +287,15 @@ export default class HomeController {
             fileUrl: latestGazette.fileUrl,
           }
         : null,
+      // Lista para o módulo "Últimas Publicações" da home (preview com busca/
+      // filtro/paginação client-side). Limita o payload; o restante fica em /diario-oficial.
+      gazetteEntries: gazetteRecent.slice(0, 60).map((g) => ({
+        id: g.id,
+        editionNumber: g.editionNumber,
+        publicationDate: g.publicationDate,
+        description: g.description,
+        fileUrl: g.fileUrl,
+      })),
       gazetteDates: gazetteRecent.map((g) => {
         const raw: unknown = g.publicationDate
         const dt =

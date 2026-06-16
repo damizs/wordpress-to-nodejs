@@ -2,9 +2,10 @@ import { Head, router } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
 import { useMemo, useState } from 'react'
 import {
-  FileDown, Printer, CheckCircle2, AlertTriangle, XCircle, ExternalLink,
-  MinusCircle, ChevronDown, ChevronUp, Sparkles, Gem, Save, Filter,
-  Clock, Database, ArrowUpRight, ListChecks, TrendingUp, RotateCcw, ShieldAlert,
+  FileDown, Printer, CheckCircle2, XCircle, ExternalLink,
+  ChevronDown, ChevronUp, Sparkles, Gem, Save, Filter,
+  Clock, Database, ArrowUpRight, ArrowDownRight, ListChecks, TrendingUp, RotateCcw,
+  ShieldAlert, PieChart, Radar as RadarIcon, Link2, AlertTriangle, type LucideIcon,
 } from 'lucide-react'
 import {
   Badge,
@@ -75,6 +76,31 @@ interface Snapshot {
   level: string
 }
 
+type LinkHealth = 'ok' | 'parcial' | 'falha' | 'externo_ok' | 'externo_falha' | 'invalido'
+
+interface LinkAuditItem {
+  id: number
+  title: string
+  url: string
+  sectionTitle: string
+  isExternal: boolean
+  openMode: string
+  health: LinkHealth
+  detail: string
+  matchedModule: string | null
+  contentTotal: number | null
+  contentLatest: string | null
+  httpStatus: number | null
+  adminHref: string | null
+}
+
+interface LinkAuditReport {
+  links: LinkAuditItem[]
+  summary: { total: number; ok: number; parcial: number; falha: number; externo: number }
+  contentGaps: LinkAuditItem[]
+  checkedAt: string
+}
+
 interface Props {
   matrix: Criterion[]
   scores: {
@@ -102,6 +128,7 @@ interface Props {
     }
   }
   contentMap: ContentModule[]
+  linkAudit: LinkAuditReport
   snapshots: Snapshot[]
   fortnight: { label: string; start: string; end: string }
   checkedAt: string
@@ -150,6 +177,18 @@ const FRESHNESS_META: Record<Freshness, { label: string; tone: BadgeTone; rank: 
   vazio: { label: 'Vazio', tone: 'danger', rank: 0 },
   desatualizado: { label: 'Desatualizado', tone: 'warning', rank: 1 },
   em_dia: { label: 'Em dia', tone: 'success', rank: 2 },
+}
+
+const LINK_HEALTH_META: Record<
+  LinkHealth,
+  { label: string; tone: BadgeTone; rank: number }
+> = {
+  invalido: { label: 'URL inválida', tone: 'danger', rank: 0 },
+  falha: { label: 'Sem conteúdo', tone: 'danger', rank: 1 },
+  externo_falha: { label: 'Link externo quebrado', tone: 'danger', rank: 2 },
+  parcial: { label: 'Desatualizado', tone: 'warning', rank: 3 },
+  ok: { label: 'OK', tone: 'success', rank: 4 },
+  externo_ok: { label: 'Externo OK', tone: 'success', rank: 4 },
 }
 
 const LEVEL_META: Record<string, { color: string; ring: string }> = {
@@ -226,6 +265,214 @@ function Gauge({ value, level }: { value: number; level: string }) {
         <span className="text-3xl font-extrabold text-foreground">{value}%</span>
         <span className={`text-xs font-semibold uppercase tracking-wide ${meta.color}`}>{level}</span>
       </div>
+    </div>
+  )
+}
+
+/* ============================== Donut de distribuição (SVG puro) ============================== */
+
+interface DonutSeg {
+  label: string
+  value: number
+  color: string
+}
+
+function DonutChart({
+  segments,
+  centerValue,
+  centerLabel,
+}: {
+  segments: DonutSeg[]
+  centerValue: string | number
+  centerLabel: string
+}) {
+  const total = segments.reduce((s, seg) => s + seg.value, 0)
+  const size = 168
+  const stroke = 24
+  const r = (size - stroke) / 2
+  const cx = size / 2
+  const cy = size / 2
+  const circ = 2 * Math.PI * r
+  let offset = 0
+
+  return (
+    <div className="flex flex-col sm:flex-row items-center gap-5">
+      <div className="relative shrink-0" style={{ width: size, height: size }}>
+        <svg viewBox={`0 0 ${size} ${size}`} className="w-full h-full -rotate-90">
+          <circle cx={cx} cy={cy} r={r} fill="none" className="stroke-muted" strokeWidth={stroke} />
+          {total > 0 &&
+            segments.map((seg) => {
+              if (seg.value === 0) return null
+              const len = (seg.value / total) * circ
+              const el = (
+                <circle
+                  key={seg.label}
+                  cx={cx}
+                  cy={cy}
+                  r={r}
+                  fill="none"
+                  stroke={seg.color}
+                  strokeWidth={stroke}
+                  strokeDasharray={`${len} ${circ - len}`}
+                  strokeDashoffset={-offset}
+                  className="transition-all duration-700"
+                />
+              )
+              offset += len
+              return el
+            })}
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className="text-3xl font-extrabold text-foreground">{centerValue}</span>
+          <span className="text-[11px] text-muted-foreground">{centerLabel}</span>
+        </div>
+      </div>
+      <ul className="space-y-1.5 w-full min-w-0">
+        {segments.map((seg) => (
+          <li key={seg.label} className="flex items-center gap-2 text-sm">
+            <span className="w-3 h-3 rounded-sm shrink-0" style={{ background: seg.color }} />
+            <span className="text-muted-foreground flex-1 truncate">{seg.label}</span>
+            <span className="font-bold text-foreground tabular-nums">{seg.value}</span>
+            <span className="text-[11px] text-muted-foreground w-9 text-right tabular-nums">
+              {total > 0 ? Math.round((seg.value / total) * 100) : 0}%
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+/* ============================== Radar por dimensão (SVG puro) ============================== */
+
+const DIM_ABBR: Record<string, string> = {
+  prioritarias: 'Prioritárias',
+  institucionais: 'Institucionais',
+  receita: 'Receita',
+  despesa: 'Despesa',
+  convenios: 'Convênios',
+  rh: 'RH',
+  diarias: 'Diárias',
+  licitacoes: 'Licitações',
+  contratos: 'Contratos',
+  obras: 'Obras',
+  planejamento: 'Planejamento',
+  sic: 'SIC',
+  acessibilidade: 'Acessib.',
+  ouvidoria: 'Ouvidoria',
+  lgpd: 'LGPD',
+  legislativo: 'Legislativo',
+}
+
+function RadarChart({
+  axes,
+}: {
+  axes: Array<{ key: string; label: string; pct: number }>
+}) {
+  const size = 320
+  const cx = size / 2
+  const cy = size / 2
+  const R = size / 2 - 54
+  const n = axes.length
+  if (n < 3) return null
+
+  const angle = (i: number) => (Math.PI * 2 * i) / n - Math.PI / 2
+  const point = (i: number, radius: number): [number, number] => [
+    cx + radius * Math.cos(angle(i)),
+    cy + radius * Math.sin(angle(i)),
+  ]
+
+  const rings = [0.25, 0.5, 0.75, 1]
+  const dataPts = axes.map((a, i) => point(i, (R * Math.min(Math.max(a.pct, 0), 100)) / 100))
+  const dataPath =
+    dataPts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p[0].toFixed(1)} ${p[1].toFixed(1)}`).join(' ') + ' Z'
+
+  return (
+    <svg
+      viewBox={`0 0 ${size} ${size}`}
+      className="w-full h-auto"
+      role="img"
+      aria-label="Radar de cobertura por dimensão da matriz PNTP"
+    >
+      {rings.map((rr) => (
+        <polygon
+          key={rr}
+          points={axes.map((_, i) => point(i, R * rr).join(',')).join(' ')}
+          className="fill-none stroke-border"
+          strokeWidth="1"
+        />
+      ))}
+      {axes.map((a, i) => {
+        const [ex, ey] = point(i, R)
+        const [lx, ly] = point(i, R + 14)
+        const anchor = Math.abs(lx - cx) < 8 ? 'middle' : lx > cx ? 'start' : 'end'
+        return (
+          <g key={a.key}>
+            <line x1={cx} y1={cy} x2={ex} y2={ey} className="stroke-border" strokeWidth="1" />
+            <text
+              x={lx}
+              y={ly}
+              textAnchor={anchor}
+              dominantBaseline="middle"
+              className="fill-muted-foreground"
+              fontSize="8.5"
+            >
+              {DIM_ABBR[a.key] ?? a.label}
+            </text>
+          </g>
+        )
+      })}
+      <path
+        d={dataPath}
+        fill="hsl(var(--navy) / 0.18)"
+        stroke="hsl(var(--navy))"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+      {dataPts.map((p, i) => (
+        <circle key={i} cx={p[0]} cy={p[1]} r="2.5" fill="hsl(var(--navy))" />
+      ))}
+    </svg>
+  )
+}
+
+/* ============================== KPI ============================== */
+
+function KpiCard({
+  icon: Icon,
+  value,
+  label,
+  sub,
+  accent,
+  delta,
+}: {
+  icon: LucideIcon
+  value: string | number
+  label: string
+  sub?: string
+  accent: string
+  delta?: number | null
+}) {
+  return (
+    <div className="rounded-xl border border-border bg-card p-4">
+      <div className="flex items-center justify-between">
+        <span className={`inline-flex items-center justify-center w-9 h-9 rounded-lg ${accent}`}>
+          <Icon className="w-5 h-5" />
+        </span>
+        {delta !== undefined && delta !== null && delta !== 0 && (
+          <span
+            className={`text-[11px] font-bold inline-flex items-center gap-0.5 ${
+              delta > 0 ? 'text-emerald-600' : 'text-destructive'
+            }`}
+          >
+            {delta > 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
+            {Math.abs(delta).toFixed(1)}
+          </span>
+        )}
+      </div>
+      <p className="text-2xl font-extrabold text-foreground mt-2 tabular-nums">{value}</p>
+      <p className="text-xs font-medium text-foreground/80">{label}</p>
+      {sub && <p className="text-[11px] text-muted-foreground mt-0.5">{sub}</p>}
     </div>
   )
 }
@@ -543,6 +790,7 @@ export default function AtriconIndex({
   matrix,
   scores,
   contentMap,
+  linkAudit,
   snapshots,
   fortnight,
   checkedAt,
@@ -571,6 +819,14 @@ export default function AtriconIndex({
   }, [filtered])
 
   // Mapa de conteúdo: vazios/desatualizados primeiro
+  const sortedLinkGaps = useMemo(
+    () =>
+      [...linkAudit.contentGaps].sort(
+        (a, b) => LINK_HEALTH_META[a.health].rank - LINK_HEALTH_META[b.health].rank
+      ),
+    [linkAudit.contentGaps]
+  )
+
   const sortedContent = useMemo(
     () =>
       [...contentMap].sort(
@@ -598,13 +854,30 @@ export default function AtriconIndex({
   const todoRest = todo.length - todoShown.length
 
   const t = scores.totals
-  const summaryCards = [
-    { label: 'Atendidos', value: t.met, icon: CheckCircle2, color: 'text-emerald-600 bg-emerald-600/10' },
-    { label: 'Sistema externo', value: t.external, icon: ExternalLink, color: 'text-sky bg-sky/10' },
-    { label: 'Parciais', value: t.partial, icon: AlertTriangle, color: 'text-amber-600 bg-amber-500/10' },
-    { label: 'Pendentes', value: t.pending, icon: XCircle, color: 'text-destructive bg-destructive/10' },
-    { label: 'Não se aplica', value: t.notApplicable, icon: MinusCircle, color: 'text-muted-foreground bg-muted' },
+
+  // Distribuição de status para o donut
+  const statusSegments: DonutSeg[] = [
+    { label: 'Atendidos', value: t.met, color: '#10b981' },
+    { label: 'Sistema externo', value: t.external, color: '#0ea5e9' },
+    { label: 'Parciais', value: t.partial, color: '#f59e0b' },
+    { label: 'Pendentes', value: t.pending, color: '#ef4444' },
+    { label: 'Não se aplica', value: t.notApplicable, color: '#9ca3af' },
   ]
+
+  // Variação do índice vs. registro anterior (para a seta de tendência no KPI)
+  const validSnaps = snapshots.filter((s) => s.date !== null)
+  const indexDelta =
+    validSnaps.length >= 2
+      ? Math.round((validSnaps[validSnaps.length - 1].index - validSnaps[validSnaps.length - 2].index) * 10) / 10
+      : null
+
+  const essTotal = scores.essentials.length
+  const essMet = scores.essentials.filter(
+    (e) => e.status === 'atendido' || e.status === 'externo'
+  ).length
+
+  // Barras: piores dimensões primeiro (evidencia as lacunas)
+  const dimsByGap = [...scores.dimensions].sort((a, b) => a.pct - b.pct)
 
   return (
     <AdminLayout title="Radar ATRICON">
@@ -636,93 +909,109 @@ export default function AtriconIndex({
         os dados do portal são lidos a cada acesso a esta página.
       </p>
 
-      {/* Painel superior: índice + essenciais + resumo */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
-        {/* Índice geral */}
-        <Card className="flex items-center gap-6">
+      {/* KPIs */}
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3 mb-4">
+        <KpiCard
+          icon={Gem}
+          value={`${scores.index}%`}
+          label="Índice estimado"
+          sub={`Selo ${scores.level}`}
+          accent="bg-cyan-600/10 text-cyan-600"
+          delta={indexDelta}
+        />
+        <KpiCard
+          icon={CheckCircle2}
+          value={`${t.met + t.external}/${t.criteria}`}
+          label="Critérios cobertos"
+          sub={`${t.met} nativos · ${t.external} externos`}
+          accent="bg-emerald-600/10 text-emerald-600"
+        />
+        <KpiCard
+          icon={ListChecks}
+          value={`${essMet}/${essTotal}`}
+          label="Essenciais (LRF)"
+          sub={scores.allEssentialsMet ? 'Todos atendidos' : 'Há essenciais em aberto'}
+          accent={scores.allEssentialsMet ? 'bg-emerald-600/10 text-emerald-600' : 'bg-destructive/10 text-destructive'}
+        />
+        <KpiCard
+          icon={XCircle}
+          value={t.pending}
+          label="Pendentes"
+          sub={`${t.partial} parciais`}
+          accent="bg-destructive/10 text-destructive"
+        />
+        <KpiCard
+          icon={Sparkles}
+          value={t.autoChecked}
+          label="Auto-verificados"
+          sub={t.divergent > 0 ? `${t.divergent} divergência(s)` : `${t.manualOverrides} overrides`}
+          accent="bg-sky/10 text-sky"
+        />
+      </div>
+
+      {/* Painel de gráficos: índice + distribuição + radar */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+        {/* Índice / selo */}
+        <Card className="flex flex-col items-center text-center justify-center gap-3">
           <LevelMedal value={scores.index} level={scores.level} logoUrl={atriconLogoUrl} />
           <div>
-            <p className="text-sm font-semibold text-foreground flex items-center gap-1.5">
-              <Gem className="w-4 h-4 text-cyan-600" /> Índice estimado
-            </p>
-            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-              Projeção pela metodologia PNTP (pesos por dimensão e classificação).
-              Selos Prata, Ouro e Diamante exigem <strong>100% dos essenciais</strong>.
+            <p className="text-xs text-muted-foreground leading-relaxed max-w-xs">
+              Projeção pela metodologia PNTP (pesos por dimensão e classificação). Selos Prata,
+              Ouro e Diamante exigem <strong>100% dos essenciais</strong>.
             </p>
             <p className={`text-xs mt-2 font-semibold ${scores.allEssentialsMet ? 'text-emerald-600' : 'text-destructive'}`}>
-              {scores.allEssentialsMet ? '✓ Todos os critérios essenciais atendidos' : '✗ Há critérios essenciais não atendidos'}
+              {scores.allEssentialsMet ? '✓ Todos os essenciais atendidos' : '✗ Há essenciais não atendidos'}
             </p>
           </div>
         </Card>
 
-        {/* Essenciais */}
+        {/* Donut de distribuição */}
         <Card>
-          <CardHeader title="Critérios essenciais (LRF)" />
-          <div className="space-y-2">
-            {scores.essentials.map((e) => (
-              <div key={e.code} className="flex items-center gap-2 text-sm">
-                <span className={`w-2 h-2 rounded-full shrink-0 ${STATUS_META[e.status].dot}`} />
-                <span className="text-xs font-bold text-muted-foreground w-8 shrink-0">{e.code}</span>
-                <span className="text-foreground text-xs truncate flex-1" title={e.title}>{e.title}</span>
-                {e.actionHref && (e.status === 'pendente' || e.status === 'parcial') && (
-                  <a
-                    href={e.actionHref}
-                    className="text-[11px] text-navy hover:underline shrink-0 inline-flex items-center gap-0.5"
-                  >
-                    Resolver <ArrowUpRight className="w-3 h-3" />
-                  </a>
-                )}
-              </div>
-            ))}
-          </div>
+          <CardHeader title="Distribuição dos critérios" icon={PieChart} />
+          <DonutChart segments={statusSegments} centerValue={t.criteria} centerLabel="critérios" />
         </Card>
 
-        {/* Totais */}
+        {/* Radar por dimensão */}
         <Card>
-          <CardHeader title="Resumo da matriz" />
-          <div className="grid grid-cols-2 gap-2">
-            {summaryCards.map((c) => (
-              <div key={c.label} className={`rounded-lg p-3 ${c.color.split(' ')[1]}`}>
-                <div className="flex items-center gap-2">
-                  <c.icon className={`w-4 h-4 ${c.color.split(' ')[0]}`} />
-                  <span className="text-lg font-bold text-foreground">{c.value}</span>
-                </div>
-                <p className="text-[11px] text-muted-foreground mt-0.5">{c.label}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Procedência / veracidade */}
-          <div className="mt-3 pt-3 border-t border-border/60 grid grid-cols-3 gap-2 text-center">
-            <div>
-              <p className="text-base font-bold text-sky">{t.autoChecked}</p>
-              <p className="text-[10px] text-muted-foreground leading-tight">Auto-verificados</p>
-            </div>
-            <div>
-              <p className="text-base font-bold text-navy">{t.manualOverrides}</p>
-              <p className="text-[10px] text-muted-foreground leading-tight">Overrides manuais</p>
-            </div>
-            <div
-              className={`rounded-lg ${t.divergent > 0 ? 'bg-destructive/10 -m-0.5 p-0.5' : ''}`}
-              title="Casos em que o gestor marcou manualmente algo que a verificação automática contradiz"
-            >
-              <p className={`text-base font-bold ${t.divergent > 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
-                {t.divergent}
-              </p>
-              <p className={`text-[10px] leading-tight ${t.divergent > 0 ? 'text-destructive' : 'text-muted-foreground'}`}>
-                {t.divergent > 0 && <ShieldAlert className="w-3 h-3 inline mr-0.5" />}
-                Divergências
-              </p>
-            </div>
-          </div>
+          <CardHeader
+            title="Cobertura por dimensão"
+            description="Quanto mais cheio o polígono, melhor a cobertura."
+            icon={RadarIcon}
+          />
+          <RadarChart axes={scores.dimensions} />
         </Card>
       </div>
 
-      {/* Barras por dimensão */}
+      {/* Essenciais (LRF) */}
+      <Card className="mb-4">
+        <CardHeader title="Critérios essenciais (LRF)" description="Obrigatórios para os selos Prata, Ouro e Diamante." />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1.5">
+          {scores.essentials.map((e) => (
+            <div key={e.code} className="flex items-center gap-2 text-sm py-0.5">
+              <span className={`w-2 h-2 rounded-full shrink-0 ${STATUS_META[e.status].dot}`} />
+              <span className="text-xs font-bold text-muted-foreground w-8 shrink-0">{e.code}</span>
+              <span className="text-foreground text-xs truncate flex-1" title={e.title}>{e.title}</span>
+              {e.actionHref && (e.status === 'pendente' || e.status === 'parcial') && (
+                <a
+                  href={e.actionHref}
+                  className="text-[11px] text-navy hover:underline shrink-0 inline-flex items-center gap-0.5"
+                >
+                  Resolver <ArrowUpRight className="w-3 h-3" />
+                </a>
+              )}
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      {/* Barras por dimensão (lacunas primeiro) */}
       <Card className="mb-6">
-        <CardHeader title="Atendimento por dimensão (ponderado)" />
+        <CardHeader
+          title="Atendimento por dimensão (ponderado)"
+          description="Ordenado pelas maiores lacunas. Clique para filtrar a matriz por dimensão."
+        />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
-          {scores.dimensions.map((d) => (
+          {dimsByGap.map((d) => (
             <button
               type="button"
               key={d.key}
@@ -733,7 +1022,7 @@ export default function AtriconIndex({
                 <span className="font-medium text-muted-foreground group-hover:text-navy transition-colors">
                   {d.label} <span className="text-muted-foreground/70">(peso {d.weight})</span>
                 </span>
-                <span className="font-bold text-foreground">{d.pct}%</span>
+                <span className="font-bold text-foreground tabular-nums">{d.pct}%</span>
               </div>
               <div className="h-2.5 bg-muted rounded-full overflow-hidden">
                 <div
@@ -763,16 +1052,22 @@ export default function AtriconIndex({
           <div className="space-y-2">
             {sortedContent.map((m) => {
               const fm = FRESHNESS_META[m.freshness]
+              const accent =
+                m.freshness === 'vazio'
+                  ? 'border-l-destructive'
+                  : m.freshness === 'desatualizado'
+                    ? 'border-l-amber-500'
+                    : 'border-l-emerald-500'
               return (
                 <div
                   key={m.key}
-                  className="flex items-start gap-3 rounded-lg border border-border p-3 hover:bg-muted/30 transition-colors"
+                  className={`flex items-start gap-3 rounded-lg border border-border border-l-4 ${accent} p-3 hover:bg-muted/30 transition-colors`}
                 >
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-sm font-semibold text-foreground">{m.label}</span>
                       <Badge tone={fm.tone} className="text-[11px] px-2 py-0.5">{fm.label}</Badge>
-                      <span className="text-[11px] text-muted-foreground">
+                      <span className="text-[11px] text-muted-foreground tabular-nums">
                         {m.total} registro{m.total === 1 ? '' : 's'}
                       </span>
                       <span className="text-[11px] text-muted-foreground">· último: {fmtDate(m.latest)}</span>
@@ -805,6 +1100,80 @@ export default function AtriconIndex({
         </Card>
       </div>
 
+      {/* Auditoria inteligente — Links da Transparência */}
+      <Card className="mb-6">
+        <CardHeader
+          title="Auditoria inteligente — Links da Transparência"
+          description={`Valida cada link: URL preenchida, conteúdo do módulo interno (atas, pautas, licitações…) e acessibilidade de URLs externas. Atas/pautas/votações: meta quinzenal (${fortnight.label}).`}
+          icon={Link2}
+        />
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
+          <div className="rounded-lg border border-border p-3 text-center">
+            <p className="text-2xl font-bold text-foreground tabular-nums">{linkAudit.summary.total}</p>
+            <p className="text-xs text-muted-foreground">Links auditados</p>
+          </div>
+          <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3 text-center">
+            <p className="text-2xl font-bold text-emerald-600 tabular-nums">{linkAudit.summary.ok}</p>
+            <p className="text-xs text-muted-foreground">Em dia / acessíveis</p>
+          </div>
+          <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-center">
+            <p className="text-2xl font-bold text-amber-600 tabular-nums">{linkAudit.summary.parcial}</p>
+            <p className="text-xs text-muted-foreground">Desatualizados</p>
+          </div>
+          <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-center">
+            <p className="text-2xl font-bold text-destructive tabular-nums">{linkAudit.summary.falha}</p>
+            <p className="text-xs text-muted-foreground">Vazios / quebrados</p>
+          </div>
+        </div>
+
+        {sortedLinkGaps.length === 0 ? (
+          <p className="text-sm text-emerald-600 font-medium py-4 text-center">
+            Todos os links da transparência passaram na auditoria.
+          </p>
+        ) : (
+          <div className="space-y-2 max-h-[420px] overflow-y-auto">
+            {sortedLinkGaps.map((link) => {
+              const hm = LINK_HEALTH_META[link.health]
+              return (
+                <div
+                  key={link.id}
+                  className="flex items-start gap-3 rounded-lg border border-border p-3 hover:bg-muted/30 transition-colors"
+                >
+                  <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-sm font-semibold text-foreground">{link.title}</span>
+                      <Badge tone={hm.tone} className="text-[11px] px-2 py-0.5">{hm.label}</Badge>
+                      {link.matchedModule && (
+                        <span className="text-[11px] text-muted-foreground">{link.matchedModule}</span>
+                      )}
+                    </div>
+                    <p className="text-[11px] text-muted-foreground mt-0.5 truncate" title={link.url}>
+                      {link.url}
+                    </p>
+                    <p className="text-[11px] text-muted-foreground mt-1">{link.detail}</p>
+                    <p className="text-[10px] text-muted-foreground/80 mt-0.5">
+                      Seção: {link.sectionTitle}
+                      {link.contentTotal !== null && ` · ${link.contentTotal} registro(s)`}
+                      {link.contentLatest && ` · último: ${fmtDate(link.contentLatest)}`}
+                      {link.httpStatus && ` · HTTP ${link.httpStatus}`}
+                    </p>
+                  </div>
+                  {link.adminHref && (
+                    <a
+                      href={link.adminHref}
+                      className="text-[11px] text-navy hover:underline shrink-0 inline-flex items-center gap-0.5"
+                    >
+                      Corrigir <ArrowUpRight className="w-3 h-3" />
+                    </a>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </Card>
+
       {/* O que falta */}
       <Card className="mb-6">
         <CardHeader
@@ -814,7 +1183,7 @@ export default function AtriconIndex({
         />
         {todo.length === 0 ? (
           <p className="text-sm text-emerald-600 font-semibold py-6 text-center">
-            Nenhuma pendência. Toda a matriz está atendida. 🎉
+            Nenhuma pendência. Toda a matriz está atendida.
           </p>
         ) : (
           <>

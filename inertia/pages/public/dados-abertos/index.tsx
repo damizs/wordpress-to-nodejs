@@ -120,14 +120,37 @@ export default function DadosAbertos({ datasets = [] }: Props) {
                 })}
               </div>
 
-              {/* Nota de uso */}
-              <div className="mt-10 card-modern p-5 flex items-start gap-3">
-                <Download className="w-5 h-5 text-gold shrink-0 mt-0.5" />
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Os arquivos CSV usam ponto e vírgula (;) como separador e codificação UTF-8 com
-                  BOM, abrindo corretamente no Excel em português. Os dados podem ser reutilizados
-                  livremente, citando a fonte: Câmara Municipal de Sumé - PB.
-                </p>
+              {/* Licença e regras de uso (PNTP 15.4) */}
+              <div className="mt-10 grid gap-6 md:grid-cols-2">
+                <div className="card-modern p-5">
+                  <h2 className="font-bold text-foreground mb-2">Licença aberta</h2>
+                  <p className="text-sm text-muted-foreground leading-relaxed">
+                    Os conjuntos de dados deste portal são disponibilizados sob a licença{" "}
+                    <strong className="text-foreground">Creative Commons Atribuição 4.0 Internacional (CC BY 4.0)</strong>.
+                    Você pode copiar, redistribuir e adaptar os dados, desde que cite a fonte:{" "}
+                    <strong className="text-foreground">Câmara Municipal de Sumé — PB</strong>.
+                  </p>
+                  <a
+                    href="https://creativecommons.org/licenses/by/4.0/deed.pt"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block mt-3 text-sm font-semibold text-primary hover:underline"
+                  >
+                    Texto completo da licença CC BY 4.0
+                  </a>
+                </div>
+                <div className="card-modern p-5 flex items-start gap-3">
+                  <Download className="w-5 h-5 text-gold shrink-0 mt-0.5" />
+                  <div>
+                    <h2 className="font-bold text-foreground mb-2">Formato e reutilização</h2>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Os arquivos CSV usam ponto e vírgula (;) como separador e codificação UTF-8 com
+                      BOM, abrindo corretamente no Excel em português. JSON é indicado para integração
+                      automatizada. Os dados refletem o conteúdo publicado neste portal e podem ser
+                      atualizados sem aviso prévio conforme novas publicações oficiais.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </section>

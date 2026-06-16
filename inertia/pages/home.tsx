@@ -13,6 +13,8 @@ import { VereadoresSection } from "~/components/VereadoresSection";
 import { LegislativoSection } from "~/components/LegislativoSection";
 import { DiarioOficialSection } from "~/components/DiarioOficialSection";
 import { InstagramFeedSection } from "~/components/InstagramFeedSection";
+import { ReelsSection } from "~/components/ReelsSection";
+import type { ReelItem } from "~/components/ReelsGallery";
 import { ConhecaSumeSection } from "~/components/ConhecaSumeSection";
 import { CertificationsSection } from "~/components/CertificationsSection";
 import { SatisfactionSurvey } from "~/components/SatisfactionSurvey";
@@ -103,9 +105,11 @@ interface HomeProps {
   legislativo?: LegislativoData | null;
   publicacoes?: Publicacao[];
   instagramPosts?: InstagramPost[];
+  instagramReels?: ReelItem[];
   instagramProfileUrl?: string | null;
   quickLinks?: QuickLinkItem[];
   latestGazette?: GazetteEntry | null;
+  gazetteEntries?: GazetteEntry[];
   gazetteDates?: { date: string; editionNumber: string; fileUrl: string | null }[];
   legislatura?: string;
   newsBackgroundImage?: string | null;
@@ -119,9 +123,11 @@ export default function Home({
   vereadores = [], 
   legislativo = null,
   instagramPosts = [],
+  instagramReels = [],
   instagramProfileUrl = null,
   quickLinks = [],
   latestGazette = null,
+  gazetteEntries = [],
   gazetteDates = [],
   legislatura = "2025-2028",
   newsBackgroundImage = null,
@@ -163,7 +169,7 @@ export default function Home({
           {template.homeOrder.map((key) => {
             if (!visible(key)) return null;
             const node = {
-              news: <NewsSection news={news} backgroundImage={newsBackgroundImage} />,
+              news: <NewsSection news={news} backgroundImage={newsBackgroundImage} layout={siteSettings?.news_layout} />,
               quickaccess: (
                 <QuickAccessSection
                   quickLinks={quickLinks}
@@ -203,6 +209,7 @@ export default function Home({
               diario: (
                 <DiarioOficialSection
                   latestGazette={latestGazette}
+                  entries={gazetteEntries}
                   gazetteDates={gazetteDates}
                   title={setting('homepage_diario_title')}
                   subtitle={setting('homepage_diario_subtitle')}
@@ -212,6 +219,13 @@ export default function Home({
                 <InstagramFeedSection
                   posts={instagramPosts}
                   instagramUrl={instagramProfileUrl || siteSettings?.instagram_url || undefined}
+                />
+              ),
+              reels: (
+                <ReelsSection
+                  reels={instagramReels}
+                  title={setting('homepage_reels_title')}
+                  subtitle={setting('homepage_reels_subtitle')}
                 />
               ),
               conheca: (

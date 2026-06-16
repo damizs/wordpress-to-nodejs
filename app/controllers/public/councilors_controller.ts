@@ -121,6 +121,13 @@ export default class CouncilorsController {
       .map(([type, count]) => ({ type, count }))
       .sort((x, y) => y.count - x.count)
 
+    // Série completa (leve) para o gráfico interativo por situação/ano no frontend.
+    const timeline = activities.map((a) => ({
+      year: a.year ?? activityDate(a)?.year ?? null,
+      status: a.status || 'Em tramitação',
+      type: a.type || 'Outros',
+    }))
+
     const siteSettings = await SiteSetting.allAsObject()
 
     return inertia.render('public/councilors/show', {
@@ -179,6 +186,7 @@ export default class CouncilorsController {
         legislatura: legStart && legEnd ? `${legStart}/${legEnd}` : null,
         byType,
       },
+      timeline,
       mandatos: positions.map((p) => ({
         id: p.id,
         position: p.position,

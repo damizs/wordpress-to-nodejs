@@ -2,15 +2,25 @@ import { useRef } from "react";
 import { Link } from "@inertiajs/react";
 import {
   Activity,
+  ArrowRight,
+  Award,
   BadgeCheck,
   Calendar,
   ChevronLeft,
   ChevronRight,
   ExternalLink,
+  FileCheck,
+  FilePen,
+  FileQuestion,
   FileText,
   Gavel,
+  Lightbulb,
+  Scale,
+  ScrollText,
+  ShieldX,
   TrendingUp,
 } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { SectionHeading } from "~/components/SectionHeading";
 
 interface LegislativoVereador {
@@ -25,6 +35,8 @@ interface LegislativoVereador {
 interface LegislativoMateria {
   id: number;
   titulo: string;
+  tipo?: string | null;
+  status?: string | null;
   data: string;
   url: string;
 }
@@ -71,6 +83,48 @@ function smoothPath(
     d += ` C ${c1x.toFixed(1)},${c1y.toFixed(1)} ${c2x.toFixed(1)},${c2y.toFixed(1)} ${p2[0]},${p2[1]}`;
   }
   return d;
+}
+
+/** Normaliza texto (sem acento, minúsculo) para casar tipos/situações. */
+const norm = (s: string | null | undefined) =>
+  (s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+/** Estilo (ícone + cores) por tipo de matéria, para tirar a timeline do "seco". */
+interface TypeStyle {
+  icon: LucideIcon;
+  ring: string;
+  chip: string;
+}
+const TYPE_STYLES: { match: string[]; style: TypeStyle }[] = [
+  { match: ["veto"], style: { icon: ShieldX, ring: "border-rose-500 text-rose-500", chip: "bg-rose-500/10 text-rose-600 dark:text-rose-400" } },
+  { match: ["projeto de lei", "lei municipal", "lei complementar", "lei ordinaria"], style: { icon: Scale, ring: "border-navy text-navy dark:border-sky dark:text-sky", chip: "bg-primary/10 text-primary" } },
+  { match: ["decreto"], style: { icon: ScrollText, ring: "border-sky text-sky", chip: "bg-sky/10 text-sky" } },
+  { match: ["indicacao"], style: { icon: Lightbulb, ring: "border-gold text-gold", chip: "bg-gold/15 text-navy-dark dark:text-gold" } },
+  { match: ["requerimento"], style: { icon: FileQuestion, ring: "border-violet-500 text-violet-500", chip: "bg-violet-500/10 text-violet-600 dark:text-violet-400" } },
+  { match: ["mocao"], style: { icon: Award, ring: "border-emerald-500 text-emerald-500", chip: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" } },
+  { match: ["resolucao"], style: { icon: FileCheck, ring: "border-teal-500 text-teal-500", chip: "bg-teal-500/10 text-teal-600 dark:text-teal-400" } },
+  { match: ["emenda"], style: { icon: FilePen, ring: "border-amber-500 text-amber-500", chip: "bg-amber-500/10 text-amber-600 dark:text-amber-400" } },
+];
+const DEFAULT_TYPE_STYLE: TypeStyle = { icon: FileText, ring: "border-primary text-primary", chip: "bg-primary/10 text-primary" };
+
+function typeStyle(tipo: string | null | undefined): TypeStyle {
+  const n = norm(tipo);
+  if (!n) return DEFAULT_TYPE_STYLE;
+  for (const t of TYPE_STYLES) {
+    if (t.match.some((m) => n.includes(norm(m)))) return t.style;
+  }
+  return DEFAULT_TYPE_STYLE;
+}
+
+/** Classe da pill de situação (Aprovado, Em tramitação...). */
+function statusChipClass(status: string | null | undefined): string {
+  const s = norm(status);
+  if (!s) return "";
+  if (s.includes("aprovad") || s.includes("sancion"))
+    return "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400";
+  if (s.includes("tramita")) return "bg-amber-500/10 text-amber-600 dark:text-amber-400";
+  if (s.includes("rejeit") || s.includes("vetad")) return "bg-rose-500/10 text-rose-600 dark:text-rose-400";
+  return "bg-muted text-muted-foreground";
 }
 
 const MateriasChart = ({ weekly }: { weekly: { label: string; count: number }[] }) => {
@@ -457,33 +511,66 @@ export const LegislativoSection = ({ data, title, subtitle }: LegislativoSection
                 ref={materiasRef}
                 className="overflow-x-auto pb-2 scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
               >
-                <div className="relative inline-flex gap-10 px-6 pt-1 min-w-full">
-                  {/* Linha do tempo */}
-                  <div className="absolute top-[26px] left-0 right-0 h-0.5 bg-primary/25" aria-hidden="true" />
-                  {data.materias.map((m) => (
-                    <div key={m.id} className="relative flex flex-col items-center w-56 shrink-0 text-center">
-                      <div className="w-[52px] h-[52px] rounded-full bg-card border-2 border-primary flex items-center justify-center shadow-sm z-10">
-                        <FileText className="w-5 h-5 text-primary" />
-                      </div>
-                      <p className="mt-4 text-sm font-semibold text-foreground leading-snug line-clamp-2">
-                        {m.titulo}
-                      </p>
-                      {m.data && (
-                        <p className="mt-1.5 flex items-center gap-1 text-xs text-muted-foreground">
-                          <Calendar className="w-3 h-3" />
-                          {m.data}
-                        </p>
-                      )}
+                <div className="relative inline-flex gap-6 px-6 pt-1 min-w-full">
+                  {/* Linha do tempo (gradiente) */}
+                  <div
+                    className="absolute top-[26px] left-0 right-0 h-0.5 bg-gradient-to-r from-primary/10 via-primary/30 to-primary/10"
+                    aria-hidden="true"
+                  />
+                  {data.materias.map((m) => {
+                    const st = typeStyle(m.tipo);
+                    const Icon = st.icon;
+                    const external = m.url.startsWith("http") || m.url.startsWith("/uploads");
+                    const statusCls = statusChipClass(m.status);
+                    return (
                       <a
+                        key={m.id}
                         href={m.url}
-                        target={m.url.startsWith("http") || m.url.startsWith("/uploads") ? "_blank" : undefined}
+                        target={external ? "_blank" : undefined}
                         rel="noopener noreferrer"
-                        className="mt-2 text-xs font-bold text-primary hover:text-gold underline underline-offset-2 transition-colors"
+                        className="group relative flex flex-col items-center w-60 shrink-0 no-underline"
                       >
-                        Acessar matéria
+                        {/* Nó da timeline (cor por tipo) */}
+                        <div
+                          className={`w-[52px] h-[52px] rounded-full bg-card border-2 ${st.ring} flex items-center justify-center shadow-sm z-10 transition-transform group-hover:scale-110`}
+                        >
+                          <Icon className="w-5 h-5" aria-hidden="true" />
+                        </div>
+                        {/* Card */}
+                        <div className="mt-4 w-full text-left bg-card border border-border/60 rounded-xl p-4 shadow-sm transition-all group-hover:shadow-md group-hover:-translate-y-0.5 group-hover:border-primary/25">
+                          <div className="flex flex-wrap items-center gap-1.5 mb-2">
+                            {m.tipo && (
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide ${st.chip}`}>
+                                {m.tipo}
+                              </span>
+                            )}
+                            {m.status && statusCls && (
+                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${statusCls}`}>
+                                {m.status}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-sm font-semibold text-foreground leading-snug line-clamp-2 min-h-[2.5rem] group-hover:text-primary transition-colors">
+                            {m.titulo}
+                          </p>
+                          <div className="mt-3 flex items-center justify-between gap-2">
+                            {m.data ? (
+                              <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                                <Calendar className="w-3 h-3" aria-hidden="true" />
+                                {m.data}
+                              </span>
+                            ) : (
+                              <span />
+                            )}
+                            <span className="inline-flex items-center gap-1 text-xs font-bold text-primary group-hover:text-gold transition-colors">
+                              Acessar
+                              <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+                            </span>
+                          </div>
+                        </div>
                       </a>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
               {data.materias.length > 3 && (

@@ -11,6 +11,7 @@ import {
   Sparkles,
   LayoutGrid,
   LayoutTemplate,
+  Newspaper,
   type LucideIcon,
 } from 'lucide-react'
 import { useState, useRef } from 'react'
@@ -18,6 +19,7 @@ import { Button, Card, CardHeader, Field, Input, Select } from '~/components/adm
 import { CAMPAIGNS, THEME_PRESETS, getCampaign, resolveActiveCampaign } from '~/lib/campaigns'
 import { LAYOUT_STYLES, type LayoutStyle } from '~/lib/layouts'
 import { SITE_TEMPLATES, type SiteTemplate } from '~/lib/templates'
+import { NEWS_LAYOUTS } from '~/lib/news-layouts'
 
 interface SettingItem {
   key: string
@@ -47,6 +49,7 @@ export default function Appearance({ settings }: Props) {
     campaign_mode: getVal(appearance, 'campaign_mode') || 'auto',
     layout_style: getVal(appearance, 'layout_style') || 'institucional',
     site_template: getVal(appearance, 'site_template') || 'institucional',
+    news_layout: getVal(appearance, 'news_layout') || 'mosaico',
     color_navy: getVal(appearance, 'color_navy'),
     color_gold: getVal(appearance, 'color_gold'),
     color_sky: getVal(appearance, 'color_sky'),
@@ -97,6 +100,8 @@ export default function Appearance({ settings }: Props) {
     }
   }
 
+  const [tab, setTab] = useState<string>('tema')
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     post('/painel/aparencia', {
@@ -104,189 +109,237 @@ export default function Appearance({ settings }: Props) {
     })
   }
 
+  const TABS: { key: string; label: string; icon: LucideIcon }[] = [
+    { key: 'tema', label: 'Tema & Campanhas', icon: Sparkles },
+    { key: 'modelo', label: 'Modelo & Layout', icon: LayoutTemplate },
+    { key: 'cores', label: 'Cores', icon: Palette },
+    { key: 'identidade', label: 'Identidade', icon: Type },
+    { key: 'noticias', label: 'Notícias', icon: Newspaper },
+    { key: 'contato', label: 'Rodapé & Contato', icon: MapPin },
+  ]
+
   return (
     <AdminLayout title="Aparência">
       <Head title="Aparência - Painel" />
 
-      <form onSubmit={handleSubmit} className="max-w-4xl space-y-6">
-        {/* Theme presets & seasonal campaigns */}
-        <Section icon={Sparkles} title="Tema & Campanhas">
-          <ThemeAndCampaigns
-            themePreset={data.theme_preset}
-            campaignMode={data.campaign_mode}
-            onThemeChange={(v) => setData('theme_preset', v)}
-            onCampaignChange={(v) => setData('campaign_mode', v)}
-          />
-        </Section>
-
-        {/* Site template (structural model) */}
-        <Section icon={LayoutTemplate} title="Modelo do Site">
-          <SiteTemplatePicker value={data.site_template} onChange={(v) => setData('site_template', v)} />
-        </Section>
-
-        {/* Layout style */}
-        <Section icon={LayoutGrid} title="Estilo de Layout">
-          <LayoutStylePicker value={data.layout_style} onChange={(v) => setData('layout_style', v)} />
-        </Section>
-
-        {/* Colors */}
-        <Section icon={Palette} title="Cores do Site">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <ColorField label="Cor Principal (Navy)" value={data.color_navy} onChange={(v) => setData('color_navy', v)} />
-            <ColorField label="Cor Destaque (Gold)" value={data.color_gold} onChange={(v) => setData('color_gold', v)} />
-            <ColorField label="Cor Secundária (Sky)" value={data.color_sky} onChange={(v) => setData('color_sky', v)} />
+      <form onSubmit={handleSubmit} className="max-w-4xl">
+        {/* Abas de navegação */}
+        <div className="sticky top-16 z-20 -mx-4 lg:mx-0 mb-6 bg-background/95 backdrop-blur border-b border-border px-4 lg:px-0 lg:border-0 lg:bg-transparent lg:backdrop-blur-none">
+          <div className="flex gap-1 overflow-x-auto py-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden lg:flex-wrap lg:rounded-xl lg:bg-muted lg:p-1.5">
+            {TABS.map((t) => {
+              const active = tab === t.key
+              return (
+                <button
+                  key={t.key}
+                  type="button"
+                  onClick={() => setTab(t.key)}
+                  className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-colors ${
+                    active
+                      ? 'bg-navy text-white shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground hover:bg-muted lg:hover:bg-background/70'
+                  }`}
+                >
+                  <t.icon className="w-4 h-4" />
+                  {t.label}
+                </button>
+              )
+            })}
           </div>
-        </Section>
+        </div>
 
-        {/* Branding */}
-        <Section icon={Type} title="Identidade Visual">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <TextField label="Título do Header" value={data.header_title} onChange={(v) => setData('header_title', v)} />
-            <TextField label="Subtítulo do Header" value={data.header_subtitle} onChange={(v) => setData('header_subtitle', v)} />
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-            <FileField
-              label="Logo (PNG)"
-              preview={logoPreview}
-              inputRef={logoRef}
-              onChange={(f) => handleFileChange('logo_url', f)}
-            />
-            <FileField
-              label="Favicon"
-              preview={faviconPreview}
-              inputRef={faviconRef}
-              onChange={(f) => handleFileChange('favicon_url', f)}
-            />
-          </div>
+        <div className="space-y-6">
+          {tab === 'tema' && (
+            <Section icon={Sparkles} title="Tema & Campanhas">
+              <ThemeAndCampaigns
+                themePreset={data.theme_preset}
+                campaignMode={data.campaign_mode}
+                onThemeChange={(v) => setData('theme_preset', v)}
+                onCampaignChange={(v) => setData('campaign_mode', v)}
+              />
+            </Section>
+          )}
 
-          <div className="mt-4">
-            <FileField
-              label="Brasão (documentos oficiais)"
-              preview={brasaoPreview}
-              inputRef={brasaoRef}
-              onChange={(f) => handleFileChange('document_brasao_url', f)}
-            />
-            <p className="text-xs text-muted-foreground mt-1.5">
-              Usado no timbre das matérias (publicações, atas, pautas, atividades). Se vazio, usa a logo do cabeçalho.
-            </p>
-          </div>
+          {tab === 'modelo' && (
+            <>
+              <Section icon={LayoutTemplate} title="Modelo do Site">
+                <SiteTemplatePicker value={data.site_template} onChange={(v) => setData('site_template', v)} />
+              </Section>
+              <Section icon={LayoutGrid} title="Estilo de Layout">
+                <LayoutStylePicker value={data.layout_style} onChange={(v) => setData('layout_style', v)} />
+              </Section>
+            </>
+          )}
 
-          {/* Logo ATRICON (Radar) */}
-          <div className="mt-4">
-            <Field label="Logo ATRICON (Radar)">
-              <p className="text-xs text-muted-foreground mb-3">
-                Substitui a medalha de nível no módulo Radar ATRICON. Aceita SVG (transparente) —
-                será exibida sobre fundo branco no painel.
+          {tab === 'cores' && (
+            <Section icon={Palette} title="Cores do Site">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <ColorField label="Cor Principal (Navy)" value={data.color_navy} onChange={(v) => setData('color_navy', v)} />
+                <ColorField label="Cor Destaque (Gold)" value={data.color_gold} onChange={(v) => setData('color_gold', v)} />
+                <ColorField label="Cor Secundária (Sky)" value={data.color_sky} onChange={(v) => setData('color_sky', v)} />
+              </div>
+              <p className="text-xs text-muted-foreground mt-3">
+                As cores customizadas valem quando o tema é "Navy (padrão)". Outros presets na aba Tema sobrescrevem estas cores.
               </p>
-              <div className="flex items-start gap-4">
-                {atriconLogoPreview ? (
-                  <div className="relative w-28 h-28 rounded-lg overflow-hidden border border-border bg-white p-3 flex items-center justify-center">
-                    <img src={atriconLogoPreview} alt="Logo ATRICON" className="w-full h-full object-contain" />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setAtriconLogoPreview(null)
-                        setData('atricon_logo_url', null)
-                      }}
-                      className="absolute top-1 right-1 p-1 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90 transition-colors"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ) : (
-                  <div
-                    onClick={() => atriconLogoRef.current?.click()}
-                    className="w-28 h-28 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-navy/50 transition-colors text-center px-2"
-                  >
-                    <Upload className="w-7 h-7 text-muted-foreground mb-1" />
-                    <span className="text-xs text-muted-foreground">Clique para enviar</span>
-                    <span className="text-[11px] text-muted-foreground/70">PNG, SVG, JPG ou WebP</span>
-                  </div>
-                )}
-                <input
-                  ref={atriconLogoRef}
-                  type="file"
-                  accept="image/png,image/jpeg,image/svg+xml,image/webp"
-                  className="hidden"
-                  onChange={(e) => handleFileChange('atricon_logo_url', e.target.files?.[0] || null)}
+            </Section>
+          )}
+
+          {tab === 'identidade' && (
+            <Section icon={Type} title="Identidade Visual">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <TextField label="Título do Header" value={data.header_title} onChange={(v) => setData('header_title', v)} />
+                <TextField label="Subtítulo do Header" value={data.header_subtitle} onChange={(v) => setData('header_subtitle', v)} />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                <FileField
+                  label="Logo (PNG)"
+                  preview={logoPreview}
+                  inputRef={logoRef}
+                  onChange={(f) => handleFileChange('logo_url', f)}
+                />
+                <FileField
+                  label="Favicon"
+                  preview={faviconPreview}
+                  inputRef={faviconRef}
+                  onChange={(f) => handleFileChange('favicon_url', f)}
                 />
               </div>
-            </Field>
-          </div>
 
-          {/* News Background */}
-          <div className="mt-4">
-            <Field label="Imagem de Fundo - Seção Notícias">
-              <p className="text-xs text-muted-foreground mb-3">Imagem que aparece atrás dos cards de notícias na página inicial</p>
-              <div className="flex items-start gap-4">
-                {newsBackgroundPreview ? (
-                  <div className="relative w-64 h-36 rounded-lg overflow-hidden border border-border">
-                    <img src={newsBackgroundPreview} alt="Background" className="w-full h-full object-cover" />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setNewsBackgroundPreview(null)
-                        setData('news_background_image', null)
-                      }}
-                      className="absolute top-2 right-2 p-1 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90 transition-colors"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                ) : (
-                  <div
-                    onClick={() => newsBackgroundRef.current?.click()}
-                    className="w-64 h-36 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-navy/50 transition-colors"
-                  >
-                    <Upload className="w-8 h-8 text-muted-foreground mb-2" />
-                    <span className="text-sm text-muted-foreground">Clique para enviar</span>
-                    <span className="text-xs text-muted-foreground/70">JPG, PNG ou WebP</span>
-                  </div>
-                )}
-                <input
-                  ref={newsBackgroundRef}
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  className="hidden"
-                  onChange={(e) => handleFileChange('news_background_image', e.target.files?.[0] || null)}
+              <div className="mt-4">
+                <FileField
+                  label="Brasão (documentos oficiais)"
+                  preview={brasaoPreview}
+                  inputRef={brasaoRef}
+                  onChange={(f) => handleFileChange('document_brasao_url', f)}
                 />
+                <p className="text-xs text-muted-foreground mt-1.5">
+                  Usado no timbre das matérias (publicações, atas, pautas, atividades). Se vazio, usa a logo do cabeçalho.
+                </p>
               </div>
-            </Field>
-          </div>
-        </Section>
 
-        {/* Footer */}
-        <Section icon={MapPin} title="Rodapé">
-          <TextField label="Descrição (texto abaixo da logo)" value={data.footer_description} onChange={(v) => setData('footer_description', v)} />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <TextField label="Endereço" value={data.footer_address} onChange={(v) => setData('footer_address', v)} />
-            <TextField label="Telefone" value={data.footer_phone} onChange={(v) => setData('footer_phone', v)} />
-            <TextField label="Email" value={data.footer_email} onChange={(v) => setData('footer_email', v)} />
-            <TextField label="Horário" value={data.footer_hours} onChange={(v) => setData('footer_hours', v)} />
-          </div>
-        </Section>
+              {/* Logo ATRICON (Radar) */}
+              <div className="mt-4">
+                <Field label="Logo ATRICON (Radar)">
+                  <p className="text-xs text-muted-foreground mb-3">
+                    Substitui a medalha de nível no módulo Radar ATRICON. Aceita SVG (transparente) —
+                    será exibida sobre fundo branco no painel.
+                  </p>
+                  <div className="flex items-start gap-4">
+                    {atriconLogoPreview ? (
+                      <div className="relative w-28 h-28 rounded-lg overflow-hidden border border-border bg-white p-3 flex items-center justify-center">
+                        <img src={atriconLogoPreview} alt="Logo ATRICON" className="w-full h-full object-contain" />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAtriconLogoPreview(null)
+                            setData('atricon_logo_url', null)
+                          }}
+                          className="absolute top-1 right-1 p-1 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90 transition-colors"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ) : (
+                      <div
+                        onClick={() => atriconLogoRef.current?.click()}
+                        className="w-28 h-28 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-navy/50 transition-colors text-center px-2"
+                      >
+                        <Upload className="w-7 h-7 text-muted-foreground mb-1" />
+                        <span className="text-xs text-muted-foreground">Clique para enviar</span>
+                        <span className="text-[11px] text-muted-foreground/70">PNG, SVG, JPG ou WebP</span>
+                      </div>
+                    )}
+                    <input
+                      ref={atriconLogoRef}
+                      type="file"
+                      accept="image/png,image/jpeg,image/svg+xml,image/webp"
+                      className="hidden"
+                      onChange={(e) => handleFileChange('atricon_logo_url', e.target.files?.[0] || null)}
+                    />
+                  </div>
+                </Field>
+              </div>
+            </Section>
+          )}
 
-        {/* Social */}
-        <Section icon={Share2} title="Redes Sociais">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <TextField label="Facebook" value={data.social_facebook} onChange={(v) => setData('social_facebook', v)} placeholder="https://facebook.com/..." />
-            <TextField label="Instagram" value={data.social_instagram} onChange={(v) => setData('social_instagram', v)} placeholder="https://instagram.com/..." />
-            <TextField label="YouTube" value={data.social_youtube} onChange={(v) => setData('social_youtube', v)} placeholder="https://youtube.com/..." />
-          </div>
-        </Section>
+          {tab === 'noticias' && (
+            <Section icon={Newspaper} title="Seção de Notícias">
+              <NewsLayoutPicker value={data.news_layout} onChange={(v) => setData('news_layout', v)} />
 
-        {/* E-SIC */}
-        <Section icon={Shield} title="E-SIC">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <TextField label="Link Nova Demanda" value={data.esic_new_url} onChange={(v) => setData('esic_new_url', v)} />
-            <TextField label="Link Consultar" value={data.esic_consult_url} onChange={(v) => setData('esic_consult_url', v)} />
-            <TextField label="Telefone E-SIC" value={data.esic_phone} onChange={(v) => setData('esic_phone', v)} />
-            <TextField label="Email E-SIC" value={data.esic_email} onChange={(v) => setData('esic_email', v)} />
-          </div>
-        </Section>
+              <div className="mt-6">
+                <Field label="Imagem de Fundo - Seção Notícias">
+                  <p className="text-xs text-muted-foreground mb-3">Imagem que aparece atrás dos cards de notícias na página inicial</p>
+                  <div className="flex items-start gap-4">
+                    {newsBackgroundPreview ? (
+                      <div className="relative w-64 h-36 rounded-lg overflow-hidden border border-border">
+                        <img src={newsBackgroundPreview} alt="Background" className="w-full h-full object-cover" />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setNewsBackgroundPreview(null)
+                            setData('news_background_image', null)
+                          }}
+                          className="absolute top-2 right-2 p-1 bg-destructive text-destructive-foreground rounded-full hover:bg-destructive/90 transition-colors"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ) : (
+                      <div
+                        onClick={() => newsBackgroundRef.current?.click()}
+                        className="w-64 h-36 border-2 border-dashed border-border rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-navy/50 transition-colors"
+                      >
+                        <Upload className="w-8 h-8 text-muted-foreground mb-2" />
+                        <span className="text-sm text-muted-foreground">Clique para enviar</span>
+                        <span className="text-xs text-muted-foreground/70">JPG, PNG ou WebP</span>
+                      </div>
+                    )}
+                    <input
+                      ref={newsBackgroundRef}
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp"
+                      className="hidden"
+                      onChange={(e) => handleFileChange('news_background_image', e.target.files?.[0] || null)}
+                    />
+                  </div>
+                </Field>
+              </div>
+            </Section>
+          )}
 
-        {/* Submit */}
-        <div className="flex justify-end pt-4">
+          {tab === 'contato' && (
+            <>
+              <Section icon={MapPin} title="Rodapé">
+                <TextField label="Descrição (texto abaixo da logo)" value={data.footer_description} onChange={(v) => setData('footer_description', v)} />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <TextField label="Endereço" value={data.footer_address} onChange={(v) => setData('footer_address', v)} />
+                  <TextField label="Telefone" value={data.footer_phone} onChange={(v) => setData('footer_phone', v)} />
+                  <TextField label="Email" value={data.footer_email} onChange={(v) => setData('footer_email', v)} />
+                  <TextField label="Horário" value={data.footer_hours} onChange={(v) => setData('footer_hours', v)} />
+                </div>
+              </Section>
+
+              <Section icon={Share2} title="Redes Sociais">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <TextField label="Facebook" value={data.social_facebook} onChange={(v) => setData('social_facebook', v)} placeholder="https://facebook.com/..." />
+                  <TextField label="Instagram" value={data.social_instagram} onChange={(v) => setData('social_instagram', v)} placeholder="https://instagram.com/..." />
+                  <TextField label="YouTube" value={data.social_youtube} onChange={(v) => setData('social_youtube', v)} placeholder="https://youtube.com/..." />
+                </div>
+              </Section>
+
+              <Section icon={Shield} title="E-SIC">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <TextField label="Link Nova Demanda" value={data.esic_new_url} onChange={(v) => setData('esic_new_url', v)} />
+                  <TextField label="Link Consultar" value={data.esic_consult_url} onChange={(v) => setData('esic_consult_url', v)} />
+                  <TextField label="Telefone E-SIC" value={data.esic_phone} onChange={(v) => setData('esic_phone', v)} />
+                  <TextField label="Email E-SIC" value={data.esic_email} onChange={(v) => setData('esic_email', v)} />
+                </div>
+              </Section>
+            </>
+          )}
+        </div>
+
+        {/* Submit (fixo no rodapé do formulário) */}
+        <div className="sticky bottom-0 mt-6 -mx-4 lg:mx-0 flex justify-end gap-3 border-t border-border bg-background/95 backdrop-blur px-4 lg:px-0 py-3 lg:py-4">
           <Button type="submit" loading={processing}>
             {!processing && <Save className="w-4 h-4" />}
             {processing ? 'Salvando...' : 'Salvar Configurações'}
@@ -674,6 +727,94 @@ function SiteTemplatePicker({ value, onChange }: { value: string; onChange: (v: 
               <span className="block mt-0.5 text-xs text-muted-foreground leading-snug">
                 {tpl.description}
               </span>
+            </button>
+          )
+        })}
+      </div>
+    </Field>
+  )
+}
+
+/** Mini-mock do arranjo de cada modelo de card de notícia. */
+function NewsLayoutPreview({ layoutKey }: { layoutKey: string }) {
+  const box = 'rounded-sm bg-white/80'
+  const wrap = 'aspect-[16/9] rounded-md bg-gradient-to-br from-navy to-navy/70 overflow-hidden p-2 flex'
+  if (layoutKey === 'grade') {
+    return (
+      <div className={`${wrap} grid grid-cols-3 gap-1.5`}>
+        {[0, 1, 2, 3, 4, 5].map((i) => (
+          <span key={i} className={`${box} w-full h-full`} />
+        ))}
+      </div>
+    )
+  }
+  if (layoutKey === 'lista') {
+    return (
+      <div className={`${wrap} flex-col gap-1.5`}>
+        {[0, 1, 2].map((i) => (
+          <div key={i} className="flex items-center gap-1.5 flex-1">
+            <span className={`${box} h-full aspect-square`} />
+            <div className="flex-1 space-y-1">
+              <span className="block h-1.5 w-3/4 rounded bg-white/70" />
+              <span className="block h-1 w-1/2 rounded bg-white/40" />
+            </div>
+          </div>
+        ))}
+      </div>
+    )
+  }
+  if (layoutKey === 'destaque') {
+    return (
+      <div className={`${wrap} gap-1.5`}>
+        <span className={`${box} w-3/5 h-full`} />
+        <div className="flex-1 flex flex-col gap-1.5">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="flex items-center gap-1 flex-1">
+              <span className={`${box} h-full aspect-square`} />
+              <span className="flex-1 h-1.5 rounded bg-white/60" />
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+  // mosaico
+  return (
+    <div className={`${wrap} gap-1.5`}>
+      <span className={`${box} w-1/2 h-full`} />
+      <div className="grid grid-cols-2 grid-rows-2 gap-1.5 w-1/2">
+        {[0, 1, 2, 3].map((i) => (
+          <span key={i} className={`${box} w-full h-full`} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function NewsLayoutPicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  return (
+    <Field
+      label="Modelo dos cards"
+      hint="Como as notícias aparecem na página inicial. Independente do tema e do modelo do site."
+    >
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        {NEWS_LAYOUTS.map((nl) => {
+          const selected = (value || 'mosaico') === nl.key
+          return (
+            <button
+              key={nl.key}
+              type="button"
+              onClick={() => onChange(nl.key)}
+              aria-pressed={selected}
+              className={`rounded-lg border p-3 text-left transition-all ${
+                selected ? 'border-navy ring-2 ring-navy/25 bg-navy/5' : 'border-border bg-card hover:border-navy/40'
+              }`}
+            >
+              <NewsLayoutPreview layoutKey={nl.key} />
+              <span className={`block mt-2.5 text-sm font-semibold ${selected ? 'text-navy' : 'text-foreground'}`}>
+                {nl.label}
+              </span>
+              <span className="block mt-0.5 text-xs text-muted-foreground leading-snug">{nl.description}</span>
             </button>
           )
         })}

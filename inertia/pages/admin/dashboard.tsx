@@ -3,7 +3,7 @@ import AdminLayout from '~/layouts/AdminLayout'
 import { StatusBadge } from '~/components/admin/ui'
 import {
   Newspaper, FileText, Users, ArrowUpRight, Clock, Gavel, ScrollText,
-  ShoppingCart, FolderOpen, MessageSquare, Plus, CalendarDays, Radar,
+  ShoppingCart, FolderOpen, MessageSquare, CalendarDays, Radar,
 } from 'lucide-react'
 
 interface Props {
@@ -40,11 +40,11 @@ export default function Dashboard({ stats, recentNews, upcomingSessions, userNam
 
   // Ações rápidas conforme o que a pessoa pode fazer
   const quickActions = [
-    { label: 'Nova Notícia', href: '/painel/noticias/criar', show: can('noticia.criar') },
-    { label: 'Nova Sessão', href: '/painel/sessoes/criar', show: can('sessao.gerenciar') },
-    { label: 'Nova Licitação', href: '/painel/licitacoes/criar', show: can('licitacao.gerenciar') },
-    { label: 'Nova Publicação', href: '/painel/publicacoes/criar', show: can('publicacao.gerenciar') },
-    { label: 'Novo Registro PNTP', href: '/painel/acesso-informacao/criar', show: can('pntp.gerenciar') },
+    { label: 'Nova Notícia', href: '/painel/noticias/criar', icon: Newspaper, show: can('noticia.criar') },
+    { label: 'Nova Sessão', href: '/painel/sessoes/criar', icon: Gavel, show: can('sessao.gerenciar') },
+    { label: 'Nova Licitação', href: '/painel/licitacoes/criar', icon: ShoppingCart, show: can('licitacao.gerenciar') },
+    { label: 'Nova Publicação', href: '/painel/publicacoes/criar', icon: ScrollText, show: can('publicacao.gerenciar') },
+    { label: 'Novo Registro PNTP', href: '/painel/acesso-informacao/criar', icon: FolderOpen, show: can('pntp.gerenciar') },
   ].filter((a) => a.show)
 
   const firstName = (userName || '').split(' ')[0]
@@ -73,13 +73,13 @@ export default function Dashboard({ stats, recentNews, upcomingSessions, userNam
           </div>
           {quickActions.length > 0 && (
             <div className="flex flex-wrap gap-2">
-              {quickActions.slice(0, 3).map((action) => (
+              {quickActions.map((action) => (
                 <Link
                   key={action.href}
                   href={action.href}
                   className="inline-flex items-center gap-1.5 px-4 py-2 bg-white/10 hover:bg-gold hover:text-navy-dark border border-white/15 rounded-xl text-[13px] font-semibold transition-colors no-underline"
                 >
-                  <Plus className="w-4 h-4" /> {action.label}
+                  <action.icon className="w-4 h-4" /> {action.label}
                 </Link>
               ))}
             </div>

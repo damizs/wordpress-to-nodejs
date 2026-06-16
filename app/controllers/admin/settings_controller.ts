@@ -53,6 +53,12 @@ const APPEARANCE_KEYS: Record<
     type: 'text',
     label: 'Modelo do Site',
   },
+  news_layout: {
+    group: 'appearance',
+    defaultValue: 'mosaico',
+    type: 'text',
+    label: 'Modelo dos cards de Notícias',
+  },
   header_title: {
     group: 'appearance',
     defaultValue: 'CÂMARA MUNICIPAL DE SUMÉ',

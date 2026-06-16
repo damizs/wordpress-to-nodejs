@@ -2,7 +2,8 @@ import { Head, useForm, Link } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
 import { Save, ArrowLeft, Upload } from 'lucide-react'
 import { useRef } from 'react'
-import { Button, Card, Field, Input, Select, Textarea } from '~/components/admin/ui'
+import { Button, Card, Field, Input, Select } from '~/components/admin/ui'
+import RichTextEditor from '~/components/admin/RichTextEditor'
 
 interface Props {
   publication: any | null
@@ -63,11 +64,11 @@ export default function PublicationForm({ publication, types = [] }: Props) {
           <Field label="Título" required>
             <Input type="text" value={data.title} onChange={(e) => setData('title', e.target.value)} required />
           </Field>
-          <Field label="Descrição">
-            <Textarea
+          <Field label="Descrição / ementa" hint="Editor visual — texto que aparece na página pública da publicação.">
+            <RichTextEditor
               value={data.description}
-              onChange={(e) => setData('description', e.target.value)}
-              rows={3}
+              onChange={(html) => setData('description', html)}
+              minHeight={280}
             />
           </Field>
           <Field label="Arquivo PDF">

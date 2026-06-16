@@ -172,9 +172,18 @@ const activities = [...activityIds].map((id) => {
   const yearFromTitle = numMatch ? Number(numMatch[2]) : null
   const year = yearFromTitle || (m['_ano'] ? Number(m['_ano']) : null) ||
     (p.date ? Number(String(p.date).slice(0, 4)) : null)
-  const content = m['_conteudo-e-justificativa'] || m['_conteudo'] || p.content || ''
-  const anexoId = m['_anexo']
-  const anexoPath = anexoId && attachedFile.get(anexoId) ? attachedFile.get(anexoId) : null
+    const content = m['_conteudo-e-justificativa'] || m['_conteudo'] || p.content || ''
+    const ementa = (m['_mensagem'] || m['_justificativa'] || '').trim() || null
+    const anexoId = m['_anexo']
+  let anexoPath = null
+  if (anexoId) {
+    const raw = String(anexoId).trim()
+    if (raw.includes('/') || /\.pdf$/i.test(raw)) {
+      anexoPath = raw.replace(/^https?:\/\/[^/]+\/wp-content\/uploads\//i, '').replace(/^\/+/, '')
+    } else if (attachedFile.get(raw)) {
+      anexoPath = attachedFile.get(raw)
+    }
+  }
   const authors = [...(authorsByActivity.get(id) || [])]
     .map((vid) => vereadorInfo.get(vid))
     .filter(Boolean)
@@ -188,6 +197,7 @@ const activities = [...activityIds].map((id) => {
     year,
     date: m['_data'] || (p.date ? String(p.date).slice(0, 10) : null),
     situacao: m['_situacao'] || null,
+    ementa,
     content,
     anexoPath,
     status: p.status,

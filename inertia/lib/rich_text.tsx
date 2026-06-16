@@ -1,14 +1,14 @@
 /**
- * Renderizador de texto rico "markdown-lite" compartilhado (Páginas, Conteúdo
- * Institucional). Seguro por construção: o texto é escapado antes de aplicar
- * as marcações, então HTML colado vira texto literal.
- *
- * Sintaxe suportada:
- *   **negrito**   *itálico*   [rótulo](https://url)
- *   Linha em branco separa parágrafos; quebra simples vira <br>.
- *   Linhas iniciadas com "- " viram lista; "## " vira subtítulo.
+ * Renderizador de texto rico compartilhado (Páginas, Conteúdo Institucional, blocos).
+ * Aceita HTML (TinyMCE) ou markdown-lite legado (**negrito**, listas, ## subtítulo).
  */
 import { Fragment, type ReactNode } from 'react'
+
+const HTML_LIKE = /<(?:p|br|div|ul|ol|li|h[1-6]|strong|em|a|img|table|blockquote)\b/i
+
+function looksLikeHtml(text: string): boolean {
+  return HTML_LIKE.test(text.trim())
+}
 
 function renderInline(text: string, keyPrefix: string): ReactNode[] {
   const out: ReactNode[] = []
@@ -52,9 +52,19 @@ function renderLines(lines: string[], keyPrefix: string): ReactNode[] {
   return out
 }
 
-/** Renderiza um texto rico completo em parágrafos/listas/subtítulos React. */
+/** Renderiza um texto rico completo em parágrafos/listas/subtítulos React ou HTML. */
 export function RichText({ text, className = '' }: { text: string; className?: string }) {
   if (!text || !text.trim()) return null
+
+  if (looksLikeHtml(text)) {
+    return (
+      <div
+        className={`prose prose-slate dark:prose-invert max-w-none prose-p:text-justify prose-img:rounded-lg ${className}`}
+        dangerouslySetInnerHTML={{ __html: text }}
+      />
+    )
+  }
+
   const blocks = text.replace(/\r\n/g, '\n').split(/\n{2,}/)
 
   return (

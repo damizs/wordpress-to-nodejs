@@ -80,6 +80,31 @@ export function DownloadPdfButton({ fileUrl, className = "" }: { fileUrl?: strin
   );
 }
 
+/** Download de PDF nativo ou página de exportação/impressão (PNTP/ATRICON). */
+export function ActivityPdfButton({
+  fileUrl,
+  exportUrl,
+  className = "",
+}: {
+  fileUrl?: string | null;
+  exportUrl: string;
+  className?: string;
+}) {
+  const href = fileUrl || exportUrl;
+  return (
+    <a
+      href={href}
+      {...(fileUrl ? { download: true } : { target: "_blank", rel: "noopener noreferrer" })}
+      title="Baixar PDF"
+      onClick={(e) => e.stopPropagation()}
+      className={`relative z-10 inline-flex items-center justify-center gap-1.5 px-3 sm:px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold shadow-sm hover:bg-primary/90 hover:shadow transition-all no-underline shrink-0 ${className}`}
+    >
+      <Download className="w-4 h-4" />
+      <span className="hidden sm:inline">Baixar PDF</span>
+    </a>
+  );
+}
+
 /** Formata datas vindas do backend ("YYYY-MM-DD" ou ISO) sem deslocamento de fuso. */
 export function formatDocumentDate(value?: string | null, long = false): string | null {
   if (!value) return null;

@@ -69,6 +69,8 @@ export default class AIProcessorService {
     switch (this.provider) {
       case 'openai':
         return this.callOpenai(prompt)
+      case 'deepseek':
+        return this.callDeepseek(prompt)
       case 'claude':
         return this.callClaude(prompt)
       case 'gemini':
@@ -84,7 +86,25 @@ export default class AIProcessorService {
   }
 
   private async callOpenai(prompt: string): Promise<AIResult> {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    return this.callOpenAiCompatible(prompt, 'https://api.openai.com/v1/chat/completions', 'OpenAI')
+  }
+
+  /** DeepSeek expõe uma API compatível com a da OpenAI (chat/completions + JSON mode). */
+  private async callDeepseek(prompt: string): Promise<AIResult> {
+    return this.callOpenAiCompatible(
+      prompt,
+      'https://api.deepseek.com/chat/completions',
+      'DeepSeek'
+    )
+  }
+
+  /** Chamada no formato OpenAI (usada por OpenAI e DeepSeek). */
+  private async callOpenAiCompatible(
+    prompt: string,
+    endpoint: string,
+    label: string
+  ): Promise<AIResult> {
+    const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${this.apiKey}`,
@@ -103,12 +123,19 @@ export default class AIProcessorService {
     const data = (await response.json()) as any
 
     if (!response.ok) {
-      throw new Error(data?.error?.message || `OpenAI error: ${response.status}`)
+      throw new Error(data?.error?.message || `${label} error: ${response.status}`)
     }
 
-    const content = data.choices[0].message.content
-    const usage = data.usage.total_tokens
+    let content = data.choices?.[0]?.message?.content
+    if (!content) {
+      throw new Error(`Resposta inesperada da API ${label}`)
+    }
+    // DeepSeek às vezes embrulha em ```json ... ```
+    content = content.replace(/^```json\s*/, '').replace(/\s*```$/, '')
+    const jsonMatch = content.match(/\{.*\}/s)
+    if (jsonMatch) content = jsonMatch[0]
 
+    const usage = data.usage?.total_tokens || 0
     const result = JSON.parse(content)
 
     return {

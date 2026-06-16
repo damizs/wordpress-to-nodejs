@@ -1,7 +1,8 @@
 import { Head, useForm, Link } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
 import { Save, ArrowLeft } from 'lucide-react'
-import { Button, Card, CardHeader, Field, Input, Select, Textarea } from '~/components/admin/ui'
+import { Button, Card, CardHeader, Field, Input, Select } from '~/components/admin/ui'
+import RichTextEditor from '~/components/admin/RichTextEditor'
 
 interface Props {
   item: any | null
@@ -62,12 +63,11 @@ export default function FaqForm({ item, categories = [] }: Props) {
                 required
               />
             </Field>
-            <Field label="Resposta" required>
-              <Textarea
+            <Field label="Resposta" required hint="Editor visual — formatação, links e imagens.">
+              <RichTextEditor
                 value={data.answer}
-                onChange={(e) => setData('answer', e.target.value)}
-                required
-                rows={6}
+                onChange={(html) => setData('answer', html)}
+                minHeight={280}
               />
             </Field>
             <label className="flex items-center gap-2 cursor-pointer">

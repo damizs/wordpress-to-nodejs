@@ -1,0 +1,1635 @@
+{
+  "generatedAt": "2026-06-16T12:14:25.962Z",
+  "source": "C:/Users/arauj/Downloads/_bkp_sume/database.sql",
+  "totals": {
+    "registros": 98,
+    "anexos": 90,
+    "declaracoesAtivas": 18,
+    "secoes": 27
+  },
+  "secoesCount": {
+    "estagiarios": 4,
+    "terceirizados": 6,
+    "concursos": 3,
+    "estrutura": 2,
+    "diarias": 1,
+    "acordos-firmados": 6,
+    "obras": 6,
+    "prestacao-contas": 5,
+    "relatorio-gestao": 10,
+    "apreciacao-contas": 4,
+    "rgf": 13,
+    "plano-estrategico": 3,
+    "parecer-contas": 4,
+    "carta-servicos": 2,
+    "plano-contratacoes": 2,
+    "verbas-indenizatorias": 6,
+    "transferencia-voluntaria": 6,
+    "transferencias-realizadas": 6,
+    "adesao-ata-srp": 1,
+    "licitantes-sancionados": 1,
+    "ocp": 1,
+    "contratos": 1,
+    "aditivos": 1,
+    "fiscal-contrato": 1,
+    "duodecimo": 1,
+    "despesas-mensais": 1,
+    "empenhos-detalhados": 1
+  },
+  "records": [
+    {
+      "secao": "estagiarios",
+      "ano": 2024,
+      "titulo": "Relação de Estagiários - 2024",
+      "conteudo": null,
+      "dataReferencia": "2024-12-31",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "Declaracao-estagiarios-2024-ok.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/04/Declaracao-estagiarios-2024-ok.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "estagiarios",
+      "ano": 2026,
+      "titulo": "Relação de Estagiários - 2026",
+      "conteudo": null,
+      "dataReferencia": "2026-04-30",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "ESTAGIARIOS-2026.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/05/ESTAGIARIOS-2026.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "terceirizados",
+      "ano": 2026,
+      "titulo": "Funcionários Terceirizados",
+      "conteudo": null,
+      "dataReferencia": null,
+      "ordem": 0,
+      "ativo": true,
+      "anexos": []
+    },
+    {
+      "secao": "concursos",
+      "ano": 2026,
+      "titulo": "Concursos e Seleções Públicas - 2026",
+      "conteudo": "DECLARAÇÃO – CONCURSOS E SELEÇÕES PÚBLICAS 2026",
+      "dataReferencia": "2026-04-30",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "DECLARAO-CONCURSO-SUME-2026.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/04/DECLARAO-CONCURSO-SUME-2026.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "estrutura",
+      "ano": 2026,
+      "titulo": "Estrutura Organizacional - 2026",
+      "conteudo": "Até o momento, não há informações a serem disponibilizadas para esta seção no exercício de 2026.",
+      "dataReferencia": null,
+      "ordem": 0,
+      "ativo": true,
+      "anexos": []
+    },
+    {
+      "secao": "diarias",
+      "ano": 2026,
+      "titulo": "Diárias",
+      "conteudo": "Até o momento, não há informações a serem disponibilizadas para esta seção no exercício de 2026.",
+      "dataReferencia": null,
+      "ordem": 0,
+      "ativo": true,
+      "anexos": []
+    },
+    {
+      "secao": "acordos-firmados",
+      "ano": 2026,
+      "titulo": "Acordos Firmados",
+      "conteudo": null,
+      "dataReferencia": null,
+      "ordem": 0,
+      "ativo": true,
+      "anexos": []
+    },
+    {
+      "secao": "obras",
+      "ano": 2026,
+      "titulo": "Obras - 2026",
+      "conteudo": null,
+      "dataReferencia": null,
+      "ordem": 0,
+      "ativo": true,
+      "anexos": []
+    },
+    {
+      "secao": "prestacao-contas",
+      "ano": 2026,
+      "titulo": "Prestação de Contas da Gestão",
+      "conteudo": "Até o momento, não há informações a serem disponibilizadas para esta seção no exercício de 2026.",
+      "dataReferencia": null,
+      "ordem": 0,
+      "ativo": true,
+      "anexos": []
+    },
+    {
+      "secao": "relatorio-gestao",
+      "ano": 2026,
+      "titulo": "Relatório de Gestão",
+      "conteudo": "Até o momento, não há informações a serem disponibilizadas para esta seção no exercício de 2026.",
+      "dataReferencia": null,
+      "ordem": 0,
+      "ativo": true,
+      "anexos": []
+    },
+    {
+      "secao": "apreciacao-contas",
+      "ano": 2026,
+      "titulo": "Apreciação e/ou Julgamento",
+      "conteudo": "Até o momento, não há informações a serem disponibilizadas para esta seção no exercício de 2026.",
+      "dataReferencia": null,
+      "ordem": 0,
+      "ativo": true,
+      "anexos": []
+    },
+    {
+      "secao": "rgf",
+      "ano": 2026,
+      "titulo": "RGF - Relatório Gestão Fiscal",
+      "conteudo": "Até o momento, não há informações a serem disponibilizadas para esta seção no exercício de 2026.",
+      "dataReferencia": null,
+      "ordem": 0,
+      "ativo": true,
+      "anexos": []
+    },
+    {
+      "secao": "plano-estrategico",
+      "ano": 2026,
+      "titulo": "Plano Estratégico",
+      "conteudo": null,
+      "dataReferencia": null,
+      "ordem": 0,
+      "ativo": true,
+      "anexos": []
+    },
+    {
+      "secao": "parecer-contas",
+      "ano": 2026,
+      "titulo": "Parecer de Contas",
+      "conteudo": "Até o momento, não há informações a serem disponibilizadas para esta seção no exercício de 2026.",
+      "dataReferencia": null,
+      "ordem": 0,
+      "ativo": true,
+      "anexos": []
+    },
+    {
+      "secao": "carta-servicos",
+      "ano": 2026,
+      "titulo": "Carta de Serviço",
+      "conteudo": "Até o momento, não há informações a serem disponibilizadas para esta seção no exercício de 2026.",
+      "dataReferencia": null,
+      "ordem": 0,
+      "ativo": true,
+      "anexos": []
+    },
+    {
+      "secao": "estagiarios",
+      "ano": 2023,
+      "titulo": "Relação de Estagiários - 2023",
+      "conteudo": null,
+      "dataReferencia": "2023-12-31",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "Declaracao-estagios-2023.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/04/Declaracao-estagios-2023.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "estagiarios",
+      "ano": 2022,
+      "titulo": "Relação de Estagiários - 2022",
+      "conteudo": null,
+      "dataReferencia": "2022-12-31",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "DECLARACAO-ESTAGIARIOS-2022.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/06/DECLARACAO-ESTAGIARIOS-2022.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "terceirizados",
+      "ano": 2024,
+      "titulo": "Funcionários Terceirizados - 2024",
+      "conteudo": null,
+      "dataReferencia": "2024-12-31",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "DECLARACAO-2024-3.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/04/DECLARACAO-2024-3.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "terceirizados",
+      "ano": 2022,
+      "titulo": "Funcionários Terceirizados - 2022",
+      "conteudo": null,
+      "dataReferencia": "2022-12-31",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "DECLARACAO-TERCEIRIZADOS-2022.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/06/DECLARACAO-TERCEIRIZADOS-2022.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "terceirizados",
+      "ano": 2023,
+      "titulo": "Funcionários Terceirizados - 2023",
+      "conteudo": null,
+      "dataReferencia": "2023-12-31",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "DECLARACAO-2023-3.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/04/DECLARACAO-2023-3.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "concursos",
+      "ano": 2008,
+      "titulo": "Concursos e Seleções Públicas - 2008",
+      "conteudo": "Neste campo, constam todas as informações sobre  o concurso realizado no ano de 2008 na Câmara Municipal de Sumé/PB, contendo todas os dados necessários e disponíveis tendo em vista o cumprimento da LEI N° 12.527/2011 (Lei de Acesso a Informação). Segue portanto, os seguintes dados do concurso:\n<ul>\n \t<li>Editais</li>\n \t<li>Provimento de cargos</li>\n \t<li>Vagas efetivamente preenchidas</li>\n \t<li>Lista de aprovados</li>\n \t<li>Classificações</li>\n \t<li>Fila de espera</li>\n \t<li>Cadastro reserva e validade</li>\n</ul>\n<h3></h3>",
+      "dataReferencia": "2008-06-12",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "documento-2.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/04/documento-2.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "concursos",
+      "ano": 2024,
+      "titulo": "Concursos e Seleções Públicas - 2024",
+      "conteudo": null,
+      "dataReferencia": "2024-12-31",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "DECLARACAO-DE-CONCURSOS-E-SELECOES-PUBLICAS.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/04/DECLARACAO-DE-CONCURSOS-E-SELECOES-PUBLICAS.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "estrutura",
+      "ano": 2025,
+      "titulo": "Organograma - 2025",
+      "conteudo": "Organograma - 2025",
+      "dataReferencia": "2025-01-01",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "ORGANOGRAMA-SUME.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/05/ORGANOGRAMA-SUME.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "obras",
+      "ano": 2026,
+      "titulo": "Obras – 2026",
+      "conteudo": null,
+      "dataReferencia": "2026-04-30",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "OBRAS-2026.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/02/OBRAS-2026.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "obras",
+      "ano": 2025,
+      "titulo": "Obras – 2025",
+      "conteudo": null,
+      "dataReferencia": "2025-12-31",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "obras-2025-1.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/02/obras-2025-1.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "obras",
+      "ano": 2024,
+      "titulo": "Obras - 2024",
+      "conteudo": "Neste campo, constam todas as informações sobre as obras realizadas no período na Câmara Municipal de Sumé/PB, contendo todas os dados necessários e disponíveis tendo em vista o cumprimento da LEI N° 12.527/2011 (Lei de Acesso a Informação). Segue portanto, os seguintes dados das Obras:\n<ul>\n \t<li>Objeto</li>\n \t<li>Situação atual</li>\n \t<li>Datas de início e de conclusão da obra</li>\n \t<li>Empresa contratada</li>\n \t<li>Percentual concluído</li>\n \t<li>Quantitativos</li>\n \t<li>Preços unitários e totais contratados</li>\n \t<li>Quantitativos executados e os preços efetivamente pagos</li>\n</ul>\n&nbsp;\n\n&nbsp;",
+      "dataReferencia": "2024-11-25",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "autos_documento129201_24-1.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/04/autos_documento129201_24-1.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "obras",
+      "ano": 2023,
+      "titulo": "Obras - 2023",
+      "conteudo": null,
+      "dataReferencia": "2023-12-31",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "DECLARACAO-DAS-OBRAS-2023.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/04/DECLARACAO-DAS-OBRAS-2023.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "obras",
+      "ano": 2022,
+      "titulo": "Obras – 2022",
+      "conteudo": "Neste campo, constam todas as informações sobre as obras realizadas no período na Câmara Municipal de Sumé/PB, contendo todas os dados necessários e disponíveis tendo em vista o cumprimento da LEI N° 12.527/2011 (Lei de Acesso a Informação). Segue portanto, os seguintes dados das Obras:\n<ul>\n \t<li>Objeto</li>\n \t<li>Situação atual</li>\n \t<li>Datas de início e de conclusão da obra</li>\n \t<li>Empresa contratada</li>\n \t<li>Percentual concluído</li>\n \t<li>Quantitativos</li>\n \t<li>Preços unitários e totais contratados</li>\n \t<li>Quantitativos executados e os preços efetivamente pagos</li>\n</ul>\n&nbsp;\n<div class=\"bg-gray-50 p-2.5 border-b border-gray-300\">\n<div class=\"mt-2.5 mb-5 flex items-center justify-start flex-wrap\">\n<div class=\"flex mr-7 mt-2.5 flex-col text-gray-800\">\n\n<strong><span class=\"font-normal leading-4 whitespace-normal ng-star-inserted\">OBJETO: </span></strong>\n\n<span class=\"font-normal leading-4 whitespace-normal ng-star-inserted\">CONTRATAÇÃO DE EMPRESA PARA EXECUÇÃO DOS SERVIÇOS DE REFORMA DA CÂMARA MUNICIPAL DE SUMÉ CASA VEREADOR CÍCERO SOARES.</span>\n<div class=\"flex mr-7 mt-2.5 flex-col text-gray-800\">\n\n<span class=\"font-normal leading-4 whitespace-normal ng-star-inserted\"><strong>ART:</strong> PB20220436298</span>\n\n</div>\n</div>\n</div>\n</div>\n<div class=\"bg-gray-50 p-2.5 border-b border-gray-300\"><strong>Valor da Obra (Inicial):</strong></div>\n<div class=\"bg-gray-50 p-2.5 border-b border-gray-300\">R$ 87.790,85</div>\n<strong>Data de Início:</strong> 25/02/2022\n\n<strong> Previsão de Conclusão:</strong> 25/05/2022\n\n<strong>Situação Atual:</strong> Finalizada por conclusão de construção\n\n<strong>Data de Entrega da Contratada:</strong> 16/09/2022\n\n<strong>Data de Finalização:</strong> 16/09/2022\n\n<strong>Número:</strong> 00012022\n\n<strong>Tipo de Obra:</strong> OUTRAS\n\n<strong>Tipo de Execução:</strong> Reforma\n\n<strong>Número do Protocolo:</strong> 36866/22\n\n<strong>Dimensões:</strong> 393,00\n\n&nbsp;\n\n&nbsp;",
+      "dataReferencia": "2022-09-16",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "RATIFICACAO-OBRA-SUME.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2022/12/RATIFICACAO-OBRA-SUME.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        },
+        {
+          "nome": "PROTOCOLO-TCE.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2022/12/PROTOCOLO-TCE.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        },
+        {
+          "nome": "JUSTIFICATIVA-DA-PRORROGACAO-DE-PRAZO-DE-EXECUCAO-DE-CONTRATO.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2022/12/JUSTIFICATIVA-DA-PRORROGACAO-DE-PRAZO-DE-EXECUCAO-DE-CONTRATO.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        },
+        {
+          "nome": "JUSTIFICATIVA-DA-NECESSIDADE-DO-ADITIVO-CONTRATUAL.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2022/12/JUSTIFICATIVA-DA-NECESSIDADE-DO-ADITIVO-CONTRATUAL.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        },
+        {
+          "nome": "PUBLICACOES-OBRA-SUME.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2022/12/PUBLICACOES-OBRA-SUME.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "plano-contratacoes",
+      "ano": 2026,
+      "titulo": "Plano Anual de Contratações - 2026",
+      "conteudo": "Plano de Contratações Anual - PCA (2026)",
+      "dataReferencia": "2026-05-11",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "PCA-CM-Sume-assinado.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/05/PCA-CM-Sume-assinado.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "plano-contratacoes",
+      "ano": 2025,
+      "titulo": "Plano Anual de Contratações - 2025",
+      "conteudo": "Plano Anual de Contratações - 2025",
+      "dataReferencia": "2025-01-02",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "Plano-de-Contratacoes-Anual-PCA-CM-de-Sume.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/06/Plano-de-Contratacoes-Anual-PCA-CM-de-Sume.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "carta-servicos",
+      "ano": 2025,
+      "titulo": "Carta de Serviços ao Usuários - 2025",
+      "conteudo": "Carta de Serviços ao Usuários de 2025",
+      "dataReferencia": "2025-03-15",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "Carta-de-Servicos-ao-Cidadao-2025.pptx.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/04/Carta-de-Servicos-ao-Cidadao-2025.pptx.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "verbas-indenizatorias",
+      "ano": 2026,
+      "titulo": "Verbas Indenizatórias – 2026",
+      "conteudo": null,
+      "dataReferencia": "2026-01-31",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "VERBAS-2026.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/02/VERBAS-2026.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "verbas-indenizatorias",
+      "ano": 2025,
+      "titulo": "Verbas Indenizatórias - 2025",
+      "conteudo": null,
+      "dataReferencia": "2025-12-31",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "verbas-2025-1.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/04/verbas-2025-1.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "verbas-indenizatorias",
+      "ano": 2024,
+      "titulo": "Verbas Indenizatórias - 2024",
+      "conteudo": null,
+      "dataReferencia": "2024-11-29",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "VERBAS-2024.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/04/VERBAS-2024.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "verbas-indenizatorias",
+      "ano": 2023,
+      "titulo": "Verbas Indenizatórias - 2023",
+      "conteudo": null,
+      "dataReferencia": "2023-12-19",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "VERBAS-2023.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/04/VERBAS-2023.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "verbas-indenizatorias",
+      "ano": 2022,
+      "titulo": "Verbas Indenizatórias – 2022",
+      "conteudo": null,
+      "dataReferencia": "2022-12-31",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "DECLARACAO-VERBAS-2022.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/06/DECLARACAO-VERBAS-2022.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "verbas-indenizatorias",
+      "ano": 2026,
+      "titulo": "Verbas indenizatória - 2026",
+      "conteudo": null,
+      "dataReferencia": "2026-04-30",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": []
+    },
+    {
+      "secao": "prestacao-contas",
+      "ano": 2024,
+      "titulo": "PCA – PRESTAÇÃO DE CONTAS – 2024",
+      "conteudo": null,
+      "dataReferencia": "2024-12-31",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "BALANCO-FINANCEIRO.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/06/BALANCO-FINANCEIRO.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        },
+        {
+          "nome": "BALANCO-ORCAMENTARIO.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/06/BALANCO-ORCAMENTARIO.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        },
+        {
+          "nome": "Balanco-Patrimonial.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/06/Balanco-Patrimonial.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        },
+        {
+          "nome": "DEMONSTRACAO-DAS-VARIACOES-PATRIMONIAIS.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/06/DEMONSTRACAO-DAS-VARIACOES-PATRIMONIAIS.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "prestacao-contas",
+      "ano": 2023,
+      "titulo": "PCA - PRESTAÇÃO DE CONTAS - 2023",
+      "conteudo": null,
+      "dataReferencia": "2023-12-31",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "BALANCO-PATRIMONIAL-2023.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/04/BALANCO-PATRIMONIAL-2023.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        },
+        {
+          "nome": "DEMONSTRATIVO-DAS-VARIACOES-PATRIMONIAIS-2023.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/04/DEMONSTRATIVO-DAS-VARIACOES-PATRIMONIAIS-2023.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        },
+        {
+          "nome": "BALANCO-FINANCEIRO-2023.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/04/BALANCO-FINANCEIRO-2023.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        },
+        {
+          "nome": "BALANCO-ORC-2023.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/04/BALANCO-ORC-2023.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "prestacao-contas",
+      "ano": 2022,
+      "titulo": "PCA - PRESTAÇÃO DE CONTAS - 2022",
+      "conteudo": null,
+      "dataReferencia": "2022-12-31",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "BALANCO-PATRIMONIAL-2022.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/04/BALANCO-PATRIMONIAL-2022.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        },
+        {
+          "nome": "DEMONSTRACAO-DE-VARIACAO-PATRIMONIAL-2022.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/04/DEMONSTRACAO-DE-VARIACAO-PATRIMONIAL-2022.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        },
+        {
+          "nome": "BALANCO-FINANCEIRO-2022.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/04/BALANCO-FINANCEIRO-2022.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        },
+        {
+          "nome": "BALANCO-ORCAMENTARIO-2022.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/04/BALANCO-ORCAMENTARIO-2022.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "prestacao-contas",
+      "ano": 2021,
+      "titulo": "PCA - PRESTAÇÃO DE CONTAS - 2021",
+      "conteudo": null,
+      "dataReferencia": "2021-12-31",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "BALANCO-PATRIMONIAL-2021.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/04/BALANCO-PATRIMONIAL-2021.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        },
+        {
+          "nome": "DEMONSTRACAO-DAS-VARIACOES-PATRIMONIAIS-2021.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/04/DEMONSTRACAO-DAS-VARIACOES-PATRIMONIAIS-2021.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        },
+        {
+          "nome": "BALANCO-FINANCEIRO-2021.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/04/BALANCO-FINANCEIRO-2021.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        },
+        {
+          "nome": "BALANCO-ORCAMENTARIO-2021.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/04/BALANCO-ORCAMENTARIO-2021.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "transferencia-voluntaria",
+      "ano": 2026,
+      "titulo": "Transferência Voluntária",
+      "conteudo": null,
+      "dataReferencia": null,
+      "ordem": 0,
+      "ativo": true,
+      "anexos": []
+    },
+    {
+      "secao": "transferencias-realizadas",
+      "ano": 2026,
+      "titulo": "Transferências Realizadas",
+      "conteudo": null,
+      "dataReferencia": null,
+      "ordem": 0,
+      "ativo": true,
+      "anexos": []
+    },
+    {
+      "secao": "relatorio-gestao",
+      "ano": 2025,
+      "titulo": "Relatório de Gestão Legislativa - Maio de 2025",
+      "conteudo": null,
+      "dataReferencia": "2025-05-10",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "RELATORIO-MAIO-C.M-SUME.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/05/RELATORIO-MAIO-C.M-SUME.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "relatorio-gestao",
+      "ano": 2025,
+      "titulo": "Relatório de Gestão Legislativa - Abril de 2025",
+      "conteudo": null,
+      "dataReferencia": "2025-04-19",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "RELATORIO-ABRIL-SUME-2.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/05/RELATORIO-ABRIL-SUME-2.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "relatorio-gestao",
+      "ano": 2025,
+      "titulo": "Declaração de Relatório de Gestão das Atividades - 2025",
+      "conteudo": null,
+      "dataReferencia": "2025-04-10",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "DECLARACAO-2025.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/04/DECLARACAO-2025.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "relatorio-gestao",
+      "ano": 2025,
+      "titulo": "Relatório de Gestão das Atividades – 2025",
+      "conteudo": null,
+      "dataReferencia": "2025-04-10",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "RELATORIO-DE-GESTAO-2025-sume.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/01/RELATORIO-DE-GESTAO-2025-sume.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "relatorio-gestao",
+      "ano": 2025,
+      "titulo": "Relatório de Gestão - Março de 2025",
+      "conteudo": null,
+      "dataReferencia": "2025-03-19",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "RELATORIO-MARCO-SUME-2.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/05/RELATORIO-MARCO-SUME-2.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "relatorio-gestao",
+      "ano": 2024,
+      "titulo": "Relatório de Gestão das Atividades - 2024",
+      "conteudo": null,
+      "dataReferencia": "2024-12-31",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "RELATORIO-DE-GESTAO-2024.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2024/11/RELATORIO-DE-GESTAO-2024.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "relatorio-gestao",
+      "ano": 2023,
+      "titulo": "Relatório de Gestão das Atividades - 2023",
+      "conteudo": null,
+      "dataReferencia": "2023-12-31",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "RELATORIO-DE-GESTAO-2023.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/06/RELATORIO-DE-GESTAO-2023.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "relatorio-gestao",
+      "ano": 2022,
+      "titulo": "Relatório de Gestão das Atividades - 2022",
+      "conteudo": null,
+      "dataReferencia": "2022-12-31",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "RELATORIO-DE-GESTAO-2022.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/06/RELATORIO-DE-GESTAO-2022.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "relatorio-gestao",
+      "ano": 2021,
+      "titulo": "Relatório de Gestão das Atividades - 2021",
+      "conteudo": null,
+      "dataReferencia": "2021-12-31",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "RELATORIO-DE-GESTAO-2021.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/06/RELATORIO-DE-GESTAO-2021.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "apreciacao-contas",
+      "ano": 2023,
+      "titulo": "PCA - 2023",
+      "conteudo": "Prestação de Contas Anual da Câmara Municipal de Sumé, relativo ao exercício de 2023.",
+      "dataReferencia": "2025-02-10",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "PCA-2023.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/04/PCA-2023.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "apreciacao-contas",
+      "ano": 2022,
+      "titulo": "PCA - 2022",
+      "conteudo": "Prestação de Contas Anual da Câmara Municipal de Sumé, relativo ao exercício de 2022.",
+      "dataReferencia": "2024-02-06",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "PCA-2022.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/04/PCA-2022.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "apreciacao-contas",
+      "ano": 2021,
+      "titulo": "PCA - 2021",
+      "conteudo": "Prestação de Contas Anual da Câmara Municipal de Sumé, relativo ao exercício de 2021.",
+      "dataReferencia": "2023-03-28",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "PCA-2021.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/04/PCA-2021.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "rgf",
+      "ano": 2025,
+      "titulo": "RGF 3º QUADRIMESTRE 2025",
+      "conteudo": "RGF 3º QUADRIMESTRE 2025",
+      "dataReferencia": "2025-12-31",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "SICONFI_RGF_3118_QUADRIMESTRAL_3.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/04/SICONFI_RGF_3118_QUADRIMESTRAL_3.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "rgf",
+      "ano": 2025,
+      "titulo": "RGF 2º QUADRIMESTRE 2025",
+      "conteudo": "RGF 2º QUADRIMESTRE 2025",
+      "dataReferencia": "2025-08-31",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "SICONFI_RGF_3118_QUADRIMESTRAL_2.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/04/SICONFI_RGF_3118_QUADRIMESTRAL_2.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "rgf",
+      "ano": 2025,
+      "titulo": "RGF – 1° Quadrimestre 2025",
+      "conteudo": "RGF – 1° Quadrimestre 2025",
+      "dataReferencia": "2025-05-27",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "SICONFI_RGF_3118_QUADRIMESTRAL_1.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/04/SICONFI_RGF_3118_QUADRIMESTRAL_1.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "rgf",
+      "ano": 2024,
+      "titulo": "RGF - 3° Quadrimestre 2024",
+      "conteudo": "RGF - 3° Quadrimestre 2024",
+      "dataReferencia": "2025-01-30",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "RGF-3o-Quadrimestre-2024-Sume.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/04/RGF-3o-Quadrimestre-2024-Sume.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "rgf",
+      "ano": 2024,
+      "titulo": "RGF - 2° Quadrimestre 2024",
+      "conteudo": "RGF - 2° Quadrimestre 2024",
+      "dataReferencia": "2024-09-26",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "RGF-2o-Quadrimestre-2024-Sume.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/04/RGF-2o-Quadrimestre-2024-Sume.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "rgf",
+      "ano": 2024,
+      "titulo": "RGF - 1° Quadrimestre 2024",
+      "conteudo": "RGF - 1° Quadrimestre 2024",
+      "dataReferencia": "2024-05-29",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "RGF-1o-Quadrimestre-2024-Sume.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/04/RGF-1o-Quadrimestre-2024-Sume.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "rgf",
+      "ano": 2023,
+      "titulo": "RGF - 3° Quadrimestre 2023",
+      "conteudo": "RGF - 3° Quadrimestre 2023",
+      "dataReferencia": "2024-01-30",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "RGF-3o-Quadrimestre-2023-Sume.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/04/RGF-3o-Quadrimestre-2023-Sume.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "rgf",
+      "ano": 2023,
+      "titulo": "RGF - 2° Quadrimestre 2023",
+      "conteudo": "RGF - 2° Quadrimestre 2023",
+      "dataReferencia": "2023-09-30",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "RGF-2o-Quadrimestre-2023-Sume.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/04/RGF-2o-Quadrimestre-2023-Sume.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "rgf",
+      "ano": 2023,
+      "titulo": "RGF - 1° Quadrimestre 2023",
+      "conteudo": "RGF - 1° Quadrimestre 2023",
+      "dataReferencia": "2023-05-29",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "RGF-1o-Quadrimestre-2023-Sume.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/04/RGF-1o-Quadrimestre-2023-Sume.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "rgf",
+      "ano": 2022,
+      "titulo": "RGF – 3° Quadrimestre 2022",
+      "conteudo": "RGF – 3° Quadrimestre 2022",
+      "dataReferencia": "2023-03-31",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "SICONFI_RGF_3118_QUADRIMESTRAL_3-1.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/04/SICONFI_RGF_3118_QUADRIMESTRAL_3-1.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "rgf",
+      "ano": 2022,
+      "titulo": "RGF – 3° Quadrimestre 2022",
+      "conteudo": "RGF – 2° Quadrimestre 2022",
+      "dataReferencia": "2022-09-30",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "SICONFI_RGF_3118_QUADRIMESTRAL_2-1.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/04/SICONFI_RGF_3118_QUADRIMESTRAL_2-1.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "rgf",
+      "ano": 2022,
+      "titulo": "RGF – 1° Quadrimestre 2022",
+      "conteudo": "RGF – 1° Quadrimestre 2022",
+      "dataReferencia": "2022-05-30",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "SICONFI_RGF_3118_QUADRIMESTRAL_1-1.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/04/SICONFI_RGF_3118_QUADRIMESTRAL_1-1.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "plano-estrategico",
+      "ano": 2026,
+      "titulo": "PLANO ESTRATÉGICO 2026",
+      "conteudo": "PLANO ESTRATÉGICO 2026",
+      "dataReferencia": "2026-01-05",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "PLANO-ESTRATEGICO-2026-SUME-assinado.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/01/PLANO-ESTRATEGICO-2026-SUME-assinado.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "plano-estrategico",
+      "ano": 2025,
+      "titulo": "PLANO ESTRATÉGICO 2025",
+      "conteudo": null,
+      "dataReferencia": "2025-03-15",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "Planejamento-estrategico-CM-de-Sume.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/04/Planejamento-estrategico-CM-de-Sume.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "parecer-contas",
+      "ano": 2020,
+      "titulo": "Parecer - Contas 2020",
+      "conteudo": "Cuida-se de análise de Parecer Prévio oriundo da Corte de Contas do Estado, que apreсiou a prestação de contas do Município, exercício financeiro de 2020, sob a responsabilidade do Sr. Eden Duarte Pinto de Sousa, julgando-as devidamente regulares.",
+      "dataReferencia": "2022-01-18",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "PRESTACAO-DE-CONTAS-EXERCICIO-202020250617_09110041.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/06/PRESTACAO-DE-CONTAS-EXERCICIO-202020250617_09110041.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "parecer-contas",
+      "ano": 2019,
+      "titulo": "Parecer - Contas de 2019",
+      "conteudo": "Cuida-se de análise de Parecer Prévio oriundo da Corte de Contas do Estado, que apreciou a prestação de contas do Município, exercício financeiro de 2019, sob a responsabilidade do Sr. Eden Duarte Pinto de Sousa, julgando-as devidamente regulares.",
+      "dataReferencia": "2021-08-17",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "PRESTACAO-DE-CONTAS-EXERCICIO-201920250617_09061052.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/06/PRESTACAO-DE-CONTAS-EXERCICIO-201920250617_09061052.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "parecer-contas",
+      "ano": 2018,
+      "titulo": "Parecer - Contas de 2018",
+      "conteudo": "Cuida-se de análise de Parecer Prévio oriundo da Corte de Contas do Estado, que apreciou a prestação de contas do Município, exercício financeiro de 2018, sob a responsabilidade do Sr. Eden Duarte Pinto de Sousa, julgando-as devidamente regulares.",
+      "dataReferencia": "2021-07-14",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "PRESTACAO-DE-CONTAS-EXERCICIO-201820250617_09144682.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/06/PRESTACAO-DE-CONTAS-EXERCICIO-201820250617_09144682.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "terceirizados",
+      "ano": 2025,
+      "titulo": "Funcionários Terceirizados – 2025",
+      "conteudo": null,
+      "dataReferencia": "2025-12-31",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "terceirizados-2025-1.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/02/terceirizados-2025-1.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "terceirizados",
+      "ano": 2026,
+      "titulo": "Funcionários Terceirizados – 2026",
+      "conteudo": null,
+      "dataReferencia": "2026-04-30",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "TERCEIRIZADOS-2026.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/02/TERCEIRIZADOS-2026.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "acordos-firmados",
+      "ano": 2026,
+      "titulo": "Acordos Firmados – 2026",
+      "conteudo": null,
+      "dataReferencia": "2026-04-30",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "CONVENIOS-2026.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/04/CONVENIOS-2026.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "acordos-firmados",
+      "ano": 2025,
+      "titulo": "Acordos Firmados – 2025",
+      "conteudo": null,
+      "dataReferencia": "2025-12-31",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "convenios-2025.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/04/convenios-2025.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "acordos-firmados",
+      "ano": 2024,
+      "titulo": "Acordos Firmados - 2024",
+      "conteudo": null,
+      "dataReferencia": "2024-12-30",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "DECLARACAO-2024.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/04/DECLARACAO-2024.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "acordos-firmados",
+      "ano": 2023,
+      "titulo": "Acordos Firmados - 2023",
+      "conteudo": null,
+      "dataReferencia": "2023-11-29",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "DECLARACAO-2023.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/04/DECLARACAO-2023.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "acordos-firmados",
+      "ano": 2022,
+      "titulo": "Acordos Firmados – 2022",
+      "conteudo": null,
+      "dataReferencia": "2022-12-31",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "DECLARACAO-CONVENIOS-2022-1.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/04/DECLARACAO-CONVENIOS-2022-1.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "transferencia-voluntaria",
+      "ano": 2026,
+      "titulo": "Transferências Voluntárias – 2026",
+      "conteudo": null,
+      "dataReferencia": "2026-04-30",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "CONVENIOS-2026-2.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/04/CONVENIOS-2026-2.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "transferencia-voluntaria",
+      "ano": 2025,
+      "titulo": "Transferências Voluntárias – 2025",
+      "conteudo": null,
+      "dataReferencia": "2025-12-31",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "convenios-2025-2.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/04/convenios-2025-2.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "transferencia-voluntaria",
+      "ano": 2024,
+      "titulo": "Transferências Voluntárias – 2024",
+      "conteudo": null,
+      "dataReferencia": "2024-12-30",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "DECLARACAO-2024-2.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/04/DECLARACAO-2024-2.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "transferencia-voluntaria",
+      "ano": 2023,
+      "titulo": "Transferências Voluntárias – 2023",
+      "conteudo": null,
+      "dataReferencia": "2023-11-29",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "DECLARACAO-2023-2.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/04/DECLARACAO-2023-2.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "transferencia-voluntaria",
+      "ano": 2022,
+      "titulo": "Transferências Voluntárias – 2022",
+      "conteudo": null,
+      "dataReferencia": "2022-12-31",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "DECLARACAO-CONVENIOS-2022-2.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/04/DECLARACAO-CONVENIOS-2022-2.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "transferencias-realizadas",
+      "ano": 2026,
+      "titulo": "Transferências Realizadas – 2026",
+      "conteudo": null,
+      "dataReferencia": "2026-04-30",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "CONVENIOS-2026-1.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/04/CONVENIOS-2026-1.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "transferencias-realizadas",
+      "ano": 2025,
+      "titulo": "Transferências Realizadas – 2025",
+      "conteudo": null,
+      "dataReferencia": "2025-12-31",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "convenios-2025-1.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/04/convenios-2025-1.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "transferencias-realizadas",
+      "ano": 2024,
+      "titulo": "Transferências Realizadas – 2024",
+      "conteudo": null,
+      "dataReferencia": "2024-12-30",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "DECLARACAO-2024-1.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/04/DECLARACAO-2024-1.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "transferencias-realizadas",
+      "ano": 2023,
+      "titulo": "Transferências Realizadas – 2023",
+      "conteudo": null,
+      "dataReferencia": "2023-11-29",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "DECLARACAO-2023-1.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/04/DECLARACAO-2023-1.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "transferencias-realizadas",
+      "ano": 2022,
+      "titulo": "Transferências Realizadas – 2022",
+      "conteudo": null,
+      "dataReferencia": "2022-12-31",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "DECLARACAO-CONVENIOS-2022.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/04/DECLARACAO-CONVENIOS-2022.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "adesao-ata-srp",
+      "ano": 2026,
+      "titulo": "Adesão de Ata SRP",
+      "conteudo": "Até o momento, não há informações a serem disponibilizadas para esta seção no exercício de 2026.",
+      "dataReferencia": null,
+      "ordem": 0,
+      "ativo": true,
+      "anexos": []
+    },
+    {
+      "secao": "licitantes-sancionados",
+      "ano": 2026,
+      "titulo": "Licitantes Sancionados",
+      "conteudo": "Até o momento, não há informações a serem disponibilizadas para esta seção no exercício de 2026.",
+      "dataReferencia": null,
+      "ordem": 0,
+      "ativo": true,
+      "anexos": []
+    },
+    {
+      "secao": "ocp",
+      "ano": 2026,
+      "titulo": "Ordem Cronológica de Pagamentos",
+      "conteudo": "Até o momento, não há informações a serem disponibilizadas para esta seção no exercício de 2026.",
+      "dataReferencia": null,
+      "ordem": 0,
+      "ativo": true,
+      "anexos": []
+    },
+    {
+      "secao": "contratos",
+      "ano": 2026,
+      "titulo": "Contratos",
+      "conteudo": "Até o momento, não há informações a serem disponibilizadas para esta seção no exercício de 2026.",
+      "dataReferencia": null,
+      "ordem": 0,
+      "ativo": true,
+      "anexos": []
+    },
+    {
+      "secao": "aditivos",
+      "ano": 2026,
+      "titulo": "Aditivos Contratuais",
+      "conteudo": "Até o momento, não há informações a serem disponibilizadas para esta seção no exercício de 2026.",
+      "dataReferencia": null,
+      "ordem": 0,
+      "ativo": true,
+      "anexos": []
+    },
+    {
+      "secao": "fiscal-contrato",
+      "ano": 2026,
+      "titulo": "Fiscal de Contrato",
+      "conteudo": "Até o momento, não há informações a serem disponibilizadas para esta seção no exercício de 2026.",
+      "dataReferencia": null,
+      "ordem": 0,
+      "ativo": true,
+      "anexos": []
+    },
+    {
+      "secao": "duodecimo",
+      "ano": 2026,
+      "titulo": "Duodécimo (Previsto e Recebido)",
+      "conteudo": "Até o momento, não há informações a serem disponibilizadas para esta seção no exercício de 2026.",
+      "dataReferencia": null,
+      "ordem": 0,
+      "ativo": true,
+      "anexos": []
+    },
+    {
+      "secao": "despesas-mensais",
+      "ano": 2026,
+      "titulo": "Despesas Mensais (Empenhado/Liquidado/Pago)",
+      "conteudo": "Até o momento, não há informações a serem disponibilizadas para esta seção no exercício de 2026.",
+      "dataReferencia": null,
+      "ordem": 0,
+      "ativo": true,
+      "anexos": []
+    },
+    {
+      "secao": "empenhos-detalhados",
+      "ano": 2026,
+      "titulo": "Empenhos Detalhados",
+      "conteudo": "Até o momento, não há informações a serem disponibilizadas para esta seção no exercício de 2026.",
+      "dataReferencia": null,
+      "ordem": 0,
+      "ativo": true,
+      "anexos": []
+    }
+  ]
+}

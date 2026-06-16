@@ -1,7 +1,6 @@
 import { Head, useForm, Link } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Save, ArrowLeft, Upload, FileText, Paperclip } from 'lucide-react'
-import { useRef } from 'react'
+import { Save, ArrowLeft, FileText } from 'lucide-react'
 import {
   Button,
   Card,
@@ -9,7 +8,6 @@ import {
   Field,
   Input,
   Select,
-  Textarea,
 } from '~/components/admin/ui'
 
 interface Props {
@@ -26,20 +24,15 @@ export default function PlenarySessionForm({ session, sessionTypes = [] }: Props
     year: session?.year || new Date().getFullYear().toString(),
     start_time: session?.start_time || '',
     status: session?.status || 'realizada',
-    agenda: session?.agenda || '',
-    minutes: session?.minutes || '',
     video_url: session?.video_url || '',
-    file: null as File | null,
   })
-
-  const fileRef = useRef<HTMLInputElement>(null)
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (isEditing) {
-      post(`/painel/sessoes/${session.id}?_method=PUT`, { forceFormData: true })
+      post(`/painel/sessoes/${session.id}?_method=PUT`)
     } else {
-      post('/painel/sessoes', { forceFormData: true })
+      post('/painel/sessoes')
     }
   }
 
@@ -118,43 +111,11 @@ export default function PlenarySessionForm({ session, sessionTypes = [] }: Props
               </Field>
             </div>
 
-            <Field label="Pauta / Ordem do Dia">
-              <Textarea
-                value={data.agenda}
-                onChange={(e) => setData('agenda', e.target.value)}
-                rows={3}
-              />
-            </Field>
-
-            <Field label="Ata (resumo)">
-              <Textarea
-                value={data.minutes}
-                onChange={(e) => setData('minutes', e.target.value)}
-                rows={4}
-              />
-            </Field>
-          </div>
-        </Card>
-
-        <Card>
-          <CardHeader title="Arquivo PDF (Ata digitalizada)" icon={Paperclip} />
-          {session?.file_url && (
-            <p className="text-sm text-muted-foreground mb-2">
-              Arquivo atual:{' '}
-              <a href={session.file_url} target="_blank" rel="noopener" className="text-navy hover:underline">
-                {session.file_url.split('/').pop()}
-              </a>
+            <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg p-3 border border-border">
+              As <strong>Atas</strong> e <strong>Pautas</strong> agora são módulos próprios
+              (menu Legislativo). Cadastre-as separadamente em “Atas” e “Pautas”.
             </p>
-          )}
-          <div className="flex items-center gap-3">
-            <Button type="button" variant="secondary" onClick={() => fileRef.current?.click()}>
-              <Upload className="w-4 h-4" /> Selecionar PDF
-            </Button>
-            <span className="text-sm text-muted-foreground">
-              {data.file?.name || 'Nenhum arquivo selecionado'}
-            </span>
           </div>
-          <input ref={fileRef} type="file" accept=".pdf" onChange={(e) => setData('file', e.target.files?.[0] || null)} className="hidden" />
         </Card>
 
         <Button type="submit" loading={processing}>

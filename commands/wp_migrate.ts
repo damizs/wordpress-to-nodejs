@@ -24,22 +24,7 @@ import QuickLink from '#models/quick_link'
 import InformationRecord from '#models/information_record'
 import Licitacao from '#models/licitacao'
 import SurveyQuestion from '#models/survey_question'
-import db from '@adonisjs/lucid/services/db'
-
-interface WpActivity {
-  wpId: string
-  title: string
-  slug: string
-  type: string
-  number: string | null
-  year: number | null
-  date: string | null
-  situacao: string | null
-  content: string
-  anexoPath: string | null
-  status: string
-  authors: { name: string; parliamentaryName: string | null; slug: string }[]
-}
+import { importActivitiesWithAuthors } from '#services/wp_activities_importer'
 
 export default class WpMigrate extends BaseCommand {
   static commandName = 'wp:migrate'
@@ -115,9 +100,12 @@ export default class WpMigrate extends BaseCommand {
     )
     await this.runSection('Atas/Sessões', () => this.importAtas(extra.atas, extra.ata_attachments))
     await this.runSection('Transparência', () => this.importTransparencia(extra.transparencia))
-    await this.runSection('Information Records', () =>
-      this.importInformationRecords(extra.registros_pntp, extra.anexos_pntp)
-    )
+    // Registros PNTP (Acesso à Informação): a fonte autoritativa agora é o
+    // comando `wp:pntp` (lê database/wp_pntp.json — 98 registros, dados atuais,
+    // categoria por SLUG e download dos PDFs). O import antigo gravava a
+    // categoria pelo NOME ("Estagiários") em vez do slug, então as páginas
+    // dinâmicas (filtram por slug) ficavam vazias. Mantido o método abaixo
+    // apenas para referência/uso manual, mas não roda na migração padrão.
 
     this.logger.success('\n══════════════════════════════════')
     this.logger.success('  ✓ Migration complete!')
@@ -640,83 +628,9 @@ export default class WpMigrate extends BaseCommand {
   // 8b. ATIVIDADES LEGISLATIVAS + AUTORIA (backup novo do WP)
   // ═══════════════════════════════════════
   async importActivitiesWithAuthors() {
-    const path = join(app.appRoot.pathname, 'database', 'wp_activities.json')
-    if (!existsSync(path)) {
-      this.logger.warning('  wp_activities.json não encontrado — pulando atividades + autoria')
-      return
-    }
-    const { activities } = JSON.parse(readFileSync(path, 'utf-8')) as { activities: WpActivity[] }
-    this.logger.info(`\n━━━ Atividades + Autoria: ${activities.length} itens ━━━`)
-
-    // Fonte única e autoritativa: limpa atividades + pivô de autoria e reimporta
-    // (evita duplicatas com as atividades legadas, que usavam outro slug).
-    await db.from('legislative_activity_authors').delete()
-    await LegislativeActivity.query().delete()
-
-    // Lookup de vereadores por chave normalizada (nome, nome completo, parlamentar, slug)
-    const councilors = await Councilor.all()
-    const byKey = new Map<string, number>()
-    const addKey = (k: string | null | undefined, id: number) => {
-      const n = this.normName(k)
-      if (n) byKey.set(n, id)
-    }
-    for (const c of councilors) {
-      addKey(c.name, c.id)
-      addKey(c.fullName, c.id)
-      addKey(c.parliamentaryName, c.id)
-      addKey(c.slug, c.id)
-    }
-
-    let ok = 0
-    let links = 0
-    const unmatched = new Set<string>()
-    for (const a of activities) {
-      const slug = a.slug || this.slugify(`${a.type}-${a.number ?? a.wpId}`)
-      const year = a.year || (a.date ? Number.parseInt(String(a.date).slice(0, 4)) : 2025)
-      const fileUrl = a.anexoPath ? `${this.wpDir}/${a.anexoPath}` : null
-
-      const activity = await LegislativeActivity.updateOrCreate(
-        { slug },
-        {
-          title: a.title,
-          slug,
-          type: a.type || 'Matéria',
-          number: a.number || '',
-          year,
-          summary: a.title,
-          content: this.cleanContent(a.content || ''),
-          status: 'aprovado',
-          fileUrl,
-          isActive: a.status ? a.status === 'publish' : true,
-        }
-      )
-
-      const ids: number[] = []
-      for (const au of a.authors || []) {
-        const id =
-          byKey.get(this.normName(au.slug)) ??
-          byKey.get(this.normName(au.name)) ??
-          byKey.get(this.normName(au.parliamentaryName))
-        if (id) ids.push(id)
-        else if (au.name) unmatched.add(au.name)
-      }
-      await activity.related('authors').sync([...new Set(ids)])
-      links += ids.length
-      ok++
-    }
-    this.logger.success(`  Atividades: ${ok} upsert, ${links} vínculos de autoria`)
-    if (unmatched.size > 0) {
-      this.logger.warning(`  Autores sem vereador: ${[...unmatched].join('; ')}`)
-    }
-  }
-
-  private normName(s: string | null | undefined): string {
-    return (s || '')
-      .normalize('NFKD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase()
-      .replace(/\s+/g, ' ')
-      .trim()
+    // Lógica em serviço compartilhado (também usado pelo comando `wp:activities`,
+    // disparado automaticamente no startup.sh). Fonte única e idempotente.
+    await importActivitiesWithAuthors({ wpDir: this.wpDir, logger: this.logger })
   }
 
   // ═══════════════════════════════════════

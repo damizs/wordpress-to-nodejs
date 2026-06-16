@@ -1,0 +1,365 @@
+{
+  "generated_at": "2026-06-16T14:09:40.735Z",
+  "source": "camaradesume.pb.gov.br/transparencia + migration_extra.json",
+  "links": [
+    {
+      "title": "Contratos",
+      "slug": "contratos",
+      "url": "/contratos",
+      "is_external": false,
+      "open_mode": "new_tab"
+    },
+    {
+      "title": "Despesas - Anos (2019 até 2022)",
+      "slug": "despesas-anos-2019-ate-2022",
+      "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/NbvH/despesas",
+      "is_external": true,
+      "open_mode": "new_tab"
+    },
+    {
+      "title": "Despesas - (2023/2024) (2025/2026)",
+      "slug": "despesas-2023-2024-2025-2026",
+      "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/NbvH/despesas",
+      "is_external": true,
+      "open_mode": "new_tab"
+    },
+    {
+      "title": "Despesas com COVID-19",
+      "slug": "despesas-com-covid-19",
+      "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/NbvH/despesas",
+      "is_external": true,
+      "open_mode": "new_tab"
+    },
+    {
+      "title": "Documentos de Pagamentos",
+      "slug": "documentos-de-pagamentos",
+      "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/accessdirect.php?link=NbvH",
+      "is_external": true,
+      "open_mode": "new_tab"
+    },
+    {
+      "title": "Despesas Extra Orçamentária - Transferências Financeiras",
+      "slug": "despesas-extra-orcamentaria-transferencias-financeiras",
+      "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/NbvH/despesas",
+      "is_external": true,
+      "open_mode": "new_tab"
+    },
+    {
+      "title": "Despesas Extra-Orçamentárias",
+      "slug": "despesas-extra-orcamentarias",
+      "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/NbvH/despesas",
+      "is_external": true,
+      "open_mode": "new_tab"
+    },
+    {
+      "title": "Despesas Orçamentarias",
+      "slug": "despesas-orcamentarias",
+      "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/NbvH/despesas",
+      "is_external": true,
+      "open_mode": "new_tab"
+    },
+    {
+      "title": "Despesas com Diárias - Anos (2019 até 2022)",
+      "slug": "despesas-com-diarias-anos-2019-ate-2022",
+      "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/NbvH/despesas",
+      "is_external": true,
+      "open_mode": "new_tab"
+    },
+    {
+      "title": "E-SIC",
+      "slug": "e-sic",
+      "url": "https://doc3.inf.br/cmsu2516300/esic",
+      "is_external": true,
+      "open_mode": "new_tab"
+    },
+    {
+      "title": "Servidores Cedidos",
+      "slug": "servidores-cedidos",
+      "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/accessdirect.php?link=NbvH#quadro-funcional",
+      "is_external": true,
+      "open_mode": "new_tab"
+    },
+    {
+      "title": "RGF",
+      "slug": "rgf",
+      "url": "/relatorios-fiscais",
+      "is_external": false,
+      "open_mode": "new_tab"
+    },
+    {
+      "title": "Regulamentação - LAI",
+      "slug": "regulamentacao-lai",
+      "url": "/acesso-a-informacao/lai",
+      "is_external": false,
+      "open_mode": "new_tab"
+    },
+    {
+      "title": "Receitas",
+      "slug": "receitas",
+      "url": "/duodecimos",
+      "is_external": false,
+      "open_mode": "same_tab"
+    },
+    {
+      "title": "Licitações com o COVID-19",
+      "slug": "licitacoes-com-o-covid-19",
+      "url": "/licitacoes",
+      "is_external": false,
+      "open_mode": "same_tab"
+    },
+    {
+      "title": "Quadro Funcional",
+      "slug": "quadro-funcional",
+      "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/accessdirect.php?link=NbvH#quadro-funcional",
+      "is_external": true,
+      "open_mode": "new_tab"
+    },
+    {
+      "title": "PPA",
+      "slug": "ppa",
+      "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/accessdirect.php?link=NbvH",
+      "is_external": true,
+      "open_mode": "new_tab"
+    },
+    {
+      "title": "RREO",
+      "slug": "rreo",
+      "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/views/page.php?url=Demonstrativos/RREO",
+      "is_external": true,
+      "open_mode": "new_tab"
+    },
+    {
+      "title": "Licitações - Anos (2022 até 2026)",
+      "slug": "licitacoes-anos-2022-ate-2026",
+      "url": "/licitacoes",
+      "is_external": false,
+      "open_mode": "same_tab"
+    },
+    {
+      "title": "Licitações",
+      "slug": "licitacoes",
+      "url": "/licitacoes",
+      "is_external": false,
+      "open_mode": "new_tab"
+    },
+    {
+      "title": "Contratos - Anos (2022 até 2026)",
+      "slug": "contratos-anos-2022-ate-2026",
+      "url": "https://transparencia.elmartecnologia.com.br/Servidor/Login?Result=&RedirectTo=https://transparencia.elmartecnologia.com.br/Servidor/Index/ContraCheque&ctx=101212&e=101212&menu=off&footer=off",
+      "is_external": true,
+      "open_mode": "modal"
+    },
+    {
+      "title": "Frota de Veículos",
+      "slug": "frota-de-veiculos",
+      "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/accessdirect.php?link=NbvH",
+      "is_external": true,
+      "open_mode": "new_tab"
+    },
+    {
+      "title": "Folha de Pagamento - Anos (2014 até 2026)",
+      "slug": "folha-de-pagamento-anos-2014-ate-2026",
+      "url": "https://transparencia.elmartecnologia.com.br/Servidor/Login?Result=&RedirectTo=https://transparencia.elmartecnologia.com.br/Servidor/Index/ContraCheque&ctx=101212&e=101212&menu=off&footer=off",
+      "is_external": true,
+      "open_mode": "modal"
+    },
+    {
+      "title": "Servidores Temporários",
+      "slug": "servidores-temporarios",
+      "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/accessdirect.php?link=NbvH#quadro-funcional",
+      "is_external": true,
+      "open_mode": "new_tab"
+    },
+    {
+      "title": "Receita Extra Orçamentária - Anos (2019 até 2022)",
+      "slug": "receita-extra-orcamentaria-anos-2019-ate-2022",
+      "url": "/duodecimos",
+      "is_external": false,
+      "open_mode": "same_tab"
+    },
+    {
+      "title": "Receitas com COVID-19",
+      "slug": "receitas-com-covid-19",
+      "url": "/duodecimos",
+      "is_external": false,
+      "open_mode": "same_tab"
+    },
+    {
+      "title": "Receita Extra-Orçamentária - Anos (2023 até 2026)",
+      "slug": "receita-extra-orcamentaria-anos-2023-ate-2026",
+      "url": "/duodecimos",
+      "is_external": false,
+      "open_mode": "same_tab"
+    },
+    {
+      "title": "Receita de Transferências - Anos (2023 até 2026)",
+      "slug": "receita-de-transferencias-anos-2023-ate-2026",
+      "url": "/duodecimos",
+      "is_external": false,
+      "open_mode": "same_tab"
+    },
+    {
+      "title": "Receita de Transferências - Anos (2019 até 2022)",
+      "slug": "receita-de-transferencias-anos-2019-ate-2022",
+      "url": "/duodecimos",
+      "is_external": false,
+      "open_mode": "same_tab"
+    },
+    {
+      "title": "Previsão Executiva da Receita",
+      "slug": "previsao-executiva-da-receita",
+      "url": "/duodecimos",
+      "is_external": false,
+      "open_mode": "same_tab"
+    },
+    {
+      "title": "Demostrativos",
+      "slug": "demostrativos",
+      "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/accessdirect.php?link=NbvH",
+      "is_external": true,
+      "open_mode": "new_tab"
+    },
+    {
+      "title": "Demostrativo Financeiro Mensal",
+      "slug": "demostrativo-financeiro-mensal",
+      "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/accessdirect.php?link=NbvH",
+      "is_external": true,
+      "open_mode": "new_tab"
+    },
+    {
+      "title": "COVID-19",
+      "slug": "covid-19",
+      "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/accessdirect.php?link=NbvH",
+      "is_external": true,
+      "open_mode": "new_tab"
+    },
+    {
+      "title": "Doações com COVID-19",
+      "slug": "doacoes-com-covid-19",
+      "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/accessdirect.php?link=NbvH",
+      "is_external": true,
+      "open_mode": "new_tab"
+    },
+    {
+      "title": "Despesas com Diárias - Anos (2023 até 2026)",
+      "slug": "despesas-com-diarias-anos-2023-ate-2026",
+      "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/NbvH/despesas",
+      "is_external": true,
+      "open_mode": "new_tab"
+    },
+    {
+      "title": "Editais e Documentos de Licitações",
+      "slug": "editais-e-documentos-de-licitacoes",
+      "url": "/licitacoes",
+      "is_external": false,
+      "open_mode": "same_tab"
+    },
+    {
+      "title": "Lei Federal nº 14.129/2021",
+      "slug": "lei-federal-no-14-129-2021",
+      "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/accessdirect.php?link=NbvH",
+      "is_external": true,
+      "open_mode": "new_tab"
+    },
+    {
+      "title": "Dados Abertos",
+      "slug": "dados-abertos",
+      "url": "/dados-abertos",
+      "is_external": false,
+      "open_mode": "new_tab"
+    },
+    {
+      "title": "Farmácia",
+      "slug": "farmacia",
+      "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/accessdirect.php?link=NbvH",
+      "is_external": true,
+      "open_mode": "new_tab"
+    },
+    {
+      "title": "Aviso de Licitação - Anos (2022 até 2026)",
+      "slug": "aviso-de-licitacao-anos-2022-ate-2026",
+      "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/accessdirect.php?link=NbvH",
+      "is_external": true,
+      "open_mode": "new_tab"
+    },
+    {
+      "title": "Regimento Interno",
+      "slug": "regimento-interno",
+      "url": "/publicacoes-oficiais",
+      "is_external": false,
+      "open_mode": "new_tab"
+    },
+    {
+      "title": "Regulamentação do Padrão remuneratório - Servidores",
+      "slug": "regulamentacao-do-padrao-remuneratorio-servidores",
+      "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/accessdirect.php?link=NbvH#quadro-funcional",
+      "is_external": true,
+      "open_mode": "new_tab"
+    },
+    {
+      "title": "Regulamentação do Padrão remuneratório - Vereadores",
+      "slug": "regulamentacao-do-padrao-remuneratorio-vereadores",
+      "url": "/acesso-a-informacao/lai",
+      "is_external": false,
+      "open_mode": "new_tab"
+    },
+    {
+      "title": "Tabela do Padrão Remuneratório - Vereadores e Servidores",
+      "slug": "tabela-do-padrao-remuneratorio-vereadores-e-servidores",
+      "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/accessdirect.php?link=NbvH#quadro-funcional",
+      "is_external": true,
+      "open_mode": "new_tab"
+    },
+    {
+      "title": "Regulamentação das diárias",
+      "slug": "regulamentacao-das-diarias",
+      "url": "/diarias",
+      "is_external": false,
+      "open_mode": "same_tab"
+    },
+    {
+      "title": "Tabela das diárias",
+      "slug": "tabela-das-diarias",
+      "url": "/diarias",
+      "is_external": false,
+      "open_mode": "same_tab"
+    },
+    {
+      "title": "Organograma Funcional - CM Sumé",
+      "slug": "organograma-funcional-cm-sume",
+      "url": "/mesa-diretora",
+      "is_external": false,
+      "open_mode": "new_tab"
+    },
+    {
+      "title": "Portal da Transparência (Contabilidade)",
+      "slug": "portal-contabilidade-publicsoft",
+      "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/accessdirect.php?link=NbvH",
+      "is_external": true,
+      "open_mode": "new_tab",
+      "section": "Despesas e Receitas"
+    },
+    {
+      "title": "e-SIC — Pedido de Informação",
+      "slug": "esic",
+      "url": "https://doc3.inf.br/cmsu2516300/esic",
+      "is_external": true,
+      "open_mode": "new_tab",
+      "section": "Legislação e Normas"
+    },
+    {
+      "title": "Ouvidoria",
+      "slug": "ouvidoria-externa",
+      "url": "https://atendimento.camaradesume.pb.gov.br/",
+      "is_external": true,
+      "open_mode": "new_tab",
+      "section": "Outros"
+    }
+  ],
+  "atricon_externals": {
+    "esic_url": "https://doc3.inf.br/cmsu2516300/esic",
+    "ouvidoria_url": "https://atendimento.camaradesume.pb.gov.br/",
+    "portal_contabil": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/accessdirect.php?link=NbvH",
+    "radar_atricon": "https://radardatransparencia.atricon.org.br/"
+  }
+}

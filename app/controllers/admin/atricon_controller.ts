@@ -14,6 +14,7 @@ import {
   transparencyLevel,
   type AtriconStatusValue,
 } from '#helpers/atricon_matrix'
+import TransparencyAuditService, { FRESHNESS_DAYS } from '#services/transparency_audit_service'
 
 const VALID_STATUSES: AtriconStatusValue[] = [
   'atendido',
@@ -98,6 +99,39 @@ const parcial = (detail: string): AutoCheckResult => ({ status: 'parcial', detai
 const falha = (detail: string): AutoCheckResult => ({ status: 'falha', detail })
 
 /**
+ * Frescor periódico (ex.: quinzenal para atas/pautas/votações).
+ * ok = há conteúdo e última publicação dentro do prazo;
+ * parcial = há conteúdo, mas passou do prazo;
+ * falha = módulo vazio.
+ */
+function periodicFreshness(
+  stats: TableStats,
+  label: string,
+  maxDays: number,
+  year: number
+): AutoCheckResult {
+  if (stats.total === 0) return falha(`Nenhuma ${label} publicada`)
+  if (!stats.latest) {
+    return parcial(`${stats.total} ${label}(s) cadastrada(s), mas sem data de publicação registrada`)
+  }
+  const daysSince = Math.floor(DateTime.now().diff(stats.latest, 'days').days)
+  const latestFmt = fmtDate(stats.latest)
+  if (daysSince <= maxDays) {
+    return ok(
+      `${stats.total} ${label}(s) — última em ${latestFmt} (dentro da meta de ${maxDays} dias; ${stats.recent} no período)`
+    )
+  }
+  if (stats.yearCount > 0) {
+    return parcial(
+      `${stats.total} ${label}(s), porém a última foi em ${latestFmt} (há ${daysSince} dias) — meta: atualizar a cada ${maxDays} dias após cada sessão`
+    )
+  }
+  return falha(
+    `${stats.total} ${label}(s), mas nenhuma de ${year} — última em ${latestFmt}. Publique regularmente.`
+  )
+}
+
+/**
  * Regra de frescor das categorias de Acesso à Informação:
  * - continuo: precisa de registro do ano corrente (verbas, RGF, estagiários...)
  * - anual: documento do exercício anterior ainda vale (prestação de contas, pareceres...)
@@ -178,14 +212,15 @@ function infoCheck(stat: InfoCategoryStat | undefined, slug: string, year: numbe
 /**
  * Verificador inteligente: consulta os dados reais do portal e devolve, por chave,
  * um veredito (ok/parcial/falha) com evidência verídica (contagens e datas).
- * Checa frescor, não só existência: ano corrente para atas/pautas/votações,
+ * Checa frescor com metas por módulo: quinzenal (15 dias) para atas/pautas/votações,
  * 90 dias para licitações, 30 dias para notícias etc.
  */
 async function runAutoChecks(): Promise<Record<string, AutoCheckResult>> {
   const now = DateTime.now()
   const year = now.year
   const yearStart = now.startOf('year').toFormat('yyyy-MM-dd')
-  const d90 = now.minus({ days: 90 }).toFormat('yyyy-MM-dd')
+  const d15 = now.minus({ days: FRESHNESS_DAYS.biweekly }).toFormat('yyyy-MM-dd')
+  const d90 = now.minus({ days: FRESHNESS_DAYS.quarterly }).toFormat('yyyy-MM-dd')
 
   const [settings, links, infoCategories] = await Promise.all([
     SiteSetting.allAsObject(),
@@ -203,6 +238,8 @@ async function runAutoChecks(): Promise<Record<string, AutoCheckResult>> {
     licitacaoDocs,
     licitacoesSemDocs,
     contratoDocs,
+    contractsTotal,
+    contractsFiscais,
     atas,
     pautas,
     committees,
@@ -211,6 +248,8 @@ async function runAutoChecks(): Promise<Record<string, AutoCheckResult>> {
     transparencySections,
     mesaRow,
     votacoes,
+    rgfModule,
+    rgfInfo,
   ] = await Promise.all([
     tableCount('councilors', (q) => q.where('is_active', true)),
     tableStats('official_publications', 'publication_date', d90, yearStart),
@@ -227,12 +266,10 @@ async function runAutoChecks(): Promise<Record<string, AutoCheckResult>> {
         )
     ),
     tableCount('licitacao_documents', (q) => q.where('document_type', 'contrato')),
-    tableStats('plenary_sessions', 'session_date', d90, yearStart, (q) =>
-      q.where((w: any) => w.whereNotNull('minutes').orWhereNotNull('file_url'))
-    ),
-    tableStats('plenary_sessions', 'session_date', d90, yearStart, (q) =>
-      q.whereNotNull('agenda')
-    ),
+    tableCount('contracts', (q) => q.where('is_active', true)),
+    tableCount('contracts', (q) => q.where('is_active', true).whereNotNull('fiscal_name').where('fiscal_name', '!=', '')),
+    tableStats('atas', 'document_date', d15, yearStart, (q) => q.where('is_published', true)),
+    tableStats('pautas', 'document_date', d15, yearStart, (q) => q.where('is_published', true)),
     tableCount('committees', (q) => q.where('is_active', true)),
     db
       .from('legislative_activities')
@@ -240,6 +277,8 @@ async function runAutoChecks(): Promise<Record<string, AutoCheckResult>> {
       .select(db.raw('count(*) as total'))
       .select(db.raw('count(case when year = ? then 1 end) as year_count', [year]))
       .select(db.raw('max(year) as latest_year'))
+      .select(db.raw("count(case when summary is not null and summary != '' then 1 end) as with_summary"))
+      .select(db.raw('count(case when file_url is not null and file_url != \'\' then 1 end) as with_pdf'))
       .first(),
     tableStats('satisfaction_surveys', 'created_at', d90, yearStart),
     tableCount('transparency_sections', (q) => q.where('is_active', true)),
@@ -249,8 +288,14 @@ async function runAutoChecks(): Promise<Record<string, AutoCheckResult>> {
       .select(db.raw('count(*) as total'))
       .select(db.raw('count(case when b.is_current then 1 end) as current_count'))
       .first(),
-    tableStats('nominal_votings', 'voting_date', d90, yearStart, (q) =>
+    tableStats('nominal_votings', 'voting_date', d15, yearStart, (q) =>
       q.where('is_published', true)
+    ),
+    tableCount('fiscal_reports', (q) =>
+      q.where('is_active', true).whereNotNull('file_url').where('report_type', 'RGF')
+    ),
+    tableCount('information_records', (q) =>
+      q.where('is_active', true).where('category', 'rgf').whereNotNull('file_url')
     ),
   ])
 
@@ -259,6 +304,9 @@ async function runAutoChecks(): Promise<Record<string, AutoCheckResult>> {
   const actTotal = Number(activities?.total ?? 0)
   const actYear = Number(activities?.year_count ?? 0)
   const actLatestYear = activities?.latest_year ? Number(activities.latest_year) : null
+  const actWithSummary = Number(activities?.with_summary ?? 0)
+  const actWithPdf = Number(activities?.with_pdf ?? 0)
+  const rgfTotal = rgfModule + rgfInfo
 
   const checks: Record<string, AutoCheckResult> = {
     always: ok('Recurso nativo do portal — disponível em todas as páginas'),
@@ -339,27 +387,28 @@ async function runAutoChecks(): Promise<Record<string, AutoCheckResult>> {
         ? ok(`${contratoDocs} contratos anexados às licitações`)
         : falha('Nenhum contrato (tipo CONTRATO) anexado às licitações'),
 
-    atas:
-      atas.total === 0
-        ? falha('Nenhuma sessão com ata ou arquivo publicado')
-        : atas.yearCount > 0
-          ? ok(
-              `${atas.total} sessões com ata (${atas.yearCount} de ${year}; última em ${fmtDate(atas.latest)})`
-            )
-          : parcial(
-              `${atas.total} sessões com ata, mas nenhuma de ${year} — última em ${fmtDate(atas.latest)}`
-            ),
+    contracts:
+      contractsTotal > 0
+        ? ok(`${contractsTotal} contrato(s) cadastrado(s) no módulo Contratos`)
+        : falha('Nenhum contrato no módulo Contratos — importe das licitações e complete os dados'),
 
-    pautas:
-      pautas.total === 0
-        ? falha('Nenhuma sessão com pauta publicada')
-        : pautas.yearCount > 0
-          ? ok(
-              `${pautas.total} sessões com pauta (${pautas.yearCount} de ${year}; última em ${fmtDate(pautas.latest)})`
-            )
-          : parcial(
-              `${pautas.total} sessões com pauta, mas nenhuma de ${year} — última em ${fmtDate(pautas.latest)}`
-            ),
+    contractsFiscais:
+      contractsTotal === 0
+        ? falha('Cadastre os contratos para então informar os fiscais')
+        : contractsFiscais === contractsTotal
+          ? ok(`Todos os ${contractsTotal} contratos têm fiscal designado`)
+          : contractsFiscais > 0
+            ? parcial(`${contractsFiscais} de ${contractsTotal} contratos com fiscal informado — complete os demais`)
+            : falha('Nenhum contrato tem fiscal informado — preencha o fiscal e a portaria de designação'),
+
+    rgf:
+      rgfTotal > 0
+        ? ok(`${rgfTotal} RGF publicado(s) (Relatórios Fiscais + Acesso à Informação)`)
+        : falha('Nenhum RGF publicado — cadastre em Relatórios Fiscais (por ano/período) ou na seção RGF do Acesso à Informação'),
+
+    atas: periodicFreshness(atas, 'ata', FRESHNESS_DAYS.biweekly, year),
+
+    pautas: periodicFreshness(pautas, 'pauta', FRESHNESS_DAYS.biweekly, year),
 
     committees:
       committees > 0 ? ok(`${committees} comissões ativas`) : falha('Nenhuma comissão ativa cadastrada'),
@@ -368,7 +417,13 @@ async function runAutoChecks(): Promise<Record<string, AutoCheckResult>> {
       actTotal === 0
         ? falha('Nenhuma atividade legislativa cadastrada')
         : actYear > 0
-          ? ok(`${actTotal} atividades legislativas (${actYear} de ${year})`)
+          ? actWithSummary >= actTotal * 0.8
+            ? ok(
+                `${actTotal} atividades (${actYear} de ${year}); ementa em ${actWithSummary}; PDF nativo em ${actWithPdf} (demais via exportação/impressão)`
+              )
+            : parcial(
+                `${actTotal} atividades (${actYear} de ${year}), mas só ${actWithSummary} com ementa/resumo — complete via importação ou edição`
+              )
           : parcial(
               `${actTotal} atividades, mas nenhuma de ${year} — mais recente do exercício ${actLatestYear}`
             ),
@@ -384,16 +439,7 @@ async function runAutoChecks(): Promise<Record<string, AutoCheckResult>> {
               `${surveys.total} respostas, mas nenhuma nos últimos 90 dias — última em ${fmtDate(surveys.latest)}. Divulgue a pesquisa.`
             ),
 
-    votacoes:
-      votacoes.total === 0
-        ? falha('Cadastre ou importe votações nominais no painel (Votações Nominais)')
-        : votacoes.yearCount > 0
-          ? ok(
-              `${votacoes.total} votações nominais publicadas (${votacoes.yearCount} de ${year}; última em ${fmtDate(votacoes.latest)})`
-            )
-          : parcial(
-              `${votacoes.total} votações publicadas, mas nenhuma de ${year} — última em ${fmtDate(votacoes.latest)}`
-            ),
+    votacoes: periodicFreshness(votacoes, 'votação nominal', FRESHNESS_DAYS.biweekly, year),
   }
 
   // Checagens das categorias de Acesso à Informação (info:<slug>)
@@ -583,14 +629,16 @@ async function buildContentMap(): Promise<ContentModule[]> {
   const now = DateTime.now()
   const year = now.year
   const yearStart = now.startOf('year').toFormat('yyyy-MM-dd')
-  const d90 = now.minus({ days: 90 }).toFormat('yyyy-MM-dd')
-  const d30 = now.minus({ days: 30 }).toFormat('yyyy-MM-dd')
+  const d15 = now.minus({ days: FRESHNESS_DAYS.biweekly }).toFormat('yyyy-MM-dd')
+  const d30 = now.minus({ days: FRESHNESS_DAYS.monthly }).toFormat('yyyy-MM-dd')
+  const d90 = now.minus({ days: FRESHNESS_DAYS.quarterly }).toFormat('yyyy-MM-dd')
 
   const [
     noticias,
     atas,
     pautas,
     licitacoes,
+    contratos,
     atividades,
     votacoes,
     publicacoes,
@@ -601,15 +649,15 @@ async function buildContentMap(): Promise<ContentModule[]> {
     faqStats,
     vereadores,
     comissoes,
+    relatoriosFiscais,
   ] = await Promise.all([
     tableStats('news', 'published_at', d30, yearStart, (q) => q.where('status', 'published')),
-    tableStats('plenary_sessions', 'session_date', d90, yearStart, (q) =>
-      q.where((w: any) => w.whereNotNull('minutes').orWhereNotNull('file_url'))
-    ),
-    tableStats('plenary_sessions', 'session_date', d90, yearStart, (q) =>
-      q.whereNotNull('agenda')
-    ),
+    tableStats('atas', 'document_date', d15, yearStart, (q) => q.where('is_published', true)),
+    tableStats('pautas', 'document_date', d15, yearStart, (q) => q.where('is_published', true)),
     tableStats('licitacoes', 'coalesce(updated_at, created_at)', d90, yearStart, (q) =>
+      q.where('is_active', true)
+    ),
+    tableStats('contracts', 'coalesce(updated_at, created_at)', d90, yearStart, (q) =>
       q.where('is_active', true)
     ),
     tableStats(
@@ -619,7 +667,7 @@ async function buildContentMap(): Promise<ContentModule[]> {
       yearStart,
       (q) => q.where('is_active', true)
     ),
-    tableStats('nominal_votings', 'voting_date', d90, yearStart, (q) =>
+    tableStats('nominal_votings', 'voting_date', d15, yearStart, (q) =>
       q.where('is_published', true)
     ),
     tableStats('official_publications', 'publication_date', d90, yearStart),
@@ -634,6 +682,9 @@ async function buildContentMap(): Promise<ContentModule[]> {
       q.where('is_active', true)
     ),
     tableStats('committees', 'coalesce(updated_at, created_at)', d90, yearStart, (q) =>
+      q.where('is_active', true)
+    ),
+    tableStats('fiscal_reports', 'coalesce(updated_at, created_at)', d90, yearStart, (q) =>
       q.where('is_active', true)
     ),
   ])
@@ -685,18 +736,18 @@ async function buildContentMap(): Promise<ContentModule[]> {
     mod(
       'atas',
       'Atas das sessões',
-      '/painel/sessoes',
+      '/painel/atas',
       atas,
-      90,
-      `${atas.yearCount} sessões com ata em ${year}`
+      FRESHNESS_DAYS.biweekly,
+      `${atas.recent} ata(s) nos últimos ${FRESHNESS_DAYS.biweekly} dias; ${atas.yearCount} em ${year}`
     ),
     mod(
       'pautas',
       'Pautas das sessões',
-      '/painel/sessoes',
+      '/painel/pautas',
       pautas,
-      90,
-      `${pautas.yearCount} sessões com pauta em ${year}`
+      FRESHNESS_DAYS.biweekly,
+      `${pautas.recent} pauta(s) nos últimos ${FRESHNESS_DAYS.biweekly} dias; ${pautas.yearCount} em ${year}`
     ),
     mod(
       'licitacoes',
@@ -705,6 +756,22 @@ async function buildContentMap(): Promise<ContentModule[]> {
       licitacoes,
       90,
       `${licitacoes.recent} com atualização nos últimos 90 dias`
+    ),
+    mod(
+      'relatorios-fiscais',
+      'Relatórios Fiscais (RGF/RREO)',
+      '/painel/relatorios-fiscais',
+      relatoriosFiscais,
+      null,
+      `${relatoriosFiscais.total} relatório(s) publicado(s)`
+    ),
+    mod(
+      'contratos',
+      'Contratos',
+      '/painel/contratos',
+      contratos,
+      null,
+      `${contratos.total} contrato(s) cadastrado(s)`
     ),
     mod(
       'atividades',
@@ -719,8 +786,8 @@ async function buildContentMap(): Promise<ContentModule[]> {
       'Votações nominais',
       '/painel/votacoes',
       votacoes,
-      90,
-      `${votacoes.yearCount} votações publicadas em ${year}`
+      FRESHNESS_DAYS.biweekly,
+      `${votacoes.recent} votação(ões) nos últimos ${FRESHNESS_DAYS.biweekly} dias; ${votacoes.yearCount} em ${year}`
     ),
     mod(
       'publicacoes',
@@ -819,9 +886,10 @@ function currentFortnight(now: DateTime) {
 
 export default class AtriconController {
   async index({ inertia }: HttpContext) {
-    const [matrix, contentMap, atriconLogoUrl] = await Promise.all([
+    const [matrix, contentMap, linkAudit, atriconLogoUrl] = await Promise.all([
       buildMatrix(),
       buildContentMap(),
+      TransparencyAuditService.audit({ checkExternal: true }),
       SiteSetting.getValue('atricon_logo_url'),
     ])
     const scores = computeScores(matrix)
@@ -830,6 +898,7 @@ export default class AtriconController {
       matrix,
       scores,
       contentMap,
+      linkAudit,
       snapshots,
       atriconLogoUrl: atriconLogoUrl || null,
       checkedAt: DateTime.now().toISO(),

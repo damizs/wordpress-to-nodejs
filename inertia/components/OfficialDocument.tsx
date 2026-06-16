@@ -18,6 +18,8 @@ interface OfficialDocumentProps {
   url: string;
   /** PDF para download/visualização, quando houver */
   fileUrl?: string | null;
+  /** Fallback de exportação (impressão → PDF) quando não há arquivo nativo */
+  exportUrl?: string | null;
   /** Texto base para compartilhamento */
   shareTitle: string;
   children: ReactNode;
@@ -154,7 +156,17 @@ function ShareBar({ url, title }: { url: string; title: string }) {
   );
 }
 
-function DocumentFooter({ url, fileUrl, shareTitle }: { url: string; fileUrl?: string | null; shareTitle: string }) {
+function DocumentFooter({
+  url,
+  fileUrl,
+  exportUrl,
+  shareTitle,
+}: {
+  url: string;
+  fileUrl?: string | null;
+  exportUrl?: string | null;
+  shareTitle: string;
+}) {
   // URL absoluta para QR / compartilhamento (origem só existe no cliente).
   const [fullUrl, setFullUrl] = useState(url);
   useEffect(() => {
@@ -178,27 +190,27 @@ function DocumentFooter({ url, fileUrl, shareTitle }: { url: string; fileUrl?: s
 
         {/* Ações */}
         <div className="flex-1 flex flex-col gap-3 sm:items-end">
-          {fileUrl && (
+          {(fileUrl || exportUrl) && (
             <div className="flex flex-wrap gap-3">
               <a
-                href={fileUrl}
-                download
-                target="_blank"
-                rel="noopener noreferrer"
+                href={fileUrl || exportUrl!}
+                {...(fileUrl ? { download: true } : { target: "_blank", rel: "noopener noreferrer" })}
                 className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold shadow-md hover:bg-primary/90 transition-all no-underline"
               >
                 <Download className="w-4 h-4" />
                 Baixar PDF
               </a>
-              <a
-                href={fileUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border-2 border-primary/25 text-primary text-sm font-semibold hover:border-primary/50 hover:bg-primary/5 transition-all no-underline"
-              >
-                <ExternalLink className="w-4 h-4" />
-                Visualizar
-              </a>
+              {fileUrl && (
+                <a
+                  href={fileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border-2 border-primary/25 text-primary text-sm font-semibold hover:border-primary/50 hover:bg-primary/5 transition-all no-underline"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                  Visualizar
+                </a>
+              )}
             </div>
           )}
           <ShareBar url={fullUrl} title={shareTitle} />
@@ -208,7 +220,7 @@ function DocumentFooter({ url, fileUrl, shareTitle }: { url: string; fileUrl?: s
   );
 }
 
-export function OfficialDocument({ url, fileUrl, shareTitle, children }: OfficialDocumentProps) {
+export function OfficialDocument({ url, fileUrl, exportUrl, shareTitle, children }: OfficialDocumentProps) {
   const settings = useSiteSettings();
   const docTitle = useMemo(() => shareTitle, [shareTitle]);
 
@@ -217,7 +229,7 @@ export function OfficialDocument({ url, fileUrl, shareTitle, children }: Officia
       <Letterhead />
       <div className="p-6 md:p-10">
         {children}
-        <DocumentFooter url={url} fileUrl={fileUrl} shareTitle={shareTitle} />
+        <DocumentFooter url={url} fileUrl={fileUrl} exportUrl={exportUrl} shareTitle={shareTitle} />
       </div>
     </article>
   );
