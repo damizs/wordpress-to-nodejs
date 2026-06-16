@@ -245,7 +245,16 @@ Fontes de referência em `.acervo/plugins/`.
 - **Typecheck antes de commitar:** `npm run typecheck`. Commits em PT-BR,
   co-autoria Claude. `git config` local: Luiz Miguel <luizmiguel.dev@gmail.com>.
 - **Pós-deploy:** rodar `node ace migration:run` para as tabelas novas (Páginas,
-  Mídia, ATRICON snapshots, open_mode, slug transparência, Duodécimos, cores Sumé).
+ Mídia, ATRICON snapshots, open_mode, slug transparência, Duodécimos, cores Sumé).
+- **Migração WP — atividades + autoria:** as Atividades Legislativas e a **autoria
+ dos vereadores** vêm do CPT `a-legislativa` + relação JetEngine `jet_rel_21`
+ (VEREADOR>>ATIVIDADE). Para um backup novo: extrair o `database.sql` do zip e rodar
+ `node scripts/extract_wp_activities.mjs <database.sql>` → gera
+ `database/wp_activities.json` (atividades + autores por nome/slug). O comando
+ `wp:migrate` tem a seção `importActivitiesWithAuthors` (fonte ÚNICA de
+ `legislative_activities`: limpa + reimporta + sincroniza o pivô
+ `legislative_activity_authors`, casando autor↔vereador por slug/nome). O branch
+ legislativo do `importMaterias` foi desativado para não duplicar.
 
 ---
 

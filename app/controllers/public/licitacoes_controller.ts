@@ -77,6 +77,7 @@ export default class LicitacoesController {
 
     // Agrupa documentos por fase, na ordem do checklist da modalidade
     const phaseOrder = checklistFor(licitacao.modality)
+    const typesWithFiles = new Set(licitacao.documents.map((d) => d.documentType))
     const groups: Array<{ type: string; label: string; files: any[] }> = []
     for (const type of [...phaseOrder, 'outros']) {
       const files = licitacao.documents.filter((d) => d.documentType === type)
@@ -88,6 +89,14 @@ export default class LicitacoesController {
       })
     }
 
+    // Rito completo da modalidade: todas as fases, marcando as já publicadas.
+    // Permite exibir o processo inteiro (com fases pendentes), não só o que tem arquivo.
+    const phases = phaseOrder.map((type) => ({
+      type,
+      label: DOCUMENT_TYPES[type] || type,
+      done: typesWithFiles.has(type),
+    }))
+
     return inertia.render('public/licitacoes/show', {
       licitacao: {
         ...licitacao.serialize({ relations: {} }),
@@ -98,6 +107,7 @@ export default class LicitacoesController {
           : [],
       },
       documentGroups: groups,
+      phases,
       siteSettings,
     })
   }

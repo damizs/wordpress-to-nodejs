@@ -24,6 +24,22 @@ import QuickLink from '#models/quick_link'
 import InformationRecord from '#models/information_record'
 import Licitacao from '#models/licitacao'
 import SurveyQuestion from '#models/survey_question'
+import db from '@adonisjs/lucid/services/db'
+
+interface WpActivity {
+  wpId: string
+  title: string
+  slug: string
+  type: string
+  number: string | null
+  year: number | null
+  date: string | null
+  situacao: string | null
+  content: string
+  anexoPath: string | null
+  status: string
+  authors: { name: string; parliamentaryName: string | null; slug: string }[]
+}
 
 export default class WpMigrate extends BaseCommand {
   static commandName = 'wp:migrate'
@@ -91,6 +107,9 @@ export default class WpMigrate extends BaseCommand {
     // ── Extra data ──
     await this.runSection('Quick Links', () => this.importQuickLinks(extra.lr_links))
     await this.runSection('Matérias', () => this.importMaterias(extra.materias))
+    // Atividades legislativas + AUTORIA dos vereadores (backup novo do WP).
+    // Roda DEPOIS de Matérias: é a fonte autoritativa de `legislative_activities`.
+    await this.runSection('Atividades + Autoria', () => this.importActivitiesWithAuthors())
     await this.runSection('Publicações', () =>
       this.importPublicacoes(extra.publicacoes, extra.pub_attachments)
     )
@@ -558,26 +577,11 @@ export default class WpMigrate extends BaseCommand {
       const slug = this.slugify(`${m.tipo}-${m.codigo}`)
 
       if (legislativeTypes.has(m.tipo)) {
-        if (await LegislativeActivity.findBy('slug', slug)) {
-          skip++
-          continue
-        }
-        try {
-          await LegislativeActivity.create({
-            title: m.titulo,
-            slug,
-            type: m.tipo,
-            number: m.codigo,
-            year,
-            summary: m.titulo,
-            content,
-            status: 'aprovado',
-            isActive: true,
-          })
-          legOk++
-        } catch {
-          /* skip */
-        }
+        // Atividades legislativas agora vêm do importador dedicado
+        // (importActivitiesWithAuthors), que traz a autoria dos vereadores.
+        // Mantido apenas para contagem; nada é criado aqui para evitar duplicatas.
+        skip++
+        continue
       } else if (licitacaoTypes.has(m.tipo)) {
         if (await Licitacao.findBy('slug', slug)) {
           skip++
@@ -630,6 +634,89 @@ export default class WpMigrate extends BaseCommand {
     this.logger.success(
       `  Legislative: ${legOk}, Licitações: ${licOk}, Publications: ${pubOk}, skipped: ${skip}`
     )
+  }
+
+  // ═══════════════════════════════════════
+  // 8b. ATIVIDADES LEGISLATIVAS + AUTORIA (backup novo do WP)
+  // ═══════════════════════════════════════
+  async importActivitiesWithAuthors() {
+    const path = join(app.appRoot.pathname, 'database', 'wp_activities.json')
+    if (!existsSync(path)) {
+      this.logger.warning('  wp_activities.json não encontrado — pulando atividades + autoria')
+      return
+    }
+    const { activities } = JSON.parse(readFileSync(path, 'utf-8')) as { activities: WpActivity[] }
+    this.logger.info(`\n━━━ Atividades + Autoria: ${activities.length} itens ━━━`)
+
+    // Fonte única e autoritativa: limpa atividades + pivô de autoria e reimporta
+    // (evita duplicatas com as atividades legadas, que usavam outro slug).
+    await db.from('legislative_activity_authors').delete()
+    await LegislativeActivity.query().delete()
+
+    // Lookup de vereadores por chave normalizada (nome, nome completo, parlamentar, slug)
+    const councilors = await Councilor.all()
+    const byKey = new Map<string, number>()
+    const addKey = (k: string | null | undefined, id: number) => {
+      const n = this.normName(k)
+      if (n) byKey.set(n, id)
+    }
+    for (const c of councilors) {
+      addKey(c.name, c.id)
+      addKey(c.fullName, c.id)
+      addKey(c.parliamentaryName, c.id)
+      addKey(c.slug, c.id)
+    }
+
+    let ok = 0
+    let links = 0
+    const unmatched = new Set<string>()
+    for (const a of activities) {
+      const slug = a.slug || this.slugify(`${a.type}-${a.number ?? a.wpId}`)
+      const year = a.year || (a.date ? Number.parseInt(String(a.date).slice(0, 4)) : 2025)
+      const fileUrl = a.anexoPath ? `${this.wpDir}/${a.anexoPath}` : null
+
+      const activity = await LegislativeActivity.updateOrCreate(
+        { slug },
+        {
+          title: a.title,
+          slug,
+          type: a.type || 'Matéria',
+          number: a.number || '',
+          year,
+          summary: a.title,
+          content: this.cleanContent(a.content || ''),
+          status: 'aprovado',
+          fileUrl,
+          isActive: a.status ? a.status === 'publish' : true,
+        }
+      )
+
+      const ids: number[] = []
+      for (const au of a.authors || []) {
+        const id =
+          byKey.get(this.normName(au.slug)) ??
+          byKey.get(this.normName(au.name)) ??
+          byKey.get(this.normName(au.parliamentaryName))
+        if (id) ids.push(id)
+        else if (au.name) unmatched.add(au.name)
+      }
+      await activity.related('authors').sync([...new Set(ids)])
+      links += ids.length
+      ok++
+    }
+    this.logger.success(`  Atividades: ${ok} upsert, ${links} vínculos de autoria`)
+    if (unmatched.size > 0) {
+      this.logger.warning(`  Autores sem vereador: ${[...unmatched].join('; ')}`)
+    }
+  }
+
+  private normName(s: string | null | undefined): string {
+    return (s || '')
+      .normalize('NFKD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/\s+/g, ' ')
+      .trim()
   }
 
   // ═══════════════════════════════════════
