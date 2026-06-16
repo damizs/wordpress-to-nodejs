@@ -75,14 +75,20 @@ export default class SatisfactionSurveyController {
 
   async store({ request, response, session }: HttpContext) {
     const data = request.only(['cpf', 'answers', 'suggestion'])
+    const cpf = this.normalizeCpf(data.cpf)
+
+    if (!cpf || !this.isValidCpf(cpf)) {
+      session.flash('error', 'Informe um CPF válido para participar da pesquisa.')
+      return response.redirect().toPath('/pesquisa-de-satisfacao')
+    }
 
     // Check if CPF already voted this month
-    if (data.cpf) {
+    if (cpf) {
       const now = new Date()
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
       try {
         const existing = await SatisfactionSurvey.query()
-          .where('cpf', data.cpf)
+          .where('cpf', cpf)
           .where('created_at', '>=', startOfMonth.toISOString())
           .first()
 
@@ -105,7 +111,7 @@ export default class SatisfactionSurveyController {
 
     try {
       await SatisfactionSurvey.create({
-        cpf: data.cpf || null,
+        cpf,
         ratingAtendimento: answers[5] ? Number.parseInt(answers[5]) : null,
         ratingTransparencia: answers[2] ? Number.parseInt(answers[2]) : null,
         ratingLegislativo: answers[3] ? Number.parseInt(answers[3]) : null,
@@ -186,5 +192,26 @@ export default class SatisfactionSurveyController {
     } catch (e) {
       return { total: 0, average: 0 }
     }
+  }
+
+  private normalizeCpf(value: unknown): string {
+    return String(value || '').replace(/\D/g, '').slice(0, 11)
+  }
+
+  private isValidCpf(cpf: string): boolean {
+    if (!/^\d{11}$/.test(cpf) || /^(\d)\1{10}$/.test(cpf)) return false
+
+    const digit = (base: string, factor: number) => {
+      let total = 0
+      for (const number of base) {
+        total += Number(number) * factor
+        factor--
+      }
+      const rest = (total * 10) % 11
+      return rest === 10 ? 0 : rest
+    }
+
+    return digit(cpf.slice(0, 9), 10) === Number(cpf[9])
+      && digit(cpf.slice(0, 10), 11) === Number(cpf[10])
   }
 }

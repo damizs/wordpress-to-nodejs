@@ -227,6 +227,9 @@ export default function PesquisaSatisfacao({
                             onChange={handleCpfChange}
                             placeholder="000.000.000-00"
                             maxLength={14}
+                            inputMode="numeric"
+                            autoComplete="off"
+                            pattern="\d{3}\.\d{3}\.\d{3}-\d{2}"
                             required
                             className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg text-lg font-mono focus:border-navy focus:outline-none"
                           />

@@ -3,6 +3,10 @@ import { BaseModel, column } from '@adonisjs/lucid/orm'
 
 export default class SiteSetting extends BaseModel {
   static table = 'site_settings'
+  private static cacheTtlMs = 60_000
+  private static objectCache: { expiresAt: number; value: Record<string, string | null> } | null = null
+  private static groupCache = new Map<string, { expiresAt: number; value: Record<string, string | null> }>()
+  private static valueCache = new Map<string, { expiresAt: number; value: string | null }>()
 
   @column({ isPrimary: true }) declare id: number
   @column() declare group: string
@@ -15,28 +19,41 @@ export default class SiteSetting extends BaseModel {
 
   /** Get all settings as a flat key→value object */
   static async allAsObject(): Promise<Record<string, string | null>> {
+    const cached = this.objectCache
+    if (cached && cached.expiresAt > Date.now()) return cached.value
+
     const rows = await this.all()
     const obj: Record<string, string | null> = {}
     for (const row of rows) {
       obj[row.key] = row.value
     }
+    this.objectCache = { value: obj, expiresAt: Date.now() + this.cacheTtlMs }
     return obj
   }
 
   /** Get settings by group as key→value */
   static async byGroup(group: string): Promise<Record<string, string | null>> {
+    const cached = this.groupCache.get(group)
+    if (cached && cached.expiresAt > Date.now()) return cached.value
+
     const rows = await this.query().where('group', group)
     const obj: Record<string, string | null> = {}
     for (const row of rows) {
       obj[row.key] = row.value
     }
+    this.groupCache.set(group, { value: obj, expiresAt: Date.now() + this.cacheTtlMs })
     return obj
   }
 
   /** Get a single setting value */
   static async getValue(key: string): Promise<string | null> {
+    const cached = this.valueCache.get(key)
+    if (cached && cached.expiresAt > Date.now()) return cached.value
+
     const row = await this.findBy('key', key)
-    return row?.value ?? null
+    const value = row?.value ?? null
+    this.valueCache.set(key, { value, expiresAt: Date.now() + this.cacheTtlMs })
+    return value
   }
 
   /** Set a single setting value (upsert) */
@@ -54,6 +71,7 @@ export default class SiteSetting extends BaseModel {
     } else {
       await this.create({ key, value, group, type })
     }
+    this.clearCache()
   }
 
   /** Bulk update settings (with upsert) */
@@ -82,5 +100,11 @@ export default class SiteSetting extends BaseModel {
     for (const [key, value] of Object.entries(settings)) {
       await this.setValue(key, value, groupMap[key] || 'general')
     }
+  }
+
+  static clearCache() {
+    this.objectCache = null
+    this.groupCache.clear()
+    this.valueCache.clear()
   }
 }

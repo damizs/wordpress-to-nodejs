@@ -11,7 +11,7 @@ export interface ReelItem {
   reelUrl: string;
 }
 
-const compact = new Intl.NumberFormat("pt-BR", { notation: "compact", maximumFractionDigits: 1 });
+const viewCountFmt = new Intl.NumberFormat("pt-BR", { notation: "compact", maximumFractionDigits: 1 });
 
 /** Carrega o embed.js do Instagram uma única vez. */
 function ensureEmbedScript(): Promise<void> {
@@ -32,7 +32,14 @@ function ensureEmbedScript(): Promise<void> {
   });
 }
 
-export function ReelsGallery({ reels }: { reels: ReelItem[] }) {
+interface ReelsGalleryProps {
+  reels: ReelItem[];
+  /** Home: miniaturas menores em grade mais densa; /videos: tamanho padrão. */
+  variant?: "default" | "compact";
+}
+
+export function ReelsGallery({ reels, variant = "default" }: ReelsGalleryProps) {
+  const isCompact = variant === "compact";
   const [active, setActive] = useState<ReelItem | null>(null);
 
   const close = useCallback(() => setActive(null), []);
@@ -58,13 +65,21 @@ export function ReelsGallery({ reels }: { reels: ReelItem[] }) {
 
   return (
     <>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5">
+      <div
+        className={
+          isCompact
+            ? "mx-auto grid max-w-3xl grid-cols-[repeat(auto-fill,minmax(6.75rem,1fr))] gap-2 sm:max-w-4xl sm:grid-cols-[repeat(auto-fill,minmax(7.5rem,1fr))] sm:gap-2.5 md:grid-cols-[repeat(auto-fill,minmax(8rem,1fr))]"
+            : "grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4"
+        }
+      >
         {reels.map((reel) => (
           <button
             key={reel.id}
             type="button"
             onClick={() => setActive(reel)}
-            className="group relative block aspect-[9/16] w-full overflow-hidden rounded-2xl border border-border bg-muted text-left shadow-sm transition-all hover:shadow-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy"
+            className={`group relative block aspect-[9/16] w-full overflow-hidden border border-border bg-muted text-left shadow-sm transition-all hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy ${
+              isCompact ? "rounded-lg" : "rounded-2xl hover:shadow-lg"
+            }`}
             aria-label={`Assistir ao reel: ${reel.title}`}
           >
             {reel.image ? (
@@ -82,22 +97,37 @@ export function ReelsGallery({ reels }: { reels: ReelItem[] }) {
 
             {/* Overlay de play */}
             <div className="absolute inset-0 flex items-center justify-center bg-navy-dark/10 transition-colors group-hover:bg-navy-dark/30">
-              <span className="flex h-14 w-14 items-center justify-center rounded-full bg-white/90 shadow-lg transition-transform group-hover:scale-110">
-                <Play className="ml-0.5 h-6 w-6 fill-navy text-navy" />
+              <span
+                className={`flex items-center justify-center rounded-full bg-white/90 shadow-lg transition-transform group-hover:scale-110 ${
+                  isCompact ? "h-9 w-9" : "h-14 w-14"
+                }`}
+              >
+                <Play className={`ml-0.5 fill-navy text-navy ${isCompact ? "h-4 w-4" : "h-6 w-6"}`} />
               </span>
             </div>
 
             {/* Faixa inferior com legenda/views */}
-            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-navy-dark/90 via-navy-dark/40 to-transparent p-3 pt-8">
-              <p className="line-clamp-2 text-xs font-medium text-white">{reel.title}</p>
+            <div
+              className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-navy-dark/90 via-navy-dark/40 to-transparent ${
+                isCompact ? "p-2 pt-6" : "p-3 pt-8"
+              }`}
+            >
+              <p
+                className={`font-medium text-white ${isCompact ? "line-clamp-1 text-[10px] leading-tight" : "line-clamp-2 text-xs"}`}
+              >
+                {reel.title}
+              </p>
               {(reel.viewCount > 0 || reel.date) && (
-                <div className="mt-1 flex items-center gap-3 text-[11px] text-white/80">
+                <div
+                  className={`mt-0.5 flex items-center gap-2 text-white/80 ${isCompact ? "text-[9px]" : "mt-1 gap-3 text-[11px]"}`}
+                >
                   {reel.viewCount > 0 && (
-                    <span className="inline-flex items-center gap-1">
-                      <Eye className="h-3 w-3" /> {compact.format(reel.viewCount)}
+                    <span className="inline-flex items-center gap-0.5">
+                      <Eye className={isCompact ? "h-2.5 w-2.5" : "h-3 w-3"} />{" "}
+                      {viewCountFmt.format(reel.viewCount)}
                     </span>
                   )}
-                  {reel.date && <span>{reel.date}</span>}
+                  {!isCompact && reel.date && <span>{reel.date}</span>}
                 </div>
               )}
             </div>

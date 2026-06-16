@@ -34,6 +34,7 @@ export default class SystemCategoriesController {
       displayOrder: Number.parseInt(data.display_order) || 0,
       isActive: data.is_active === 'true' || data.is_active === true || data.is_active === 'on',
     })
+    SystemCategory.clearCache()
     session.flash('success', 'Categoria cadastrada com sucesso!')
     return response.redirect().toPath('/painel/categorias')
   }
@@ -54,6 +55,7 @@ export default class SystemCategoriesController {
       isActive: data.is_active === 'true' || data.is_active === true || data.is_active === 'on',
     })
     await category.save()
+    SystemCategory.clearCache()
     session.flash('success', 'Categoria atualizada!')
     return response.redirect().toPath('/painel/categorias')
   }
@@ -61,16 +63,14 @@ export default class SystemCategoriesController {
   async destroy({ params, response, session }: HttpContext) {
     const category = await SystemCategory.findOrFail(params.id)
     await category.delete()
+    SystemCategory.clearCache()
     session.flash('success', 'Categoria excluída!')
     return response.redirect().toPath('/painel/categorias')
   }
 
   /** API endpoint for loading categories by type (used by other forms) */
   async byType({ params, response }: HttpContext) {
-    const categories = await SystemCategory.query()
-      .where('type', params.type)
-      .where('is_active', true)
-      .orderBy('display_order')
+    const categories = await SystemCategory.byType(params.type)
     return response.json(categories.map((c) => c.serialize()))
   }
 }

@@ -3,9 +3,10 @@ import type { MultipartFile } from '@adonisjs/core/bodyparser'
 import MediaFile from '#models/media_file'
 import app from '@adonisjs/core/services/app'
 import { cuid } from '@adonisjs/core/helpers'
-import { mkdir, unlink } from 'node:fs/promises'
+import { mkdir, stat, unlink } from 'node:fs/promises'
 import { join } from 'node:path'
 import { existsSync } from 'node:fs'
+import { isOptimizableImage, saveOptimizedImage } from '#helpers/image_upload'
 
 const UPLOAD_OPTIONS = {
   size: '20mb',
@@ -14,7 +15,6 @@ const UPLOAD_OPTIONS = {
     'jpg',
     'jpeg',
     'webp',
-    'svg',
     'gif',
     'pdf',
     'doc',
@@ -86,24 +86,41 @@ export default class MediaController {
 
     try {
       for (const file of incoming) {
-        const fileName = `${cuid()}.${file.extname}`
-        await file.move(uploadDir, { name: fileName })
-        if (file.state !== 'moved') {
-          return response.status(500).json({
-            error: 'Falha ao salvar o arquivo no servidor.',
-            filename: file.clientName,
-            files: saved,
-          })
-        }
+        let savedFile: { url: string; mimeType: string; size: number }
 
-        const mimeType =
-          file.type && file.subtype ? `${file.type}/${file.subtype}` : 'application/octet-stream'
+        if (isOptimizableImage(file)) {
+          savedFile = await saveOptimizedImage(file, uploadDir, {
+            prefix: 'midia',
+            publicUrlBase: '/uploads/midia',
+          })
+        } else {
+          const fileName = `${cuid()}.${file.extname}`
+          await file.move(uploadDir, { name: fileName })
+          if (file.state !== 'moved') {
+            return response.status(500).json({
+              error: 'Falha ao salvar o arquivo no servidor.',
+              filename: file.clientName,
+              files: saved,
+            })
+          }
+
+          const path = join(uploadDir, fileName)
+          const info = existsSync(path) ? await stat(path) : { size: file.size }
+          savedFile = {
+            url: `/uploads/midia/${fileName}`,
+            mimeType:
+              file.type && file.subtype
+                ? `${file.type}/${file.subtype}`
+                : 'application/octet-stream',
+            size: info.size,
+          }
+        }
 
         const record = await MediaFile.create({
           filename: file.clientName,
-          url: `/uploads/midia/${fileName}`,
-          mimeType,
-          size: file.size,
+          url: savedFile.url,
+          mimeType: savedFile.mimeType,
+          size: savedFile.size,
           uploadedBy,
         })
 

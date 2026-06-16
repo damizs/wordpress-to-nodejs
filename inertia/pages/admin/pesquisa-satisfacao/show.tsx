@@ -1,6 +1,6 @@
 import { Head, Link } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { ArrowLeft, Star, User, Mail, Phone } from 'lucide-react'
+import { ArrowLeft, BadgeCheck, Star, User, Mail, Phone } from 'lucide-react'
 import { Card, CardHeader } from '~/components/admin/ui'
 
 interface Props { survey: any }
@@ -22,7 +22,15 @@ function Stars({ rating, label }: { rating: number | null; label: string }) {
   )
 }
 
+function maskCpf(cpf: string | null | undefined) {
+  const digits = String(cpf || '').replace(/\D/g, '').slice(0, 11)
+  if (digits.length !== 11) return null
+  return digits.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4')
+}
+
 export default function PesquisaSatisfacaoShow({ survey }: Props) {
+  const cpf = maskCpf(survey.cpf)
+
   return (
     <AdminLayout title="Detalhes da Resposta">
       <Head title="Resposta - Pesquisa de Satisfação" />
@@ -49,6 +57,12 @@ export default function PesquisaSatisfacaoShow({ survey }: Props) {
               <div className="flex items-center gap-3">
                 <Phone className="w-4 h-4 text-muted-foreground" />
                 <span className="text-sm text-foreground">{survey.phone}</span>
+              </div>
+            )}
+            {cpf && (
+              <div className="flex items-center gap-3">
+                <BadgeCheck className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm text-foreground">{cpf}</span>
               </div>
             )}
             <p className="text-xs text-muted-foreground">Enviado em {new Date(survey.created_at).toLocaleString('pt-BR')}</p>

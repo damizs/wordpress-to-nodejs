@@ -5,6 +5,7 @@ import { cuid } from '@adonisjs/core/helpers'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 import { existsSync } from 'node:fs'
+import { saveOptimizedImage } from '#helpers/image_upload'
 
 /** All appearance keys with their defaults and groups */
 const APPEARANCE_KEYS: Record<
@@ -220,37 +221,39 @@ export default class SettingsController {
       // Handle logo upload
       const logo = request.file('logo_url', {
         size: '2mb',
-        extnames: ['png', 'jpg', 'jpeg', 'svg', 'webp'],
+        extnames: ['png', 'jpg', 'jpeg', 'webp'],
       })
       if (logo) {
         const uploadDir = join(app.publicPath(), 'uploads')
-        if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true })
-        const fileName = `logo-${cuid()}.${logo.extname}`
-        await logo.move(uploadDir, { name: fileName })
-        if (logo.state === 'moved') {
-          await SiteSetting.setValue('logo_url', `/uploads/${fileName}`, 'appearance', 'image')
-        }
+        const saved = await saveOptimizedImage(logo, uploadDir, {
+          prefix: 'logo',
+          publicUrlBase: '/uploads',
+          maxWidth: 1200,
+          maxHeight: 600,
+        })
+        await SiteSetting.setValue('logo_url', saved.url, 'appearance', 'image')
       }
 
       // Handle document brasão upload (timbre dos documentos oficiais)
       const brasao = request.file('document_brasao_url', {
         size: '2mb',
-        extnames: ['png', 'jpg', 'jpeg', 'svg', 'webp'],
+        extnames: ['png', 'jpg', 'jpeg', 'webp'],
       })
       if (brasao) {
         const uploadDir = join(app.publicPath(), 'uploads')
-        if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true })
-        const fileName = `brasao-${cuid()}.${brasao.extname}`
-        await brasao.move(uploadDir, { name: fileName })
-        if (brasao.state === 'moved') {
-          await SiteSetting.setValue('document_brasao_url', `/uploads/${fileName}`, 'appearance', 'image')
-        }
+        const saved = await saveOptimizedImage(brasao, uploadDir, {
+          prefix: 'brasao',
+          publicUrlBase: '/uploads',
+          maxWidth: 1200,
+          maxHeight: 1200,
+        })
+        await SiteSetting.setValue('document_brasao_url', saved.url, 'appearance', 'image')
       }
 
       // Handle favicon upload
       const favicon = request.file('favicon_url', {
         size: '500kb',
-        extnames: ['png', 'ico', 'svg'],
+        extnames: ['png', 'ico'],
       })
       if (favicon) {
         const uploadDir = join(app.publicPath(), 'uploads')
@@ -265,21 +268,17 @@ export default class SettingsController {
       // Handle ATRICON logo upload (Radar) — SVG transparente exibido com fundo branco no painel
       const atriconLogo = request.file('atricon_logo_url', {
         size: '2mb',
-        extnames: ['png', 'jpg', 'jpeg', 'svg', 'webp'],
+        extnames: ['png', 'jpg', 'jpeg', 'webp'],
       })
       if (atriconLogo) {
         const uploadDir = join(app.publicPath(), 'uploads')
-        if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true })
-        const fileName = `atricon-logo-${cuid()}.${atriconLogo.extname}`
-        await atriconLogo.move(uploadDir, { name: fileName })
-        if (atriconLogo.state === 'moved') {
-          await SiteSetting.setValue(
-            'atricon_logo_url',
-            `/uploads/${fileName}`,
-            'appearance',
-            'image'
-          )
-        }
+        const saved = await saveOptimizedImage(atriconLogo, uploadDir, {
+          prefix: 'atricon-logo',
+          publicUrlBase: '/uploads',
+          maxWidth: 1200,
+          maxHeight: 1200,
+        })
+        await SiteSetting.setValue('atricon_logo_url', saved.url, 'appearance', 'image')
       }
 
       // Handle news background image upload
@@ -289,17 +288,13 @@ export default class SettingsController {
       })
       if (newsBackground) {
         const uploadDir = join(app.publicPath(), 'uploads')
-        if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true })
-        const fileName = `news-bg-${cuid()}.${newsBackground.extname}`
-        await newsBackground.move(uploadDir, { name: fileName })
-        if (newsBackground.state === 'moved') {
-          await SiteSetting.setValue(
-            'news_background_image',
-            `/uploads/${fileName}`,
-            'appearance',
-            'image'
-          )
-        }
+        const saved = await saveOptimizedImage(newsBackground, uploadDir, {
+          prefix: 'news-bg',
+          publicUrlBase: '/uploads',
+          maxWidth: 2400,
+          maxHeight: 1600,
+        })
+        await SiteSetting.setValue('news_background_image', saved.url, 'appearance', 'image')
       }
 
       // Handle city images upload (multiple files)
@@ -323,11 +318,13 @@ export default class SettingsController {
         const newImages: string[] = keepExisting ? existingImages : []
 
         for (const file of cityImageFiles) {
-          const fileName = 'cidade-' + cuid() + '.' + file.extname
-          await file.move(uploadDir, { name: fileName })
-          if (file.state === 'moved') {
-            newImages.push('/uploads/cidade/' + fileName)
-          }
+          const saved = await saveOptimizedImage(file, uploadDir, {
+            prefix: 'cidade',
+            publicUrlBase: '/uploads/cidade',
+            maxWidth: 1920,
+            maxHeight: 1280,
+          })
+          newImages.push(saved.url)
         }
 
         await SiteSetting.setValue(
@@ -384,11 +381,13 @@ export default class SettingsController {
 
       if (newFiles && newFiles.length > 0) {
         for (const file of newFiles) {
-          const fileName = `cidade-${cuid()}.${file.extname}`
-          await file.move(uploadDir, { name: fileName })
-          if (file.state === 'moved') {
-            newImages.push(`/uploads/cidade/${fileName}`)
-          }
+          const saved = await saveOptimizedImage(file, uploadDir, {
+            prefix: 'cidade',
+            publicUrlBase: '/uploads/cidade',
+            maxWidth: 1920,
+            maxHeight: 1280,
+          })
+          newImages.push(saved.url)
         }
       }
 

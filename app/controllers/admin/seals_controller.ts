@@ -1,10 +1,10 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import Seal from '#models/seal'
 import app from '@adonisjs/core/services/app'
-import { cuid } from '@adonisjs/core/helpers'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 import { existsSync, unlinkSync } from 'node:fs'
+import { saveOptimizedImage } from '#helpers/image_upload'
 
 export default class SealsController {
   async index({ inertia }: HttpContext) {
@@ -20,23 +20,23 @@ export default class SealsController {
     const data = request.only(['title', 'description', 'link_url', 'sort_order', 'is_active'])
     const image = request.file('image', {
       size: '2mb',
-      extnames: ['png', 'jpg', 'jpeg', 'webp', 'svg'],
+      extnames: ['png', 'jpg', 'jpeg', 'webp'],
     })
     let imageUrl: string | null = null
-
-    console.log('STORE - data received:', data)
 
     if (image) {
       const uploadDir = join(app.publicPath(), 'uploads', 'seals')
       if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true })
-      const fileName = 'seal-' + cuid() + '.' + image.extname
-      await image.move(uploadDir, { name: fileName })
-      if (image.state === 'moved') imageUrl = '/uploads/seals/' + fileName
-      console.log('STORE - image saved:', imageUrl)
+      const saved = await saveOptimizedImage(image, uploadDir, {
+        prefix: 'seal',
+        publicUrlBase: '/uploads/seals',
+        maxWidth: 1200,
+        maxHeight: 1200,
+      })
+      imageUrl = saved.url
     }
 
     const isActive = data.is_active === 'true' || data.is_active === true || data.is_active === '1'
-    console.log('STORE - isActive:', isActive, 'raw:', data.is_active)
 
     await Seal.create({
       title: data.title,
@@ -61,13 +61,8 @@ export default class SealsController {
     const data = request.only(['title', 'description', 'link_url', 'sort_order', 'is_active'])
     const image = request.file('image', {
       size: '2mb',
-      extnames: ['png', 'jpg', 'jpeg', 'webp', 'svg'],
+      extnames: ['png', 'jpg', 'jpeg', 'webp'],
     })
-
-    console.log('UPDATE - seal id:', params.id)
-    console.log('UPDATE - data received:', data)
-    console.log('UPDATE - current imageUrl:', seal.imageUrl)
-    console.log('UPDATE - new image:', image ? 'yes' : 'no')
 
     // Só atualiza imagem se uma nova foi enviada
     if (image && image.size > 0) {
@@ -84,12 +79,13 @@ export default class SealsController {
       }
       const uploadDir = join(app.publicPath(), 'uploads', 'seals')
       if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true })
-      const fileName = 'seal-' + cuid() + '.' + image.extname
-      await image.move(uploadDir, { name: fileName })
-      if (image.state === 'moved') {
-        seal.imageUrl = '/uploads/seals/' + fileName
-        console.log('UPDATE - new image saved:', seal.imageUrl)
-      }
+      const saved = await saveOptimizedImage(image, uploadDir, {
+        prefix: 'seal',
+        publicUrlBase: '/uploads/seals',
+        maxWidth: 1200,
+        maxHeight: 1200,
+      })
+      seal.imageUrl = saved.url
     }
 
     seal.title = data.title
@@ -101,11 +97,7 @@ export default class SealsController {
     const isActive = data.is_active === 'true' || data.is_active === true || data.is_active === '1'
     seal.isActive = isActive
 
-    console.log('UPDATE - isActive:', isActive, 'raw:', data.is_active, typeof data.is_active)
-
     await seal.save()
-
-    console.log('UPDATE - saved seal:', seal.toJSON())
 
     session.flash('success', 'Selo atualizado!')
     return response.redirect('/painel/selos')

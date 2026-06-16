@@ -25,7 +25,7 @@ export async function processCouncilorPhoto(sourcePath: string): Promise<string>
       fit: 'cover',
       position: sharp.strategy.attention,
     })
-    .webp({ quality: 82 })
+    .webp({ quality: 92, effort: 4, smartSubsample: true })
     .toFile(join(uploadDir, fileName))
 
   return `/uploads/vereadores/${fileName}`

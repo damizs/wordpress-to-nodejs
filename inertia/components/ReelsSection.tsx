@@ -17,7 +17,7 @@ export function ReelsSection({
   title = "Galeria de Vídeos",
   subtitle = "Acompanhe os reels e vídeos publicados no Instagram da Câmara.",
   badge = "Vídeos",
-  limit = 8,
+  limit = 6,
 }: Props) {
   if (!reels || reels.length === 0) return null;
   const shown = reels.slice(0, limit);
@@ -29,10 +29,10 @@ export function ReelsSection({
         <SectionHeading badge={badge} title={title} subtitle={subtitle} />
 
         <div data-reveal>
-          <ReelsGallery reels={shown} />
+          <ReelsGallery reels={shown} variant="compact" />
         </div>
 
-        <div className="mt-8 sm:mt-10 text-center">
+        <div className="mt-6 sm:mt-8 text-center">
           <Link
             href="/videos"
             className="inline-flex items-center justify-center gap-2 w-full sm:w-auto rounded-lg bg-navy px-5 py-2.5 text-sm font-semibold text-primary-foreground no-underline shadow-sm transition-colors hover:bg-navy-dark"

@@ -7,6 +7,7 @@ import { join } from 'node:path'
 import { existsSync } from 'node:fs'
 import { mkdir } from 'node:fs/promises'
 import string from '@adonisjs/core/helpers/string'
+import { saveOptimizedImage } from '#helpers/image_upload'
 
 export default class NewsController {
   /** List all news with pagination */
@@ -88,9 +89,13 @@ export default class NewsController {
     if (cover) {
       const uploadDir = join(app.publicPath(), 'uploads', 'news')
       if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true })
-      const fileName = `${news.slug}-${cuid().slice(0, 6)}.${cover.extname}`
-      await cover.move(uploadDir, { name: fileName })
-      news.coverImageUrl = `/uploads/news/${fileName}`
+      const saved = await saveOptimizedImage(cover, uploadDir, {
+        prefix: `${news.slug}-${cuid().slice(0, 6)}`,
+        publicUrlBase: '/uploads/news',
+        maxWidth: 1920,
+        maxHeight: 1280,
+      })
+      news.coverImageUrl = saved.url
       await news.save()
     }
 
@@ -141,9 +146,13 @@ export default class NewsController {
     if (cover) {
       const uploadDir = join(app.publicPath(), 'uploads', 'news')
       if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true })
-      const fileName = `${news.slug}-${cuid().slice(0, 6)}.${cover.extname}`
-      await cover.move(uploadDir, { name: fileName })
-      news.coverImageUrl = `/uploads/news/${fileName}`
+      const saved = await saveOptimizedImage(cover, uploadDir, {
+        prefix: `${news.slug}-${cuid().slice(0, 6)}`,
+        publicUrlBase: '/uploads/news',
+        maxWidth: 1920,
+        maxHeight: 1280,
+      })
+      news.coverImageUrl = saved.url
     }
 
     await news.save()
