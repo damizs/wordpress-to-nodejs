@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useRef } from "react";
 import { Link } from "@inertiajs/react";
 import {
   Activity,
   ArrowRight,
   Award,
   Calendar,
+  ChevronLeft,
+  ChevronRight,
   ExternalLink,
   FileCheck,
   FilePen,
@@ -19,6 +21,7 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { SectionHeading } from "~/components/SectionHeading";
+import { LegislativoLineChart } from "~/components/LegislativoLineChart";
 
 interface LegislativoMateria {
   id: number;
@@ -83,79 +86,6 @@ function statusChipClass(status: string | null | undefined): string {
   return "bg-muted text-muted-foreground";
 }
 
-/** Gráfico de barras — últimas 12 semanas, tooltip visível no hover. */
-function WeeklyBarChart({ weekly }: { weekly: { label: string; count: number }[] }) {
-  const [active, setActive] = useState<number | null>(null);
-  const data = weekly.slice(-12);
-  const max = Math.max(...data.map((w) => w.count), 1);
-
-  return (
-    <div className="relative pt-2">
-      {/* Tooltip flutuante */}
-      {active !== null && (
-        <div
-          className="pointer-events-none absolute z-20 -translate-x-1/2 rounded-lg border border-border bg-card px-3 py-2 text-center shadow-lg"
-          style={{
-            left: `${((active + 0.5) / data.length) * 100}%`,
-            top: 0,
-          }}
-        >
-          <p className="text-xs font-semibold text-foreground capitalize">{data[active].label}</p>
-          <p className="text-lg font-bold text-primary tabular-nums">{data[active].count}</p>
-          <p className="text-[10px] text-muted-foreground">
-            matéria{data[active].count === 1 ? "" : "s"}
-          </p>
-        </div>
-      )}
-
-      <div
-        className="flex items-end gap-1.5 sm:gap-2 h-44 md:h-52 mt-8"
-        role="img"
-        aria-label="Gráfico de matérias apresentadas por semana"
-      >
-        {data.map((w, i) => {
-          const pct = w.count === 0 ? 0 : Math.max(8, (w.count / max) * 100);
-          const isActive = active === i;
-          return (
-            <button
-              key={i}
-              type="button"
-              className="group flex flex-1 flex-col items-center justify-end gap-2 min-w-0 h-full bg-transparent border-0 p-0 cursor-pointer"
-              onMouseEnter={() => setActive(i)}
-              onMouseLeave={() => setActive(null)}
-              onFocus={() => setActive(i)}
-              onBlur={() => setActive(null)}
-              aria-label={`${w.label}: ${w.count} matéria(s)`}
-            >
-              <div
-                className={`w-full max-w-[48px] rounded-t-md transition-all duration-200 ${
-                  isActive
-                    ? "bg-gradient-to-t from-navy to-sky shadow-md"
-                    : "bg-primary/25 group-hover:bg-primary/45"
-                }`}
-                style={{ height: `${pct}%` }}
-              />
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Eixo X — rótulos espaçados */}
-      <div className="flex gap-1.5 sm:gap-2 mt-2 border-t border-border pt-2">
-        {data.map((w, i) => (
-          <div key={i} className="flex-1 min-w-0 text-center">
-            {i % 2 === 0 || i === data.length - 1 ? (
-              <span className="block text-[10px] sm:text-xs text-muted-foreground capitalize truncate">
-                {w.label}
-              </span>
-            ) : null}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 function MateriaCard({ m }: { m: LegislativoMateria }) {
   const st = typeStyle(m.tipo);
   const Icon = st.icon;
@@ -204,7 +134,7 @@ function MateriaCard({ m }: { m: LegislativoMateria }) {
   );
 
   const className =
-    "group flex flex-col h-full bg-card border border-border/60 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-primary/25 transition-all no-underline";
+    "group flex flex-col h-full min-h-[180px] bg-card border border-border/60 rounded-xl p-4 shadow-sm hover:shadow-md hover:border-primary/25 transition-all no-underline";
 
   if (external) {
     return (
@@ -217,6 +147,88 @@ function MateriaCard({ m }: { m: LegislativoMateria }) {
     <Link href={m.url} className={className}>
       {inner}
     </Link>
+  );
+}
+
+/** Timeline horizontal com scroll-snap — matérias mais recentes à esquerda. */
+function MateriasTimeline({ materias }: { materias: LegislativoMateria[] }) {
+  const trackRef = useRef<HTMLDivElement>(null);
+
+  const nudge = (dir: 1 | -1) => {
+    const el = trackRef.current;
+    if (!el) return;
+    const card = el.querySelector<HTMLElement>("[data-timeline-item]");
+    const step = card ? card.offsetWidth + 16 : Math.max(280, el.clientWidth * 0.75);
+    el.scrollBy({ left: dir * step, behavior: "smooth" });
+  };
+
+  return (
+    <div className="relative group/timeline -mx-1 px-1">
+      <div
+        className="pointer-events-none absolute left-0 top-0 bottom-4 w-8 bg-gradient-to-r from-background to-transparent z-10 md:w-12"
+        aria-hidden
+      />
+      <div
+        className="pointer-events-none absolute right-0 top-0 bottom-4 w-8 bg-gradient-to-l from-background to-transparent z-10 md:w-12"
+        aria-hidden
+      />
+
+      <div
+        ref={trackRef}
+        role="list"
+        aria-label="Linha do tempo das últimas matérias legislativas"
+        className="flex gap-4 overflow-x-auto overscroll-x-contain pb-4 pt-2 snap-x snap-mandatory scroll-smooth [scrollbar-width:thin] [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-border [&::-webkit-scrollbar-track]:bg-transparent"
+      >
+        {materias.map((m, i) => (
+          <div
+            key={m.id}
+            role="listitem"
+            data-timeline-item
+            className="snap-start shrink-0 w-[min(100%,288px)] sm:w-[300px] flex flex-col"
+          >
+            <div className="flex items-center gap-2 mb-3 px-1">
+              <span
+                className="flex h-3 w-3 shrink-0 rounded-full bg-gold ring-4 ring-gold/20"
+                aria-hidden
+              />
+              {i < materias.length - 1 && (
+                <span className="hidden sm:block h-px flex-1 bg-border" aria-hidden />
+              )}
+              {m.data && (
+                <time
+                  dateTime={m.data.split("/").reverse().join("-")}
+                  className="ml-auto text-[10px] font-bold uppercase tracking-wide text-muted-foreground tabular-nums"
+                >
+                  {m.data}
+                </time>
+              )}
+            </div>
+            <MateriaCard m={m} />
+          </div>
+        ))}
+      </div>
+
+      {materias.length > 1 && (
+        <>
+          <button
+            type="button"
+            onClick={() => nudge(-1)}
+            aria-label="Matérias anteriores"
+            className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-card border border-border shadow-md items-center justify-center text-foreground hover:bg-muted hover:border-primary/30 transition-colors z-20 opacity-0 group-hover/timeline:opacity-100 focus:opacity-100"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => nudge(1)}
+            aria-label="Próximas matérias"
+            className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 w-10 h-10 rounded-full bg-card border border-border shadow-md items-center justify-center text-foreground hover:bg-muted hover:border-primary/30 transition-colors z-20 opacity-0 group-hover/timeline:opacity-100 focus:opacity-100"
+          >
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </>
+      )}
+    </div>
   );
 }
 
@@ -252,7 +264,6 @@ export const LegislativoSection = ({ data, title, subtitle }: LegislativoSection
           }
         />
 
-        {/* Resumo do ano */}
         <div className="flex flex-wrap gap-3 mb-8" data-reveal="up">
           <div className="flex items-center gap-3 bg-card border border-border/60 rounded-xl px-5 py-3 shadow-sm">
             <div className="w-9 h-9 rounded-lg bg-gold/15 flex items-center justify-center shrink-0">
@@ -282,7 +293,6 @@ export const LegislativoSection = ({ data, title, subtitle }: LegislativoSection
           </div>
         </div>
 
-        {/* Gráfico */}
         {hasChartData && (
           <div
             className="bg-card rounded-2xl border border-border/60 shadow-sm p-5 md:p-6 mb-10"
@@ -301,13 +311,13 @@ export const LegislativoSection = ({ data, title, subtitle }: LegislativoSection
               </span>
             </div>
             <p className="text-xs text-muted-foreground mb-4">
-              Passe o mouse sobre as barras para ver a quantidade de cada semana (últimas 12 semanas).
+              Use a roda do mouse sobre o gráfico para ampliar ou reduzir o período. Arraste
+              para navegar ou use a barra de ferramentas para resetar.
             </p>
-            <WeeklyBarChart weekly={data.weekly} />
+            <LegislativoLineChart weekly={data.weekly} />
           </div>
         )}
 
-        {/* Últimas matérias — grade alinhada */}
         {hasMaterias && (
           <div data-reveal="up">
             <div className="flex items-center justify-between mb-5">
@@ -319,11 +329,7 @@ export const LegislativoSection = ({ data, title, subtitle }: LegislativoSection
                 Ver todas
               </Link>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {data.materias.map((m) => (
-                <MateriaCard key={m.id} m={m} />
-              ))}
-            </div>
+            <MateriasTimeline materias={data.materias} />
           </div>
         )}
       </div>

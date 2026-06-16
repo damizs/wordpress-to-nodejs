@@ -586,4 +586,16 @@ html.js-anim [data-reveal].no-transition {
     transform: none;
   }
 
+  /* Gráfico legislativo (ApexCharts) — toolbar e seleção com tokens do tema */
+  .legislativo-line-chart .apexcharts-toolbar svg {
+    fill: hsl(var(--muted-foreground));
+  }
+  .legislativo-line-chart .apexcharts-toolbar svg:hover {
+    fill: hsl(var(--foreground));
+  }
+  .legislativo-line-chart .apexcharts-selection-rect {
+    fill: hsl(var(--gold) / 0.12);
+    stroke: hsl(var(--gold));
+  }
+
 }
