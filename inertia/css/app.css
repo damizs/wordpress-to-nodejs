@@ -458,6 +458,16 @@ html.js-anim [data-reveal].no-transition {
     background: var(--gradient-gold);
   }
 
+  /* Fundo suave de seções (home E-SIC, transparência, etc.) */
+  .section-gradient {
+    @apply relative;
+    background: linear-gradient(
+      180deg,
+      hsl(var(--secondary) / 0.55) 0%,
+      hsl(var(--background)) 100%
+    );
+  }
+
   /* Glassmorphism */
   .glass {
     background: rgba(255, 255, 255, 0.1);

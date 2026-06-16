@@ -125,13 +125,7 @@ router.get('/sobre', [StaticPagesController, 'sobre'])
 router.get('/ouvidoria', [StaticPagesController, 'ouvidoria'])
 router.get('/acesso-a-informacao', [AcessoInformacaoController, 'index'])
 router.get('/acesso-a-informacao/lai', [AcessoInformacaoController, 'lai'])
-router.get('/esic', async ({ response }) => {
-  const { default: SiteSetting } = await import('#models/site_setting')
-  const url = await SiteSetting.getValue('esic_new_url')
-  const target =
-    url && url !== '#' ? url : 'https://doc3.inf.br/cmsu2516300/esic'
-  return response.redirect(target)
-})
+router.get('/esic', [StaticPagesController, 'esic'])
 router.get('/diario-oficial', [PublicDiarioOficialController, 'index'])
 router.get('/votacoes', [PublicNominalVotingsController, 'index'])
 router.get('/mapa-do-site', [SitemapPageController, 'index'])

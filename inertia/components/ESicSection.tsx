@@ -3,22 +3,61 @@ import type { LucideIcon } from "lucide-react";
 import { useSiteSettings } from "~/hooks/use_site_settings";
 import { SectionHeading } from "~/components/SectionHeading";
 
+/** Sistema e-SIC contratado (doc3.inf.br) — Sumé */
+export const DEFAULT_ESIC_URL = "https://doc3.inf.br/cmsu2516300/esic";
+
 interface ESicSectionProps {
   title?: string;
   subtitle?: string;
+  /** false = só os dois cards (página interna com PageHero acima) */
+  showHeading?: boolean;
+  /** Classe extra no <section> (ex.: remover padding-top quando há hero) */
+  className?: string;
 }
 
-export const ESicSection = ({ title, subtitle }: ESicSectionProps) => {
+function pickSetting(...values: (string | null | undefined)[]): string {
+  for (const v of values) {
+    if (v && v.trim() !== "" && v.trim() !== "#") return v.trim();
+  }
+  return "";
+}
+
+export const ESicSection = ({
+  title,
+  subtitle,
+  showHeading = true,
+  className = "",
+}: ESicSectionProps) => {
   const settings = useSiteSettings();
-  const newUrl = settings.esic_new_url && settings.esic_new_url !== "#" ? settings.esic_new_url : "/transparencia";
-  const consultUrl = settings.esic_consult_url && settings.esic_consult_url !== "#" ? settings.esic_consult_url : newUrl;
-  const address = settings.footer_address || "Rua Antônio Vieira Lima, S/N, Centro, Sumé - PB";
-  const hours = settings.footer_hours || "Segunda à Sexta-feira das 8h às 14h";
-  const phone = settings.footer_phone || "";
-  const email = settings.footer_email || "";
+
+  const newUrl = pickSetting(settings.esic_new_url, DEFAULT_ESIC_URL);
+  const consultUrl = pickSetting(settings.esic_consult_url, newUrl);
+
+  const address = pickSetting(
+    settings.homepage_esic_address,
+    settings.footer_address,
+    "Rua Luiz Grande, s/n - Centro\nCEP: 58540-000\nSumé - PB"
+  );
+  const hours = pickSetting(
+    settings.homepage_esic_hours,
+    settings.footer_hours,
+    "Segunda à Sexta-feira\ndas 8h às 14h"
+  );
+  const phone = pickSetting(
+    settings.homepage_esic_phone,
+    settings.esic_phone,
+    settings.footer_phone,
+    "(83) 3353-1191"
+  );
+  const email = pickSetting(
+    settings.homepage_esic_email,
+    settings.esic_email,
+    settings.footer_email,
+    "contato@camaradesume.pb.gov.br"
+  );
 
   const linkProps = (url: string) =>
-    url.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" } : {};
+    url.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" as const } : {};
 
   const steps = [
     "Cadastre sua solicitação de informação",
@@ -29,54 +68,66 @@ export const ESicSection = ({ title, subtitle }: ESicSectionProps) => {
   const contactItems: { icon: LucideIcon; title: string; content: string; href?: string }[] = [
     { icon: MapPin, title: "Endereço", content: address },
     { icon: Clock, title: "Horário de Atendimento", content: hours },
-  ];
-  if (phone) {
-    contactItems.push({
+    {
       icon: Phone,
       title: "Telefone",
       content: phone,
       href: `tel:${phone.replace(/[^\d+]/g, "")}`,
-    });
-  }
-  if (email) {
-    contactItems.push({ icon: Mail, title: "E-mail", content: email, href: `mailto:${email}` });
-  }
+    },
+    {
+      icon: Mail,
+      title: "E-mail",
+      content: email,
+      href: `mailto:${email}`,
+    },
+  ];
+
+  const headingTitle =
+    title && title !== "e-SIC" ? title : "E-SIC - Sistema Eletrônico de Informações";
+  const headingSubtitle =
+    subtitle ||
+    "Acesse informações públicas e solicite dados da administração municipal de forma transparente";
 
   return (
-    <section id="esic" className="py-14 lg:py-20 bg-muted/40">
+    <section
+      id="esic"
+      className={`py-20 lg:py-20 bg-secondary/50 section-gradient ${className}`.trim()}
+    >
       <div className="container">
-        <SectionHeading
-          badge="Acesso à Informação"
-          title={title && title !== "e-SIC" ? title : "E-SIC - Sistema Eletrônico de Informações"}
-          subtitle={subtitle || "Acesse informações públicas e solicite dados da administração municipal de forma transparente"}
-        />
+        {showHeading && (
+          <SectionHeading
+            badge="Acesso à Informação"
+            title={headingTitle}
+            subtitle={headingSubtitle}
+          />
+        )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-5xl mx-auto items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto items-stretch">
           {/* Sistema E-SIC */}
           <div data-reveal="left" className="card-modern p-8 flex flex-col">
-            <h3 className="text-xl font-bold text-foreground mb-7">Sistema E-SIC</h3>
+            <h3 className="text-xl font-bold text-foreground mb-8">Sistema E-SIC</h3>
 
-            <div className="flex flex-col sm:flex-row gap-4 mb-9">
+            <div className="flex flex-col sm:flex-row gap-4 mb-10">
               <a
                 href={newUrl}
                 {...linkProps(newUrl)}
-                className="btn-modern group flex-1 inline-flex items-center justify-center gap-2.5 px-5 py-3 rounded-xl bg-gradient-to-r from-primary to-navy-light text-primary-foreground text-sm font-semibold no-underline shadow-lg hover:shadow-xl"
+                className="btn-modern group flex-1 inline-flex items-center justify-center gap-3 px-5 py-3 rounded-xl bg-gradient-to-r from-primary to-navy-light text-primary-foreground text-sm font-semibold no-underline shadow-lg hover:shadow-xl"
               >
                 <Send className="w-5 h-5" />
                 Nova Demanda
-                <ArrowRight className="w-4 h-4 -ml-3 opacity-0 transition-all duration-300 group-hover:ml-0 group-hover:opacity-100" />
+                <ArrowRight className="w-4 h-4 -ml-4 opacity-0 transition-all duration-300 group-hover:ml-0 group-hover:opacity-100" />
               </a>
               <a
                 href={consultUrl}
                 {...linkProps(consultUrl)}
-                className="btn-modern flex-1 inline-flex items-center justify-center gap-2.5 px-5 py-3 rounded-xl bg-gradient-gold text-navy text-sm font-semibold no-underline shadow-lg hover:shadow-xl"
+                className="btn-modern flex-1 inline-flex items-center justify-center gap-3 px-5 py-3 rounded-xl bg-gradient-gold text-navy-dark text-sm font-semibold no-underline shadow-lg hover:shadow-xl"
               >
                 <Search className="w-5 h-5" />
                 Consultar Demanda
               </a>
             </div>
 
-            <div className="mt-auto rounded-2xl border border-border/60 bg-gradient-to-br from-muted to-muted/40 p-6">
+            <div className="mt-auto rounded-2xl border border-border/50 bg-gradient-to-br from-muted to-muted/50 p-6">
               <h4 className="flex items-center gap-3 font-bold text-foreground mb-5">
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10">
                   <Clock className="h-5 w-5 text-primary" />
@@ -102,6 +153,7 @@ export const ESicSection = ({ title, subtitle }: ESicSectionProps) => {
             className="relative overflow-hidden rounded-3xl p-8 text-primary-foreground shadow-xl"
           >
             <div className="absolute inset-0 bg-gradient-navy" />
+            <div className="absolute inset-0 bg-gradient-to-br from-gold/10 via-transparent to-sky/10" />
             <div className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-gold/10 blur-3xl" />
             <div className="absolute -bottom-20 -left-20 h-60 w-60 rounded-full bg-sky/10 blur-3xl" />
 

@@ -1,17 +1,13 @@
 import { Link, usePage } from "@inertiajs/react";
 import { Search, HelpCircle, FileText, MessageSquare, Shield, Map, Database } from "lucide-react";
-import { useSiteSettings } from "~/hooks/use_site_settings";
 
 export const TopBar = () => {
-  const settings = useSiteSettings();
-  // Modo embed (?embed=1): página dentro de modal/iframe — sem barra superior
   const { url: currentUrl } = usePage();
   const isEmbed = /[?&]embed=1/.test(currentUrl);
-  const esicUrl = settings.esic_new_url && settings.esic_new_url !== "#" ? settings.esic_new_url : "/transparencia";
 
   const topLinks = [
     { icon: Search, label: "Portal da Transparência", href: "/transparencia", external: false },
-    { icon: FileText, label: "E-Sic", href: esicUrl, external: esicUrl.startsWith("http") },
+    { icon: FileText, label: "E-Sic", href: "/esic", external: false },
     { icon: MessageSquare, label: "Ouvidoria", href: "/ouvidoria", external: false },
     { icon: HelpCircle, label: "Perguntas Frequentes", href: "/perguntas-frequentes", external: false },
     { icon: Shield, label: "Política de Privacidade", href: "/politica-de-privacidade", external: false },

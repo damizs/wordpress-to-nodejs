@@ -38,6 +38,11 @@ export default class StaticPagesController {
     return inertia.render('public/ouvidoria/index', { siteSettings })
   }
 
+  async esic({ inertia }: HttpContext) {
+    const siteSettings = await this.getSettings()
+    return inertia.render('public/esic/index', { siteSettings })
+  }
+
   async sobre({ inertia }: HttpContext) {
     const siteSettings = await this.getSettings()
     const institutional = await this.getInstitutional([

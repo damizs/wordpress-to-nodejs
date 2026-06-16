@@ -6,15 +6,7 @@ import { findPublishedPage, renderPublicPage } from '#controllers/public/pages_c
 export default class AcessoInformacaoController {
   async index({ inertia }: HttpContext) {
     const siteSettings = await SiteSetting.allAsObject()
-    const esicUrl =
-      siteSettings.esic_new_url && siteSettings.esic_new_url !== '#'
-        ? siteSettings.esic_new_url
-        : 'https://doc3.inf.br/cmsu2516300/esic'
-
-    return inertia.render('public/acesso-informacao/index', {
-      siteSettings,
-      esicUrl,
-    })
+    return inertia.render('public/acesso-informacao/index', { siteSettings })
   }
 
   /** Deep-link usado nos cards de transparência: /acesso-a-informacao/lai */
