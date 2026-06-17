@@ -181,24 +181,24 @@ export const QuickAccessSection = ({
           subtitle={subtitle || "Acompanhe as funções legislativa, fiscalizadora e deliberativa da Casa do Povo."}
         />
 
-        <div className="grid grid-cols-1 min-[400px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-5">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-5">
           {items.map((item, index) => {
             const IconComponent = iconMap[item.icon || ""] || FileText;
             const color = colorMap[item.color || ""] || fallbackColors[index % fallbackColors.length];
             const description = descriptionMap[item.title.toLowerCase().trim()];
             const cardClass =
-              "group card-modern p-4 sm:p-6 no-underline flex flex-col items-center text-center min-h-[140px] sm:min-h-0";
+              "group card-modern p-3 sm:p-6 no-underline flex flex-col items-center text-center min-h-[126px] sm:min-h-0";
             const cardStyle = {};
             const inner = (
               <>
-                <div className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full ${color} flex items-center justify-center mb-3 sm:mb-4 shadow-sm`}>
-                  <IconComponent className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+                <div className={`w-10 h-10 sm:w-14 sm:h-14 rounded-full ${color} flex items-center justify-center mb-2.5 sm:mb-4 shadow-sm`}>
+                  <IconComponent className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
                 </div>
-                <h3 className="font-bold text-foreground text-sm group-hover:text-primary transition-colors duration-300">
+                <h3 className="font-bold text-foreground text-[13px] sm:text-sm leading-snug group-hover:text-primary transition-colors duration-300">
                   {item.title}
                 </h3>
                 {description && (
-                  <p className="text-xs text-muted-foreground mt-2 leading-snug">{description}</p>
+                  <p className="hidden sm:block text-xs text-muted-foreground mt-2 leading-snug">{description}</p>
                 )}
               </>
             );

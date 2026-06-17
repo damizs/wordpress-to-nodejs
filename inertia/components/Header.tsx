@@ -55,6 +55,35 @@ const defaultNavItems: NavItem[] = [
   { label: "Cidadão", href: "/ouvidoria", hasDropdown: true, subItems: cidadaoSubItems },
 ];
 
+const DESKTOP_NAV_LIMIT_BY_TEMPLATE: Record<string, number> = {
+  institucional: 5,
+  classico: 6,
+  moderno: 5,
+  compacto: 4,
+};
+
+function buildDesktopNavItems(items: NavItem[], limit: number): NavItem[] {
+  if (items.length <= limit) return items;
+
+  const visibleCount = Math.max(1, limit - 1);
+  const visible = items.slice(0, visibleCount);
+  const overflow = items.slice(visibleCount);
+  const subItems = overflow.flatMap((item) => [
+    { label: item.label, href: item.href },
+    ...(item.subItems || []).map((sub) => ({ label: `${item.label} / ${sub.label}`, href: sub.href })),
+  ]);
+
+  return [
+    ...visible,
+    {
+      label: "Mais",
+      href: overflow[0]?.href || "/",
+      hasDropdown: true,
+      subItems,
+    },
+  ];
+}
+
 /** Menu editável no painel (/painel/menus); cai no padrão se a setting estiver vazia */
 function parseNavItems(raw: string | null | undefined): NavItem[] {
   if (!raw) return defaultNavItems;
@@ -89,6 +118,10 @@ export const Header = ({ logoUrl }: HeaderProps) => {
   const settings = useSiteSettings();
   const navItems = parseNavItems(settings.header_menu);
   const template = getSiteTemplate(settings.site_template).key;
+  const desktopNavItems = buildDesktopNavItems(
+    navItems,
+    DESKTOP_NAV_LIMIT_BY_TEMPLATE[template] || DESKTOP_NAV_LIMIT_BY_TEMPLATE.institucional
+  );
   // Modo embed (?embed=1): página renderizada dentro de um modal/iframe — sem cabeçalho
   const { url: currentUrl } = usePage();
   const isEmbed = /[?&]embed=1/.test(currentUrl);
@@ -202,7 +235,7 @@ export const Header = ({ logoUrl }: HeaderProps) => {
             <span className="text-sm font-bold text-white truncate">{headerTitle}</span>
           </Link>
           <ul className="flex items-center gap-0.5">
-            {navItems.map((item, index) => (
+            {desktopNavItems.map((item, index) => (
               <li key={index} className="relative group">
                 <Link
                   href={item.href}
@@ -259,7 +292,7 @@ export const Header = ({ logoUrl }: HeaderProps) => {
   /* Itens de navegação (desktop) reutilizados pelos modelos novos — sempre
      sobre superfície escura (navy/gradiente), então tom claro. */
   const renderNavLinks = (dropdownAlign: "left" | "right" = "left") =>
-    navItems.map((item, index) => (
+    desktopNavItems.map((item, index) => (
       <li key={index} className="relative group">
         <Link
           href={item.href}
@@ -292,11 +325,11 @@ export const Header = ({ logoUrl }: HeaderProps) => {
 
   /** Menu governamental — uppercase, filete dourado no hover */
   const renderClassicoNavLinks = () =>
-    navItems.map((item, index) => (
+    desktopNavItems.map((item, index) => (
       <li key={index} className="relative group">
         <Link
           href={item.href}
-          className="flex items-center gap-1 px-4 py-3.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-primary-foreground/90 hover:text-gold hover:bg-primary-foreground/[0.06] transition-colors no-underline border-b-2 border-transparent hover:border-gold"
+          className="flex items-center gap-1 px-4 py-3.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-primary-foreground/90 hover:text-navy-dark hover:bg-gold transition-colors no-underline border-b-2 border-transparent hover:border-gold"
         >
           {item.label}
           {item.hasDropdown && (
@@ -502,15 +535,11 @@ export const Header = ({ logoUrl }: HeaderProps) => {
           </div>
         </div>
 
-        {/* Barra de identidade — grade sutil + logo + título */}
-        <div className="bg-card border-b border-border relative">
-          <div className="absolute inset-0 template-classico-grid opacity-50 pointer-events-none" aria-hidden="true" />
+        {/* Barra de identidade — limpa, clara e institucional */}
+        <div className="bg-background border-b border-border relative">
           <div className="relative container flex items-center justify-between gap-4 py-4 md:py-5">
             <Link href="/" className="flex items-center gap-3 md:gap-4 no-underline min-w-0 flex-1">
-              <span
-                className="hidden sm:block w-1 shrink-0 self-stretch min-h-[3rem] rounded-full bg-gradient-to-b from-gold via-gold/70 to-gold/20"
-                aria-hidden="true"
-              />
+              <span className="hidden sm:block w-1 shrink-0 self-stretch min-h-[3rem] rounded-full bg-gold" aria-hidden="true" />
               {logoOrInitial("h-12 md:h-16 w-auto object-contain shrink-0")}
               <span className="min-w-0 border-l border-gold/30 pl-3 md:pl-4">
                 <span className="block text-[10px] md:text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
@@ -526,9 +555,9 @@ export const Header = ({ logoUrl }: HeaderProps) => {
           <div className="template-gold-rule-solid opacity-80" aria-hidden="true" />
         </div>
 
-        <nav className="hidden md:block bg-navy text-primary-foreground border-b-[3px] border-gold shadow-md">
+        <nav className="hidden md:block bg-navy-dark text-primary-foreground border-b-[3px] border-gold shadow-md">
           <div className="container flex items-center">
-            <ul className="flex items-center">{renderClassicoNavLinks()}</ul>
+            <ul className="flex items-center min-w-0">{renderClassicoNavLinks()}</ul>
             <div className="ml-auto pl-4 border-l border-primary-foreground/15">{searchButtonDark}</div>
           </div>
         </nav>
@@ -546,33 +575,26 @@ export const Header = ({ logoUrl }: HeaderProps) => {
    * ========================================================================= */
   if (template === "moderno") {
     return (
-      <header className="relative z-50 bg-gradient-hero text-primary-foreground overflow-visible">
+      <header className="relative z-50 bg-navy-dark text-primary-foreground border-b border-primary-foreground/10 shadow-sm">
         {widgets}
         {compactBar}
 
-        <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-          <div className="absolute inset-0 template-modern-grid opacity-80" />
-          <div className="absolute inset-0 template-modern-mesh" />
-          <div className="absolute -top-1/2 -right-1/4 w-[28rem] h-[28rem] bg-gold/10 rounded-full blur-3xl" />
-          <div className="absolute -bottom-1/2 -left-1/4 w-[28rem] h-[28rem] bg-sky/10 rounded-full blur-3xl" />
-        </div>
-
-        <div className="relative container flex items-center justify-between gap-4 py-4 md:py-5">
+        <div className="relative container flex items-center justify-between gap-4 py-3.5 md:py-4">
           <Link href="/" className="flex items-center gap-3 md:gap-4 no-underline min-w-0 group">
-            {logoOrInitial("h-11 md:h-14 w-auto object-contain shrink-0 drop-shadow-md")}
-            <span className="min-w-0 hidden sm:block border-l border-primary-foreground/20 pl-3 md:pl-4">
-              <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-gold/90">
+            {logoOrInitial("h-10 md:h-12 w-auto object-contain shrink-0")}
+            <span className="min-w-0 hidden sm:block border-l border-primary-foreground/15 pl-3 md:pl-4">
+              <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-gold">
                 {headerSubtitle}
               </span>
-              <span className="block text-sm md:text-base font-bold text-primary-foreground leading-tight truncate">
+              <span className="block text-sm md:text-[15px] font-bold text-primary-foreground leading-tight truncate">
                 {headerTitle}
               </span>
             </span>
           </Link>
 
-          <nav className="hidden md:block">
-            <div className="glass rounded-full px-1.5 py-1 border border-primary-foreground/15 shadow-lg">
-              <ul className="flex items-center gap-0.5">
+          <nav className="hidden md:block min-w-0">
+            <div className="rounded-full px-1.5 py-1 border border-primary-foreground/12 bg-primary-foreground/[0.08]">
+              <ul className="flex items-center gap-0.5 min-w-0">
                 {renderNavLinks("right")}
                 <li className="pl-0.5">{searchButtonDark}</li>
               </ul>
@@ -584,7 +606,7 @@ export const Header = ({ logoUrl }: HeaderProps) => {
 
         {searchStripNeutral}
         {mobileNavNeutral}
-        <div className="relative h-1 bg-gradient-to-r from-transparent via-gold to-transparent" aria-hidden="true" />
+        <div className="relative h-0.5 bg-gold/80" aria-hidden="true" />
       </header>
     );
   }
@@ -607,7 +629,7 @@ export const Header = ({ logoUrl }: HeaderProps) => {
           </Link>
 
           <nav className="hidden md:block ml-auto">
-            <ul className="flex items-center gap-0.5">{renderNavLinks("right")}</ul>
+            <ul className="flex items-center gap-0.5 min-w-0">{renderNavLinks("right")}</ul>
           </nav>
 
           <div className="hidden md:block">{searchButtonDark}</div>
@@ -634,11 +656,11 @@ export const Header = ({ logoUrl }: HeaderProps) => {
         <div className="absolute -bottom-1/2 -left-1/4 w-96 h-96 bg-sky/[0.04] rounded-full blur-3xl" />
       </div>
 
-      <div className="relative container py-6 sm:py-8 md:py-10">
+      <div className="relative container py-4 sm:py-6 md:py-10">
         {/* Logo and Title */}
-        <Link href="/" className="flex items-center justify-center gap-3 sm:gap-4 mb-5 sm:mb-7 animate-fade-in no-underline px-1">
+        <Link href="/" className="flex items-center justify-center gap-3 sm:gap-4 mb-0 md:mb-7 animate-fade-in no-underline px-12 md:px-1">
           {resolvedLogo ? (
-            <img src={resolvedLogo} alt={headerTitle} className="h-20 sm:h-24 md:h-32 w-auto object-contain max-w-[85vw]" />
+            <img src={resolvedLogo} alt={headerTitle} className="h-14 sm:h-20 md:h-32 w-auto object-contain max-w-[62vw] sm:max-w-[78vw] md:max-w-[85vw]" />
           ) : (
             <>
               <div className="relative w-16 h-16 md:w-[72px] md:h-[72px] rounded-2xl glass flex items-center justify-center border border-primary-foreground/15 group-hover:border-gold/40 transition-colors duration-300">
@@ -660,8 +682,8 @@ export const Header = ({ logoUrl }: HeaderProps) => {
         {/* Desktop Navigation */}
         <nav className="hidden md:block relative z-40">
           <div className="glass rounded-2xl px-6 py-3 mx-auto max-w-3xl">
-            <ul className="flex items-center justify-center gap-1">
-              {navItems.map((item, index) => (
+            <ul className="flex items-center justify-center gap-1 min-w-0">
+              {desktopNavItems.map((item, index) => (
                 <li key={index} className="relative group">
                   <Link
                     href={item.href}
@@ -742,7 +764,7 @@ export const Header = ({ logoUrl }: HeaderProps) => {
         )}
 
         {/* Mobile Menu Button */}
-        <div className="md:hidden flex justify-center">
+        <div className="md:hidden absolute right-5 top-4">
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}

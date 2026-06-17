@@ -3,6 +3,7 @@ import { PageLayout } from "~/components/PageLayout";
 import { Calendar, ArrowLeft, User, Hash } from "lucide-react";
 import { formatDocumentDate } from "~/components/DocumentActions";
 import { OfficialDocument } from "~/components/OfficialDocument";
+import { SafeHtml } from "~/components/SafeHtml";
 
 interface Author { id: number; name: string; slug: string; photo: string | null; party: string | null; }
 interface Props {
@@ -117,7 +118,7 @@ export default function ActivityShow({ activity, authors = [], exportUrl }: Prop
                     <p className="text-base text-muted-foreground border-l-4 border-gold/60 pl-4 mb-6">{activity.summary}</p>
                   )}
       {activity.content && (
-        <div className="prose prose-slate dark:prose-invert max-w-none prose-p:text-justify" dangerouslySetInnerHTML={{ __html: activity.content }} />
+        <SafeHtml html={activity.content} className="prose prose-slate dark:prose-invert max-w-none prose-p:text-justify" />
       )}
       </OfficialDocument>
     </PageLayout>

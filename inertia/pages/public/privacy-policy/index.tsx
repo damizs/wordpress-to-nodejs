@@ -5,6 +5,7 @@ import { Header } from "~/components/Header";
 import { Breadcrumb } from "~/components/Breadcrumb";
 import { PageHero } from "~/components/PageHero";
 import { Footer } from "~/components/Footer";
+import { SafeHtml } from "~/components/SafeHtml";
 import {
   CalendarDays,
   Cookie,
@@ -209,7 +210,7 @@ export default function PrivacyPolicyIndex({ content }: Props) {
               <div>
                 {content ? (
                   <article className="card-modern !transform-none p-6 md:p-10">
-                    <div className={PROSE} dangerouslySetInnerHTML={{ __html: content }} />
+                    <SafeHtml html={content} className={PROSE} />
                   </article>
                 ) : (
                   <>

@@ -16,13 +16,16 @@ import Seal from '#models/seal'
 import SystemCategory from '#models/system_category'
 import LegislativeActivity from '#models/legislative_activity'
 import PlenarySession from '#models/plenary_session'
+import RuntimeCache from '#services/runtime_cache'
 
 export default class HomeController {
   async index({ inertia }: HttpContext) {
     // Try to fetch seals, return empty array if table doesn't exist
     let seals: Seal[] = []
     try {
-      seals = await Seal.query().where('is_active', true).orderBy('sort_order', 'asc')
+      seals = await RuntimeCache.getOrSet('home:seals:v1', 60_000, () =>
+        Seal.query().where('is_active', true).orderBy('sort_order', 'asc')
+      )
     } catch (e) {
       console.log('Seals table may not exist yet:', e.message)
     }
@@ -86,29 +89,39 @@ export default class HomeController {
         .limit(12)
         .preload('category'),
       Councilor.query().where('is_active', true).orderBy('display_order', 'asc'),
-      QuickLink.query().where('is_active', true).orderBy('display_order', 'asc'),
-      TransparencySection.query().where('is_active', true).orderBy('display_order', 'asc'),
+      RuntimeCache.getOrSet('home:quick-links:v1', 60_000, () =>
+        QuickLink.query().where('is_active', true).orderBy('display_order', 'asc')
+      ),
+      RuntimeCache.getOrSet('home:transparency-sections:v1', 60_000, () =>
+        TransparencySection.query().where('is_active', true).orderBy('display_order', 'asc')
+      ),
       OfficialGazetteEntry.query().orderBy('publication_date', 'desc').first(),
       OfficialPublication.query().orderBy('publication_date', 'desc').limit(6),
       Legislature.query().where('is_current', true).first(),
       SiteSetting.allAsObject(),
       SystemCategory.byType('information_record'),
-      LegislativeActivity.query()
-        .where('is_active', true)
-        .orderBy('created_at', 'desc')
-        .limit(600),
-      PlenarySession.query().select('id', 'session_date', 'year', 'status'),
+      RuntimeCache.getOrSet('home:legislative-activities:v1', 60_000, () =>
+        LegislativeActivity.query()
+          .where('is_active', true)
+          .orderBy('created_at', 'desc')
+          .limit(600)
+      ),
+      RuntimeCache.getOrSet('home:plenary-sessions:v1', 60_000, () =>
+        PlenarySession.query().select('id', 'session_date', 'year', 'status')
+      ),
     ])
 
     // Edições recentes do Diário Oficial para o calendário da home (widget)
-    const gazetteRecent = await OfficialGazetteEntry.query()
-      .orderBy('publication_date', 'desc')
-      .limit(400)
+    const gazetteRecent = await RuntimeCache.getOrSet('home:gazette-recent:v1', 120_000, () =>
+      OfficialGazetteEntry.query().orderBy('publication_date', 'desc').limit(400)
+    )
 
     // Fetch transparency links for each section
     const sectionIds = transparencySections.map((s) => s.id)
     const links = sectionIds.length
-      ? await TransparencyLink.query().whereIn('sectionId', sectionIds).orderBy('display_order')
+      ? await RuntimeCache.getOrSet(`home:transparency-links:${sectionIds.join(',')}:v1`, 60_000, () =>
+          TransparencyLink.query().whereIn('sectionId', sectionIds).orderBy('display_order')
+        )
       : []
 
     const sectionsWithLinks = transparencySections.map((section) => ({

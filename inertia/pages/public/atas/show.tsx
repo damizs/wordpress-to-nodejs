@@ -3,6 +3,7 @@ import { PageLayout } from "~/components/PageLayout";
 import { Calendar, ArrowLeft } from "lucide-react";
 import { formatDocumentDate } from "~/components/DocumentActions";
 import { OfficialDocument } from "~/components/OfficialDocument";
+import { SafeHtml } from "~/components/SafeHtml";
 
 interface Props { ata: { id: number; title: string; slug: string; date: string; content?: string; file_url?: string; }; }
 
@@ -33,7 +34,7 @@ export default function AtaShow({ ata }: Props) {
                   )}
 
       {ata.content && (
-        <div className="prose prose-slate dark:prose-invert max-w-none prose-p:text-justify" dangerouslySetInnerHTML={{ __html: ata.content }} />
+        <SafeHtml html={ata.content} className="prose prose-slate dark:prose-invert max-w-none prose-p:text-justify" />
       )}
       </OfficialDocument>
     </PageLayout>

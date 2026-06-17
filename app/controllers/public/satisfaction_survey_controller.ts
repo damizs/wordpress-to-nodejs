@@ -1,6 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import SatisfactionSurvey from '#models/satisfaction_survey'
 import SiteSetting from '#models/site_setting'
+import { isValidCpf, normalizeCpf } from '#helpers/cpf'
 import db from '@adonisjs/lucid/services/db'
 
 export default class SatisfactionSurveyController {
@@ -75,9 +76,9 @@ export default class SatisfactionSurveyController {
 
   async store({ request, response, session }: HttpContext) {
     const data = request.only(['cpf', 'answers', 'suggestion'])
-    const cpf = this.normalizeCpf(data.cpf)
+    const cpf = normalizeCpf(data.cpf)
 
-    if (!cpf || !this.isValidCpf(cpf)) {
+    if (!cpf || !isValidCpf(cpf)) {
       session.flash('error', 'Informe um CPF válido para participar da pesquisa.')
       return response.redirect().toPath('/pesquisa-de-satisfacao')
     }
@@ -194,24 +195,4 @@ export default class SatisfactionSurveyController {
     }
   }
 
-  private normalizeCpf(value: unknown): string {
-    return String(value || '').replace(/\D/g, '').slice(0, 11)
-  }
-
-  private isValidCpf(cpf: string): boolean {
-    if (!/^\d{11}$/.test(cpf) || /^(\d)\1{10}$/.test(cpf)) return false
-
-    const digit = (base: string, factor: number) => {
-      let total = 0
-      for (const number of base) {
-        total += Number(number) * factor
-        factor--
-      }
-      const rest = (total * 10) % 11
-      return rest === 10 ? 0 : rest
-    }
-
-    return digit(cpf.slice(0, 9), 10) === Number(cpf[9])
-      && digit(cpf.slice(0, 10), 11) === Number(cpf[10])
-  }
 }

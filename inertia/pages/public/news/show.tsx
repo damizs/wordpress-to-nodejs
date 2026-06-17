@@ -4,6 +4,7 @@ import { TopBar } from "~/components/TopBar";
 import { Header } from "~/components/Header";
 import { Breadcrumb } from "~/components/Breadcrumb";
 import { Footer } from "~/components/Footer";
+import { SafeHtml } from "~/components/SafeHtml";
 import { Calendar, User, Tag, ArrowLeft, Facebook, Link2, Check } from "lucide-react";
 import { useState } from "react";
 
@@ -120,9 +121,9 @@ export default function NewsShow({ news, related = [] }: Props) {
                   </div>
 
                   {/* Content */}
-                  <div
+                  <SafeHtml
+                    html={news.content}
                     className="prose prose-lg dark:prose-invert max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-primary prose-img:rounded-xl"
-                    dangerouslySetInnerHTML={{ __html: news.content }}
                   />
 
                   {/* Share */}

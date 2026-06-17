@@ -3,6 +3,7 @@ import { PageLayout } from "~/components/PageLayout";
 import { Calendar, ArrowLeft, Hash, Tag } from "lucide-react";
 import { DocumentActionsPanel, formatDocumentDate } from "~/components/DocumentActions";
 import { OfficialDocument } from "~/components/OfficialDocument";
+import { SafeHtml } from "~/components/SafeHtml";
 
 interface Props {
   publication: {
@@ -82,7 +83,7 @@ export default function PublicationShow({ publication, exportUrl }: Props) {
         </div>
 
         {publication.description && (
-          <div className="prose prose-slate dark:prose-invert max-w-none prose-p:text-justify" dangerouslySetInnerHTML={{ __html: publication.description }} />
+          <SafeHtml html={publication.description} className="prose prose-slate dark:prose-invert max-w-none prose-p:text-justify" />
         )}
       </OfficialDocument>
     </PageLayout>

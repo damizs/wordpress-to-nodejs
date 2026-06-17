@@ -326,7 +326,7 @@
 
   html[data-template='moderno'] h1,
   html[data-template='moderno'] h2 {
-    letter-spacing: -0.02em;
+    letter-spacing: 0;
   }
 }
 
@@ -728,6 +728,33 @@ html.js-anim [data-reveal].no-transition {
     @apply w-full min-w-[640px] border-collapse;
   }
 
+  /** Conteúdo rico importado do WordPress/TinyMCE: evita estouro em mobile */
+  .rich-text {
+    overflow-wrap: anywhere;
+  }
+  .rich-text :where(table) {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+  .rich-text :where(thead, tbody, tfoot, tr) {
+    width: max-content;
+    min-width: 100%;
+  }
+  .rich-text :where(th, td) {
+    min-width: 9rem;
+    vertical-align: top;
+    word-break: normal;
+  }
+  .rich-text :where(img, iframe, video) {
+    max-width: 100%;
+    height: auto;
+  }
+
   /** Formulários do painel — largura total no mobile, limitada no desktop */
   .admin-form {
     @apply w-full min-w-0 space-y-6 lg:max-w-3xl;
@@ -743,11 +770,11 @@ html.js-anim [data-reveal].no-transition {
 
 @layer base {
   html {
-    overflow-x: clip;
+    overflow-x: hidden;
     -webkit-text-size-adjust: 100%;
   }
   body {
-    overflow-x: clip;
+    overflow-x: hidden;
     min-width: 0;
   }
   #app {

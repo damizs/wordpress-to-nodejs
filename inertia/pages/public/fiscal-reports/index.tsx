@@ -99,7 +99,7 @@ export default function FiscalReportsIndex({ reports = [], filters = {}, years =
 
         <main id="conteudo">
           <section className="py-10 lg:py-14">
-            <div className="container max-w-4xl">
+            <div className="container">
               {/* Nota informativa */}
               <div data-reveal="up" className="mb-8 flex gap-4 rounded-2xl border border-sky/20 bg-sky/5 p-5 lg:p-6">
                 <div className="shrink-0 w-10 h-10 rounded-xl bg-sky/15 text-sky flex items-center justify-center">

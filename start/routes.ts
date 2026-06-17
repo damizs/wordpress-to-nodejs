@@ -160,6 +160,8 @@ router.get('/api/categorias/:type', [AdminCategoriesController, 'byType'])
 
 // Rota temporária para reset de links rápidos (protegida)
 router.get('/api/reset-quick-links', async ({ response, auth }) => {
+  return response.notFound()
+
   try {
     await auth.authenticate()
   } catch {

@@ -206,7 +206,7 @@ function Block({ block }: { block: PageBlock }) {
 export function BlockRenderer({ blocks }: { blocks: PageBlock[] }) {
   if (!Array.isArray(blocks) || blocks.length === 0) return null
   return (
-    <div>
+    <div className="min-w-0">
       {blocks.map((block, i) => (
         <Block key={i} block={block} />
       ))}

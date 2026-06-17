@@ -6,6 +6,7 @@ import { Breadcrumb } from "~/components/Breadcrumb";
 import { Footer } from "~/components/Footer";
 import { Calendar, ArrowLeft, Download, FileText, Tag, Hash, CheckCircle2, Circle, CircleDollarSign, CalendarCheck, AlertTriangle } from "lucide-react";
 import { DocumentActionsPanel, formatDocumentDate } from "~/components/DocumentActions";
+import { SafeHtml } from "~/components/SafeHtml";
 
 interface Attachment { id: number; name: string; url: string; }
 interface DocumentGroup { type: string; label: string; files: { id: number; title: string; url: string }[]; }
@@ -207,7 +208,7 @@ export default function LicitacaoShow({ licitacao, documentGroups = [], phases =
                   )}
 
                   {longText && (
-                    <div className="prose prose-slate dark:prose-invert max-w-none mb-6" dangerouslySetInnerHTML={{ __html: longText }} />
+                    <SafeHtml html={longText} className="prose prose-slate dark:prose-invert max-w-none mb-6" />
                   )}
 
                   {/* Rito completo do processo: todas as fases da modalidade */}

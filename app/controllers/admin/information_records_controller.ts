@@ -12,15 +12,24 @@ export default class InformationRecordsController {
     const page = request.input('page', 1)
     const category = request.input('category', '')
     const year = request.input('year', '')
+    const q = String(request.input('q', '') || '').trim()
 
     let query = InformationRecord.query().orderBy('year', 'desc').orderBy('created_at', 'desc')
     if (category) query = query.where('category', category)
     if (year) query = query.where('year', year)
+    if (q) {
+      query = query.where((builder) => {
+        builder
+          .whereILike('title', `%${q}%`)
+          .orWhereILike('content', `%${q}%`)
+          .orWhereILike('category', `%${q}%`)
+      })
+    }
 
     const records = await query.paginate(page, 20)
     return inertia.render('admin/information-records/index', {
       records: records.serialize(),
-      filters: { category, year },
+      filters: { category, year, q },
     })
   }
 

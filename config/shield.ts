@@ -6,8 +6,39 @@ const shieldConfig = defineConfig({
    * to learn more
    */
   csp: {
-    enabled: false,
-    directives: {},
+    enabled: true,
+    directives: {
+      defaultSrc: ["'self'"],
+      baseUri: ["'self'"],
+      objectSrc: ["'none'"],
+      scriptSrc: [
+        "'self'",
+        "'unsafe-inline'",
+        "'unsafe-eval'",
+        'https://vlibras.gov.br',
+        'https://www.vlibras.gov.br',
+        'https://www.youtube.com',
+        'https://www.instagram.com',
+        'https://platform.instagram.com',
+      ],
+      styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
+      fontSrc: ["'self'", 'data:', 'https://fonts.gstatic.com'],
+      imgSrc: ["'self'", 'data:', 'blob:', 'https:'],
+      mediaSrc: ["'self'", 'blob:', 'https:'],
+      connectSrc: ["'self'", 'https:'],
+      frameSrc: [
+        "'self'",
+        'https://www.youtube.com',
+        'https://www.youtube-nocookie.com',
+        'https://www.instagram.com',
+        'https://platform.instagram.com',
+        'https://vlibras.gov.br',
+        'https://www.vlibras.gov.br',
+      ],
+      workerSrc: ["'self'", 'blob:'],
+      frameAncestors: ["'self'"],
+      formAction: ["'self'"],
+    },
     reportOnly: false,
   },
 
@@ -28,7 +59,7 @@ const shieldConfig = defineConfig({
    */
   xFrame: {
     enabled: true,
-    action: 'DENY',
+    action: 'SAMEORIGIN',
   },
 
   /**

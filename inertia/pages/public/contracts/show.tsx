@@ -72,7 +72,7 @@ export default function ContractShow({ contract }: Props) {
         <PageHero badge="Transparência" title={heading} subtitle={contract.contractor_name || contract.object || undefined} centered />
         <main id="conteudo">
           <section className="py-10 lg:py-14">
-            <div className="container max-w-4xl">
+            <div className="container">
               <div className="flex flex-wrap items-center gap-2 mb-6">
                 <span className={`px-3 py-1 rounded-full text-xs font-semibold ${status.classes}`}>{status.label}</span>
                 {contract.file_url && (
@@ -80,7 +80,7 @@ export default function ContractShow({ contract }: Props) {
                     href={contract.file_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-navy text-primary-foreground text-sm font-medium hover:bg-navy-light transition-colors no-underline ml-auto"
+                    className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-navy text-primary-foreground text-sm font-medium hover:bg-navy-light transition-colors no-underline sm:ml-auto w-full sm:w-auto"
                   >
                     <Download className="w-4 h-4" /> Baixar contrato (PDF)
                   </a>

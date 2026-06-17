@@ -65,6 +65,8 @@ export default function Appearance({ settings }: Props) {
     color_sky: getVal(appearance, 'color_sky'),
     header_title: getVal(appearance, 'header_title'),
     header_subtitle: getVal(appearance, 'header_subtitle'),
+    login_title: getVal(appearance, 'login_title') || 'Painel Administrativo',
+    login_subtitle: getVal(appearance, 'login_subtitle') || 'Camara Municipal de Sume',
     footer_description: getVal(footer, 'footer_description'),
     footer_address: getVal(footer, 'footer_address'),
     footer_phone: getVal(footer, 'footer_phone'),
@@ -80,6 +82,7 @@ export default function Appearance({ settings }: Props) {
     logo_url: null as File | null,
     document_brasao_url: null as File | null,
     favicon_url: null as File | null,
+    login_logo_url: null as File | null,
     atricon_logo_url: null as File | null,
     news_background_image: null as File | null,
   })
@@ -87,15 +90,17 @@ export default function Appearance({ settings }: Props) {
   const logoRef = useRef<HTMLInputElement>(null)
   const brasaoRef = useRef<HTMLInputElement>(null)
   const faviconRef = useRef<HTMLInputElement>(null)
+  const loginLogoRef = useRef<HTMLInputElement>(null)
   const atriconLogoRef = useRef<HTMLInputElement>(null)
   const newsBackgroundRef = useRef<HTMLInputElement>(null)
   const [logoPreview, setLogoPreview] = useState<string | null>(getVal(appearance, 'logo_url'))
   const [brasaoPreview, setBrasaoPreview] = useState<string | null>(getVal(appearance, 'document_brasao_url'))
   const [faviconPreview, setFaviconPreview] = useState<string | null>(getVal(appearance, 'favicon_url'))
+  const [loginLogoPreview, setLoginLogoPreview] = useState<string | null>(getVal(appearance, 'login_logo_url'))
   const [atriconLogoPreview, setAtriconLogoPreview] = useState<string | null>(getVal(appearance, 'atricon_logo_url'))
   const [newsBackgroundPreview, setNewsBackgroundPreview] = useState<string | null>(getVal(appearance, 'news_background_image'))
 
-  function handleFileChange(field: 'logo_url' | 'document_brasao_url' | 'favicon_url' | 'atricon_logo_url' | 'news_background_image', file: File | null) {
+  function handleFileChange(field: 'logo_url' | 'document_brasao_url' | 'favicon_url' | 'login_logo_url' | 'atricon_logo_url' | 'news_background_image', file: File | null) {
     setData(field, file)
     if (file) {
       const reader = new FileReader()
@@ -103,6 +108,7 @@ export default function Appearance({ settings }: Props) {
         if (field === 'logo_url') setLogoPreview(e.target?.result as string)
         else if (field === 'document_brasao_url') setBrasaoPreview(e.target?.result as string)
         else if (field === 'favicon_url') setFaviconPreview(e.target?.result as string)
+        else if (field === 'login_logo_url') setLoginLogoPreview(e.target?.result as string)
         else if (field === 'atricon_logo_url') setAtriconLogoPreview(e.target?.result as string)
         else setNewsBackgroundPreview(e.target?.result as string)
       }
@@ -246,6 +252,7 @@ export default function Appearance({ settings }: Props) {
                   preview={faviconPreview}
                   inputRef={faviconRef}
                   onChange={(f) => handleFileChange('favicon_url', f)}
+                  accept="image/png,image/x-icon,.ico"
                 />
               </div>
 
@@ -259,6 +266,39 @@ export default function Appearance({ settings }: Props) {
                 <p className="text-xs text-muted-foreground mt-1.5">
                   Usado no timbre das matérias (publicações, atas, pautas, atividades). Se vazio, usa a logo do cabeçalho.
                 </p>
+              </div>
+
+              <div className="mt-6 rounded-xl border border-border bg-muted/30 p-4">
+                <div className="mb-4">
+                  <h3 className="text-sm font-semibold text-foreground">Tela de login do painel</h3>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Personaliza a entrada administrativa com a identidade da Camara.
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <TextField
+                    label="Titulo do login"
+                    value={data.login_title}
+                    onChange={(v) => setData('login_title', v)}
+                  />
+                  <TextField
+                    label="Subtitulo do login"
+                    value={data.login_subtitle}
+                    onChange={(v) => setData('login_subtitle', v)}
+                  />
+                </div>
+                <div className="mt-4 max-w-md">
+                  <FileField
+                    label="Logo do login"
+                    preview={loginLogoPreview}
+                    inputRef={loginLogoRef}
+                    onChange={(f) => handleFileChange('login_logo_url', f)}
+                    accept="image/png,image/jpeg,image/webp"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1.5">
+                    Se vazio, a tela usa a logo principal do site.
+                  </p>
+                </div>
               </div>
 
               {/* Logo ATRICON (Radar) */}
@@ -296,7 +336,7 @@ export default function Appearance({ settings }: Props) {
                     <input
                       ref={atriconLogoRef}
                       type="file"
-                      accept="image/png,image/jpeg,image/svg+xml,image/webp"
+                      accept="image/png,image/jpeg,image/webp"
                       className="hidden"
                       onChange={(e) => handleFileChange('atricon_logo_url', e.target.files?.[0] || null)}
                     />
@@ -943,11 +983,12 @@ function ColorField({ label, value, onChange }: { label: string; value: string; 
   )
 }
 
-function FileField({ label, preview, inputRef, onChange }: {
+function FileField({ label, preview, inputRef, onChange, accept = 'image/png,image/jpeg,image/webp' }: {
   label: string
   preview: string | null
   inputRef: React.RefObject<HTMLInputElement | null>
   onChange: (f: File | null) => void
+  accept?: string
 }) {
   return (
     <Field label={label}>
@@ -967,7 +1008,7 @@ function FileField({ label, preview, inputRef, onChange }: {
       <input
         ref={inputRef}
         type="file"
-        accept="image/*"
+        accept={accept}
         className="hidden"
         onChange={(e) => onChange(e.target.files?.[0] || null)}
       />

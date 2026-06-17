@@ -17,15 +17,24 @@ export default class LicitacoesController {
     const page = request.input('page', 1)
     const status = request.input('status', '')
     const modality = request.input('modality', '')
+    const search = String(request.input('search', '') || '').trim()
 
     let query = Licitacao.query().orderBy('created_at', 'desc')
     if (status) query = query.where('status', status)
     if (modality) query = query.where('modality', modality)
+    if (search) {
+      query = query.where((builder) => {
+        builder
+          .whereILike('title', `%${search}%`)
+          .orWhereILike('number', `%${search}%`)
+          .orWhereILike('object', `%${search}%`)
+      })
+    }
 
     const licitacoes = await query.paginate(page, 20)
     return inertia.render('admin/licitacoes/index', {
       licitacoes: licitacoes.serialize(),
-      filters: { status, modality },
+      filters: { status, modality, search },
     })
   }
 

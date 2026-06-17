@@ -68,7 +68,7 @@ export function NewsHeroPanel({ news, limit }: { news: NewsItem[]; limit?: numbe
         </Link>
       )}
       {others.length > 0 && (
-        <div className="grid grid-cols-2 gap-2.5 lg:gap-3">
+        <div className="hidden sm:grid grid-cols-2 gap-2.5 lg:gap-3">
           {others.map((item, index) => (
             <Link href={`/noticias/${item.slug}`} key={item.id} className="no-underline min-w-0">
               <article

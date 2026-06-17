@@ -5,6 +5,7 @@ import Licitacao from '#models/licitacao'
 import OfficialPublication from '#models/official_publication'
 import NominalVoting from '#models/nominal_voting'
 import PlenarySession from '#models/plenary_session'
+import RuntimeCache from '#services/runtime_cache'
 
 type Row = Record<string, string | number | boolean | null>
 
@@ -198,7 +199,7 @@ export default class OpenDataController {
       return response.notFound({ error: 'Conjunto de dados ou formato não encontrado.' })
     }
 
-    const rows = await QUERIES[dataset]()
+    const rows = await RuntimeCache.getOrSet(`open-data:${dataset}:v1`, 300_000, QUERIES[dataset])
     response.header('Cache-Control', 'public, max-age=300')
 
     if (format === 'csv') {

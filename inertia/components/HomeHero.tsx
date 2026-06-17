@@ -40,45 +40,41 @@ export function HomeHero({ template, news = [], backgroundImage, newsLimit }: Ho
     const hasNews = news.length > 0;
 
     return (
-      <section className="relative text-primary-foreground overflow-hidden">
+      <section className="relative text-primary-foreground overflow-hidden bg-navy-dark">
         {/* Fundo — imagem da seção de notícias ou gradiente fallback */}
         {backgroundImage ? (
           <div className="absolute inset-0 overflow-hidden">
             <img src={backgroundImage} alt="" className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-navy-dark/80" />
+            <div className="absolute inset-0 bg-gradient-to-r from-navy-dark via-navy-dark/88 to-navy-dark/72" />
+            <div className="absolute inset-0 bg-gradient-to-t from-navy-dark via-transparent to-navy-dark/20" />
           </div>
         ) : (
-          <div className="absolute inset-0 bg-gradient-hero">
-            <div className="absolute -top-1/3 -right-1/4 w-[28rem] h-[28rem] bg-gold/10 rounded-full blur-3xl" />
-            <div className="absolute -bottom-1/3 -left-1/4 w-[28rem] h-[28rem] bg-sky/10 rounded-full blur-3xl" />
-          </div>
+          <div className="absolute inset-0 bg-navy-dark" />
         )}
 
-        {/* Ornamentos modernos — mesh + grade sobre o fundo */}
-        <div className="absolute inset-0 template-modern-grid opacity-60 pointer-events-none" aria-hidden="true" />
-        <div className="absolute inset-0 template-modern-mesh pointer-events-none" aria-hidden="true" />
+        <div className="absolute inset-0 template-modern-grid opacity-10 pointer-events-none" aria-hidden="true" />
 
-        <div className="relative container py-10 sm:py-14 lg:py-20">
+        <div className="relative container py-7 sm:py-10 lg:py-14">
           <div
-            className={`grid gap-8 lg:gap-10 xl:gap-12 items-start ${
-              hasNews ? "lg:grid-cols-2" : "max-w-3xl"
+            className={`grid gap-7 lg:gap-10 xl:gap-12 items-center min-w-0 ${
+              hasNews ? "lg:grid-cols-[minmax(0,0.95fr)_minmax(22rem,0.8fr)]" : "max-w-3xl"
             }`}
           >
-            <div data-reveal="fade-right">
+            <div className="min-w-0" data-reveal="fade-right">
               <div className="flex items-center gap-3 mb-4">
                 <span className="inline-block text-xs font-semibold uppercase tracking-[0.14em] text-gold">
                   {subtitle}
                 </span>
                 <span className="h-px flex-1 max-w-16 bg-gradient-to-r from-gold/70 to-transparent" aria-hidden="true" />
               </div>
-              <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight tracking-tight">
+              <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold leading-tight tracking-tight max-w-2xl">
                 {titleFirstWord}{" "}
                 <span className="text-gradient-gold">{titleRest.join(" ")}</span>
               </h1>
-              <p className="mt-5 text-lg text-primary-foreground/80 max-w-xl leading-relaxed">
+              <p className="mt-3 sm:mt-4 text-sm sm:text-lg text-primary-foreground/82 max-w-2xl leading-relaxed">
                 {tagline}
               </p>
-              <div className="mt-7 flex flex-wrap gap-3">
+              <div className="mt-5 sm:mt-6 flex flex-col min-[420px]:flex-row gap-3">
                 <Link href="/transparencia" className={primaryBtn}>
                   Transparência
                   <ArrowRight className="w-4 h-4" aria-hidden="true" />
@@ -91,17 +87,9 @@ export function HomeHero({ template, news = [], backgroundImage, newsLimit }: Ho
 
             {hasNews && (
               <div
-                className="relative rounded-2xl border border-primary-foreground/15 bg-primary-foreground/[0.04] backdrop-blur-md p-1.5 sm:p-2 shadow-2xl"
+                className="relative min-w-0 rounded-2xl border border-primary-foreground/12 bg-navy-dark/55 p-2 shadow-xl backdrop-blur-sm"
                 data-reveal="fade-left"
               >
-                <div
-                  className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-bl from-gold/25 to-transparent rounded-tr-2xl pointer-events-none"
-                  aria-hidden="true"
-                />
-                <div
-                  className="absolute bottom-0 left-0 w-12 h-12 border-b-2 border-l-2 border-gold/40 rounded-bl-2xl pointer-events-none"
-                  aria-hidden="true"
-                />
                 <NewsHeroPanel news={news} limit={newsLimit} />
               </div>
             )}
@@ -109,12 +97,11 @@ export function HomeHero({ template, news = [], backgroundImage, newsLimit }: Ho
         </div>
 
         {hasNews && (
-          <div className="relative bg-navy-dark/90 backdrop-blur-sm border-t border-primary-foreground/10">
-            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold/50 to-transparent" aria-hidden="true" />
+          <div className="relative bg-navy-dark border-t border-primary-foreground/10">
             <div className="container py-4 flex justify-center sm:justify-end">
               <Link
                 href="/noticias"
-                className="group inline-flex items-center justify-center gap-3 w-full sm:w-auto px-6 py-2.5 bg-primary-foreground/10 hover:bg-gold hover:text-navy-dark rounded-full text-primary-foreground font-medium no-underline transition-all duration-300"
+                className="group inline-flex items-center justify-center gap-3 w-full sm:w-auto px-6 py-2.5 bg-primary-foreground/10 hover:bg-gold hover:text-navy-dark rounded-full text-primary-foreground font-medium no-underline transition-colors"
               >
                 Ver mais notícias
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />

@@ -48,7 +48,7 @@ interface Props {
 }
 
 const ACCEPT =
-  '.png,.jpg,.jpeg,.webp,.svg,.gif,.pdf,.doc,.docx,.xls,.xlsx,.csv,.zip'
+  '.png,.jpg,.jpeg,.webp,.gif,.pdf,.doc,.docx,.xls,.xlsx,.csv,.zip'
 
 function formatSize(bytes: number): string {
   if (!bytes || bytes <= 0) return '0 B'

@@ -3,6 +3,7 @@
  * Aceita HTML (TinyMCE) ou markdown-lite legado (**negrito**, listas, ## subtítulo).
  */
 import { Fragment, type ReactNode } from 'react'
+import { sanitizeHtml } from '~/lib/sanitize_html'
 
 const HTML_LIKE = /<(?:p|br|div|ul|ol|li|h[1-6]|strong|em|a|img|table|blockquote)\b/i
 
@@ -59,8 +60,8 @@ export function RichText({ text, className = '' }: { text: string; className?: s
   if (looksLikeHtml(text)) {
     return (
       <div
-        className={`prose prose-slate dark:prose-invert max-w-none prose-p:text-justify prose-img:rounded-lg ${className}`}
-        dangerouslySetInnerHTML={{ __html: text }}
+        className={`rich-text prose prose-slate dark:prose-invert max-w-none prose-p:text-justify prose-img:rounded-lg ${className}`}
+        dangerouslySetInnerHTML={{ __html: sanitizeHtml(text) }}
       />
     )
   }

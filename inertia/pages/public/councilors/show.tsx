@@ -5,6 +5,7 @@ import { TopBar } from "~/components/TopBar";
 import { Header } from "~/components/Header";
 import { Breadcrumb } from "~/components/Breadcrumb";
 import { Footer } from "~/components/Footer";
+import { SafeHtml } from "~/components/SafeHtml";
 import {
   Mail,
   Phone,
@@ -945,11 +946,9 @@ export default function VereadorShow({
                           <BookOpen className="w-5 h-5 text-gold" aria-hidden="true" />
                           Biografia
                         </h2>
-                        <div
+                        <SafeHtml
+                          html={(vereador.bio || vereador.biography) as string}
                           className="prose prose-sm dark:prose-invert max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-strong:text-foreground prose-a:text-primary"
-                          dangerouslySetInnerHTML={{
-                            __html: (vereador.bio || vereador.biography) as string,
-                          }}
                         />
                       </div>
                     )}
@@ -959,9 +958,9 @@ export default function VereadorShow({
                           <History className="w-5 h-5 text-gold" aria-hidden="true" />
                           História e Trajetória
                         </h2>
-                        <div
+                        <SafeHtml
+                          html={vereador.history as string}
                           className="prose prose-sm dark:prose-invert max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-strong:text-foreground prose-a:text-primary"
-                          dangerouslySetInnerHTML={{ __html: vereador.history as string }}
                         />
                       </div>
                     )}

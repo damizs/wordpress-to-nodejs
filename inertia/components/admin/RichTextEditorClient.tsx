@@ -83,11 +83,25 @@ export default function RichTextEditorClient({
       branding: false,
       promotion: false,
       license_key: 'gpl',
-      skin: isDark ? 'oxide-dark' : 'oxide',
-      content_css: isDark ? 'dark' : 'default',
+      skin: false,
+      content_css: false,
+      toolbar_mode: 'wrap',
       placeholder,
       relative_urls: false,
       convert_urls: true,
+      content_style: `
+        body {
+          font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+          font-size: 15px;
+          line-height: 1.65;
+          color: ${isDark ? '#f4f7fb' : '#172033'};
+          background: ${isDark ? '#0f172a' : '#ffffff'};
+          padding: 14px 16px;
+        }
+        table { border-collapse: collapse; width: 100%; }
+        th, td { border: 1px solid ${isDark ? '#334155' : '#d7e0ea'}; padding: 8px; }
+        img { max-width: 100%; height: auto; }
+      `,
       paste_data_images: true,
       image_caption: true,
       image_title: true,
@@ -105,7 +119,7 @@ export default function RichTextEditorClient({
   )
 
   return (
-    <div className="rich-text-editor rounded-lg border border-border overflow-hidden [&_.tox-tinymce]:border-0">
+    <div className="rich-text-editor rounded-lg border border-border overflow-hidden bg-card [&_.tox-tinymce]:border-0 [&_.tox-editor-header]:!border-b [&_.tox-editor-header]:!border-border [&_.tox-toolbar-overlord]:!bg-card [&_.tox-toolbar__primary]:!bg-card [&_.tox-statusbar]:!border-t [&_.tox-statusbar]:!border-border">
       <Editor
         key={isDark ? 'dark' : 'light'}
         value={value}

@@ -92,6 +92,24 @@ const APPEARANCE_KEYS: Record<
     label: 'Brasão (documentos oficiais)',
   },
   favicon_url: { group: 'appearance', defaultValue: '', type: 'image', label: 'Favicon' },
+  login_logo_url: {
+    group: 'appearance',
+    defaultValue: '',
+    type: 'image',
+    label: 'Logo da tela de login',
+  },
+  login_title: {
+    group: 'appearance',
+    defaultValue: 'Painel Administrativo',
+    type: 'text',
+    label: 'Titulo da tela de login',
+  },
+  login_subtitle: {
+    group: 'appearance',
+    defaultValue: 'Camara Municipal de Sume',
+    type: 'text',
+    label: 'Subtitulo da tela de login',
+  },
   atricon_logo_url: {
     group: 'appearance',
     defaultValue: '',
@@ -156,6 +174,7 @@ const TEXT_KEYS = Object.keys(APPEARANCE_KEYS).filter(
       'logo_url',
       'document_brasao_url',
       'favicon_url',
+      'login_logo_url',
       'atricon_logo_url',
       'news_background_image',
       'city_images',
@@ -265,7 +284,23 @@ export default class SettingsController {
         }
       }
 
-      // Handle ATRICON logo upload (Radar) — SVG transparente exibido com fundo branco no painel
+      // Handle login logo upload
+      const loginLogo = request.file('login_logo_url', {
+        size: '2mb',
+        extnames: ['png', 'jpg', 'jpeg', 'webp'],
+      })
+      if (loginLogo) {
+        const uploadDir = join(app.publicPath(), 'uploads')
+        const saved = await saveOptimizedImage(loginLogo, uploadDir, {
+          prefix: 'login-logo',
+          publicUrlBase: '/uploads',
+          maxWidth: 1200,
+          maxHeight: 600,
+        })
+        await SiteSetting.setValue('login_logo_url', saved.url, 'appearance', 'image')
+      }
+
+      // Handle ATRICON logo upload (Radar)
       const atriconLogo = request.file('atricon_logo_url', {
         size: '2mb',
         extnames: ['png', 'jpg', 'jpeg', 'webp'],

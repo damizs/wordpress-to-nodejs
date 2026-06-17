@@ -7,6 +7,7 @@ import { Breadcrumb } from "~/components/Breadcrumb";
 import { PageHero } from "~/components/PageHero";
 import { Footer } from "~/components/Footer";
 import { LinkModal } from "~/components/LinkModal";
+import { SafeHtml } from "~/components/SafeHtml";
 import { FileText, Download, Calendar, ChevronLeft, ChevronRight, X, Search, Eye } from "lucide-react";
 
 interface InfoRecord {
@@ -128,7 +129,7 @@ export default function DynamicInfoPage({ records, category, allCategories = [],
                                 {record.reference_date && ` · Data: ${new Date(record.reference_date).toLocaleDateString('pt-BR')}`}
                               </p>
                               {record.content && (
-                                <div className="text-sm text-muted-foreground mt-1 line-clamp-2" dangerouslySetInnerHTML={{ __html: record.content }} />
+                                <SafeHtml html={record.content} className="text-sm text-muted-foreground mt-1 line-clamp-2" />
                               )}
                             </div>
                           </div>
