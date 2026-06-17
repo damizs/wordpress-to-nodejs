@@ -7,6 +7,7 @@ import { mkdir, stat, unlink } from 'node:fs/promises'
 import { join } from 'node:path'
 import { existsSync } from 'node:fs'
 import { isOptimizableImage, saveOptimizedImage } from '#helpers/image_upload'
+import { assertSafeUpload } from '#helpers/upload_security'
 
 const UPLOAD_OPTIONS = {
   size: '20mb',
@@ -75,6 +76,16 @@ export default class MediaController {
       return response.status(422).json({
         error: invalid.errors[0]?.message || 'Arquivo inválido.',
         filename: invalid.clientName,
+      })
+    }
+
+    try {
+      for (const file of incoming) {
+        await assertSafeUpload(file, UPLOAD_OPTIONS.extnames)
+      }
+    } catch (error) {
+      return response.status(422).json({
+        error: error instanceof Error ? error.message : 'Arquivo bloqueado por validação de segurança.',
       })
     }
 

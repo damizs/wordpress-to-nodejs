@@ -12,6 +12,7 @@ import {
   LayoutGrid,
   LayoutTemplate,
   Newspaper,
+  FileText,
   type LucideIcon,
 } from 'lucide-react'
 import { useState, useRef } from 'react'
@@ -83,6 +84,7 @@ export default function Appearance({ settings }: Props) {
     document_brasao_url: null as File | null,
     favicon_url: null as File | null,
     login_logo_url: null as File | null,
+    dpo_ordinance_pdf_url: null as File | null,
     atricon_logo_url: null as File | null,
     news_background_image: null as File | null,
   })
@@ -91,17 +93,23 @@ export default function Appearance({ settings }: Props) {
   const brasaoRef = useRef<HTMLInputElement>(null)
   const faviconRef = useRef<HTMLInputElement>(null)
   const loginLogoRef = useRef<HTMLInputElement>(null)
+  const dpoOrdinanceRef = useRef<HTMLInputElement>(null)
   const atriconLogoRef = useRef<HTMLInputElement>(null)
   const newsBackgroundRef = useRef<HTMLInputElement>(null)
   const [logoPreview, setLogoPreview] = useState<string | null>(getVal(appearance, 'logo_url'))
   const [brasaoPreview, setBrasaoPreview] = useState<string | null>(getVal(appearance, 'document_brasao_url'))
   const [faviconPreview, setFaviconPreview] = useState<string | null>(getVal(appearance, 'favicon_url'))
   const [loginLogoPreview, setLoginLogoPreview] = useState<string | null>(getVal(appearance, 'login_logo_url'))
+  const [dpoOrdinancePreview, setDpoOrdinancePreview] = useState<string | null>(getVal(appearance, 'dpo_ordinance_pdf_url'))
   const [atriconLogoPreview, setAtriconLogoPreview] = useState<string | null>(getVal(appearance, 'atricon_logo_url'))
   const [newsBackgroundPreview, setNewsBackgroundPreview] = useState<string | null>(getVal(appearance, 'news_background_image'))
 
-  function handleFileChange(field: 'logo_url' | 'document_brasao_url' | 'favicon_url' | 'login_logo_url' | 'atricon_logo_url' | 'news_background_image', file: File | null) {
+  function handleFileChange(field: 'logo_url' | 'document_brasao_url' | 'favicon_url' | 'login_logo_url' | 'dpo_ordinance_pdf_url' | 'atricon_logo_url' | 'news_background_image', file: File | null) {
     setData(field, file)
+    if (field === 'dpo_ordinance_pdf_url') {
+      setDpoOrdinancePreview(file ? file.name : getVal(appearance, 'dpo_ordinance_pdf_url'))
+      return
+    }
     if (file) {
       const reader = new FileReader()
       reader.onload = (e) => {
@@ -298,6 +306,24 @@ export default function Appearance({ settings }: Props) {
                   <p className="text-xs text-muted-foreground mt-1.5">
                     Se vazio, a tela usa a logo principal do site.
                   </p>
+                </div>
+              </div>
+
+              <div className="mt-6 rounded-xl border border-border bg-muted/30 p-4">
+                <div className="mb-4">
+                  <h3 className="text-sm font-semibold text-foreground">LGPD e encarregado de dados</h3>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    PDF exibido na Política de Privacidade como portaria de nomeação do encarregado.
+                  </p>
+                </div>
+                <div className="max-w-md">
+                  <FileField
+                    label="Portaria do encarregado (PDF)"
+                    preview={dpoOrdinancePreview}
+                    inputRef={dpoOrdinanceRef}
+                    onChange={(f) => handleFileChange('dpo_ordinance_pdf_url', f)}
+                    accept="application/pdf,.pdf"
+                  />
                 </div>
               </div>
 
@@ -990,20 +1016,28 @@ function FileField({ label, preview, inputRef, onChange, accept = 'image/png,ima
   onChange: (f: File | null) => void
   accept?: string
 }) {
+  const isPdf = accept.includes('pdf')
+
   return (
     <Field label={label}>
       <div
         onClick={() => inputRef.current?.click()}
         className="flex items-center gap-3 px-3 py-3 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-navy/30 transition-colors"
       >
-        {preview ? (
+        {preview && !isPdf ? (
           <img src={preview} alt={label} className="w-10 h-10 object-contain rounded" />
+        ) : preview && isPdf ? (
+          <div className="w-10 h-10 bg-primary/10 rounded flex items-center justify-center">
+            <FileText className="w-5 h-5 text-primary" />
+          </div>
         ) : (
           <div className="w-10 h-10 bg-muted rounded flex items-center justify-center">
             <Upload className="w-5 h-5 text-muted-foreground" />
           </div>
         )}
-        <span className="text-sm text-muted-foreground">Clique para selecionar</span>
+        <span className="min-w-0 text-sm text-muted-foreground truncate">
+          {preview && isPdf ? preview.split('/').pop() : 'Clique para selecionar'}
+        </span>
       </div>
       <input
         ref={inputRef}

@@ -1,6 +1,6 @@
 import { Head, useForm, Link } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Save, ArrowLeft, Users, ScrollText } from 'lucide-react'
+import { Save, ArrowLeft, Users, ScrollText, Link2 } from 'lucide-react'
 import {
   Button,
   Card,
@@ -22,10 +22,16 @@ interface Props {
   activity: any | null
   councilors?: CouncilorOption[]
   authorIds?: number[]
+  origins?: { value: string; label: string }[]
 }
 
 const TYPES = ['Projeto de Lei', 'Requerimento', 'Projeto de Resolução', 'Indicação', 'Veto', 'Portaria', 'Moção', 'Emenda']
-const STATUSES = ['Em tramitação', 'Aprovado', 'Rejeitado', 'Arquivado', 'Sancionado', 'Vetado']
+const STATUSES = [
+  { value: 'tramitando', label: 'Em tramitação' },
+  { value: 'aprovado', label: 'Aprovado / sancionado' },
+  { value: 'rejeitado', label: 'Rejeitado' },
+  { value: 'arquivado', label: 'Arquivado / vetado' },
+]
 
 /** Remove os nomes dos vereadores vinculados do texto livre (o backend junta tudo de novo ao salvar) */
 function extraAuthorText(author: string, councilors: CouncilorOption[], selectedIds: number[]): string {
@@ -42,19 +48,30 @@ function extraAuthorText(author: string, councilors: CouncilorOption[], selected
     .join(', ')
 }
 
-export default function ActivityForm({ activity, councilors = [], authorIds = [] }: Props) {
+function formatTramitationSteps(steps: any[] | null | undefined): string {
+  if (!Array.isArray(steps)) return ''
+  return steps
+    .map((step) => [step.date, step.title, step.description].filter(Boolean).join(' | '))
+    .join('\n')
+}
+
+export default function ActivityForm({ activity, councilors = [], authorIds = [], origins = [] }: Props) {
   const isEditing = !!activity
   const { data, setData, post, put, processing } = useForm({
     type: activity?.type || 'Projeto de Lei',
+    origin: activity?.origin || 'nao_informado',
     number: activity?.number || '',
     year: activity?.year || new Date().getFullYear(),
     summary: activity?.summary || '',
     content: activity?.content || '',
-    status: activity?.status || 'Em tramitação',
+    status: activity?.status || 'tramitando',
     author: extraAuthorText(activity?.author || '', councilors, authorIds),
     author_ids: authorIds,
     file_url: activity?.file_url || '',
     session_date: activity?.session_date || '',
+    voting_system_id: activity?.voting_system_id || activity?.votingSystemId || '',
+    voting_system_url: activity?.voting_system_url || activity?.votingSystemUrl || '',
+    tramitation_steps_text: formatTramitationSteps(activity?.tramitation_steps || activity?.tramitationSteps),
   })
 
   const toggleAuthor = (id: number) => {
@@ -91,10 +108,21 @@ export default function ActivityForm({ activity, councilors = [], authorIds = []
           <CardHeader title="Dados da Atividade" icon={ScrollText} />
 
           <div className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <Field label="Tipo" required>
                 <Select value={data.type} onChange={(e) => setData('type', e.target.value)} required>
                   {TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                </Select>
+              </Field>
+              <Field label="Origem">
+                <Select value={data.origin} onChange={(e) => setData('origin', e.target.value)}>
+                  {(origins.length > 0 ? origins : [
+                    { value: 'nao_informado', label: 'Origem não informada' },
+                    { value: 'legislativo', label: 'Poder Legislativo' },
+                    { value: 'executivo', label: 'Poder Executivo' },
+                  ]).map((origin) => (
+                    <option key={origin.value} value={origin.value}>{origin.label}</option>
+                  ))}
                 </Select>
               </Field>
               <Field label="Número" required>
@@ -138,7 +166,7 @@ export default function ActivityForm({ activity, councilors = [], authorIds = []
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <Field label="Situação">
                 <Select value={data.status} onChange={(e) => setData('status', e.target.value)}>
-                  {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+                  {STATUSES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
                 </Select>
               </Field>
               <Field label="Data da Sessão">
@@ -156,6 +184,47 @@ export default function ActivityForm({ activity, councilors = [], authorIds = []
                 value={data.file_url}
                 onChange={(e) => setData('file_url', e.target.value)}
                 placeholder="https://..."
+              />
+            </Field>
+          </div>
+        </Card>
+
+        <Card>
+          <CardHeader
+            title="Tramitação e integração"
+            description="Preencha manualmente agora ou use estes campos para mapear a matéria quando a API do sistema de votação estiver disponível."
+            icon={Link2}
+          />
+
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <Field label="ID no sistema de votação">
+                <Input
+                  type="text"
+                  value={data.voting_system_id}
+                  onChange={(e) => setData('voting_system_id', e.target.value)}
+                  placeholder="Ex.: 12345"
+                />
+              </Field>
+              <Field label="URL no sistema de votação">
+                <Input
+                  type="text"
+                  value={data.voting_system_url}
+                  onChange={(e) => setData('voting_system_url', e.target.value)}
+                  placeholder="https://..."
+                />
+              </Field>
+            </div>
+
+            <Field
+              label="Linha do tempo de tramitação"
+              hint="Uma etapa por linha. Ex.: 2026-06-17 | Enviado à comissão | Aguardando parecer."
+            >
+              <Textarea
+                value={data.tramitation_steps_text}
+                onChange={(e) => setData('tramitation_steps_text', e.target.value)}
+                rows={5}
+                placeholder={'2026-06-17 | Protocolo | Matéria protocolada\n2026-06-18 | Comissão | Encaminhada para análise'}
               />
             </Field>
           </div>

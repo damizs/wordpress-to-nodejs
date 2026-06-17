@@ -315,13 +315,13 @@
 
   html[data-template='classico'] h1,
   html[data-template='classico'] .template-serif {
-    font-family: Georgia, 'Times New Roman', serif;
-    letter-spacing: 0.01em;
+    font-family: inherit;
+    letter-spacing: 0;
   }
 
   html[data-template='classico'] .card-modern {
-    border-top: 3px solid hsl(var(--gold) / 0.85);
-    border-radius: 0.25rem;
+    border-top: 0;
+    border-radius: var(--radius);
   }
 
   html[data-template='moderno'] h1,

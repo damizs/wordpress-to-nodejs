@@ -1,5 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import InstitutionalContent from '#models/institutional_content'
+import { sanitizeRichHtml } from '#helpers/sanitize_html'
 
 /**
  * Entradas de conteúdo institucional editáveis pelo painel.
@@ -111,7 +112,7 @@ export default class InstitutionalController {
     const title = String(data.title ?? '').trim()
     entry.merge({
       title: title || entry.title,
-      content: String(data.content ?? ''),
+      content: sanitizeRichHtml(data.content),
     })
     await entry.save()
 

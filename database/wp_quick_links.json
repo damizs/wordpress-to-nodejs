@@ -1,0 +1,435 @@
+{
+  "generatedAt": "2026-06-17T14:31:06.939Z",
+  "source": "tmp\\wp_backup_sume_20260615\\database.sql",
+  "sourceTables": {
+    "links": "sql_camarasumelr_links",
+    "sections": "sql_camarasumelr_secoes"
+  },
+  "totals": {
+    "records": 38,
+    "bySection": {
+      "1": 13,
+      "2": 25
+    }
+  },
+  "records": [
+    {
+      "wpId": 1,
+      "secao_id": "1",
+      "sectionTitle": null,
+      "title": "Sessões Plenárias",
+      "url": "https://www.youtube.com/@camaramunicipaldesume1259/streams",
+      "icon": "fas fa-video",
+      "color": null,
+      "active": true,
+      "displayOrder": 0
+    },
+    {
+      "wpId": 2,
+      "secao_id": "1",
+      "sectionTitle": null,
+      "title": "Mesa Diretora",
+      "url": "https://camaradesume.pb.gov.br/mesa-diretora",
+      "icon": "fas fa-users",
+      "color": null,
+      "active": true,
+      "displayOrder": 1
+    },
+    {
+      "wpId": 3,
+      "secao_id": "1",
+      "sectionTitle": null,
+      "title": "Comissões",
+      "url": "https://camaradesume.pb.gov.br/comissoes/",
+      "icon": "fas fa-building",
+      "color": null,
+      "active": true,
+      "displayOrder": 2
+    },
+    {
+      "wpId": 4,
+      "secao_id": "1",
+      "sectionTitle": null,
+      "title": "Regimento Interno",
+      "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/03/RESOLUA_A_ONAo-140-Regimento-Interno.pdf",
+      "icon": "fas fa-landmark",
+      "color": null,
+      "active": true,
+      "displayOrder": 3
+    },
+    {
+      "wpId": 5,
+      "secao_id": "1",
+      "sectionTitle": null,
+      "title": "Vereadores",
+      "url": "https://camaradesume.pb.gov.br/vereador",
+      "icon": "fas fa-user-tie",
+      "color": null,
+      "active": true,
+      "displayOrder": 4
+    },
+    {
+      "wpId": 23,
+      "secao_id": "1",
+      "sectionTitle": null,
+      "title": "Atas e Resumos",
+      "url": "https://camaradesume.pb.gov.br/atas/",
+      "icon": "fas fa-book-open",
+      "color": null,
+      "active": true,
+      "displayOrder": 5
+    },
+    {
+      "wpId": 24,
+      "secao_id": "1",
+      "sectionTitle": null,
+      "title": "Ouvidoria",
+      "url": "https://atendimento.camaradesume.pb.gov.br/",
+      "icon": "fas fa-exclamation-circle",
+      "color": null,
+      "active": true,
+      "displayOrder": 6
+    },
+    {
+      "wpId": 25,
+      "secao_id": "1",
+      "sectionTitle": null,
+      "title": "Leis Municipais",
+      "url": "https://www.sume.pb.gov.br/portal-da-transparencia/leis-municipais/",
+      "icon": "fas fa-gavel",
+      "color": null,
+      "active": true,
+      "displayOrder": 7
+    },
+    {
+      "wpId": 27,
+      "secao_id": "1",
+      "sectionTitle": null,
+      "title": "Transparência",
+      "url": "https://camaradesume.pb.gov.br/transparencia",
+      "icon": "fas fa-search",
+      "color": null,
+      "active": true,
+      "displayOrder": 8
+    },
+    {
+      "wpId": 28,
+      "secao_id": "1",
+      "sectionTitle": null,
+      "title": "Ordem do Dia",
+      "url": "https://camaradesume.pb.gov.br/pautas",
+      "icon": "fas fa-calendar",
+      "color": null,
+      "active": true,
+      "displayOrder": 9
+    },
+    {
+      "wpId": 30,
+      "secao_id": "1",
+      "sectionTitle": null,
+      "title": "Lei Orgânica",
+      "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2025/10/LEI-ORGANICA-DO-MUNICIPIO_PDF.pdf",
+      "icon": "fas fa-file-contract",
+      "color": null,
+      "active": true,
+      "displayOrder": 10
+    },
+    {
+      "wpId": 34,
+      "secao_id": "1",
+      "sectionTitle": null,
+      "title": "E-SIC",
+      "url": "https://doc3.inf.br/cmsu2516300/esic",
+      "icon": "fas fa-comment",
+      "color": null,
+      "active": true,
+      "displayOrder": 11
+    },
+    {
+      "wpId": 35,
+      "secao_id": "1",
+      "sectionTitle": null,
+      "title": "Ouvidoria",
+      "url": "https://doc3.inf.br/cmsu2516300/ouvidoria",
+      "icon": "fas fa-bullhorn",
+      "color": null,
+      "active": true,
+      "displayOrder": 12
+    },
+    {
+      "wpId": 6,
+      "secao_id": "2",
+      "sectionTitle": null,
+      "title": "Concursos e Seleções Públicas",
+      "url": "https://camaradesume.pb.gov.br/concursos",
+      "icon": "fas fa-award",
+      "color": null,
+      "active": true,
+      "displayOrder": 0
+    },
+    {
+      "wpId": 7,
+      "secao_id": "2",
+      "sectionTitle": null,
+      "title": "Apreciação e/ou Julgamento",
+      "url": "https://camaradesume.pb.gov.br/apreciacao",
+      "icon": "fas fa-file-alt",
+      "color": null,
+      "active": true,
+      "displayOrder": 1
+    },
+    {
+      "wpId": 8,
+      "secao_id": "2",
+      "sectionTitle": null,
+      "title": "Prestação de Contas da Gestão",
+      "url": "https://camaradesume.pb.gov.br/prestacao-de-contas",
+      "icon": "fas fa-table",
+      "color": null,
+      "active": true,
+      "displayOrder": 2
+    },
+    {
+      "wpId": 9,
+      "secao_id": "2",
+      "sectionTitle": null,
+      "title": "Obras",
+      "url": "https://camaradesume.pb.gov.br/obras",
+      "icon": "fas fa-hard-hat",
+      "color": null,
+      "active": true,
+      "displayOrder": 3
+    },
+    {
+      "wpId": 10,
+      "secao_id": "2",
+      "sectionTitle": null,
+      "title": "Diárias",
+      "url": "https://camaradesume.pb.gov.br/diarias",
+      "icon": "fas fa-dollar-sign",
+      "color": null,
+      "active": true,
+      "displayOrder": 4
+    },
+    {
+      "wpId": 11,
+      "secao_id": "2",
+      "sectionTitle": null,
+      "title": "Verbas Indenizatórias",
+      "url": "https://camaradesume.pb.gov.br/verbas",
+      "icon": "fas fa-coins",
+      "color": null,
+      "active": true,
+      "displayOrder": 5
+    },
+    {
+      "wpId": 12,
+      "secao_id": "2",
+      "sectionTitle": null,
+      "title": "Relação de Estagiários",
+      "url": "https://camaradesume.pb.gov.br/estagiarios",
+      "icon": "fas fa-user-graduate",
+      "color": null,
+      "active": true,
+      "displayOrder": 6
+    },
+    {
+      "wpId": 13,
+      "secao_id": "2",
+      "sectionTitle": null,
+      "title": "Funcionários Terceirizados",
+      "url": "https://camaradesume.pb.gov.br/terceirizados/",
+      "icon": "fas fa-id-badge",
+      "color": null,
+      "active": true,
+      "displayOrder": 7
+    },
+    {
+      "wpId": 14,
+      "secao_id": "2",
+      "sectionTitle": null,
+      "title": "Relatório de Gestão",
+      "url": "https://camaradesume.pb.gov.br/relatoriogestao",
+      "icon": "fas fa-clipboard-list",
+      "color": null,
+      "active": true,
+      "displayOrder": 8
+    },
+    {
+      "wpId": 15,
+      "secao_id": "2",
+      "sectionTitle": null,
+      "title": "Convênios e Transferências",
+      "url": "https://camaradesume.pb.gov.br/convenios-e-transferencias/",
+      "icon": "fas fa-handshake",
+      "color": null,
+      "active": true,
+      "displayOrder": 9
+    },
+    {
+      "wpId": 16,
+      "secao_id": "2",
+      "sectionTitle": null,
+      "title": "Parecer de Contas",
+      "url": "https://camaradesume.pb.gov.br/parecer-contas",
+      "icon": "fas fa-file-signature",
+      "color": null,
+      "active": true,
+      "displayOrder": 10
+    },
+    {
+      "wpId": 17,
+      "secao_id": "2",
+      "sectionTitle": null,
+      "title": "Estrutura Organizacional",
+      "url": "https://camaradesume.pb.gov.br/estrutura-organiza",
+      "icon": "fas fa-sitemap",
+      "color": null,
+      "active": true,
+      "displayOrder": 11
+    },
+    {
+      "wpId": 18,
+      "secao_id": "2",
+      "sectionTitle": null,
+      "title": "RGF",
+      "url": "https://camaradesume.pb.gov.br/rgf",
+      "icon": "fas fa-chart-pie",
+      "color": null,
+      "active": true,
+      "displayOrder": 12
+    },
+    {
+      "wpId": 19,
+      "secao_id": "2",
+      "sectionTitle": null,
+      "title": "Carta de Serviço",
+      "url": "https://camaradesume.pb.gov.br/carta-de-servicos",
+      "icon": "fas fa-envelope-open-text",
+      "color": null,
+      "active": true,
+      "displayOrder": 13
+    },
+    {
+      "wpId": 20,
+      "secao_id": "2",
+      "sectionTitle": null,
+      "title": "Planos Anuais de Contratações",
+      "url": "https://camaradesume.pb.gov.br/plano-contratacao",
+      "icon": "fas fa-clipboard-check",
+      "color": null,
+      "active": true,
+      "displayOrder": 14
+    },
+    {
+      "wpId": 21,
+      "secao_id": "2",
+      "sectionTitle": null,
+      "title": "Plano Estratégico",
+      "url": "https://camaradesume.pb.gov.br/plano-estrategico",
+      "icon": "fas fa-chart-line",
+      "color": null,
+      "active": true,
+      "displayOrder": 15
+    },
+    {
+      "wpId": 22,
+      "secao_id": "2",
+      "sectionTitle": null,
+      "title": "Acordos Firmados",
+      "url": "https://camaradesume.pb.gov.br/acordos",
+      "icon": "fas fa-handshake",
+      "color": null,
+      "active": true,
+      "displayOrder": 16
+    },
+    {
+      "wpId": 31,
+      "secao_id": "2",
+      "sectionTitle": null,
+      "title": "Adesão de Ata SRP",
+      "url": "https://camaradesume.pb.gov.br/adesao-ata",
+      "icon": "fas fa-save",
+      "color": null,
+      "active": true,
+      "displayOrder": 17
+    },
+    {
+      "wpId": 32,
+      "secao_id": "2",
+      "sectionTitle": null,
+      "title": "Licitantes Sancionados",
+      "url": "https://camaradesume.pb.gov.br/licitantes-sancionados",
+      "icon": "fas fa-link",
+      "color": null,
+      "active": true,
+      "displayOrder": 18
+    },
+    {
+      "wpId": 33,
+      "secao_id": "2",
+      "sectionTitle": null,
+      "title": "Ordem Cronológica de Pagamentos",
+      "url": "https://camaradesume.pb.gov.br/ocp",
+      "icon": "fas fa-hand-holding",
+      "color": null,
+      "active": true,
+      "displayOrder": 19
+    },
+    {
+      "wpId": 36,
+      "secao_id": "2",
+      "sectionTitle": null,
+      "title": "Fiscal de Contrato",
+      "url": "https://camaradesume.pb.gov.br/fiscal-contrato/",
+      "icon": "fas fa-user-tie",
+      "color": null,
+      "active": true,
+      "displayOrder": 20
+    },
+    {
+      "wpId": 37,
+      "secao_id": "2",
+      "sectionTitle": null,
+      "title": "Aditivos Contratuais",
+      "url": "https://camaradesume.pb.gov.br/aditivos/",
+      "icon": "fas fa-hands-helping",
+      "color": null,
+      "active": true,
+      "displayOrder": 21
+    },
+    {
+      "wpId": 38,
+      "secao_id": "2",
+      "sectionTitle": null,
+      "title": "Despesas Mensais",
+      "url": "https://camaradesume.pb.gov.br/despesas-mensais/",
+      "icon": "fas fa-calculator",
+      "color": null,
+      "active": true,
+      "displayOrder": 22
+    },
+    {
+      "wpId": 39,
+      "secao_id": "2",
+      "sectionTitle": null,
+      "title": "Empenhos Detalhados",
+      "url": "https://camaradesume.pb.gov.br/empenhos-detalhados/",
+      "icon": "fas fa-chart-line",
+      "color": null,
+      "active": true,
+      "displayOrder": 23
+    },
+    {
+      "wpId": 40,
+      "secao_id": "2",
+      "sectionTitle": null,
+      "title": "Duodécimos Previstos e Recebidos",
+      "url": "https://camaradesume.pb.gov.br/duodecimos/",
+      "icon": "fas fa-file-invoice-dollar",
+      "color": null,
+      "active": true,
+      "displayOrder": 24
+    }
+  ]
+}

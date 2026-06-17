@@ -5,6 +5,8 @@ import { cuid } from '@adonisjs/core/helpers'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 import { existsSync } from 'node:fs'
+import { sanitizeRichHtml } from '#helpers/sanitize_html'
+import { assertSafeUpload } from '#helpers/upload_security'
 
 const REPORT_TYPES = ['RGF', 'RREO']
 const PERIOD_KINDS = ['bimestre', 'trimestre', 'quadrimestre', 'semestre', 'anual']
@@ -129,7 +131,7 @@ export default class FiscalReportsController {
       periodKind,
       periodNumber,
       title,
-      description: d.description || null,
+      description: sanitizeRichHtml(d.description) || null,
       isActive: d.is_active === undefined ? true : d.is_active === 'true' || d.is_active === true,
     }
   }
@@ -137,6 +139,7 @@ export default class FiscalReportsController {
   private async saveFile(request: HttpContext['request'], report: FiscalReport) {
     const file = request.file('file', { size: '30mb', extnames: ['pdf'] })
     if (!file) return
+    await assertSafeUpload(file, ['pdf'])
     const uploadDir = join(app.publicPath(), 'uploads', 'relatorios-fiscais')
     if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true })
     const fileName = `rgf-${cuid()}.${file.extname}`

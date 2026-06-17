@@ -14,6 +14,9 @@ import {
   FolderOpen,
   Layers,
   X,
+  Search,
+  Database,
+  Code2,
 } from "lucide-react";
 
 interface Report {
@@ -26,11 +29,12 @@ interface Report {
   title: string | null;
   description: string | null;
   fileUrl: string | null;
+  updatedAt: string | null;
 }
 
 interface Props {
   reports: Report[];
-  filters: { type: string; year: string };
+  filters: { type: string; year: string; search?: string };
   years: number[];
   types: string[];
 }
@@ -41,6 +45,8 @@ const TYPE_FULL: Record<string, string> = {
 };
 
 export default function FiscalReportsIndex({ reports = [], filters = {}, years = [], types = [] }: Props) {
+  const [searchTerm, setSearchTerm] = useState(filters.search || "");
+
   // Ramificação: Ano → Tipo → Períodos
   const byYear = useMemo(() => {
     const map = new Map<number, Report[]>();
@@ -65,10 +71,45 @@ export default function FiscalReportsIndex({ reports = [], filters = {}, years =
     const merged = { ...filters, ...patch };
     if (merged.type) params.tipo = merged.type;
     if (merged.year) params.ano = merged.year;
+    if (merged.search) params.busca = merged.search;
     router.get("/relatorios-fiscais", params, { preserveScroll: true });
   }
 
-  const hasFilters = !!(filters.type || filters.year);
+  const hasFilters = !!(filters.type || filters.year || filters.search);
+
+  function exportData(format: "csv" | "json") {
+    const rows = reports.map((r) => ({
+      ano: r.year,
+      tipo: r.reportType,
+      periodo: r.periodLabel,
+      periodicidade: r.periodKind,
+      numero_periodo: r.periodNumber,
+      titulo: r.title || `${r.reportType} ${r.periodLabel} ${r.year}`,
+      descricao: r.description || "",
+      arquivo: r.fileUrl || "",
+      atualizado_em: r.updatedAt || "",
+    }));
+    const body =
+      format === "json"
+        ? JSON.stringify(rows, null, 2)
+        : [
+            ["ano", "tipo", "periodo", "periodicidade", "numero_periodo", "titulo", "descricao", "arquivo", "atualizado_em"].join(";"),
+            ...rows.map((row) =>
+              Object.values(row)
+                .map((value) => `"${String(value ?? "").replace(/"/g, '""')}"`)
+                .join(";")
+            ),
+          ].join("\n");
+    const blob = new Blob([format === "csv" ? `\ufeff${body}` : body], {
+      type: format === "csv" ? "text/csv;charset=utf-8" : "application/json;charset=utf-8",
+    });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `relatorios-fiscais-${filters.year || "todos"}.${format}`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  }
 
   const groupByType = (list: Report[]) => {
     const m = new Map<string, Report[]>();
@@ -116,49 +157,83 @@ export default function FiscalReportsIndex({ reports = [], filters = {}, years =
                 </div>
               </div>
 
-              {/* Filtros */}
+              {/* Filtros e dados estruturados */}
               {(years.length > 0 || types.length > 1) && (
-                <div data-reveal="up" className="mb-6 flex flex-col sm:flex-row sm:items-center gap-3">
-                  <span className="text-sm text-muted-foreground sm:flex-1">Filtrar relatórios</span>
-                  {types.length > 1 && (
-                    <select
-                      value={filters.type || ""}
-                      onChange={(e) => applyFilters({ type: e.target.value })}
-                      aria-label="Tipo de relatório"
-                      className="w-full sm:w-auto h-11 px-4 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
+                <div data-reveal="up" className="mb-6 rounded-2xl border border-border bg-card p-4 shadow-sm">
+                  <div className="flex flex-col lg:flex-row gap-3">
+                    <form
+                      className="relative flex-1"
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        applyFilters({ search: searchTerm });
+                      }}
                     >
-                      <option value="">Todos os tipos</option>
-                      {types.map((t) => (
-                        <option key={t} value={t}>
-                          {t}
-                        </option>
-                      ))}
-                    </select>
-                  )}
-                  {years.length > 0 && (
-                    <select
-                      value={filters.year || ""}
-                      onChange={(e) => applyFilters({ year: e.target.value })}
-                      aria-label="Ano"
-                      className="w-full sm:w-auto h-11 px-4 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
-                    >
-                      <option value="">Todos os anos</option>
-                      {years.map((y) => (
-                        <option key={y} value={y}>
-                          {y}
-                        </option>
-                      ))}
-                    </select>
-                  )}
-                  {hasFilters && (
-                    <button
-                      type="button"
-                      onClick={() => router.get("/relatorios-fiscais")}
-                      className="w-full sm:w-auto h-11 px-4 inline-flex items-center justify-center gap-1.5 rounded-xl text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                    >
-                      <X className="w-4 h-4" /> Limpar
-                    </button>
-                  )}
+                      <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <input
+                        type="search"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        placeholder="Buscar por título, descrição, tipo ou período..."
+                        className="h-11 w-full rounded-xl border border-border bg-background pl-10 pr-4 text-sm outline-none transition-shadow focus:border-primary focus:ring-2 focus:ring-primary/15"
+                      />
+                    </form>
+                    {types.length > 1 && (
+                      <select
+                        value={filters.type || ""}
+                        onChange={(e) => applyFilters({ type: e.target.value })}
+                        aria-label="Tipo de relatório"
+                        className="h-11 w-full rounded-xl border border-border bg-background px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 lg:w-48"
+                      >
+                        <option value="">Todos os tipos</option>
+                        {types.map((t) => (
+                          <option key={t} value={t}>
+                            {t}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                    {years.length > 0 && (
+                      <select
+                        value={filters.year || ""}
+                        onChange={(e) => applyFilters({ year: e.target.value })}
+                        aria-label="Ano"
+                        className="h-11 w-full rounded-xl border border-border bg-background px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 lg:w-44"
+                      >
+                        <option value="">Todos os anos</option>
+                        {years.map((y) => (
+                          <option key={y} value={y}>
+                            {y}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                    {hasFilters && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSearchTerm("");
+                          router.get("/relatorios-fiscais");
+                        }}
+                        className="h-11 w-full inline-flex items-center justify-center gap-1.5 rounded-xl px-4 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground lg:w-auto"
+                      >
+                        <X className="w-4 h-4" /> Limpar
+                      </button>
+                    )}
+                  </div>
+                  <div className="mt-4 flex flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
+                    <span className="text-sm text-muted-foreground">
+                      {reports.length} {reports.length === 1 ? "registro estruturado" : "registros estruturados"}
+                    </span>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="text-sm font-medium text-muted-foreground">Exportar dados:</span>
+                      <button type="button" onClick={() => exportData("csv")} className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary">
+                        <Database className="h-4 w-4 text-emerald-600" /> CSV
+                      </button>
+                      <button type="button" onClick={() => exportData("json")} className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary">
+                        <Code2 className="h-4 w-4 text-sky" /> JSON
+                      </button>
+                    </div>
+                  </div>
                 </div>
               )}
 

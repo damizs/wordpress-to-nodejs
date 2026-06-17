@@ -5,7 +5,18 @@ import { Breadcrumb } from "~/components/Breadcrumb";
 import { PageHero } from "~/components/PageHero";
 import { Footer } from "~/components/Footer";
 import { Link } from "@inertiajs/react";
-import { Users, Gavel } from "lucide-react";
+import {
+  Users,
+  Gavel,
+  GraduationCap,
+  HeartPulse,
+  HandHeart,
+  Building2,
+  Coins,
+  Scale,
+  FilePenLine,
+  type LucideIcon,
+} from "lucide-react";
 
 interface Member {
   id: number;
@@ -56,6 +67,56 @@ const TYPE_LABELS: Record<string, string> = {
   especial: "Especial",
 };
 
+function normalizeText(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
+function committeeVisual(name: string): { icon: LucideIcon; className: string } {
+  const n = normalizeText(name);
+
+  if (n.includes("assistencia") || (n.includes("educacao") && n.includes("saude"))) {
+    return {
+      icon: HandHeart,
+      className: "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20",
+    };
+  }
+
+  if (n.includes("educacao")) {
+    return { icon: GraduationCap, className: "bg-sky/10 text-sky border-sky/20" };
+  }
+
+  if (n.includes("saude")) {
+    return {
+      icon: HeartPulse,
+      className: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+    };
+  }
+
+  if (n.includes("obra") || n.includes("urbanismo") || n.includes("servico")) {
+    return { icon: Building2, className: "bg-primary/10 text-primary border-primary/20" };
+  }
+
+  if (n.includes("orcamento") || n.includes("financa")) {
+    return { icon: Coins, className: "bg-gold/15 text-gold border-gold/30" };
+  }
+
+  if (n.includes("justica") || n.includes("redacao") || n.includes("constituicao")) {
+    return {
+      icon: Scale,
+      className: "bg-violet-500/10 text-violet-600 dark:text-violet-400 border-violet-500/20",
+    };
+  }
+
+  if (n.includes("texto") || n.includes("ata")) {
+    return { icon: FilePenLine, className: "bg-primary/10 text-primary border-primary/20" };
+  }
+
+  return { icon: Gavel, className: "bg-primary/10 text-primary border-primary/20" };
+}
+
 export default function CommitteesIndex({ committees = [] }: Props) {
   return (
     <>
@@ -78,6 +139,8 @@ export default function CommitteesIndex({ committees = [] }: Props) {
                   const members = [...(committee.members || [])].sort(
                     (a, b) => roleWeight(a.role) - roleWeight(b.role)
                   );
+                  const visual = committeeVisual(committee.name);
+                  const CommitteeIcon = visual.icon;
                   return (
                     <article
                       key={committee.id}
@@ -88,8 +151,8 @@ export default function CommitteesIndex({ committees = [] }: Props) {
                       {/* Cabeçalho */}
                       <div className="p-6 pb-5 border-b border-border">
                         <div className="flex items-start gap-4">
-                          <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                            <Gavel className="w-5 h-5 text-primary" aria-hidden="true" />
+                          <div className={`w-11 h-11 rounded-xl border flex items-center justify-center shrink-0 ${visual.className}`}>
+                            <CommitteeIcon className="w-5 h-5" aria-hidden="true" />
                           </div>
                           <div className="min-w-0 flex-1">
                             <h2 className="text-base font-bold text-foreground leading-snug">

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, X, Send, Bot, User } from "lucide-react";
+import { Headset, Send, UserRound, X } from "lucide-react";
 
 interface Message {
   id: number;
@@ -288,49 +288,54 @@ export const AssistenteVirtual = () => {
       {/* Botão flutuante */}
       <button
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-6 right-6 w-14 h-14 rounded-full bg-gradient-to-r from-primary to-navy-light text-white shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300 flex items-center justify-center z-50 ${isOpen ? "hidden" : ""}`}
+        className={`fixed bottom-6 right-6 w-14 h-14 rounded-full bg-gradient-to-br from-gold to-gold-light text-navy-dark shadow-lg shadow-gold/20 ring-1 ring-white/30 hover:shadow-xl hover:scale-110 transition-all duration-300 flex items-center justify-center z-50 ${isOpen ? "hidden" : ""}`}
+        aria-label="Abrir assistente virtual"
       >
-        <MessageCircle className="w-6 h-6" />
+        <Headset className="w-6 h-6" />
       </button>
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 w-[380px] max-w-[calc(100vw-48px)] h-[500px] max-h-[calc(100vh-120px)] bg-navy-dark rounded-2xl shadow-2xl flex flex-col overflow-hidden z-50 animate-fade-in">
+        <div className="fixed bottom-6 right-6 w-[380px] max-w-[calc(100vw-48px)] h-[500px] max-h-[calc(100vh-120px)] bg-card text-foreground rounded-2xl border border-border shadow-2xl flex flex-col overflow-hidden z-50 animate-fade-in">
           {/* Header */}
-          <div className="bg-gradient-to-r from-primary to-navy-light p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-              <Bot className="w-5 h-5 text-white" />
+          <div className="bg-gradient-to-r from-gold/20 via-card to-sky/10 border-b border-border p-4 flex items-center gap-3">
+            <div className="relative w-12 h-12 rounded-full bg-gold/20 text-navy-dark flex items-center justify-center ring-1 ring-gold/30">
+              <UserRound className="w-6 h-6" />
+              <span className="absolute -right-1 -bottom-1 flex h-5 w-5 items-center justify-center rounded-full bg-navy text-primary-foreground ring-2 ring-card">
+                <Headset className="w-3 h-3" />
+              </span>
             </div>
             <div className="flex-1">
-              <h3 className="font-bold text-white">Assistente Virtual</h3>
-              <p className="text-xs text-white/70 flex items-center gap-1">
+              <h3 className="font-bold text-foreground">Assistente Virtual</h3>
+              <p className="text-xs text-muted-foreground flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-green-400"></span>
                 Online 24h
               </p>
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="w-8 h-8 rounded-full hover:bg-white/10 flex items-center justify-center transition-colors"
+              className="w-8 h-8 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground flex items-center justify-center transition-colors"
+              aria-label="Fechar assistente virtual"
             >
-              <X className="w-5 h-5 text-white" />
+              <X className="w-5 h-5" />
             </button>
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-navy-dark/95">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-muted/30">
             {messages.map((msg) => (
               <div key={msg.id} className={`flex ${msg.isBot ? "justify-start" : "justify-end"}`}>
                 <div className={`max-w-[85%] ${msg.isBot ? "" : ""}`}>
                   <div
                     className={`rounded-2xl px-4 py-3 ${
                       msg.isBot
-                        ? "bg-white/10 text-white rounded-tl-none"
-                        : "bg-primary text-white rounded-tr-none"
+                        ? "bg-card text-foreground border border-border rounded-tl-none shadow-sm"
+                        : "bg-navy text-primary-foreground rounded-tr-none shadow-sm"
                     }`}
                   >
                     <p className="text-sm whitespace-pre-line">{msg.text}</p>
                   </div>
-                  <p className={`text-xs text-white/40 mt-1 ${msg.isBot ? "" : "text-right"}`}>
+                  <p className={`text-xs text-muted-foreground mt-1 ${msg.isBot ? "" : "text-right"}`}>
                     {msg.time}
                   </p>
                   
@@ -341,7 +346,7 @@ export const AssistenteVirtual = () => {
                         <button
                           key={idx}
                           onClick={() => handleOptionClick(option.action)}
-                          className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white text-xs rounded-full transition-colors"
+                          className="px-3 py-1.5 bg-card hover:bg-muted text-foreground border border-border text-xs rounded-full transition-colors"
                         >
                           {option.label}
                         </button>
@@ -354,11 +359,11 @@ export const AssistenteVirtual = () => {
             
             {isTyping && (
               <div className="flex justify-start">
-                <div className="bg-white/10 rounded-2xl rounded-tl-none px-4 py-3">
+                <div className="bg-card border border-border rounded-2xl rounded-tl-none px-4 py-3 shadow-sm">
                   <div className="flex gap-1">
-                    <span className="w-2 h-2 bg-white/50 rounded-full animate-bounce" style={{ animationDelay: "0ms" }}></span>
-                    <span className="w-2 h-2 bg-white/50 rounded-full animate-bounce" style={{ animationDelay: "150ms" }}></span>
-                    <span className="w-2 h-2 bg-white/50 rounded-full animate-bounce" style={{ animationDelay: "300ms" }}></span>
+                    <span className="w-2 h-2 bg-gold rounded-full animate-bounce" style={{ animationDelay: "0ms" }}></span>
+                    <span className="w-2 h-2 bg-gold rounded-full animate-bounce" style={{ animationDelay: "150ms" }}></span>
+                    <span className="w-2 h-2 bg-gold rounded-full animate-bounce" style={{ animationDelay: "300ms" }}></span>
                   </div>
                 </div>
               </div>
@@ -368,12 +373,12 @@ export const AssistenteVirtual = () => {
           </div>
 
           {/* Quick Options (sempre visíveis) */}
-          <div className="px-4 py-2 border-t border-white/10 flex flex-wrap gap-2">
+          <div className="px-4 py-2 border-t border-border bg-card flex flex-wrap gap-2">
             {quickOptions.map((option, idx) => (
               <button
                 key={idx}
                 onClick={() => handleOptionClick(option.action)}
-                className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white text-xs rounded-full transition-colors"
+                className="px-3 py-1.5 bg-muted hover:bg-muted/70 text-foreground text-xs rounded-full border border-border transition-colors"
               >
                 {option.label}
               </button>
@@ -381,20 +386,21 @@ export const AssistenteVirtual = () => {
           </div>
 
           {/* Input */}
-          <div className="p-4 border-t border-white/10">
+          <div className="p-4 border-t border-border bg-card">
             <div className="flex gap-2">
               <input
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleSend()}
+                onKeyDown={(e) => e.key === "Enter" && handleSend()}
                 placeholder="Digite sua dúvida..."
-                className="flex-1 bg-white/10 text-white placeholder-white/40 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gold/50"
+                className="flex-1 bg-muted text-foreground placeholder:text-muted-foreground rounded-full px-4 py-2 text-sm border border-border focus:outline-none focus:ring-2 focus:ring-gold/50"
               />
               <button
                 onClick={() => handleSend()}
                 disabled={!input.trim()}
                 className="w-10 h-10 rounded-full bg-gold hover:bg-gold-light disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center transition-colors"
+                aria-label="Enviar mensagem"
               >
                 <Send className="w-5 h-5 text-navy-dark" />
               </button>

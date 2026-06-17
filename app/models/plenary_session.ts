@@ -14,6 +14,9 @@ export default class PlenarySession extends BaseModel {
   @column() declare minutes: string | null
   @column() declare videoUrl: string | null
   @column() declare fileUrl: string | null
+  @column() declare votingSystemId: string | null
+  @column() declare votingSystemUrl: string | null
+  @column.dateTime() declare syncedAt: DateTime | null
   @column.dateTime({ autoCreate: true }) declare createdAt: DateTime
   @column.dateTime({ autoCreate: true, autoUpdate: true }) declare updatedAt: DateTime | null
 }

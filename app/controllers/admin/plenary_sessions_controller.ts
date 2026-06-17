@@ -2,6 +2,8 @@ import type { HttpContext } from '@adonisjs/core/http'
 import PlenarySession from '#models/plenary_session'
 import SystemCategory from '#models/system_category'
 import { sessionSlug } from '#helpers/slug'
+import { sanitizeRichHtml } from '#helpers/sanitize_html'
+import { normalizeSafeWebUrl } from '#helpers/safe_url'
 
 export default class PlenarySessionsController {
   async index({ inertia, request }: HttpContext) {
@@ -36,7 +38,12 @@ export default class PlenarySessionsController {
       'year',
       'start_time',
       'status',
+      'agenda',
+      'minutes',
       'video_url',
+      'file_url',
+      'voting_system_id',
+      'voting_system_url',
     ])
 
     await PlenarySession.create({
@@ -47,7 +54,12 @@ export default class PlenarySessionsController {
       year: data.year ? Number.parseInt(data.year) : new Date(data.session_date).getFullYear(),
       startTime: data.start_time || null,
       status: data.status || 'realizada',
-      videoUrl: data.video_url || null,
+      agenda: sanitizeRichHtml(data.agenda) || null,
+      minutes: sanitizeRichHtml(data.minutes) || null,
+      videoUrl: normalizeSafeWebUrl(data.video_url),
+      fileUrl: normalizeSafeWebUrl(data.file_url),
+      votingSystemId: data.voting_system_id || null,
+      votingSystemUrl: normalizeSafeWebUrl(data.voting_system_url),
     })
 
     session.flash('success', 'Sessão cadastrada com sucesso!')
@@ -72,7 +84,12 @@ export default class PlenarySessionsController {
       'year',
       'start_time',
       'status',
+      'agenda',
+      'minutes',
       'video_url',
+      'file_url',
+      'voting_system_id',
+      'voting_system_url',
     ])
 
     plenarySession.merge({
@@ -83,7 +100,12 @@ export default class PlenarySessionsController {
       year: data.year ? Number.parseInt(data.year) : new Date(data.session_date).getFullYear(),
       startTime: data.start_time || null,
       status: data.status || 'realizada',
-      videoUrl: data.video_url || null,
+      agenda: sanitizeRichHtml(data.agenda) || null,
+      minutes: sanitizeRichHtml(data.minutes) || null,
+      videoUrl: normalizeSafeWebUrl(data.video_url),
+      fileUrl: normalizeSafeWebUrl(data.file_url),
+      votingSystemId: data.voting_system_id || null,
+      votingSystemUrl: normalizeSafeWebUrl(data.voting_system_url),
     })
     await plenarySession.save()
 

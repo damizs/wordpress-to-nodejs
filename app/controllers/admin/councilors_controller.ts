@@ -4,6 +4,8 @@ import Legislature from '#models/legislature'
 import Biennium from '#models/biennium'
 import CouncilorPosition from '#models/councilor_position'
 import { processCouncilorPhoto } from '#helpers/councilor_photo'
+import { sanitizeRichHtml } from '#helpers/sanitize_html'
+import { assertSafeUpload } from '#helpers/upload_security'
 
 export default class CouncilorsController {
   async index({ inertia }: HttpContext) {
@@ -67,6 +69,7 @@ export default class CouncilorsController {
     let photoUrl: string | null = null
     const photo = request.file('photo', { size: '10mb', extnames: ['png', 'jpg', 'jpeg', 'webp'] })
     if (photo?.tmpPath) {
+      await assertSafeUpload(photo, ['png', 'jpg', 'jpeg', 'webp'])
       // Padroniza: corte 3:4 (600x800) + WebP
       photoUrl = await processCouncilorPhoto(photo.tmpPath)
     }
@@ -82,8 +85,8 @@ export default class CouncilorsController {
       educationLevel: data.education_level || null,
       email: data.email,
       phone: data.phone,
-      bio: data.bio,
-      history: data.history || null,
+      bio: sanitizeRichHtml(data.bio),
+      history: sanitizeRichHtml(data.history) || null,
       role: data.role,
       isActive: data.is_active,
       legislatureId: data.legislature_id ? Number.parseInt(data.legislature_id) : null,
@@ -149,6 +152,7 @@ export default class CouncilorsController {
 
     const photo = request.file('photo', { size: '10mb', extnames: ['png', 'jpg', 'jpeg', 'webp'] })
     if (photo?.tmpPath) {
+      await assertSafeUpload(photo, ['png', 'jpg', 'jpeg', 'webp'])
       // Padroniza: corte 3:4 (600x800) + WebP
       councilor.photoUrl = await processCouncilorPhoto(photo.tmpPath)
     }
@@ -173,8 +177,8 @@ export default class CouncilorsController {
       educationLevel: data.education_level || null,
       email: data.email,
       phone: data.phone,
-      bio: data.bio,
-      history: data.history || null,
+      bio: sanitizeRichHtml(data.bio),
+      history: sanitizeRichHtml(data.history) || null,
       role: data.role,
       isActive: data.is_active === 'true' || data.is_active === true,
       legislatureId: data.legislature_id ? Number.parseInt(data.legislature_id) : null,

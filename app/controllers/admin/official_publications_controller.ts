@@ -7,6 +7,8 @@ import { cuid } from '@adonisjs/core/helpers'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 import { existsSync } from 'node:fs'
+import { sanitizeRichHtml } from '#helpers/sanitize_html'
+import { assertSafeUpload } from '#helpers/upload_security'
 
 export default class OfficialPublicationsController {
   async index({ inertia, request }: HttpContext) {
@@ -37,6 +39,7 @@ export default class OfficialPublicationsController {
     let fileUrl: string | null = null
     const file = request.file('file', { size: '20mb', extnames: ['pdf'] })
     if (file) {
+      await assertSafeUpload(file, ['pdf'])
       const uploadDir = join(app.publicPath(), 'uploads', 'publicacoes')
       if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true })
       const fileName = `pub-${cuid()}.${file.extname}`
@@ -51,7 +54,7 @@ export default class OfficialPublicationsController {
       type: data.type,
       number: data.number || null,
       publicationDate: data.publication_date,
-      description: data.description || null,
+      description: sanitizeRichHtml(data.description) || null,
       fileUrl,
     })
 
@@ -74,6 +77,7 @@ export default class OfficialPublicationsController {
 
     const file = request.file('file', { size: '20mb', extnames: ['pdf'] })
     if (file) {
+      await assertSafeUpload(file, ['pdf'])
       const uploadDir = join(app.publicPath(), 'uploads', 'publicacoes')
       if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true })
       const fileName = `pub-${cuid()}.${file.extname}`
@@ -86,7 +90,7 @@ export default class OfficialPublicationsController {
       type: data.type,
       number: data.number || null,
       publicationDate: data.publication_date,
-      description: data.description || null,
+      description: sanitizeRichHtml(data.description) || null,
     })
     await publication.save()
 

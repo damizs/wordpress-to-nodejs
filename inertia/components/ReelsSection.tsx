@@ -17,7 +17,7 @@ export function ReelsSection({
   title = "Galeria de Vídeos",
   subtitle = "Acompanhe os reels e vídeos publicados no Instagram da Câmara.",
   badge = "Vídeos",
-  limit = 6,
+  limit = 4,
 }: Props) {
   if (!reels || reels.length === 0) return null;
   const shown = reels.slice(0, limit);

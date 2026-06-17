@@ -30,6 +30,7 @@ const PublicDuodecimosController = () => import('#controllers/public/duodecimos_
 const PublicContractsController = () => import('#controllers/public/contracts_controller')
 const PublicFiscalReportsController = () => import('#controllers/public/fiscal_reports_controller')
 const PublicVideosController = () => import('#controllers/public/videos_controller')
+const PublicAgendaController = () => import('#controllers/public/agenda_controller')
 const AcessoInformacaoController = () => import('#controllers/public/acesso_informacao_controller')
 const SearchController = () => import('#controllers/public/search_controller')
 const SeoController = () => import('#controllers/seo_controller')
@@ -133,6 +134,8 @@ router.get('/mapa-do-site', [SitemapPageController, 'index'])
 router.get('/duodecimos', [PublicDuodecimosController, 'index'])
 router.get('/relatorios-fiscais', [PublicFiscalReportsController, 'index'])
 router.get('/videos', [PublicVideosController, 'index'])
+router.get('/agenda', [PublicAgendaController, 'index'])
+router.get('/agenda.ics', [PublicAgendaController, 'ics'])
 router.get('/busca', [SearchController, 'index'])
 router.get('/dados-abertos', [OpenDataController, 'index'])
 router
@@ -152,79 +155,11 @@ router
     'slug',
     // Anclado com $: bloqueia só o slug exato reservado, não slugs que começam igual
     // (ex.: notícia antiga "vereadores-acompanham-..." deve passar pelo catch-all)
-    /^(?!(?:login|painel|api|health|noticias|vereadores|transparencia|mesa-diretora|comissoes|atas|pautas|atividades-legislativa|atividades-legislativas|publicacoes-oficiais|licitacoes|contratos|perguntas-frequentes|pesquisa-de-satisfacao|politica-de-privacidade|historia-da-camara|sobre|ouvidoria|acesso-a-informacao|esic|diario-oficial|votacoes|leis|mapa-do-site|duodecimos|relatorios-fiscais|videos|dados-abertos|busca)$).+$/
+    /^(?!(?:login|painel|api|health|noticias|vereadores|transparencia|mesa-diretora|comissoes|atas|pautas|atividades-legislativa|atividades-legislativas|publicacoes-oficiais|licitacoes|contratos|perguntas-frequentes|pesquisa-de-satisfacao|politica-de-privacidade|historia-da-camara|sobre|ouvidoria|acesso-a-informacao|esic|diario-oficial|votacoes|leis|mapa-do-site|duodecimos|relatorios-fiscais|videos|agenda|dados-abertos|busca)$).+$/
   )
 
 // ========= API =========
 router.get('/api/categorias/:type', [AdminCategoriesController, 'byType'])
-
-// Rota temporária para reset de links rápidos (protegida)
-router.get('/api/reset-quick-links', async ({ response, auth }) => {
-  return response.notFound()
-
-  try {
-    await auth.authenticate()
-  } catch {
-    return response.unauthorized({ error: 'Não autorizado' })
-  }
-
-  const { default: QuickLink } = await import('#models/quick_link')
-  await QuickLink.query().delete()
-
-  const links = [
-    {
-      title: 'Sessões Plenárias',
-      url: 'https://www.youtube.com/@camaramunicipaldeSume',
-      icon: 'Youtube',
-      color: 'red',
-      displayOrder: 1,
-      isActive: true,
-    },
-    {
-      title: 'Leis Municipais',
-      url: '/leis',
-      icon: 'Scale',
-      color: 'navy',
-      displayOrder: 2,
-      isActive: true,
-    },
-    {
-      title: 'Portal da Transparência',
-      url: '/transparencia',
-      icon: 'Shield',
-      color: 'sky',
-      displayOrder: 3,
-      isActive: true,
-    },
-    {
-      title: 'Diário Oficial',
-      url: '/diario-oficial',
-      icon: 'FileText',
-      color: 'gold',
-      displayOrder: 4,
-      isActive: true,
-    },
-    {
-      title: 'Vereadores',
-      url: '/vereadores',
-      icon: 'Users',
-      color: 'emerald',
-      displayOrder: 5,
-      isActive: true,
-    },
-    {
-      title: 'Ouvidoria',
-      url: '/ouvidoria',
-      icon: 'MessageSquare',
-      color: 'purple',
-      displayOrder: 6,
-      isActive: true,
-    },
-  ]
-
-  await QuickLink.createMany(links)
-  return response.json({ success: true, message: `${links.length} links rápidos criados` })
-})
 
 // ========= INSTAGRAM IMAGE PROXY (no auth required) =========
 router.get('/painel/noticias/instagram/proxy-image', [InstagramProxyController, 'image'])
@@ -449,6 +384,7 @@ router
       .group(() => {
         router.get('/atricon', [AdminAtriconController, 'index'])
         router.get('/atricon/relatorio', [AdminAtriconController, 'report'])
+        router.get('/atricon/evidencias.json', [AdminAtriconController, 'evidencePack'])
         router.put('/atricon/:code', [AdminAtriconController, 'updateStatus'])
       })
       .use(middleware.can(['pntp.gerenciar']))

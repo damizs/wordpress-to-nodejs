@@ -1,9 +1,10 @@
 import { Head, router } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Eye, FileText, Pencil, Plus, Trash2 } from 'lucide-react'
+import { Eye, FileText, Info, LayoutList, Pencil, Plus, Settings, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import {
   ButtonLink,
+  Card,
   ConfirmDelete,
   CreateButton,
   EmptyState,
@@ -23,6 +24,15 @@ import {
   Toolbar,
   TR,
 } from '~/components/admin/ui'
+
+const MANAGED_PAGES = [
+  { title: 'Homepage', description: 'Seções da página inicial, destaques e ordem do conteúdo.', href: '/painel/homepage' },
+  { title: 'História, Sobre e Institucional', description: 'Textos institucionais usados nas páginas fixas do portal.', href: '/painel/institucional' },
+  { title: 'Aparência e identidade', description: 'Logo, favicon, tela de login, cores, modelos e rodapé.', href: '/painel/aparencia' },
+  { title: 'Menus do site', description: 'Itens do cabeçalho, rodapé e atalhos do portal.', href: '/painel/menus' },
+  { title: 'Acesso à Informação', description: 'Páginas PNTP/LAI, documentos, PDFs e links oficiais.', href: '/painel/acesso-informacao' },
+  { title: 'Transparência', description: 'Categorias, links externos, modal e organização da transparência.', href: '/painel/transparencia' },
+]
 
 interface PageRow {
   id: number
@@ -69,6 +79,47 @@ export default function PagesIndex({ pages, filters }: Props) {
         description="Páginas de conteúdo livre do portal, montadas com blocos"
         actions={<CreateButton href="/painel/paginas/nova">Nova Página</CreateButton>}
       />
+
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(360px,0.45fr)] mb-6">
+        <Card className="bg-navy text-white border-navy">
+          <div className="flex items-start gap-4">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-gold">
+              <Info className="h-5 w-5" />
+            </div>
+            <div>
+              <h2 className="text-lg font-bold">Por que sÃ³ aparece uma pÃ¡gina aqui?</h2>
+              <p className="mt-1 text-sm leading-relaxed text-white/75">
+                Esta tela lista apenas pÃ¡ginas livres, criadas com blocos. PÃ¡ginas como vereadores,
+                licitaÃ§Ãµes, transparÃªncia, histÃ³ria e perguntas frequentes sÃ£o mÃ³dulos prÃ³prios,
+                porque tÃªm dados, regras e telas especÃ­ficas.
+              </p>
+            </div>
+          </div>
+        </Card>
+
+        <Card>
+          <div className="flex items-center gap-3 mb-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gold/15 text-gold">
+              <LayoutList className="h-4 w-4" />
+            </div>
+            <div>
+              <h2 className="text-sm font-bold text-foreground">PÃ¡ginas gerenciadas por mÃ³dulo</h2>
+              <p className="text-xs text-muted-foreground">Atalhos para alterar o restante do site.</p>
+            </div>
+          </div>
+          <div className="grid gap-2">
+            {MANAGED_PAGES.map((item) => (
+              <ButtonLink key={item.href} href={item.href} variant="secondary" className="justify-start !whitespace-normal text-left">
+                <Settings className="h-4 w-4 shrink-0" />
+                <span>
+                  <span className="block text-sm font-semibold">{item.title}</span>
+                  <span className="block text-xs font-normal text-muted-foreground">{item.description}</span>
+                </span>
+              </ButtonLink>
+            ))}
+          </div>
+        </Card>
+      </div>
 
       {pages.meta.total === 0 && !filters.search ? (
         <EmptyState

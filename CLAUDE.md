@@ -96,6 +96,51 @@ fixos no chrome (quebra o modo escuro).
 
 ---
 
+### Observações de Revisão Visual Pendente
+
+Alguns ajustes recentes de front-end foram funcionais, mas **não ficaram bons
+visualmente** e não devem ser tratados como referência final. Ao melhorar, validar
+com screenshots em desktop largo, notebook, tablet e mobile.
+
+- **Modelo Clássico/Governamental:** a tentativa recente ficou pesada, com cara de
+  composição antiga e distante da proposta institucional moderna. Refazer com
+  linguagem de portal público sóbrio: header objetivo, hierarquia clara, menos
+  ornamento, mais respiro, sem excesso de bordas douradas, grid decorativo ou
+  tipografia monumental.
+- **Modelo Moderno/Destaque:** remover notícias do hero foi uma boa direção, mas
+  o hero precisa ganhar outro conteúdo nobre no lugar: acesso rápido principal,
+  transparência/serviços, agenda da próxima sessão ou indicadores do Legislativo.
+  As notícias devem ir abaixo em bloco próprio com destaque + lista, sem fundo de
+  imagem escuro atrapalhando leitura.
+- **Header/menu:** em alguns templates o menu ficou desalinhado ou visualmente
+  solto. A logo pode ser maior quando o nome textual for removido, mas o conjunto
+  precisa manter centro óptico, altura consistente e boa leitura em 1366px, 1920px
+  e mobile.
+- **Painel/Dashboard:** os gráficos e cards novos melhoram a utilidade, mas ainda
+  precisam de uma passada visual: menos cards soltos, melhor agrupamento por
+  prioridade, gráficos com hierarquia real e layout que aproveite telas grandes sem
+  parecer espalhado.
+- **Editor de páginas:** a prévia e os modelos prontos são o caminho certo, mas a
+  tela ainda pode parecer formulário demais. Melhorar com layout mais didático,
+  sidebar de configurações, blocos mais reconhecíveis, estados vazios e ações de
+  duplicar, mover, redefinir e preview em nova aba.
+- **Páginas de transparência/acesso à informação:** em telas muito largas o
+  conteúdo ainda pode ficar pequeno ou concentrado demais. Usar melhor a
+  `.container` larga, com colunas proporcionais, menu lateral sticky real e
+  cards/listas menos estreitos.
+- **Assistente virtual:** o visual ficou escuro e pesado. Clarear o corpo, usar um
+  avatar/ícone amigável de atendente/assistente, preservar contraste e deixar os
+  chips de sugestão com aparência mais leve.
+- **Páginas internas de documentos/matérias:** manter alinhamento com breadcrumb e
+  evitar blocos isolados demais. Metadados devem ficar em grid organizado, com
+  hierarquia e espaçamento consistentes.
+
+Regra prática: se uma mudança parecer "demo de template" ou "painel administrativo
+genérico", simplifique. O portal deve parecer uma Câmara Municipal real, moderno
+mas institucional, com informação fácil de achar.
+
+---
+
 ## 4. Módulos do painel (`/painel`)
 
 Menu em `inertia/layouts/AdminLayout.tsx` (`navGroups`) — grupos **recolhíveis**
@@ -107,7 +152,8 @@ Menu em `inertia/layouts/AdminLayout.tsx` (`navGroups`) — grupos **recolhívei
 `atas`/`pautas`, models `Ata`/`Pauta`, mesmos campos: título, data, tipo de
 sessão, conteúdo textual e PDF; páginas públicas `/atas` e `/pautas` leem dessas
 tabelas; busca/sitemap/ATRICON repontados), Atividades Legislativas (multi-autoria
-→ perfil do vereador), Votações Nominais (importação por HTML).
+→ perfil do vereador, **origem Executivo/Legislativo** para organizar Projetos de Lei),
+Votações Nominais (importação por HTML).
 **Transparência:** Transparência (seções+links, link com `open_mode` nova-aba/
 modal e `hide_chrome`), **Duodécimos**, **Relatórios Fiscais** (RGF/RREO —
 ramificação ano→período: bimestre/trimestre/quadrimestre/semestre por documento
@@ -161,13 +207,25 @@ em Números, Diário, Instagram, Conheça Sumé, Certificações, Pesquisa) → 
 - **Feriados:** nacionais calculados (computus da Páscoa) + municipais/estaduais
   editáveis. `HolidaysStrip` no corpo da home.
 - **Dados abertos:** `/dados-abertos` com export JSON/CSV (6 datasets).
-- **Radar ATRICON:** verificação automática REAL do conteúdo (`runAutoChecks`),
+- **Radar ATRICON:** matriz PNTP/ATRICON 2026 alinhada à planilha oficial
+  (`Matriz de Critérios 2026 (Final)`: 83 critérios aplicáveis ao Legislativo
+  Municipal), verificação automática REAL do conteúdo (`runAutoChecks`),
   **auditoria inteligente dos links da transparência** (`TransparencyAuditService`:
   URL válida, módulo interno preenchido/atualizado, HTTP em links externos),
   metas de frescor **quinzenais** (15 dias) para atas/pautas/votações,
   **mapa de conteúdo** módulo a módulo (frescor/total/última data + link),
   snapshots de evolução, painel "o que falta", precedência auto→manual com alerta
-  de divergência. Logo ATRICON enviável. Ouvidoria/e-SIC contam como `externo`.
+  de divergência, e evidência parcial automática por links da transparência quando
+  o critério depende de sistema/portal externo. Logo ATRICON enviável.
+  e-SIC/SIC e Ouvidoria contam como `externo` quando atendidos por sistema externo.
+  O painel expõe `/painel/atricon/evidencias.json`, um pacote de evidências para
+  leitura periódica por IA: matriz, pendências, módulos, links auditados, fluxo de
+  verificação e separação entre módulos nativos, páginas PNTP, Transparência e
+  sistemas externos.
+- **Convenção PNTP:** e-SIC e Ouvidoria vivem em rotas/canais próprios (`/esic` e
+  `/ouvidoria`); folha/remuneração permanece como link externo em Transparência;
+  Ordem Cronológica (`/ocp`), Diárias (`/diarias`) e Carta de Serviços
+  (`/carta-servicos`) são páginas dinâmicas de Acesso à Informação.
 - **Modal de links da transparência:** `/transparencia/:slug` (deep-link) abre o
   conteúdo configurado; links internos escondem header/rodapé (`?embed=1`).
 - **SEO:** `SeoController` (sitemap.xml, robots.txt), `SeoHead`.
@@ -182,8 +240,7 @@ em Números, Diário, Instagram, Conheça Sumé, Certificações, Pesquisa) → 
 - ✅ Transparência ativa (estrutura, cargos, contato, FAQ, legislação) — seções +
   Acesso à Informação + Institucional.
 - ✅ Acessibilidade e-MAG + VLibras; ✅ LGPD (Política de Privacidade completa);
-  ✅ Dados Abertos (JSON/CSV) — ⚠️ falta declarar **licença aberta (CC-BY)** e
-  documentar os campos.
+  ✅ Dados Abertos (JSON/CSV, licença CC BY 4.0 e dicionário de campos por dataset).
 - ✅ Licitações/contratos nativos; ✅ **Duodécimos** nativo; ✅ **RGF/RREO** nativo
   (módulo Relatórios Fiscais, ano→período). ⚠️ Despesas, folha,
   diárias, balancetes e **remuneração individualizada**: em parte **externos**
@@ -192,16 +249,18 @@ em Números, Diário, Instagram, Conheça Sumé, Certificações, Pesquisa) → 
   estejam visíveis.
 - ✅ SIC/e-SIC e Ouvidoria: **sistema externo** (links) — conta como atendido.
   ⚠️ Exibir explicitamente "autoridade de monitoramento + tel/e-mail do SIC".
-- ✅ Radar ATRICON nativo. ⚠️ **Alinhar `app/helpers/atricon_matrix.ts` à cartilha
-  PNTP 2026** (pesos/itens finais; ouvidoria/e-SIC como `externo`).
+- ✅ Radar ATRICON nativo com matriz PNTP 2026 alinhada aos arquivos oficiais
+  enviados (83 critérios aplicáveis ao Legislativo; e-SIC/SIC e Ouvidoria como
+  `externo` quando atendidos por sistema externo).
 
 ---
 
 ## 8. O que falta / roadmap
 
 **Conformidade (prioridade alta)**
-- [ ] Alinhar `atricon_matrix.ts` à **cartilha PNTP 2026** (PDF do cliente).
-- [ ] `/dados-abertos`: declarar licença CC-BY + dicionário de campos.
+- [x] Alinhar `atricon_matrix.ts` e `database/pntp2026_criteria.json` à **cartilha
+      PNTP 2026** (planilha oficial + erratas/notas enviadas pelo cliente).
+- [x] `/dados-abertos`: declarar licença CC BY 4.0 + dicionário de campos.
 - [ ] Bloco/página do **SIC** (autoridade de monitoramento + contato) e checar
       links externos de despesas/folha/diárias/remuneração.
 
@@ -287,8 +346,10 @@ Fontes de referência em `.acervo/plugins/`.
  `database/wp_activities.json` (atividades + autores por nome/slug). O comando
  `wp:migrate` tem a seção `importActivitiesWithAuthors` (fonte ÚNICA de
  `legislative_activities`: limpa + reimporta + sincroniza o pivô
- `legislative_activity_authors`, casando autor↔vereador por slug/nome). O branch
- legislativo do `importMaterias` foi desativado para não duplicar.
+ `legislative_activity_authors`, casando autor↔vereador por slug/nome). O import
+ também classifica `origin` (`executivo`, `legislativo`, `nao_informado`) por
+ autoria/texto para separar Projetos de Lei do Executivo e do Legislativo no site e
+ no painel. O branch legislativo do `importMaterias` foi desativado para não duplicar.
 - **Migração WP — registros PNTP + arquivos:** o plugin `portal-transparencia`
  mantém 4 tabelas (`pntp_registros`, `pntp_anexos`, `pntp_declaracoes`, `pntp_secoes`).
  `node scripts/extract_wp_pntp.mjs <database.sql>` gera `database/wp_pntp.json`
@@ -300,6 +361,21 @@ Fontes de referência em `.acervo/plugins/`.
  `.pntp-imported-v1` (ou `FORCE_PNTP_IMPORT=true`). ⚠️ As páginas dinâmicas de
  Acesso à Informação filtram por **slug** (`information_records.category` = slug,
  não o nome) — o import antigo do `wp:migrate` (por nome) foi desativado.
+- **Migração WP — Diário Oficial / GET Public:** o plugin `diario-oficial-sync`
+ sincronizava a tabela GET `MATERIA` para `<prefix>dos_materias` e renderizava
+ via shortcode `[diario_oficial]`. Para backup novo: extrair `database.sql` do zip
+ e rodar `node scripts/extract_wp_diario.mjs <database.sql>` → gera
+ `database/wp_diario_oficial.json` (somente dados públicos; credenciais `dos_*`
+ não são exportadas). O comando `node ace wp:diario` importa para
+ `official_gazette_entries` por `edition_number = materia_codigo`, usando
+ `https://getpublic.inf.br/api/document/<codigo>/pdf` como `file_url` para o modal
+ público do Diário Oficial.
+- **Migração WP — Links Rápidos:** o plugin `links-rapidos` mantém
+ `<prefix>lr_links`/`<prefix>lr_secoes`. Para backup novo, rodar
+ `node scripts/extract_wp_quick_links.mjs <database.sql>` → gera
+ `database/wp_quick_links.json`. O `wp:migrate` prefere esse JSON quando ele existe
+ e importa apenas `secao_id = 1` como atalhos da home; `secao_id = 2` é Acesso à
+ Informação/PNTP e fica nos módulos próprios.
 
 ---
 

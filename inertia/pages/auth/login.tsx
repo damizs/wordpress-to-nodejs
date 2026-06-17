@@ -38,16 +38,18 @@ export default function Login({ siteSettings = {} }: LoginProps) {
         style={{ background: 'var(--gradient-hero)' }}
       >
         <div className="w-full max-w-md">
-          <div className="text-center mb-8">
-            <div className="inline-flex min-h-20 min-w-20 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 mb-4 px-4 py-3">
-              {loginLogo ? (
-                <img src={loginLogo} alt={loginSubtitle} className="max-h-16 max-w-56 object-contain" />
-              ) : (
-                <span className="text-3xl font-bold text-gold">C</span>
-              )}
+          <div className="mb-8 flex flex-col items-center text-center">
+            <div className="mb-3 flex justify-center">
+              <div className="flex min-h-20 min-w-20 items-center justify-center rounded-2xl bg-white/10 px-4 py-3 backdrop-blur-md border border-white/20">
+                {loginLogo ? (
+                  <img src={loginLogo} alt={loginSubtitle} className="max-h-16 max-w-56 object-contain" />
+                ) : (
+                  <span className="text-3xl font-bold text-gold">C</span>
+                )}
+              </div>
             </div>
 
-            <p className="mx-auto mb-3 inline-flex rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-gold">
+            <p className="mb-3 inline-flex rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-gold">
               Acesso restrito
             </p>
             <h1 className="text-2xl font-bold text-white">{loginTitle}</h1>

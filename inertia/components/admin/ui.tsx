@@ -472,6 +472,7 @@ const STATUS_MAP: Record<string, { label: string; tone: BadgeTone }> = {
   aprovada: { label: 'Aprovada', tone: 'success' },
   rejeitado: { label: 'Rejeitado', tone: 'danger' },
   rejeitada: { label: 'Rejeitada', tone: 'danger' },
+  tramitando: { label: 'Em tramitação', tone: 'info' },
   em_tramitacao: { label: 'Em tramitação', tone: 'info' },
   retirado: { label: 'Retirado', tone: 'neutral' },
   sim: { label: 'Sim', tone: 'success' },

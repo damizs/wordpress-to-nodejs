@@ -19,6 +19,7 @@ export default class DiarioOficialController {
 
     const entries = await query.paginate(page, 20)
     const siteSettings = await SiteSetting.allAsObject()
+    const latestEntry = await OfficialGazetteEntry.query().orderBy('publication_date', 'desc').first()
 
     const yearRows: Array<{ year: number }> = await db
       .from('official_gazette_entries')
@@ -40,6 +41,15 @@ export default class DiarioOficialController {
       },
       years: yearRows.map((r) => r.year).filter(Boolean),
       filters: { year, search },
+      latestEntry: latestEntry
+        ? {
+            id: latestEntry.id,
+            edition_number: latestEntry.editionNumber,
+            date: latestEntry.publicationDate,
+            description: latestEntry.description,
+            file_url: latestEntry.fileUrl,
+          }
+        : null,
       siteSettings,
     })
   }

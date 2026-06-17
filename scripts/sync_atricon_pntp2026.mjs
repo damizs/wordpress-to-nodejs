@@ -32,6 +32,7 @@ const DIM_MAP = {
   Obras: 'obras',
   'Planejamento e Prestação de contas': 'planejamento',
   'Serviço de Informação ao Cidadão (SIC)': 'sic',
+  'Serviço de Informação ao Cidadão - SIC': 'sic',
   Acessibilidade: 'acessibilidade',
   Ouvidorias: 'ouvidoria',
   'Lei Geral de Proteção de Dados (LGPD) e Governo Digital': 'lgpd',
@@ -55,7 +56,7 @@ const HINT_PATCHES = {
   '9.3':
     'No módulo Contratos, preencha fiscal e portaria — a lista consolidada aparece no site. PDF pesquisável aceito para exportação (flexibilização 2026).',
   '14.1':
-    'Endereço físico, telefone e horário da Ouvidoria no portal (sistema externo). O critério 14.2 foi absorvido/removido no ciclo 2026.',
+    'Endereço físico, telefone e horário da Ouvidoria no portal (sistema externo).',
   '20.3':
     'Ementa, anexos/PDF, situação, autor e relator. PDF pesquisável + botão Baixar PDF na listagem (/atividades-legislativas). Relator pode constar quando houver.',
   '20.4':
@@ -81,8 +82,9 @@ src = src.replace(
  * Fonte oficial: planilha "Matriz de Critérios 2026 (Final)" + Erratas (abr–jun/2026)
  * + Nota Técnica PNTP (15/06/2026) + Síntese das alterações ciclo 2026.
  *
- * Aplicável ao Legislativo: matriz COMUM (59) + COMUM exceto estatais (12) +
- * PODER LEGISLATIVO (11) = 82 critérios.
+ * Aplicável ao Legislativo: matriz COMUM (60) + COMUM exceto estatais
+ * independentes (4) + COMUM exceto estatais (8) + PODER LEGISLATIVO (11)
+ * = 83 critérios.
  *
  * Classificação: essencial (2) | obrigatória (1,5) | recomendada (1).
  * Itens de verificação: disponibilidade, atualidade, série histórica,
@@ -96,12 +98,6 @@ export type AtriconClassification`
 src = src.replace(
   "{ key: 'lgpd', label: 'LGPD e Governo Digital', weight: 1 }",
   "{ key: 'lgpd', label: 'LGPD e Governo Digital', weight: 1 }"
-)
-
-// Remover critério 14.2 (extinto no ciclo 2026)
-src = src.replace(
-  /\/\*\*[\s\S]*?\*\/\s*\n  \{\n    code: '14\.2',[\s\S]*?\n  \},/,
-  '\n'
 )
 
 let updated = 0
@@ -142,4 +138,4 @@ src = src.replace(
 )
 
 fs.writeFileSync(MATRIX_PATH, src, 'utf8')
-console.log(`Synced ${updated} criteria titles/classifications. Removed 14.2. Patched hints.`)
+console.log(`Synced ${updated} criteria titles/classifications. Patched hints.`)

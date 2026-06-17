@@ -14,6 +14,7 @@ export default class FiscalReportsController {
   async index({ inertia, request }: HttpContext) {
     const type = request.input('tipo', '')
     const year = request.input('ano', '')
+    const search = request.input('busca', '')
 
     let query = FiscalReport.query()
       .where('is_active', true)
@@ -22,6 +23,14 @@ export default class FiscalReportsController {
       .orderBy('period_number', 'asc')
     if (type) query = query.where('report_type', type)
     if (year) query = query.where('year', year)
+    if (search) {
+      query = query.where((q) => {
+        q.whereILike('title', `%${search}%`)
+          .orWhereILike('description', `%${search}%`)
+          .orWhereILike('report_type', `%${search}%`)
+          .orWhereILike('period_kind', `%${search}%`)
+      })
+    }
 
     const reports = await query
 
@@ -47,8 +56,9 @@ export default class FiscalReportsController {
         title: r.title,
         description: r.description,
         fileUrl: r.fileUrl,
+        updatedAt: r.updatedAt?.toISO() ?? null,
       })),
-      filters: { type, year },
+      filters: { type, year, search },
       years: yearRows.map((r) => r.year),
       types: typeRows.map((r) => r.reportType),
       siteSettings,

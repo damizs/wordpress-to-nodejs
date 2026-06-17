@@ -39,6 +39,7 @@ export default function InstagramSettings({ settings, categories, aiProviders, a
 
   const { data, setData, post, processing } = useForm({
     instagram_profile_url: settings.instagram_profile_url || '',
+    instagram_scraper_provider: settings.instagram_scraper_provider || 'auto',
     instagram_sessionid: settings.instagram_sessionid || '',
     instagram_useragent: settings.instagram_useragent || '',
     rapidapi_key: settings.rapidapi_key || '',
@@ -103,6 +104,13 @@ export default function InstagramSettings({ settings, categories, aiProviders, a
               <Field label="URL do Perfil">
                 <Input type="url" value={data.instagram_profile_url} onChange={e => setData('instagram_profile_url', e.target.value)} placeholder="https://www.instagram.com/seu_perfil" />
               </Field>
+              <Field label="Modo de captura" hint="Use automatico para tentar o scraper publico proprio primeiro e usar RapidAPI so se precisar.">
+                <Select value={data.instagram_scraper_provider} onChange={e => setData('instagram_scraper_provider', e.target.value)}>
+                  <option value="auto">Automatico: scraper publico + fallback RapidAPI</option>
+                  <option value="public">Somente scraper publico proprio</option>
+                  <option value="rapidapi">Somente RapidAPI</option>
+                </Select>
+              </Field>
             </div>
           </Card>
 
@@ -110,7 +118,7 @@ export default function InstagramSettings({ settings, categories, aiProviders, a
           <Card>
             <CardHeader
               icon={Key}
-              title="RapidAPI (Recomendado)"
+              title="RapidAPI (fallback)"
               description="Método mais confiável para buscar posts. Funciona mesmo com IP bloqueado."
             />
             <details className="mb-4 p-4 bg-muted rounded-lg border border-border">

@@ -1,28 +1,40 @@
 import { Link } from "@inertiajs/react";
-import { ArrowRight, Shield, MessageSquare } from "lucide-react";
+import { ArrowRight, FileCheck2, Gavel, MessageSquare, Shield } from "lucide-react";
 import { useSiteSettings } from "~/hooks/use_site_settings";
-import { NewsHeroPanel, type NewsItem } from "~/components/NewsSection";
 
 interface HomeHeroProps {
-  /** Modelo do site ativo (data-template). */
   template: string;
-  /** Notícias da home (modelo Moderno: coluna direita do hero). */
-  news?: NewsItem[];
-  /** Imagem de fundo (mesma da seção de notícias). */
   backgroundImage?: string | null;
-  /** Limite de cards no painel de notícias do hero */
-  newsLimit?: number;
 }
 
-/**
- * Hero de abertura da home, exibido apenas nos modelos com `homeHero: true`
- * (lib/templates.ts): "classico" e "moderno". Traz o <h1> real da home — útil
- * para acessibilidade quando o cabeçalho usa logo (sem h1 textual).
- *
- * Modelo Moderno: hero unificado — texto institucional à esquerda, notícias à
- * direita, fundo com a imagem configurada no painel (Homepage → Notícias).
- */
-export function HomeHero({ template, news = [], backgroundImage, newsLimit }: HomeHeroProps) {
+const MODERN_SERVICE_LINKS = [
+  {
+    title: "Portal da Transparência",
+    description: "Receitas, despesas, contratos e dados públicos.",
+    href: "/transparencia",
+    icon: Shield,
+  },
+  {
+    title: "e-SIC",
+    description: "Solicite informações com base na LAI.",
+    href: "/esic",
+    icon: FileCheck2,
+  },
+  {
+    title: "Ouvidoria",
+    description: "Envie manifestações, sugestões e pedidos.",
+    href: "/ouvidoria",
+    icon: MessageSquare,
+  },
+  {
+    title: "Licitações",
+    description: "Acompanhe editais, atas e documentos oficiais.",
+    href: "/licitacoes",
+    icon: Gavel,
+  },
+];
+
+export function HomeHero({ template, backgroundImage }: HomeHeroProps) {
   const settings = useSiteSettings();
   const title = settings.header_title || "Câmara Municipal de Sumé";
   const subtitle = settings.header_subtitle || "Estado da Paraíba";
@@ -37,11 +49,8 @@ export function HomeHero({ template, news = [], backgroundImage, newsLimit }: Ho
     "inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-primary-foreground/30 text-primary-foreground text-sm font-semibold hover:bg-primary-foreground/10 transition-colors no-underline";
 
   if (template === "moderno") {
-    const hasNews = news.length > 0;
-
     return (
       <section className="relative text-primary-foreground overflow-hidden bg-navy-dark">
-        {/* Fundo — imagem da seção de notícias ou gradiente fallback */}
         {backgroundImage ? (
           <div className="absolute inset-0 overflow-hidden">
             <img src={backgroundImage} alt="" className="w-full h-full object-cover" />
@@ -54,12 +63,8 @@ export function HomeHero({ template, news = [], backgroundImage, newsLimit }: Ho
 
         <div className="absolute inset-0 template-modern-grid opacity-10 pointer-events-none" aria-hidden="true" />
 
-        <div className="relative container py-7 sm:py-10 lg:py-14">
-          <div
-            className={`grid gap-7 lg:gap-10 xl:gap-12 items-center min-w-0 ${
-              hasNews ? "lg:grid-cols-[minmax(0,0.95fr)_minmax(22rem,0.8fr)]" : "max-w-3xl"
-            }`}
-          >
+        <div className="relative container py-8 sm:py-11 lg:py-16">
+          <div className="grid gap-7 lg:grid-cols-[minmax(0,0.95fr)_minmax(22rem,0.8fr)] lg:gap-10 xl:gap-12 items-center min-w-0">
             <div className="min-w-0" data-reveal="fade-right">
               <div className="flex items-center gap-3 mb-4">
                 <span className="inline-block text-xs font-semibold uppercase tracking-[0.14em] text-gold">
@@ -85,75 +90,86 @@ export function HomeHero({ template, news = [], backgroundImage, newsLimit }: Ho
               </div>
             </div>
 
-            {hasNews && (
-              <div
-                className="relative min-w-0 rounded-2xl border border-primary-foreground/12 bg-navy-dark/55 p-2 shadow-xl backdrop-blur-sm"
-                data-reveal="fade-left"
-              >
-                <NewsHeroPanel news={news} limit={newsLimit} />
-              </div>
-            )}
-          </div>
-        </div>
-
-        {hasNews && (
-          <div className="relative bg-navy-dark border-t border-primary-foreground/10">
-            <div className="container py-4 flex justify-center sm:justify-end">
-              <Link
-                href="/noticias"
-                className="group inline-flex items-center justify-center gap-3 w-full sm:w-auto px-6 py-2.5 bg-primary-foreground/10 hover:bg-gold hover:text-navy-dark rounded-full text-primary-foreground font-medium no-underline transition-colors"
-              >
-                Ver mais notícias
-                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Link>
+            <div className="grid min-w-0 gap-3 sm:grid-cols-2" data-reveal="fade-left">
+              {MODERN_SERVICE_LINKS.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="group rounded-2xl border border-primary-foreground/14 bg-primary-foreground/[0.08] p-4 text-primary-foreground no-underline shadow-xl backdrop-blur-sm transition-all hover:-translate-y-1 hover:border-gold/50 hover:bg-primary-foreground/[0.13]"
+                >
+                  <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-gold text-navy-dark shadow-lg">
+                    <item.icon className="h-5 w-5" aria-hidden="true" />
+                  </div>
+                  <h2 className="text-base font-bold leading-tight transition-colors group-hover:text-gold">
+                    {item.title}
+                  </h2>
+                  <p className="mt-2 text-sm leading-relaxed text-primary-foreground/72">
+                    {item.description}
+                  </p>
+                  <span className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-gold">
+                    Acessar
+                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                  </span>
+                </Link>
+              ))}
             </div>
           </div>
-        )}
+        </div>
       </section>
     );
   }
 
-  // Modelo clássico: hero institucional ornamentado (governamental).
   return (
-    <section className="relative bg-gradient-hero text-primary-foreground overflow-hidden">
-      <div className="absolute inset-0 template-classico-grid opacity-55 pointer-events-none" aria-hidden="true" />
-      <div className="absolute top-0 left-0 right-0 template-gold-rule-solid opacity-90" aria-hidden="true" />
-
-      <div className="relative container py-14 lg:py-20">
-        <div className="max-w-3xl mx-auto text-center relative px-2">
-          {/* Moldura ornamental */}
-          <div
-            className="absolute -inset-x-3 sm:-inset-x-6 -inset-y-4 sm:-inset-y-6 border border-gold/25 rounded-sm pointer-events-none hidden md:block"
-            aria-hidden="true"
-          >
-            <span className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2.5 h-2.5 bg-gold rotate-45" />
-            <span className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 w-2.5 h-2.5 bg-gold rotate-45" />
+    <section className="relative overflow-hidden border-b border-border bg-muted/30">
+      <div className="container py-10 lg:py-14">
+        <div className="grid gap-8 lg:grid-cols-[minmax(0,0.95fr)_minmax(340px,0.75fr)] lg:items-center">
+          <div className="min-w-0">
+            <span className="inline-flex rounded-full bg-gold/15 px-3 py-1 text-xs font-bold uppercase tracking-wide text-navy">
+              {subtitle}
+            </span>
+            <h1 className="mt-4 max-w-3xl text-3xl font-bold leading-tight text-foreground md:text-4xl lg:text-5xl">
+              {titleFirstWord}{" "}
+              <span className="text-navy">{titleRest.join(" ")}</span>
+            </h1>
+            <p className="mt-4 max-w-2xl text-base leading-relaxed text-muted-foreground md:text-lg">
+              {tagline}
+            </p>
+            <div className="mt-6 flex flex-col gap-3 min-[420px]:flex-row">
+              <Link href="/transparencia" className="inline-flex items-center justify-center gap-2 rounded-lg bg-navy px-5 py-3 text-sm font-bold text-white no-underline shadow-sm transition-colors hover:bg-navy-dark">
+                <Shield className="h-4 w-4" aria-hidden="true" />
+                Transparência
+              </Link>
+              <Link href="/ouvidoria" className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-5 py-3 text-sm font-bold text-foreground no-underline shadow-sm transition-colors hover:bg-muted">
+                <MessageSquare className="h-4 w-4" aria-hidden="true" />
+                Ouvidoria
+              </Link>
+            </div>
           </div>
 
-          <span className="inline-block text-[10px] sm:text-xs font-semibold uppercase tracking-[0.2em] text-gold mb-4">
-            {subtitle}
-          </span>
-          <div className="template-gold-rule w-28 mx-auto mb-5 opacity-90" aria-hidden="true" />
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight template-serif">
-            {titleFirstWord}{" "}
-            <span className="text-gradient-gold">{titleRest.join(" ")}</span>
-          </h1>
-          <p className="mt-5 text-primary-foreground/85 leading-relaxed max-w-2xl mx-auto">{tagline}</p>
-          <div className="template-gold-rule w-20 mx-auto mt-6 mb-7 opacity-60" aria-hidden="true" />
-          <div className="flex flex-wrap justify-center gap-3">
-            <Link href="/transparencia" className={primaryBtn}>
-              <Shield className="w-4 h-4" aria-hidden="true" />
-              Transparência
-            </Link>
-            <Link href="/ouvidoria" className={ghostBtn}>
-              <MessageSquare className="w-4 h-4" aria-hidden="true" />
-              Ouvidoria
-            </Link>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
+            {MODERN_SERVICE_LINKS.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="group flex items-start gap-4 rounded-xl border border-border bg-card p-4 text-foreground no-underline shadow-sm transition-all hover:-translate-y-0.5 hover:border-navy/25 hover:shadow-md"
+              >
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-navy/10 text-navy">
+                  <item.icon className="h-5 w-5" aria-hidden="true" />
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-sm font-bold leading-tight transition-colors group-hover:text-navy">
+                    {item.title}
+                  </span>
+                  <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">
+                    {item.description}
+                  </span>
+                </span>
+                <ArrowRight className="ml-auto h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-navy" />
+              </Link>
+            ))}
           </div>
         </div>
       </div>
-
-      <div className="relative template-gold-rule-solid opacity-90" aria-hidden="true" />
     </section>
   );
 }

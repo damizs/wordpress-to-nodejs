@@ -1,6 +1,12 @@
 /**
  * Instagram Scraper Service
- * Busca posts de perfis do Instagram via RapidAPI
+ *
+ * Estrategia:
+ * 1. Scraper publico proprio, sem senha/cookie, lendo apenas dados publicos do perfil.
+ * 2. RapidAPI como fallback quando o Instagram limitar ou mudar a resposta publica.
+ *
+ * O feed da home usa cache forte em InstagramFeedService, entao este servico deve ser
+ * chamado poucas vezes por dia, nunca a cada pageview.
  */
 
 import InstagramSetting from '#models/instagram_setting'
@@ -22,6 +28,8 @@ export interface InstagramProfileInfo {
   profilePicUrl: string
 }
 
+type ScraperProvider = 'auto' | 'public' | 'rapidapi'
+
 export default class InstagramScraperService {
   private lastError: string = ''
 
@@ -40,6 +48,21 @@ export default class InstagramScraperService {
     this.lastError = ''
 
     console.log(`Instagram Scraper: Buscando até ${maxPosts} posts de @${username}`)
+
+    const provider = await this.getProvider()
+    if (provider === 'auto' || provider === 'public') {
+      try {
+        const posts = await this.scrapeWithPublicProfile(username, maxPosts)
+        if (posts.length > 0) {
+          console.log(`Instagram Scraper (publico): ${posts.length} posts unicos`)
+          return posts
+        }
+      } catch (error: any) {
+        this.lastError = error.message
+        console.error(`Instagram Scraper (publico) falhou: ${error.message}`)
+        if (provider === 'public') throw error
+      }
+    }
 
     const rapidapiKey = await InstagramSetting.get('rapidapi_key')
     if (!rapidapiKey) {
@@ -80,6 +103,111 @@ export default class InstagramScraperService {
    * Busca posts via "Instagram Scraper Stable API" (RapidAPI).
    * Endpoint: POST get_ig_user_posts.php → { posts: [{ node }], pagination_token }
    */
+  /**
+   * Scraper publico proprio.
+   *
+   * Usa o mesmo endpoint publico consumido pelo web client do Instagram. Nao usa
+   * senha, cookie, sessionid, proxy nem tentativa de contornar bloqueio. Quando
+   * esse endpoint falhar, o fluxo "auto" cai para RapidAPI.
+   */
+  private async scrapeWithPublicProfile(username: string, max: number): Promise<InstagramPost[]> {
+    const data = await this.fetchPublicProfile(username)
+    const user = data?.data?.user
+    const edges = user?.edge_owner_to_timeline_media?.edges
+    if (!Array.isArray(edges) || edges.length === 0) {
+      throw new Error('Perfil publico nao retornou publicacoes recentes.')
+    }
+
+    const seenIds = new Set<string>()
+    const posts: InstagramPost[] = []
+    for (const edge of edges) {
+      if (posts.length >= max) break
+      const node = edge?.node ?? edge
+      const post = this.parsePublicProfileItem(node)
+      if (post && !seenIds.has(post.id)) {
+        seenIds.add(post.id)
+        posts.push(post)
+      }
+    }
+
+    posts.sort((a, b) => b.takenAtTimestamp - a.takenAtTimestamp)
+    return posts
+  }
+
+  private async fetchPublicProfile(username: string): Promise<any> {
+    const url = `https://www.instagram.com/api/v1/users/web_profile_info/?username=${encodeURIComponent(
+      username
+    )}`
+    const response = await fetch(url, {
+      headers: this.publicInstagramHeaders(username),
+      signal: AbortSignal.timeout(12000),
+    })
+
+    if (response.status === 404) {
+      throw new Error(`Perfil @${username} nao encontrado ou indisponivel publicamente.`)
+    }
+    if (response.status === 401 || response.status === 403) {
+      throw new Error('Instagram bloqueou a leitura publica deste perfil no momento.')
+    }
+    if (response.status === 429) {
+      throw new Error('Instagram limitou temporariamente as leituras publicas.')
+    }
+    if (!response.ok) {
+      const text = await response.text()
+      throw new Error(`Instagram publico erro ${response.status}: ${text.substring(0, 120)}`)
+    }
+
+    return response.json()
+  }
+
+  private publicInstagramHeaders(username: string): Record<string, string> {
+    return {
+      Accept: 'application/json,text/plain,*/*',
+      'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
+      Referer: `https://www.instagram.com/${username}/`,
+      'User-Agent':
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+      // App id publico usado pelo web client do Instagram. Nao autentica usuario.
+      'X-IG-App-ID': '936619743392459',
+    }
+  }
+
+  private parsePublicProfileItem(item: any): InstagramPost | null {
+    const id = String(item?.id || '')
+    const shortcode = String(item?.shortcode || '')
+    if (!id || !shortcode) return null
+
+    const imageUrl =
+      item?.display_url ||
+      item?.thumbnail_src ||
+      item?.thumbnail_resources?.[item.thumbnail_resources.length - 1]?.src ||
+      ''
+    if (!imageUrl) return null
+
+    const caption =
+      item?.edge_media_to_caption?.edges?.[0]?.node?.text ||
+      item?.accessibility_caption ||
+      ''
+
+    let timestamp = Number(item?.taken_at_timestamp || 0)
+    const minTimestamp = 1577836800
+    const maxTimestamp = 1893456000
+    if (timestamp < minTimestamp || timestamp > maxTimestamp) {
+      timestamp = Math.floor(Date.now() / 1000)
+    }
+
+    return {
+      id,
+      shortcode,
+      thumbnailSrc: imageUrl,
+      displayUrl: imageUrl,
+      caption,
+      takenAtTimestamp: timestamp,
+      isVideo: item?.is_video === true || item?.__typename === 'GraphVideo',
+      viewCount: Number(item?.video_view_count ?? item?.video_play_count ?? 0) || undefined,
+    }
+  }
+
   private async scrapeWithStableApi(
     username: string,
     apiKey: string,
@@ -344,13 +472,31 @@ export default class InstagramScraperService {
     if (!this.validateProfileUrl(profileUrl)) {
       throw new Error('URL do perfil inválida.')
     }
+    const username = this.extractUsername(profileUrl)
+    this.lastError = ''
+
+    const provider = await this.getProvider()
+    if (provider === 'auto' || provider === 'public') {
+      try {
+        const videos = (await this.scrapeWithPublicProfile(username, limit * 3))
+          .filter((post) => post.isVideo)
+          .slice(0, limit)
+        if (videos.length > 0) {
+          console.log(`Instagram Scraper (publico videos): ${videos.length} itens`)
+          return videos
+        }
+        throw new Error('Perfil publico nao retornou videos/reels recentes.')
+      } catch (error: any) {
+        this.lastError = error.message
+        console.error(`Instagram Scraper (publico videos) falhou: ${error.message}`)
+        if (provider === 'public') throw error
+      }
+    }
+
     const apiKey = await InstagramSetting.get('rapidapi_key')
     if (!apiKey) {
       throw new Error('RapidAPI Key não configurada. Configure nas configurações.')
     }
-    const username = this.extractUsername(profileUrl)
-    this.lastError = ''
-
     const host = 'instagram-scraper-stable-api.p.rapidapi.com'
     const seenIds = new Set<string>()
     const allReels: InstagramPost[] = []
@@ -609,6 +755,11 @@ export default class InstagramScraperService {
       return ''
     }
     return walk(data)
+  }
+
+  private async getProvider(): Promise<ScraperProvider> {
+    const raw = (await InstagramSetting.get('instagram_scraper_provider', 'auto')) || 'auto'
+    return raw === 'public' || raw === 'rapidapi' ? raw : 'auto'
   }
 
   private validateProfileUrl(url: string): boolean {

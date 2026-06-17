@@ -303,7 +303,6 @@ function ProductionExplorer({ timeline }: { timeline: TimelineItem[] }) {
       return next;
     });
 
-  // Contagem por ano e situação (respeitando situações ocultas para a altura).
   const byYear = years.map((y) => {
     const map: Record<string, number> = {};
     for (const s of statuses) map[s] = 0;
@@ -311,9 +310,27 @@ function ProductionExplorer({ timeline }: { timeline: TimelineItem[] }) {
     const total = statuses.reduce((acc, s) => acc + (hidden.has(s) ? 0 : map[s]), 0);
     return { year: y, map, total };
   });
-  const maxYear = Math.max(1, ...byYear.map((b) => b.total));
 
-  // Resumo do período selecionado.
+  const visibleStatuses = statuses.filter((s) => !hidden.has(s));
+  const maxStatusValue = Math.max(
+    1,
+    ...byYear.flatMap((b) => visibleStatuses.map((s) => b.map[s] ?? 0))
+  );
+  const chartWidth = 720;
+  const chartHeight = 280;
+  const chartPadding = { top: 24, right: 28, bottom: 44, left: 42 };
+  const plotWidth = chartWidth - chartPadding.left - chartPadding.right;
+  const plotHeight = chartHeight - chartPadding.top - chartPadding.bottom;
+  const xFor = (index: number) =>
+    years.length === 1
+      ? chartPadding.left + plotWidth / 2
+      : chartPadding.left + (index / (years.length - 1)) * plotWidth;
+  const yFor = (value: number) =>
+    chartPadding.top + plotHeight - (value / maxStatusValue) * plotHeight;
+  const gridValues = Array.from({ length: 4 }, (_, index) =>
+    Math.round((maxStatusValue / 3) * index)
+  );
+
   const periodItems = period === "all" ? items : items.filter((i) => i.year === period);
   const totalPeriod = periodItems.length;
   const summary = statuses.map((s) => ({
@@ -329,7 +346,6 @@ function ProductionExplorer({ timeline }: { timeline: TimelineItem[] }) {
 
   return (
     <div className="bg-card border border-border rounded-2xl p-6 shadow-sm">
-      {/* Cabeçalho + seletor de período */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-5">
         <div className="flex items-center gap-2">
           <ActivityIcon className="w-4 h-4 text-gold" aria-hidden="true" />
@@ -369,7 +385,6 @@ function ProductionExplorer({ timeline }: { timeline: TimelineItem[] }) {
         </div>
       </div>
 
-      {/* KPIs do período */}
       <div className="grid grid-cols-1 min-[360px]:grid-cols-3 gap-2 sm:gap-3 mb-5">
         <div className="rounded-xl bg-muted/50 p-3 text-center min-w-0">
           <p className="text-xl sm:text-2xl font-bold text-foreground tabular-nums leading-none">{totalPeriod}</p>
@@ -390,74 +405,128 @@ function ProductionExplorer({ timeline }: { timeline: TimelineItem[] }) {
         </div>
       </div>
 
-      {/* Detalhe do hover (interação) */}
       <div className="h-5 mb-1.5 text-center">
         {hover ? (
           <span className="text-xs font-medium text-foreground">
-            <span className="tabular-nums">{hover.year}</span> · {hover.status}:{" "}
+            <span className="tabular-nums">{hover.year}</span> · {hover.status}: {" "}
             <span className="tabular-nums font-bold">{hover.count}</span>
           </span>
         ) : (
           <span className="text-xs text-muted-foreground/70">
-            Passe o mouse nas barras ou clique num ano para filtrar
+            Passe o mouse nos pontos ou clique num ano para filtrar
           </span>
         )}
       </div>
 
-      {/* Barras empilhadas por ano */}
       <div
-        className="flex items-end justify-between gap-2 sm:gap-3 h-52"
+        className="relative overflow-x-auto rounded-2xl border border-border bg-muted/20 p-2 sm:p-4"
         role="img"
         aria-label={`Matérias por ano e situação. Total ${
           period === "all" ? "geral" : `de ${period}`
         }: ${totalPeriod}.`}
       >
-        {byYear.map((b) => {
-          const dim = period !== "all" && period !== b.year;
-          const visibleStatuses = statuses.filter((s) => !hidden.has(s) && b.map[s] > 0);
-          return (
-            <div key={b.year} className="flex-1 h-full flex flex-col items-center justify-end gap-2 min-w-0">
-              <button
-                type="button"
-                onClick={() => setPeriod(period === b.year ? "all" : b.year)}
-                aria-label={`Filtrar por ${b.year}`}
-                className="w-full h-full flex flex-col justify-end items-center"
-              >
-                {b.total > 0 ? (
-                  <div
-                    className={`relative w-9 sm:w-12 flex flex-col-reverse rounded-t-md overflow-hidden transition-opacity ${
-                      dim ? "opacity-30" : ""
-                    }`}
-                    style={{ height: `${(b.total / maxYear) * 100}%` }}
-                  >
-                    {visibleStatuses.map((s) => (
-                      <div
-                        key={s}
-                        className="w-full hover:brightness-110 transition-[filter]"
-                        style={{ height: `${(b.map[s] / b.total) * 100}%`, background: STATUS_COLOR[s] }}
-                        onMouseEnter={() => setHover({ year: b.year, status: s, count: b.map[s] })}
-                        onMouseLeave={() => setHover(null)}
-                        title={`${b.year} · ${s}: ${b.map[s]}`}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="w-9 sm:w-12 h-1 rounded bg-muted" />
-                )}
-              </button>
-              <span
-                className={`text-xs tabular-nums transition-colors ${
-                  period === b.year ? "text-primary font-bold" : "text-muted-foreground"
+        <svg
+          viewBox={`0 0 ${chartWidth} ${chartHeight}`}
+          className="min-w-[560px] w-full h-[260px] sm:h-[300px]"
+          aria-hidden="true"
+        >
+          {gridValues.map((value) => {
+            const y = yFor(value);
+            return (
+              <g key={value}>
+                <line
+                  x1={chartPadding.left}
+                  x2={chartWidth - chartPadding.right}
+                  y1={y}
+                  y2={y}
+                  stroke="currentColor"
+                  className="text-border"
+                  strokeWidth="1"
+                />
+                <text
+                  x={chartPadding.left - 10}
+                  y={y + 4}
+                  textAnchor="end"
+                  className="fill-muted-foreground text-[11px] tabular-nums"
+                >
+                  {value}
+                </text>
+              </g>
+            );
+          })}
+
+          {visibleStatuses.map((status) => {
+            const points = byYear
+              .map((b, index) => `${xFor(index)},${yFor(b.map[status] ?? 0)}`)
+              .join(" ");
+            const hasData = byYear.some((b) => (b.map[status] ?? 0) > 0);
+            if (!hasData) return null;
+
+            return (
+              <g key={status}>
+                <polyline
+                  points={points}
+                  fill="none"
+                  stroke={STATUS_COLOR[status]}
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  opacity="0.95"
+                />
+                {byYear.map((b, index) => {
+                  const count = b.map[status] ?? 0;
+                  const dim = period !== "all" && period !== b.year;
+                  return (
+                    <circle
+                      key={`${status}-${b.year}`}
+                      cx={xFor(index)}
+                      cy={yFor(count)}
+                      r={period === b.year ? 8 : 6}
+                      fill={STATUS_COLOR[status]}
+                      stroke="hsl(var(--card))"
+                      strokeWidth="3"
+                      opacity={dim ? 0.35 : 1}
+                      className="cursor-pointer transition-opacity"
+                      onMouseEnter={() => setHover({ year: b.year, status, count })}
+                      onMouseLeave={() => setHover(null)}
+                      onClick={() => setPeriod(period === b.year ? "all" : b.year)}
+                    />
+                  );
+                })}
+              </g>
+            );
+          })}
+
+          {byYear.map((b, index) => (
+            <g
+              key={b.year}
+              className="cursor-pointer"
+              onClick={() => setPeriod(period === b.year ? "all" : b.year)}
+            >
+              <line
+                x1={xFor(index)}
+                x2={xFor(index)}
+                y1={chartPadding.top}
+                y2={chartPadding.top + plotHeight}
+                stroke="currentColor"
+                className={period === b.year ? "text-primary/30" : "text-border/50"}
+                strokeDasharray="4 8"
+              />
+              <text
+                x={xFor(index)}
+                y={chartHeight - 16}
+                textAnchor="middle"
+                className={`text-[12px] tabular-nums ${
+                  period === b.year ? "fill-primary font-bold" : "fill-muted-foreground"
                 }`}
               >
                 {b.year}
-              </span>
-            </div>
-          );
-        })}
+              </text>
+            </g>
+          ))}
+        </svg>
       </div>
 
-      {/* Legenda clicável (liga/desliga situações) */}
       <div className="mt-5 flex flex-wrap gap-x-4 gap-y-2">
         {summary.map((s) => {
           const off = hidden.has(s.status);
@@ -496,6 +565,7 @@ export default function VereadorShow({
 }: Props) {
   const hasBio = !!(vereador.bio || vereador.biography);
   const hasHistory = !!vereador.history;
+  const bioHtml = vereador.bio || vereador.biography;
 
   const tabs = [
     { id: "producao", label: "Produção Legislativa", icon: FileText, show: true },
@@ -584,7 +654,7 @@ export default function VereadorShow({
               <div className="min-w-0 flex-1 pb-1">
                 <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mb-3">
                   {vereador.role && (
-                    <span className="inline-block px-3.5 py-1 bg-gold/15 text-navy-dark dark:text-gold border border-gold/25 text-xs font-bold rounded-full uppercase tracking-wider">
+                    <span className="inline-block px-3.5 py-1 bg-gold text-navy-dark border border-gold/70 text-xs font-bold rounded-full uppercase tracking-wider shadow-sm">
                       {vereador.role}
                     </span>
                   )}
@@ -627,10 +697,10 @@ export default function VereadorShow({
                     {vereador.email && (
                       <a
                         href={`mailto:${vereador.email}`}
-                        className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-primary-foreground/20 bg-primary-foreground/10 text-sm text-primary-foreground hover:bg-primary-foreground/20 transition-colors no-underline"
+                        className="inline-flex max-w-full items-center gap-2 px-4 py-2 rounded-full border border-primary-foreground/20 bg-primary-foreground/10 text-sm text-primary-foreground hover:bg-primary-foreground/20 transition-colors no-underline"
                       >
                         <Mail className="w-4 h-4 text-gold" aria-hidden="true" />
-                        <span className="truncate max-w-[240px]">{vereador.email}</span>
+                        <span className="break-all text-left">{vereador.email}</span>
                       </a>
                     )}
                     {vereador.phone && (
@@ -717,6 +787,37 @@ export default function VereadorShow({
                   </div>
                 )}
               </div>
+            )}
+
+            {(hasBio || hasHistory) && (
+              <section className="bg-card border border-border rounded-2xl p-6 shadow-sm mb-10" data-reveal="up">
+                <div className="flex items-center gap-2 mb-5">
+                  <BookOpen className="w-4 h-4 text-gold" aria-hidden="true" />
+                  <h2 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                    Biografia e Trajetoria
+                  </h2>
+                </div>
+                <div className="grid gap-6 lg:grid-cols-2">
+                  {hasBio && (
+                    <div className={!hasHistory ? "lg:col-span-2" : undefined}>
+                      <h3 className="text-lg font-bold text-foreground mb-3">Biografia</h3>
+                      <SafeHtml
+                        html={bioHtml as string}
+                        className="prose prose-sm dark:prose-invert max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-strong:text-foreground prose-a:text-primary"
+                      />
+                    </div>
+                  )}
+                  {hasHistory && (
+                    <div className={!hasBio ? "lg:col-span-2" : undefined}>
+                      <h3 className="text-lg font-bold text-foreground mb-3">Trajetoria</h3>
+                      <SafeHtml
+                        html={vereador.history as string}
+                        className="prose prose-sm dark:prose-invert max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-strong:text-foreground prose-a:text-primary"
+                      />
+                    </div>
+                  )}
+                </div>
+              </section>
             )}
 
             {/* ===== Stats ===== */}

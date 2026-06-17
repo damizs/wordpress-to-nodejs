@@ -197,9 +197,6 @@ export default function LicitacaoShow({ licitacao, documentGroups = [], phases =
                     </div>
                   )}
 
-                  {/* Edital / arquivo principal */}
-                  <DocumentActionsPanel fileUrl={licitacao.file_url} label="Baixar Edital" className="mb-6" />
-
                   {licitacao.object && (
                     <div className="mb-6 p-4 rounded-xl border border-border bg-muted/40">
                       <h2 className="font-semibold text-foreground mb-2">Objeto</h2>
@@ -210,6 +207,9 @@ export default function LicitacaoShow({ licitacao, documentGroups = [], phases =
                   {longText && (
                     <SafeHtml html={longText} className="prose prose-slate dark:prose-invert max-w-none mb-6" />
                   )}
+
+                  {/* Edital / arquivo principal */}
+                  <DocumentActionsPanel fileUrl={licitacao.file_url} label="Baixar Edital" className="mb-6" />
 
                   {/* Rito completo do processo: todas as fases da modalidade */}
                   {phases.length > 0 && (

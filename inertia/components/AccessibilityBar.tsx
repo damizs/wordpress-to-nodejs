@@ -53,7 +53,8 @@ export function useDarkMode(): [boolean, () => void] {
 
 /* ===== VLibras (carregamento lazy) ===== */
 
-const VLIBRAS_SCRIPT_URL = "https://vlibras.gov.br/app/vlibras-plugin.js";
+const VLIBRAS_SCRIPT_URL =
+  "https://cdn.jsdelivr.net/gh/spbgovbr-vlibras/vlibras-portal@sgd/app/vlibras-plugin.js?v=20260510";
 const VLIBRAS_APP_URL = "https://vlibras.gov.br/app";
 
 let vlibrasScriptPromise: Promise<void> | null = null;

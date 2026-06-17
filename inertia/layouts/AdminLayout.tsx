@@ -5,7 +5,7 @@ import {
   LogOut, Menu, User, Home, Users, FileText, Link2, Shield, UserCog,
   ScrollText, Settings, Monitor, HelpCircle, Info, Tags, Calendar, Users2,
   Gavel, ClipboardCheck, Image, Radar, Vote, ExternalLink, Award, Files,
-  BookOpen, FolderOpen, Coins, FileSignature, FileBarChart,
+  BookOpen, FolderOpen, Coins, FileSignature, FileBarChart, Search, X,
 } from 'lucide-react'
 import { useState, useEffect, type ReactNode } from 'react'
 
@@ -117,6 +117,8 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
   const { auth } = usePage().props as any
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [commandOpen, setCommandOpen] = useState(false)
+  const [commandQuery, setCommandQuery] = useState('')
   const [expandedMenus, setExpandedMenus] = useState<string[]>([])
   const [collapsedGroups, setCollapsedGroups] = useState<string[]>(() => {
     if (typeof window === 'undefined') return []
@@ -141,6 +143,28 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
         ),
     }))
     .filter((group) => group.items.length > 0)
+  const commandItems = visibleGroups.flatMap((group) =>
+    group.items.flatMap((item) => {
+      const parent = group.label ? `${group.label} / ${item.label}` : item.label
+      if (item.children && item.children.length > 0) {
+        return item.children.map((child) => ({
+          label: child.label,
+          context: parent,
+          href: child.href,
+          icon: item.icon,
+        }))
+      }
+      return item.href
+        ? [{ label: item.label, context: group.label || 'Painel', href: item.href, icon: item.icon }]
+        : []
+    })
+  )
+  const commandNeedle = commandQuery.trim().toLowerCase()
+  const filteredCommands = commandNeedle
+    ? commandItems.filter((item) =>
+        `${item.label} ${item.context} ${item.href}`.toLowerCase().includes(commandNeedle)
+      )
+    : commandItems.slice(0, 12)
 
   function isActive(href: string) {
     if (href === '/painel') return currentUrl === '/painel'
@@ -180,6 +204,17 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
     setMobileOpen(false)
   }
 
+  function openCommandPalette() {
+    setCommandQuery('')
+    setCommandOpen(true)
+  }
+
+  function visitCommand(href: string) {
+    setCommandOpen(false)
+    setCommandQuery('')
+    router.visit(href)
+  }
+
   // Bloqueia scroll do body quando o menu mobile está aberto
   useEffect(() => {
     if (!mobileOpen) return
@@ -189,6 +224,21 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
       document.body.style.overflow = prev
     }
   }, [mobileOpen])
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      const key = event.key.toLowerCase()
+      if ((event.ctrlKey || event.metaKey) && key === 'k') {
+        event.preventDefault()
+        openCommandPalette()
+      }
+      if (event.key === 'Escape') {
+        setCommandOpen(false)
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [])
 
   // Fecha o menu ao navegar (Inertia)
   useEffect(() => {
@@ -218,6 +268,69 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
       {/* Mobile overlay */}
       {mobileOpen && (
         <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setMobileOpen(false)} />
+      )}
+
+      {commandOpen && (
+        <div className="fixed inset-0 z-[80] bg-black/45 p-4 backdrop-blur-sm" onClick={() => setCommandOpen(false)}>
+          <div
+            className="mx-auto mt-20 w-full max-w-2xl overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-center gap-3 border-b border-border px-4 py-3">
+              <Search className="h-5 w-5 shrink-0 text-muted-foreground" />
+              <input
+                autoFocus
+                value={commandQuery}
+                onChange={(event) => setCommandQuery(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' && filteredCommands[0]) {
+                    visitCommand(filteredCommands[0].href)
+                  }
+                }}
+                placeholder="Buscar módulo, ação ou configuração..."
+                className="h-10 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground/60"
+              />
+              <button
+                type="button"
+                onClick={() => setCommandOpen(false)}
+                className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                aria-label="Fechar busca"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="max-h-[420px] overflow-y-auto p-2">
+              {filteredCommands.length === 0 ? (
+                <div className="px-4 py-10 text-center text-sm text-muted-foreground">
+                  Nenhum atalho encontrado.
+                </div>
+              ) : (
+                filteredCommands.map((item) => {
+                  const ItemIcon = item.icon
+                  return (
+                    <button
+                      key={`${item.href}-${item.label}`}
+                      type="button"
+                      onClick={() => visitCommand(item.href)}
+                      className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left transition-colors hover:bg-muted"
+                    >
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-navy/10 text-navy">
+                        <ItemIcon className="h-4 w-4" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold text-foreground">{item.label}</p>
+                        <p className="truncate text-xs text-muted-foreground">{item.context}</p>
+                      </div>
+                      <span className="hidden rounded bg-muted px-2 py-1 text-[11px] text-muted-foreground sm:inline">
+                        {item.href}
+                      </span>
+                    </button>
+                  )
+                })
+              )}
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Sidebar */}
@@ -362,6 +475,20 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
           </div>
 
           <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={openCommandPalette}
+              className="hidden md:inline-flex min-w-[220px] items-center justify-between gap-3 rounded-lg border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground transition-colors hover:border-navy/30 hover:bg-muted"
+              aria-label="Buscar no painel"
+            >
+              <span className="inline-flex items-center gap-2">
+                <Search className="h-3.5 w-3.5" />
+                Buscar no painel
+              </span>
+              <kbd className="rounded border border-border bg-card px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                Ctrl K
+              </kbd>
+            </button>
             <Link
               href="/"
               target="_blank"

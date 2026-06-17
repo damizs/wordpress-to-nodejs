@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-06-16T12:14:25.962Z",
-  "source": "C:/Users/arauj/Downloads/_bkp_sume/database.sql",
+  "generatedAt": "2026-06-17T14:20:14.158Z",
+  "source": "tmp\\wp_backup_sume_20260615\\database.sql",
   "totals": {
-    "registros": 98,
-    "anexos": 90,
-    "declaracoesAtivas": 18,
+    "registros": 104,
+    "anexos": 99,
+    "declaracoesAtivas": 17,
     "secoes": 27
   },
   "secoesCount": {
@@ -26,8 +26,8 @@
     "verbas-indenizatorias": 6,
     "transferencia-voluntaria": 6,
     "transferencias-realizadas": 6,
-    "adesao-ata-srp": 1,
-    "licitantes-sancionados": 1,
+    "adesao-ata-srp": 4,
+    "licitantes-sancionados": 4,
     "ocp": 1,
     "contratos": 1,
     "aditivos": 1,
@@ -171,12 +171,19 @@
     {
       "secao": "rgf",
       "ano": 2026,
-      "titulo": "RGF - Relatório Gestão Fiscal",
-      "conteudo": "Até o momento, não há informações a serem disponibilizadas para esta seção no exercício de 2026.",
+      "titulo": "RGF – 1° Quadrimestre 2026",
+      "conteudo": "RGF – 1° Quadrimestre 2026",
       "dataReferencia": null,
       "ordem": 0,
       "ativo": true,
-      "anexos": []
+      "anexos": [
+        {
+          "nome": "SICONFI_RGF_3118_QUADRIMESTRAL_1.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/06/SICONFI_RGF_3118_QUADRIMESTRAL_1.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
     },
     {
       "secao": "plano-estrategico",
@@ -1549,7 +1556,14 @@
       "dataReferencia": null,
       "ordem": 0,
       "ativo": true,
-      "anexos": []
+      "anexos": [
+        {
+          "nome": "DEC-ATA-2026.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/06/DEC-ATA-2026.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
     },
     {
       "secao": "licitantes-sancionados",
@@ -1559,7 +1573,14 @@
       "dataReferencia": null,
       "ordem": 0,
       "ativo": true,
-      "anexos": []
+      "anexos": [
+        {
+          "nome": "SANCIONADOS-2026-1.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/06/SANCIONADOS-2026-1.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
     },
     {
       "secao": "ocp",
@@ -1630,6 +1651,108 @@
       "ordem": 0,
       "ativo": true,
       "anexos": []
+    },
+    {
+      "secao": "adesao-ata-srp",
+      "ano": 2025,
+      "titulo": "Adesão de Ata SRP",
+      "conteudo": null,
+      "dataReferencia": "2025-12-31",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "DEC-ATA-2025.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/06/DEC-ATA-2025.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "adesao-ata-srp",
+      "ano": 2024,
+      "titulo": "Adesão de Ata SRP",
+      "conteudo": null,
+      "dataReferencia": "2024-12-31",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "DEC-ATA-2024.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/06/DEC-ATA-2024.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "adesao-ata-srp",
+      "ano": 2023,
+      "titulo": "Adesão de Ata SRP",
+      "conteudo": null,
+      "dataReferencia": "2023-12-31",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "DEC-ATA-2023.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/06/DEC-ATA-2023.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "licitantes-sancionados",
+      "ano": 2025,
+      "titulo": "Licitantes Sancionados",
+      "conteudo": null,
+      "dataReferencia": "2025-12-31",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "SANCIONADOS-2025-1.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/06/SANCIONADOS-2025-1.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "licitantes-sancionados",
+      "ano": 2024,
+      "titulo": "Licitantes Sancionados",
+      "conteudo": null,
+      "dataReferencia": "2024-12-31",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "SANCIONADOS-2024-1.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/06/SANCIONADOS-2024-1.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
+    },
+    {
+      "secao": "licitantes-sancionados",
+      "ano": 2023,
+      "titulo": "Licitantes Sancionados",
+      "conteudo": null,
+      "dataReferencia": "2023-12-31",
+      "ordem": 0,
+      "ativo": true,
+      "anexos": [
+        {
+          "nome": "SANCIONADOS-2023-1.pdf",
+          "url": "https://camaradesume.pb.gov.br/wp-content/uploads/2026/06/SANCIONADOS-2023-1.pdf",
+          "mime": "application/pdf",
+          "ordem": 0
+        }
+      ]
     }
   ]
 }

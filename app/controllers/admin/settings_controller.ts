@@ -6,6 +6,8 @@ import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 import { existsSync } from 'node:fs'
 import { saveOptimizedImage } from '#helpers/image_upload'
+import { assertSafeUpload } from '#helpers/upload_security'
+import { normalizeSafeWebUrl } from '#helpers/safe_url'
 
 /** All appearance keys with their defaults and groups */
 const APPEARANCE_KEYS: Record<
@@ -110,6 +112,12 @@ const APPEARANCE_KEYS: Record<
     type: 'text',
     label: 'Subtitulo da tela de login',
   },
+  dpo_ordinance_pdf_url: {
+    group: 'appearance',
+    defaultValue: '',
+    type: 'text',
+    label: 'Portaria do encarregado (PDF)',
+  },
   atricon_logo_url: {
     group: 'appearance',
     defaultValue: '',
@@ -175,11 +183,14 @@ const TEXT_KEYS = Object.keys(APPEARANCE_KEYS).filter(
       'document_brasao_url',
       'favicon_url',
       'login_logo_url',
+      'dpo_ordinance_pdf_url',
       'atricon_logo_url',
       'news_background_image',
       'city_images',
     ].includes(k)
 )
+
+const URL_TEXT_KEYS = new Set(['social_facebook', 'social_instagram', 'social_youtube', 'esic_new_url', 'esic_consult_url'])
 
 export default class SettingsController {
   /** Ensure all settings exist in DB, creating missing ones with defaults */
@@ -233,7 +244,8 @@ export default class SettingsController {
         // Only update if the field was actually sent (not null/undefined)
         if (value !== null && value !== undefined) {
           const def = APPEARANCE_KEYS[key]
-          await SiteSetting.setValue(key, String(value), def.group, def.type as any)
+          const safeValue = URL_TEXT_KEYS.has(key) ? normalizeSafeWebUrl(value) || '' : String(value)
+          await SiteSetting.setValue(key, safeValue, def.group, def.type as any)
         }
       }
 
@@ -243,6 +255,7 @@ export default class SettingsController {
         extnames: ['png', 'jpg', 'jpeg', 'webp'],
       })
       if (logo) {
+        await assertSafeUpload(logo, ['png', 'jpg', 'jpeg', 'webp'])
         const uploadDir = join(app.publicPath(), 'uploads')
         const saved = await saveOptimizedImage(logo, uploadDir, {
           prefix: 'logo',
@@ -259,6 +272,7 @@ export default class SettingsController {
         extnames: ['png', 'jpg', 'jpeg', 'webp'],
       })
       if (brasao) {
+        await assertSafeUpload(brasao, ['png', 'jpg', 'jpeg', 'webp'])
         const uploadDir = join(app.publicPath(), 'uploads')
         const saved = await saveOptimizedImage(brasao, uploadDir, {
           prefix: 'brasao',
@@ -275,6 +289,7 @@ export default class SettingsController {
         extnames: ['png', 'ico'],
       })
       if (favicon) {
+        await assertSafeUpload(favicon, ['png', 'ico'])
         const uploadDir = join(app.publicPath(), 'uploads')
         if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true })
         const fileName = `favicon-${cuid()}.${favicon.extname}`
@@ -290,6 +305,7 @@ export default class SettingsController {
         extnames: ['png', 'jpg', 'jpeg', 'webp'],
       })
       if (loginLogo) {
+        await assertSafeUpload(loginLogo, ['png', 'jpg', 'jpeg', 'webp'])
         const uploadDir = join(app.publicPath(), 'uploads')
         const saved = await saveOptimizedImage(loginLogo, uploadDir, {
           prefix: 'login-logo',
@@ -300,12 +316,34 @@ export default class SettingsController {
         await SiteSetting.setValue('login_logo_url', saved.url, 'appearance', 'image')
       }
 
+      // Handle DPO ordinance PDF upload
+      const dpoOrdinance = request.file('dpo_ordinance_pdf_url', {
+        size: '20mb',
+        extnames: ['pdf'],
+      })
+      if (dpoOrdinance) {
+        await assertSafeUpload(dpoOrdinance, ['pdf'])
+        const uploadDir = join(app.publicPath(), 'uploads', 'lgpd')
+        if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true })
+        const fileName = `portaria-encarregado-${cuid()}.pdf`
+        await dpoOrdinance.move(uploadDir, { name: fileName })
+        if (dpoOrdinance.state === 'moved') {
+          await SiteSetting.setValue(
+            'dpo_ordinance_pdf_url',
+            `/uploads/lgpd/${fileName}`,
+            'appearance',
+            'text'
+          )
+        }
+      }
+
       // Handle ATRICON logo upload (Radar)
       const atriconLogo = request.file('atricon_logo_url', {
         size: '2mb',
         extnames: ['png', 'jpg', 'jpeg', 'webp'],
       })
       if (atriconLogo) {
+        await assertSafeUpload(atriconLogo, ['png', 'jpg', 'jpeg', 'webp'])
         const uploadDir = join(app.publicPath(), 'uploads')
         const saved = await saveOptimizedImage(atriconLogo, uploadDir, {
           prefix: 'atricon-logo',
@@ -322,6 +360,7 @@ export default class SettingsController {
         extnames: ['png', 'jpg', 'jpeg', 'webp'],
       })
       if (newsBackground) {
+        await assertSafeUpload(newsBackground, ['png', 'jpg', 'jpeg', 'webp'])
         const uploadDir = join(app.publicPath(), 'uploads')
         const saved = await saveOptimizedImage(newsBackground, uploadDir, {
           prefix: 'news-bg',
@@ -353,6 +392,7 @@ export default class SettingsController {
         const newImages: string[] = keepExisting ? existingImages : []
 
         for (const file of cityImageFiles) {
+          await assertSafeUpload(file, ['png', 'jpg', 'jpeg', 'webp'])
           const saved = await saveOptimizedImage(file, uploadDir, {
             prefix: 'cidade',
             publicUrlBase: '/uploads/cidade',
@@ -416,6 +456,7 @@ export default class SettingsController {
 
       if (newFiles && newFiles.length > 0) {
         for (const file of newFiles) {
+          await assertSafeUpload(file, ['png', 'jpg', 'jpeg', 'webp'])
           const saved = await saveOptimizedImage(file, uploadDir, {
             prefix: 'cidade',
             publicUrlBase: '/uploads/cidade',

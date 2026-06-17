@@ -43,6 +43,18 @@ function fmtDate(value: unknown): string | null {
   return dt ? dt.toFormat('dd/MM/yyyy') : null
 }
 
+function normalizeSearch(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+}
+
+function hasUsefulUrl(value: unknown): boolean {
+  const text = String(value ?? '').trim()
+  return text !== '' && text !== '#'
+}
+
 interface TableStats {
   total: number
   recent: number
@@ -144,6 +156,8 @@ const INFO_FRESHNESS: Record<string, 'continuo' | 'anual' | 'atemporal'> = {
   'terceirizados': 'continuo',
   'transferencias-recebidas': 'continuo',
   'transferencias-realizadas': 'continuo',
+  'diarias': 'continuo',
+  'ocp': 'continuo',
   'acordos': 'continuo',
   'obras': 'continuo',
   'prestacao-contas': 'anual',
@@ -250,6 +264,9 @@ async function runAutoChecks(): Promise<Record<string, AutoCheckResult>> {
     votacoes,
     rgfModule,
     rgfInfo,
+    duodecimosRow,
+    laiRegulationPages,
+    liveSessions,
   ] = await Promise.all([
     tableCount('councilors', (q) => q.where('is_active', true)),
     tableStats('official_publications', 'publication_date', d90, yearStart),
@@ -297,6 +314,25 @@ async function runAutoChecks(): Promise<Record<string, AutoCheckResult>> {
     tableCount('information_records', (q) =>
       q.where('is_active', true).where('category', 'rgf').whereNotNull('file_url')
     ),
+    db
+      .from('duodecimos')
+      .select(db.raw('count(*) as total'))
+      .select(db.raw('count(case when year = ? then 1 end) as current_year', [year]))
+      .select(
+        db.raw('count(case when year = ? and recebido is not null then 1 end) as current_received', [
+          year,
+        ])
+      )
+      .select(db.raw('max(coalesce(repasse_date::timestamp, updated_at, created_at)) as latest'))
+      .first(),
+    tableCount('pages', (q) =>
+      q
+        .where('is_published', true)
+        .whereIn('slug', ['regulamentacao-lai', 'lei-de-acesso-a-informacao', 'lai'])
+    ),
+    tableCount('plenary_sessions', (q) =>
+      q.whereNotNull('video_url').where('video_url', '!=', '')
+    ),
   ])
 
   const mesaTotal = Number(mesaRow?.total ?? 0)
@@ -307,9 +343,18 @@ async function runAutoChecks(): Promise<Record<string, AutoCheckResult>> {
   const actWithSummary = Number(activities?.with_summary ?? 0)
   const actWithPdf = Number(activities?.with_pdf ?? 0)
   const rgfTotal = rgfModule + rgfInfo
+  const duodecimosTotal = Number(duodecimosRow?.total ?? 0)
+  const duodecimosCurrentYear = Number(duodecimosRow?.current_year ?? 0)
+  const duodecimosReceived = Number(duodecimosRow?.current_received ?? 0)
+  const duodecimosLatest = toDateTime(duodecimosRow?.latest)
+  const esicOk = hasUsefulUrl(settings.esic_new_url) || hasUsefulUrl(settings.esic_consult_url)
+  const ouvidoriaOk = hasUsefulUrl(settings.ouvidoria_url)
+  const hasContactChannel = Boolean(settings.footer_email || settings.footer_phone || ouvidoriaOk)
 
   const checks: Record<string, AutoCheckResult> = {
     always: ok('Recurso nativo do portal — disponível em todas as páginas'),
+
+    siteSearch: ok('Busca global nativa disponível em /busca e acessível pela lupa do cabeçalho'),
 
     transparency:
       transparencySections > 0 && links.length > 0
@@ -347,6 +392,21 @@ async function runAutoChecks(): Promise<Record<string, AutoCheckResult>> {
     radarLink: radarLink
       ? ok('Link do Radar da Transparência cadastrado na transparência')
       : falha('Cadastre o link do Radar da Transparência na transparência/capa'),
+
+    duodecimos:
+      duodecimosTotal === 0
+        ? falha('Nenhum duodécimo cadastrado no módulo Receita/Duodécimos')
+        : duodecimosCurrentYear > 0 && duodecimosReceived > 0
+          ? ok(
+              `${duodecimosTotal} duodécimo(s) cadastrados; ${duodecimosReceived} repasse(s) recebido(s) em ${year} (último em ${fmtDate(duodecimosLatest)})`
+            )
+          : duodecimosCurrentYear > 0
+            ? parcial(
+                `${duodecimosCurrentYear} duodécimo(s) de ${year}, mas sem valor recebido informado — complete a realização da receita`
+              )
+            : parcial(
+                `${duodecimosTotal} duodécimo(s), mas nenhum registro do exercício ${year} — gere/atualize o ano atual`
+              ),
 
     publications:
       publications.total === 0
@@ -440,6 +500,38 @@ async function runAutoChecks(): Promise<Record<string, AutoCheckResult>> {
             ),
 
     votacoes: periodicFreshness(votacoes, 'votação nominal', FRESHNESS_DAYS.biweekly, year),
+
+    laiRegulation:
+      laiRegulationPages > 0
+        ? ok('Página publicada com a regulamentação local da LAI')
+        : falha('Publique uma página com a regulamentação local da Lei de Acesso à Informação'),
+
+    sitemap: ok('Mapa do site nativo disponível em /mapa-do-site'),
+
+    dpo:
+      settings.dpo_ordinance_pdf_url && hasContactChannel
+        ? ok('Política de privacidade com portaria do encarregado e canal de contato')
+        : hasContactChannel
+          ? parcial('Há canal de contato para LGPD, mas falta anexar a portaria do encarregado em Aparência')
+          : falha('Informe canal de contato do encarregado/LGPD e anexe a portaria em Aparência'),
+
+    privacyPolicy: ok('Política de Privacidade publicada em /politica-de-privacidade'),
+
+    digitalServices:
+      esicOk && ouvidoriaOk
+        ? ok('e-SIC e Ouvidoria eletrônica configurados como serviços digitais externos')
+        : esicOk || ouvidoriaOk
+          ? parcial('Há canal digital configurado, mas falta e-SIC ou Ouvidoria eletrônica')
+          : falha('Configure os links externos do e-SIC e da Ouvidoria em Aparência/menus'),
+
+    openData: ok('Dados abertos nativos disponíveis em JSON e CSV, com licença CC BY 4.0 e dicionário de campos'),
+
+    liveSessions:
+      liveSessions > 0
+        ? ok(`${liveSessions} sessão(ões) com link de vídeo/transmissão cadastrado`)
+        : hasUsefulUrl(settings.social_youtube)
+          ? parcial('Canal do YouTube configurado, mas nenhuma sessão possui link de transmissão/vídeo')
+          : falha('Configure o YouTube e cadastre o link de transmissão/vídeo nas sessões'),
   }
 
   // Checagens das categorias de Acesso à Informação (info:<slug>)
@@ -481,7 +573,22 @@ async function buildMatrix() {
 
   return ATRICON_CRITERIA.map((c) => {
     const record = statusByCode.get(c.code)
-    const autoResult = (c.autoCheck && auto[c.autoCheck]) || null
+    const matchedLinks = c.keywords
+      ? links
+          .filter((l) => {
+            const title = normalizeSearch(l.title)
+            return c.keywords!.some((k) => title.includes(normalizeSearch(k)))
+          })
+          .map((l) => ({ title: l.title, url: l.url }))
+          .slice(0, 3)
+      : []
+    const keywordEvidence =
+      !c.autoCheck && !c.external && matchedLinks.length > 0
+        ? parcial(
+            `${matchedLinks.length} link(s) relacionado(s) encontrado(s) na Transparência; valide conteúdo, atualidade, série histórica, relatório e filtro conforme o critério`
+          )
+        : null
+    const autoResult = (c.autoCheck && auto[c.autoCheck]) || keywordEvidence
     const autoStatus: AtriconStatusValue | null = autoResult
       ? VERDICT_TO_STATUS[autoResult.status]
       : null
@@ -502,13 +609,6 @@ async function buildMatrix() {
     }
     const divergent = source === 'manual' && autoStatus !== null && status !== autoStatus
 
-    const matchedLinks = c.keywords
-      ? links
-          .filter((l) => c.keywords!.some((k) => l.title.toLowerCase().includes(k)))
-          .map((l) => ({ title: l.title, url: l.url }))
-          .slice(0, 3)
-      : []
-
     return {
       ...c,
       status,
@@ -528,6 +628,141 @@ async function buildMatrix() {
 }
 
 type MatrixItem = Awaited<ReturnType<typeof buildMatrix>>[number]
+type Scores = ReturnType<typeof computeScores>
+
+function criterionPlace(c: MatrixItem) {
+  if (c.external || c.status === 'externo') return 'sistema_externo'
+  if (c.autoCheck?.startsWith('info:')) return 'pagina_acesso_informacao'
+  if (c.route?.startsWith('/transparencia') || (!c.autoCheck && c.keywords?.length)) {
+    return 'transparencia_ou_link_externo'
+  }
+  if (c.actionHref?.startsWith('/painel/')) return 'modulo_nativo'
+  if (c.route) return 'pagina_publica'
+  return 'avaliacao_manual'
+}
+
+function buildEvidencePack({
+  matrix,
+  scores,
+  contentMap,
+  linkAudit,
+}: {
+  matrix: MatrixItem[]
+  scores: Scores
+  contentMap: ContentModule[]
+  linkAudit: Awaited<ReturnType<typeof TransparencyAuditService.audit>>
+}) {
+  const pending = matrix
+    .filter((c) => c.status === 'pendente' || c.status === 'parcial' || c.divergent)
+    .map((c) => ({
+      code: c.code,
+      title: c.title,
+      dimension: c.dimension,
+      classification: c.classification,
+      status: c.status,
+      source: c.source,
+      place: criterionPlace(c),
+      route: c.route ?? null,
+      actionHref: c.actionHref,
+      autoDetail: c.auto?.detail ?? null,
+      divergent: c.divergent,
+      hint: c.hint,
+      notes: c.notes,
+    }))
+
+  const contentGaps = contentMap
+    .filter((m) => m.freshness !== 'em_dia')
+    .map((m) => ({
+      key: m.key,
+      label: m.label,
+      adminHref: m.adminHref,
+      total: m.total,
+      latest: m.latest,
+      freshness: m.freshness,
+      detail: m.detail,
+    }))
+
+  return {
+    generatedAt: DateTime.now().toISO(),
+    purpose:
+      'Pacote de evidencias para leitura periodica por IA e conferencias PNTP/ATRICON do portal da Camara Municipal de Sume.',
+    readingFlow: [
+      {
+        step: 1,
+        title: 'Ler matriz PNTP',
+        instruction:
+          'Priorizar criterios essenciais, pendentes, parciais e divergencias entre verificacao automatica e override manual.',
+      },
+      {
+        step: 2,
+        title: 'Conferir fontes do portal',
+        instruction:
+          'Abrir route/actionHref, validar se ha conteudo publico, filtros, serie historica, data de atualizacao e exportacao quando aplicavel.',
+      },
+      {
+        step: 3,
+        title: 'Separar dependencias externas',
+        instruction:
+          'e-SIC, Ouvidoria, folha e remuneracao podem ficar em sistemas externos, mas os links devem estar visiveis, validos e atualizados na Transparencia.',
+      },
+      {
+        step: 4,
+        title: 'Preencher ou sinalizar',
+        instruction:
+          'Quando o dado for interno, orientar o cadastro no modulo correto. Quando for externo, registrar link/evidencia e manter status como sistema externo.',
+      },
+      {
+        step: 5,
+        title: 'Revalidar',
+        instruction:
+          'Reabrir o Radar apos a correcao para atualizar verificacoes automaticas, links auditados e snapshot diario.',
+      },
+    ],
+    summary: {
+      index: scores.index,
+      level: scores.level,
+      allEssentialsMet: scores.allEssentialsMet,
+      totals: scores.totals,
+      contentGaps: contentGaps.length,
+      transparencyLinkGaps: linkAudit.contentGaps.length,
+      checkedLinks: linkAudit.summary.total,
+    },
+    periodicity: {
+      recommended: 'quinzenal durante o ciclo PNTP e mensal fora do ciclo',
+      fastChecks:
+        'Atas, pautas e votacoes: meta de 15 dias. Noticias/transparencia continua: 30 dias. Licitacoes/contratos/publicacoes: 90 dias.',
+    },
+    categories: {
+      ownInformationPages: matrix.filter((c) => c.autoCheck?.startsWith('info:')).map((c) => c.code),
+      nativeModules: matrix.filter((c) => criterionPlace(c) === 'modulo_nativo').map((c) => c.code),
+      transparencyOrExternalLinks: matrix
+        .filter((c) => criterionPlace(c) === 'transparencia_ou_link_externo')
+        .map((c) => c.code),
+      externalSystems: matrix.filter((c) => criterionPlace(c) === 'sistema_externo').map((c) => c.code),
+    },
+    priorities: pending,
+    contentMap,
+    transparencyAudit: linkAudit,
+    criteria: matrix.map((c) => ({
+      code: c.code,
+      dimension: c.dimension,
+      title: c.title,
+      classification: c.classification,
+      verification: c.verification,
+      status: c.status,
+      source: c.source,
+      place: criterionPlace(c),
+      route: c.route ?? null,
+      actionHref: c.actionHref,
+      evidenceUrl: c.evidenceUrl,
+      auto: c.auto,
+      autoLinks: c.autoLinks,
+      divergent: c.divergent,
+      hint: c.hint,
+      notes: c.notes,
+    })),
+  }
+}
 
 /* ============================== Índice PNTP ============================== */
 
@@ -650,6 +885,7 @@ async function buildContentMap(): Promise<ContentModule[]> {
     vereadores,
     comissoes,
     relatoriosFiscais,
+    duodecimos,
   ] = await Promise.all([
     tableStats('news', 'published_at', d30, yearStart, (q) => q.where('status', 'published')),
     tableStats('atas', 'document_date', d15, yearStart, (q) => q.where('is_published', true)),
@@ -687,6 +923,7 @@ async function buildContentMap(): Promise<ContentModule[]> {
     tableStats('fiscal_reports', 'coalesce(updated_at, created_at)', d90, yearStart, (q) =>
       q.where('is_active', true)
     ),
+    tableStats('duodecimos', 'coalesce(repasse_date::timestamp, updated_at, created_at)', d30, yearStart),
   ])
 
   // Categorias de acesso à informação: com registros do ano corrente vs vazias
@@ -756,6 +993,14 @@ async function buildContentMap(): Promise<ContentModule[]> {
       licitacoes,
       90,
       `${licitacoes.recent} com atualização nos últimos 90 dias`
+    ),
+    mod(
+      'duodecimos',
+      'Receita / Duodécimos',
+      '/painel/duodecimos',
+      duodecimos,
+      FRESHNESS_DAYS.monthly,
+      `${duodecimos.recent} atualização(ões) nos últimos 30 dias; ${duodecimos.yearCount} registro(s) em ${year}`
     ),
     mod(
       'relatorios-fiscais',
@@ -844,8 +1089,6 @@ async function buildContentMap(): Promise<ContentModule[]> {
 
 /* ============================== Snapshots (evolução do índice) ============================== */
 
-type Scores = ReturnType<typeof computeScores>
-
 /** Salva no máximo 1 snapshot por dia e devolve a série para o gráfico de evolução. */
 async function snapshotAndLoad(scores: Scores) {
   const last = await AtriconSnapshot.query().orderBy('created_at', 'desc').first()
@@ -918,12 +1161,12 @@ export default class AtriconController {
 
     // "auto" remove o override manual: o critério volta a seguir a verificação automática
     if (status === 'auto') {
-      if (!criterion.autoCheck) {
-        session.flash('error', 'Este critério não possui verificação automática.')
+      if (!criterion.autoCheck && !criterion.keywords?.length) {
+        session.flash('error', 'Este critério não possui verificação automática ou evidência por link.')
         return response.redirect().back()
       }
       await AtriconStatus.query().where('criterion_code', code).delete()
-      session.flash('success', `Critério ${code} voltou a seguir a verificação automática.`)
+      session.flash('success', `Critério ${code} voltou a seguir a verificação automática/evidências.`)
       return response.redirect().toPath('/painel/atricon')
     }
 
@@ -942,7 +1185,7 @@ export default class AtriconController {
 
     session.flash(
       'success',
-      criterion.autoCheck
+      criterion.autoCheck || criterion.keywords?.length
         ? `Critério ${code} atualizado (override manual sobre a verificação automática).`
         : `Critério ${code} atualizado.`
     )
@@ -1015,5 +1258,18 @@ export default class AtriconController {
       atriconLogoUrl,
       generatedAt: DateTime.now().setLocale('pt-BR').toFormat("dd/MM/yyyy 'às' HH:mm"),
     })
+  }
+
+  async evidencePack({ response }: HttpContext) {
+    const [matrix, contentMap, linkAudit] = await Promise.all([
+      buildMatrix(),
+      buildContentMap(),
+      TransparencyAuditService.audit({ checkExternal: true }),
+    ])
+    const scores = computeScores(matrix)
+    const pack = buildEvidencePack({ matrix, scores, contentMap, linkAudit })
+
+    response.header('Content-Type', 'application/json; charset=utf-8')
+    return response.send(JSON.stringify(pack, null, 2))
   }
 }

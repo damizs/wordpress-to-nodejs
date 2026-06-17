@@ -53,6 +53,7 @@ export default class WpMigrate extends BaseCommand {
 
     const dataPath = join(app.appRoot.pathname, 'database', 'migration_data.json')
     const extraPath = join(app.appRoot.pathname, 'database', 'migration_extra.json')
+    const quickLinksPath = join(app.appRoot.pathname, 'database', 'wp_quick_links.json')
 
     if (!existsSync(dataPath) || !existsSync(extraPath)) {
       this.logger.error('migration_data.json or migration_extra.json not found!')
@@ -61,6 +62,9 @@ export default class WpMigrate extends BaseCommand {
 
     const data = JSON.parse(readFileSync(dataPath, 'utf-8'))
     const extra = JSON.parse(readFileSync(extraPath, 'utf-8'))
+    const quickLinks = existsSync(quickLinksPath)
+      ? JSON.parse(readFileSync(quickLinksPath, 'utf-8')).records
+      : extra.lr_links
     this.wpDir = '/uploads/wp-migration'
 
     // ── Core data ──
@@ -91,7 +95,7 @@ export default class WpMigrate extends BaseCommand {
     await this.runSection('Survey Questions', () => this.importSurveyQuestions(data.survey_questions))
 
     // ── Extra data ──
-    await this.runSection('Quick Links', () => this.importQuickLinks(extra.lr_links))
+    await this.runSection('Quick Links', () => this.importQuickLinks(quickLinks))
     await this.runSection('Matérias', () => this.importMaterias(extra.materias))
     // Atividades legislativas + AUTORIA dos vereadores (backup novo do WP).
     // Roda DEPOIS de Matérias: é a fonte autoritativa de `legislative_activities`.

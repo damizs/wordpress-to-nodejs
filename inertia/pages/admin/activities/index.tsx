@@ -28,12 +28,23 @@ interface Props {
     data: any[]
     meta: { total: number; per_page: number; current_page: number; last_page: number }
   }
-  filters: { type: string; year: string; search: string }
+  filters: { type: string; year: string; origin: string; search: string }
   types: string[]
   years: number[]
+  origins: { value: string; label: string }[]
 }
 
-export default function ActivitiesIndex({ activities, filters, types, years }: Props) {
+function originLabel(origin: string | null | undefined, origins: { value: string; label: string }[]) {
+  return origins.find((item) => item.value === origin)?.label || 'Origem não informada'
+}
+
+function originTone(origin: string | null | undefined) {
+  if (origin === 'executivo') return 'info' as const
+  if (origin === 'legislativo') return 'success' as const
+  return 'neutral' as const
+}
+
+export default function ActivitiesIndex({ activities, filters, types, years, origins }: Props) {
   const [search, setSearch] = useState(filters.search)
   const [deleteTarget, setDeleteTarget] = useState<{ id: number; label: string } | null>(null)
 
@@ -46,6 +57,7 @@ export default function ActivitiesIndex({ activities, filters, types, years }: P
   const params = new URLSearchParams()
   if (filters.type) params.set('type', filters.type)
   if (filters.year) params.set('year', filters.year)
+  if (filters.origin) params.set('origin', filters.origin)
   if (filters.search) params.set('search', filters.search)
   const baseUrl = `/painel/atividades${params.toString() ? `?${params.toString()}` : ''}`
 
@@ -75,6 +87,16 @@ export default function ActivitiesIndex({ activities, filters, types, years }: P
           {types.map((t) => <option key={t} value={t}>{t}</option>)}
         </Select>
         <Select
+          value={filters.origin}
+          onChange={(e) => handleFilter('origin', e.target.value)}
+          className="sm:w-48"
+        >
+          <option value="">Todas as origens</option>
+          {origins.map((origin) => (
+            <option key={origin.value} value={origin.value}>{origin.label}</option>
+          ))}
+        </Select>
+        <Select
           value={filters.year}
           onChange={(e) => handleFilter('year', e.target.value)}
           className="sm:w-36"
@@ -87,6 +109,7 @@ export default function ActivitiesIndex({ activities, filters, types, years }: P
       <Table footer={<Pagination meta={meta} baseUrl={baseUrl} itemLabel="atividade" />}>
         <THead>
           <TH>Tipo</TH>
+          <TH>Origem</TH>
           <TH>Nº/Ano</TH>
           <TH>Ementa</TH>
           <TH>Status</TH>
@@ -95,12 +118,15 @@ export default function ActivitiesIndex({ activities, filters, types, years }: P
         </THead>
         <TBody>
           {data.length === 0 && (
-            <TableEmpty colSpan={6}>Nenhuma atividade encontrada</TableEmpty>
+            <TableEmpty colSpan={7}>Nenhuma atividade encontrada</TableEmpty>
           )}
           {data.map((a: any) => (
             <TR key={a.id}>
               <TD>
                 <Badge tone="navy">{a.type}</Badge>
+              </TD>
+              <TD>
+                <Badge tone={originTone(a.origin)}>{originLabel(a.origin, origins)}</Badge>
               </TD>
               <TD className="font-medium whitespace-nowrap">{a.number}/{a.year}</TD>
               <TD className="text-muted-foreground max-w-md truncate">{a.summary}</TD>

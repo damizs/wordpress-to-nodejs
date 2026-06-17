@@ -5,6 +5,7 @@ import {
   ArrowLeft,
   ChevronDown,
   ChevronUp,
+  Eye,
   FileText,
   Files,
   Heading2,
@@ -13,7 +14,9 @@ import {
   Link2,
   ListChecks,
   Megaphone,
+  Monitor,
   Plus,
+  RotateCcw,
   Save,
   Trash2,
   Type,
@@ -34,6 +37,8 @@ import {
   Textarea,
 } from '~/components/admin/ui'
 import { extractYouTubeId } from '~/components/blocks/BlockRenderer'
+import { BlockRenderer } from '~/components/blocks/BlockRenderer'
+import { RichText } from '~/lib/rich_text'
 
 /* ============================== Tipos ============================== */
 
@@ -148,6 +153,72 @@ const BLOCK_DEFS: { type: BlockType; label: string; icon: LucideIcon; make: () =
   ]
 
 const blockDef = (type: BlockType) => BLOCK_DEFS.find((d) => d.type === type)!
+
+const PAGE_TEMPLATES: {
+  label: string
+  description: string
+  blocks: EditorBlock[]
+}[] = [
+  {
+    label: 'Carta de Serviços',
+    description: 'Serviços, canais, prazos e formas de atendimento ao cidadão.',
+    blocks: [
+      { type: 'callout', tone: 'info', text: 'Use esta página para reunir os serviços prestados pela Câmara, canais de atendimento, prazos e requisitos.' },
+      { type: 'heading', text: 'Serviços disponíveis' },
+      {
+        type: 'accordion',
+        items: [
+          { title: 'Atendimento ao cidadão', body: 'Informe aqui os canais presenciais, telefone, e-mail e horário de atendimento.' },
+          { title: 'Protocolo e solicitações', body: 'Descreva como o cidadão pode protocolar pedidos, documentos e manifestações.' },
+          { title: 'Acesso à informação', body: 'Indique o canal e-SIC, prazos legais e contato do responsável pelo SIC.' },
+        ],
+      },
+      { type: 'heading', text: 'Canais de atendimento' },
+      { type: 'buttons', items: [{ label: 'Acessar e-SIC', url: '/esic', variant: 'primary' }, { label: 'Falar com a Ouvidoria', url: '/ouvidoria', variant: 'secondary' }] },
+    ],
+  },
+  {
+    label: 'Página institucional',
+    description: 'Texto de apresentação com imagem, destaque e documentos.',
+    blocks: [
+      { type: 'text', text: '<p>Escreva aqui a apresentação institucional da página. Use parágrafos curtos, subtítulos e links quando necessário.</p>' },
+      { type: 'image', url: '', caption: '', full: true },
+      { type: 'callout', tone: 'success', text: 'Destaque uma informação importante para o cidadão.' },
+    ],
+  },
+  {
+    label: 'Transparência com documentos',
+    description: 'Resumo, PDFs e botões para consulta externa.',
+    blocks: [
+      { type: 'text', text: '<p>Informe a finalidade desta página, periodicidade de atualização e fonte dos dados.</p>' },
+      { type: 'documents', items: [{ label: 'Documento oficial', url: '' }] },
+      { type: 'buttons', items: [{ label: 'Consultar no portal externo', url: '', variant: 'primary' }] },
+    ],
+  },
+  {
+    label: 'Perguntas e respostas',
+    description: 'Sanfona para dúvidas frequentes e orientações.',
+    blocks: [
+      {
+        type: 'accordion',
+        items: [
+          { title: 'Pergunta principal', body: 'Resposta objetiva, com link para a página ou serviço quando necessário.' },
+          { title: 'Como solicitar atendimento?', body: 'Explique o canal, prazo e documentos exigidos.' },
+        ],
+      },
+    ],
+  },
+  {
+    label: 'Contato / SIC',
+    description: 'Autoridade, contatos, horário e links de solicitação.',
+    blocks: [
+      { type: 'callout', tone: 'warning', text: 'Atualize sempre que houver alteração do responsável, telefone, e-mail ou horário.' },
+      { type: 'heading', text: 'Autoridade de monitoramento' },
+      { type: 'text', text: '<p><strong>Nome:</strong> informe o responsável<br><strong>E-mail:</strong> informe o e-mail<br><strong>Telefone:</strong> informe o telefone</p>' },
+      { type: 'buttons', items: [{ label: 'Abrir e-SIC', url: '/esic', variant: 'primary' }, { label: 'Ouvidoria', url: '/ouvidoria', variant: 'secondary' }] },
+    ],
+  },
+]
 
 /* ============================== Editores por tipo ============================== */
 
@@ -440,12 +511,49 @@ function BlockFields({ block, onChange }: BlockEditorProps) {
 
 /* ============================== Formulário ============================== */
 
+function PagePreview({
+  title,
+  subtitle,
+  blocks,
+  content,
+}: {
+  title: string
+  subtitle: string
+  blocks: EditorBlock[]
+  content: string
+}) {
+  const hasBlocks = Array.isArray(blocks) && blocks.length > 0
+
+  return (
+    <div className="overflow-hidden rounded-xl border border-border bg-background">
+      <div className="border-b border-border bg-gradient-hero px-5 py-7 text-center text-white">
+        <span className="inline-flex rounded-full bg-gold px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-navy-dark">
+          PrÃ©via
+        </span>
+        <h2 className="mt-3 text-2xl font-bold">{title || 'TÃ­tulo da pÃ¡gina'}</h2>
+        {subtitle && <p className="mt-2 text-sm text-white/75">{subtitle}</p>}
+      </div>
+      <div className="max-h-[620px] overflow-auto p-5">
+        {hasBlocks ? (
+          <BlockRenderer blocks={blocks as any} />
+        ) : content ? (
+          <RichText text={content} className="text-foreground/90" />
+        ) : (
+          <div className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
+            Adicione blocos ou texto simples para visualizar a pÃ¡gina.
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
 export default function PageForm({ page }: Props) {
   const isEditing = !!page
   const [slugEdited, setSlugEdited] = useState(isEditing)
   const [showAddMenu, setShowAddMenu] = useState(false)
 
-  const { data, setData, post, put, processing, errors } = useForm({
+  const initialData = {
     title: page?.title || '',
     slug: page?.slug || '',
     hero_subtitle: page?.hero_subtitle || '',
@@ -453,7 +561,9 @@ export default function PageForm({ page }: Props) {
     content: page?.content || '',
     is_published: page?.is_published ?? true,
     blocks: (page?.blocks || []) as EditorBlock[],
-  })
+  }
+
+  const { data, setData, post, put, processing, errors } = useForm(initialData)
 
   const handleTitleChange = (title: string) => {
     setData((d) => ({ ...d, title, slug: slugEdited ? d.slug : slugify(title) }))
@@ -463,6 +573,17 @@ export default function PageForm({ page }: Props) {
 
   const addBlock = (type: BlockType) => {
     setBlocks([...data.blocks, blockDef(type).make()])
+    setShowAddMenu(false)
+  }
+
+  const applyTemplate = (template: (typeof PAGE_TEMPLATES)[number]) => {
+    if (
+      data.blocks.length > 0 &&
+      !window.confirm('Substituir os blocos atuais por este modelo?')
+    ) {
+      return
+    }
+    setBlocks(template.blocks.map((block) => JSON.parse(JSON.stringify(block))))
     setShowAddMenu(false)
   }
 
@@ -488,6 +609,11 @@ export default function PageForm({ page }: Props) {
     else post('/painel/paginas')
   }
 
+  const resetChanges = () => {
+    setData(initialData)
+    setSlugEdited(isEditing)
+  }
+
   return (
     <AdminLayout title={isEditing ? 'Editar Página' : 'Nova Página'}>
       <Head title={(isEditing ? 'Editar' : 'Nova') + ' Página - Painel'} />
@@ -504,7 +630,82 @@ export default function PageForm({ page }: Props) {
         </h1>
       </div>
 
-      <form onSubmit={handleSubmit} className="admin-form">
+      <form onSubmit={handleSubmit} className="w-full min-w-0 space-y-6">
+        <Card>
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full bg-navy/10 px-3 py-1 text-xs font-bold uppercase tracking-wide text-navy">
+                <Monitor className="h-3.5 w-3.5" />
+                Editor visual
+              </div>
+              <h2 className="mt-3 text-lg font-bold text-foreground">Edite com blocos e confira a prÃ©via</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Sem Elementor, esta tela precisa concentrar as alteraÃ§Ãµes comuns: conteÃºdo, ordem dos blocos,
+                publicaÃ§Ã£o, visualizaÃ§Ã£o e restauraÃ§Ã£o antes de salvar.
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {isEditing && data.slug && (
+                <ButtonLink href={`/${data.slug}`} target="_blank" variant="secondary">
+                  <Eye className="w-4 h-4" /> Ver no site
+                </ButtonLink>
+              )}
+              <Button type="button" variant="secondary" onClick={resetChanges}>
+                <RotateCcw className="w-4 h-4" /> Redefinir alteraÃ§Ãµes
+              </Button>
+            </div>
+          </div>
+          <div className="mt-5 grid gap-3 md:grid-cols-3">
+            <div className="rounded-xl border border-border bg-muted/30 p-4">
+              <div className="flex items-center gap-2 text-sm font-bold text-foreground">
+                <Layers className="h-4 w-4 text-navy" />
+                1. Estrutura
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">Adicione blocos conforme a necessidade da pÃ¡gina.</p>
+            </div>
+            <div className="rounded-xl border border-border bg-muted/30 p-4">
+              <div className="flex items-center gap-2 text-sm font-bold text-foreground">
+                <Eye className="h-4 w-4 text-navy" />
+                2. PrÃ©via
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">Confira o resultado renderizado antes de salvar.</p>
+            </div>
+            <div className="rounded-xl border border-border bg-muted/30 p-4">
+              <div className="flex items-center gap-2 text-sm font-bold text-foreground">
+                <Save className="h-4 w-4 text-navy" />
+                3. PublicaÃ§Ã£o
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">Publique ou deixe como rascunho sem sair do editor.</p>
+            </div>
+          </div>
+          <div className="mt-5 rounded-xl border border-border bg-card p-4">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-bold text-foreground">Modelos prontos</p>
+                <p className="text-xs text-muted-foreground">
+                  Use um ponto de partida e ajuste os blocos depois.
+                </p>
+              </div>
+              <span className="text-xs font-semibold text-muted-foreground">{data.blocks.length} bloco(s) na página</span>
+            </div>
+            <div className="mt-3 grid gap-2 md:grid-cols-2 xl:grid-cols-5">
+              {PAGE_TEMPLATES.map((template) => (
+                <button
+                  key={template.label}
+                  type="button"
+                  onClick={() => applyTemplate(template)}
+                  className="rounded-lg border border-border bg-muted/30 p-3 text-left transition-colors hover:border-navy/30 hover:bg-navy/5"
+                >
+                  <span className="block text-sm font-semibold text-foreground">{template.label}</span>
+                  <span className="mt-1 block text-xs leading-relaxed text-muted-foreground">{template.description}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </Card>
+
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(380px,0.45fr)] xl:items-start">
+          <div className="space-y-6 min-w-0">
         {/* ===== Dados gerais ===== */}
         <Card>
           <CardHeader title="Dados da página" icon={FileText} />
@@ -676,6 +877,25 @@ export default function PageForm({ page }: Props) {
             placeholder="Conteúdo em texto corrido..."
           />
         </Card>
+
+          </div>
+
+          <aside className="xl:sticky xl:top-6 space-y-4 min-w-0">
+            <Card>
+              <CardHeader
+                title="PrÃ©-visualizaÃ§Ã£o"
+                description="Atualiza conforme vocÃª edita os campos e blocos."
+                icon={Eye}
+              />
+              <PagePreview
+                title={data.title}
+                subtitle={data.hero_subtitle}
+                blocks={data.blocks}
+                content={data.content}
+              />
+            </Card>
+          </aside>
+        </div>
 
         <div className="flex justify-end gap-3">
           <ButtonLink href="/painel/paginas" variant="secondary">

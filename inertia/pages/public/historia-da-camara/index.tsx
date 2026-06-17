@@ -15,7 +15,6 @@ export default function HistoriaIndex({ institutional }: Props) {
       seo={{ title: "História da Câmara - Câmara Municipal de Sumé", description: "Conheça a história da Câmara Municipal de Sumé e sua trajetória no Poder Legislativo.", url: "/historia-da-camara" }}
       breadcrumb={[{ label: "História da Câmara" }]}
       hero={{ badge: "Institucional", title: "História da Câmara", subtitle: "A trajetória do Poder Legislativo de Sumé ao longo dos anos", centered: true }}
-      width="reading"
     >
       {/* Stats */}
       <div data-reveal="up" className="grid grid-cols-1 min-[400px]:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-10 sm:mb-12">
@@ -42,7 +41,7 @@ export default function HistoriaIndex({ institutional }: Props) {
               </div>
 
               <article data-reveal="up" className="card-modern p-6 md:p-10">
-                <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:text-foreground prose-p:text-muted-foreground">
+                <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-p:max-w-none">
                   {entry("historia_intro") ? (
                     <RichText className="lead" text={entry("historia_intro")!.content} />
                   ) : (

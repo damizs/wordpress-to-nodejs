@@ -154,7 +154,7 @@ export default function Home({
   const newsLayout = siteSettings?.news_layout || customConfig.newsLayout || "mosaico";
   const newsForHome = news.slice(0, newsLimit);
   /** Modelo Moderno: notícias ficam no hero unificado — não repetir seção abaixo. */
-  const newsInHero = template.key === "moderno" && template.homeHero;
+  const modernNewsSection = template.key === "moderno" && template.homeHero;
 
   // Módulos da homepage: ativar/desativar pelo painel (Homepage > Visibilidade das Seções).
   // Sem configuração explícita ('false'), a seção fica visível.
@@ -180,15 +180,12 @@ export default function Home({
           {template.homeHero && (
             <HomeHero
               template={template.key}
-              news={newsForHome}
               backgroundImage={newsBackgroundImage}
-              newsLimit={newsLimit}
             />
           )}
           <HolidaysStrip />
           {homeOrder.map((key) => {
             if (!visible(key)) return null;
-            if (key === "news" && newsInHero) return null;
 
             const shell = (node: ReactNode) => (
               <HomeSectionShell style={customConfig.sections[key]}>
@@ -200,9 +197,10 @@ export default function Home({
               news: shell(
                 <NewsSection
                   news={newsForHome}
-                  backgroundImage={newsBackgroundImage}
-                  layout={newsLayout}
+                  backgroundImage={modernNewsSection ? null : newsBackgroundImage}
+                  layout={modernNewsSection ? "destaque" : newsLayout}
                   limit={newsLimit}
+                  plain={modernNewsSection}
                 />
               ),
               quickaccess: shell(

@@ -1,6 +1,7 @@
 import { Link } from "@inertiajs/react";
 import { Calendar, ArrowRight } from "lucide-react";
 import { getNewsLayout } from "~/lib/news-layouts";
+import { SectionHeading } from "~/components/SectionHeading";
 
 export interface NewsItem {
   id: number;
@@ -21,6 +22,7 @@ interface NewsSectionProps {
   layout?: string | null;
   /** Máximo de cards exibidos (painel → personalizar modelo) */
   limit?: number;
+  plain?: boolean;
 }
 
 /**
@@ -98,39 +100,50 @@ export function NewsHeroPanel({ news, limit }: { news: NewsItem[]; limit?: numbe
   );
 }
 
-export const NewsSection = ({ news = [], backgroundImage, layout, limit }: NewsSectionProps) => {
+export const NewsSection = ({ news = [], backgroundImage, layout, limit, plain = false }: NewsSectionProps) => {
   const items = limit ? news.slice(0, limit) : news;
   if (items.length === 0) return null;
   const variant = getNewsLayout(layout);
 
   return (
-    <section className="relative bg-gradient-hero overflow-hidden">
+    <section className={`relative overflow-hidden ${plain ? "bg-background" : "bg-gradient-hero"}`}>
       {/* Fundo (imagem opcional) */}
-      {backgroundImage ? (
+      {!plain && backgroundImage ? (
         <div className="absolute inset-0 overflow-hidden">
           <img src={backgroundImage} alt="" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-navy-dark/85" />
         </div>
-      ) : (
+      ) : !plain ? (
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-1/4 -right-20 w-80 h-80 bg-gold/5 rounded-full blur-3xl" />
           <div className="absolute bottom-1/4 -left-20 w-80 h-80 bg-sky/5 rounded-full blur-3xl" />
         </div>
-      )}
+      ) : null}
 
-      <div className="relative container py-10 sm:py-14 lg:py-20 min-w-0">
+      <div className="relative container py-10 sm:py-14 lg:py-16 min-w-0">
+        {plain && (
+          <SectionHeading
+            badge="Notícias"
+            title="Últimas notícias"
+            subtitle="Acompanhe os principais acontecimentos e comunicados da Câmara Municipal."
+          />
+        )}
         {variant === "grade" && <GridLayout news={items} />}
         {variant === "lista" && <ListLayout news={items} />}
-        {variant === "destaque" && <HighlightListLayout news={items} />}
+        {variant === "destaque" && (plain ? <HighlightListPlainLayout news={items} /> : <HighlightListLayout news={items} />)}
         {variant === "mosaico" && <MosaicLayout news={items} />}
       </div>
 
       {/* Barra "ver mais" */}
-      <div className="relative bg-navy-dark/90 backdrop-blur-sm border-t border-white/10">
+      <div className={`relative border-t ${plain ? "border-border bg-card" : "bg-navy-dark/90 backdrop-blur-sm border-white/10"}`}>
         <div className="container py-4 flex justify-center sm:justify-end">
           <Link
             href="/noticias"
-            className="group inline-flex items-center justify-center gap-3 w-full sm:w-auto px-6 py-2.5 bg-white/10 hover:bg-gold hover:text-navy-dark rounded-full text-white font-medium no-underline transition-all duration-300"
+            className={`group inline-flex items-center justify-center gap-3 w-full sm:w-auto px-6 py-2.5 rounded-full font-medium no-underline transition-all duration-300 ${
+              plain
+                ? "bg-navy text-white hover:bg-gold hover:text-navy-dark"
+                : "bg-white/10 hover:bg-gold hover:text-navy-dark text-white"
+            }`}
           >
             Ver mais notícias
             <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -326,6 +339,80 @@ function HighlightListLayout({ news }: { news: NewsItem[] }) {
                 <h3 className="text-sm font-semibold text-primary-foreground group-hover:text-gold transition-colors line-clamp-2 leading-snug">
                   {item.title}
                 </h3>
+              </div>
+            </article>
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function HighlightListPlainLayout({ news }: { news: NewsItem[] }) {
+  const featured = news.find((n) => n.featured) || news[0];
+  const others = news.filter((n) => n.id !== featured?.id).slice(0, 5);
+
+  return (
+    <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(340px,0.85fr)] lg:gap-6">
+      {featured && (
+        <Link href={`/noticias/${featured.slug}`} className="no-underline">
+          <article className="group h-full overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all hover:-translate-y-1 hover:border-navy/25 hover:shadow-xl">
+            <div className="relative aspect-[16/9] overflow-hidden bg-muted">
+              <img
+                src={featured.image || NEWS_PLACEHOLDER}
+                alt={featured.title}
+                className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+            </div>
+            <div className="p-5 sm:p-6">
+              <span className="inline-flex items-center gap-2 rounded-full bg-gold/15 px-3 py-1 text-xs font-semibold text-navy">
+                <Calendar className="h-3.5 w-3.5" />
+                {featured.date}
+              </span>
+              <h2 className="mt-4 text-xl font-bold leading-tight text-foreground transition-colors group-hover:text-navy sm:text-2xl">
+                {featured.title}
+              </h2>
+              {featured.excerpt && (
+                <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-muted-foreground sm:text-base">
+                  {featured.excerpt}
+                </p>
+              )}
+              <span className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-navy">
+                Ler notícia
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </span>
+            </div>
+          </article>
+        </Link>
+      )}
+
+      <div className="flex flex-col gap-3">
+        {others.map((item, index) => (
+          <Link href={`/noticias/${item.slug}`} key={item.id} className="no-underline">
+            <article
+              className="group grid grid-cols-[96px_1fr] gap-3 rounded-2xl border border-border bg-card p-3 shadow-sm transition-all hover:-translate-y-0.5 hover:border-navy/25 hover:shadow-md sm:grid-cols-[132px_1fr] sm:gap-4"
+              style={{ animationDelay: `${index * 80}ms` }}
+            >
+              <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-muted">
+                <img
+                  src={item.image || NEWS_PLACEHOLDER}
+                  alt={item.title}
+                  className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+              </div>
+              <div className="flex min-w-0 flex-col justify-center">
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-gold">
+                  <Calendar className="h-3.5 w-3.5" />
+                  {item.date}
+                </span>
+                <h3 className="mt-1.5 line-clamp-2 text-sm font-bold leading-snug text-foreground transition-colors group-hover:text-navy sm:text-base">
+                  {item.title}
+                </h3>
+                {item.excerpt && (
+                  <p className="mt-1 hidden line-clamp-2 text-sm text-muted-foreground sm:block">
+                    {item.excerpt}
+                  </p>
+                )}
               </div>
             </article>
           </Link>

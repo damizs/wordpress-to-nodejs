@@ -10,6 +10,9 @@ import {
   CalendarDays,
   Cookie,
   Database,
+  Download,
+  ExternalLink,
+  FileText,
   Mail,
   ScrollText,
   Share2,
@@ -20,6 +23,7 @@ import {
 
 interface Props {
   content?: string;
+  dpoOrdinanceUrl?: string | null;
 }
 
 const LAST_UPDATED = "12 de junho de 2026";
@@ -197,7 +201,49 @@ const SECTIONS: Section[] = [
   },
 ];
 
-export default function PrivacyPolicyIndex({ content }: Props) {
+function DpoOrdinanceCard({ url }: { url?: string | null }) {
+  if (!url) return null;
+
+  return (
+    <aside className="rounded-2xl border border-primary/15 bg-primary/5 p-4 md:p-5">
+      <div className="flex items-start gap-3">
+        <div className="w-11 h-11 rounded-xl bg-primary text-primary-foreground flex items-center justify-center shrink-0">
+          <FileText className="w-5 h-5" />
+        </div>
+        <div className="min-w-0">
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-primary mb-1">
+            Encarregado de dados
+          </p>
+          <h2 className="text-base font-bold text-foreground leading-snug">Portaria de nomeação</h2>
+          <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">
+            Documento oficial que designa o encarregado pelo tratamento de dados pessoais.
+          </p>
+        </div>
+      </div>
+      <div className="mt-4 flex flex-col sm:flex-row lg:flex-col gap-2">
+        <a
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground no-underline hover:opacity-90 transition-opacity"
+        >
+          <ExternalLink className="w-4 h-4" />
+          Visualizar PDF
+        </a>
+        <a
+          href={url}
+          download
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5 text-sm font-semibold text-foreground no-underline hover:border-primary/40 hover:text-primary transition-colors"
+        >
+          <Download className="w-4 h-4" />
+          Baixar portaria
+        </a>
+      </div>
+    </aside>
+  );
+}
+
+export default function PrivacyPolicyIndex({ content, dpoOrdinanceUrl }: Props) {
   return (
     <>
       <SeoHead title="Política de Privacidade - Câmara Municipal de Sumé" description="Conheça nossa política de privacidade e como tratamos seus dados pessoais, em conformidade com a LGPD." url="/politica-de-privacidade" />
@@ -209,9 +255,12 @@ export default function PrivacyPolicyIndex({ content }: Props) {
             <div className="container">
               <div>
                 {content ? (
-                  <article className="card-modern !transform-none p-6 md:p-10">
-                    <SafeHtml html={content} className={PROSE} />
-                  </article>
+                  <div className="grid gap-6 lg:grid-cols-[1fr_320px] lg:items-start">
+                    <article className="card-modern !transform-none p-6 md:p-10">
+                      <SafeHtml html={content} className={PROSE} />
+                    </article>
+                    <DpoOrdinanceCard url={dpoOrdinanceUrl} />
+                  </div>
                 ) : (
                   <>
                     {/* Introdução + data de atualização */}
@@ -234,6 +283,11 @@ export default function PrivacyPolicyIndex({ content }: Props) {
                           </p>
                         </div>
                       </div>
+                      {dpoOrdinanceUrl && (
+                        <div className="mt-6">
+                          <DpoOrdinanceCard url={dpoOrdinanceUrl} />
+                        </div>
+                      )}
                     </div>
 
                     <div className="lg:grid lg:grid-cols-[200px_1fr] lg:gap-8 lg:items-start">

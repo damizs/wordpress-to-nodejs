@@ -8,6 +8,8 @@ import { cuid } from '@adonisjs/core/helpers'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 import { existsSync } from 'node:fs'
+import { sanitizeRichHtml } from '#helpers/sanitize_html'
+import { assertSafeUpload } from '#helpers/upload_security'
 
 const CONTRACT_STATUS = ['vigente', 'encerrado', 'rescindido', 'suspenso']
 
@@ -194,7 +196,7 @@ export default class ContractsController {
       fiscalRole: d.fiscal_role || null,
       fiscalAct: d.fiscal_act || null,
       licitacaoId: d.licitacao_id ? Number.parseInt(d.licitacao_id) : null,
-      content: d.content || null,
+      content: sanitizeRichHtml(d.content) || null,
       notes: d.notes || null,
       isActive: d.is_active === undefined ? true : d.is_active === 'true' || d.is_active === true,
     }
@@ -203,6 +205,7 @@ export default class ContractsController {
   private async saveFile(request: HttpContext['request'], contract: Contract) {
     const file = request.file('file', { size: '20mb', extnames: ['pdf'] })
     if (!file) return
+    await assertSafeUpload(file, ['pdf'])
     const uploadDir = join(app.publicPath(), 'uploads', 'contratos')
     if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true })
     const fileName = `contrato-${cuid()}.${file.extname}`

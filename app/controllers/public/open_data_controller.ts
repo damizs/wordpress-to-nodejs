@@ -3,8 +3,11 @@ import Councilor from '#models/councilor'
 import LegislativeActivity from '#models/legislative_activity'
 import Licitacao from '#models/licitacao'
 import OfficialPublication from '#models/official_publication'
+import OfficialGazetteEntry from '#models/official_gazette_entry'
 import NominalVoting from '#models/nominal_voting'
 import PlenarySession from '#models/plenary_session'
+import Duodecimo from '#models/duodecimo'
+import FiscalReport from '#models/fiscal_report'
 import RuntimeCache from '#services/runtime_cache'
 
 type Row = Record<string, string | number | boolean | null>
@@ -66,6 +69,48 @@ const DATASETS: DatasetMeta[] = [
     fields: ['id', 'titulo', 'tipo', 'numero', 'data_publicacao', 'descricao', 'arquivo'],
   },
   {
+    id: 'diario-oficial',
+    title: 'Diário Oficial',
+    description: 'Edições do Diário Oficial da Câmara, com data, número da edição e arquivo.',
+    fields: ['id', 'edicao', 'data_publicacao', 'descricao', 'arquivo'],
+  },
+  {
+    id: 'duodecimos',
+    title: 'DuodÃ©cimos',
+    description:
+      'Repasses mensais do duodÃ©cimo: ano, mÃªs, valores previstos/recebidos, percentual de execuÃ§Ã£o e comprovante.',
+    fields: [
+      'id',
+      'ano',
+      'mes',
+      'previsto',
+      'recebido',
+      'diferenca',
+      'percentual_execucao',
+      'situacao',
+      'data_repasse',
+      'comprovante',
+    ],
+  },
+  {
+    id: 'relatorios-fiscais',
+    title: 'RelatÃ³rios Fiscais',
+    description:
+      'RGF, RREO e demais relatÃ³rios fiscais organizados por ano, tipo, perÃ­odo e arquivo.',
+    fields: [
+      'id',
+      'tipo',
+      'ano',
+      'periodicidade',
+      'numero_periodo',
+      'periodo',
+      'titulo',
+      'descricao',
+      'arquivo',
+      'atualizado_em',
+    ],
+  },
+  {
     id: 'votacoes',
     title: 'Votações Nominais',
     description: 'Resultado das votações em plenário, com data, matéria votada e resultado.',
@@ -74,8 +119,8 @@ const DATASETS: DatasetMeta[] = [
   {
     id: 'sessoes',
     title: 'Sessões Plenárias',
-    description: 'Agenda e histórico das sessões: tipo, data, situação e link do vídeo.',
-    fields: ['id', 'titulo', 'tipo', 'data_sessao', 'ano', 'situacao', 'video'],
+    description: 'Agenda e histórico das sessões: tipo, data, pauta, situação, arquivo e link do vídeo.',
+    fields: ['id', 'titulo', 'tipo', 'data_sessao', 'horario', 'ano', 'situacao', 'pauta', 'video', 'arquivo', 'sistema_votacao'],
   },
 ]
 
@@ -142,6 +187,63 @@ const QUERIES: Record<string, () => Promise<Row[]>> = {
       arquivo: p.fileUrl,
     }))
   },
+  async 'diario-oficial'() {
+    const rows = await OfficialGazetteEntry.query().orderBy('publication_date', 'desc')
+    return rows.map((d) => ({
+      id: d.id,
+      edicao: d.editionNumber,
+      data_publicacao: d.publicationDate,
+      descricao: d.description,
+      arquivo: d.fileUrl,
+    }))
+  },
+  async duodecimos() {
+    const rows = await Duodecimo.query().orderBy('year', 'desc').orderBy('month', 'asc')
+    return rows.map((d) => {
+      const previsto = d.previsto ?? 0
+      const recebido = d.recebido
+      const diferenca = previsto - (recebido ?? 0)
+      const percentual = previsto > 0 && recebido !== null ? (recebido / previsto) * 100 : 0
+      return {
+        id: d.id,
+        ano: d.year,
+        mes: d.month,
+        previsto,
+        recebido,
+        diferenca,
+        percentual_execucao: Math.round(percentual * 100) / 100,
+        situacao: recebido !== null ? 'recebido' : 'pendente',
+        data_repasse: d.repasseDate,
+        comprovante: d.documentUrl,
+      }
+    })
+  },
+  async 'relatorios-fiscais'() {
+    const rows = await FiscalReport.query()
+      .where('is_active', true)
+      .orderBy('year', 'desc')
+      .orderBy('report_type', 'asc')
+      .orderBy('period_number', 'asc')
+    const ordinal = ['', '1Âº', '2Âº', '3Âº', '4Âº', '5Âº', '6Âº']
+    return rows.map((r) => {
+      const periodo =
+        r.periodKind === 'anual' || !r.periodNumber
+          ? 'Anual'
+          : `${ordinal[r.periodNumber] ?? `${r.periodNumber}Âº`} ${r.periodKind}`
+      return {
+        id: r.id,
+        tipo: r.reportType,
+        ano: r.year,
+        periodicidade: r.periodKind,
+        numero_periodo: r.periodNumber,
+        periodo,
+        titulo: r.title,
+        descricao: r.description,
+        arquivo: r.fileUrl,
+        atualizado_em: r.updatedAt?.toISO() ?? null,
+      }
+    })
+  },
   async votacoes() {
     const rows = await NominalVoting.query()
       .where('is_published', true)
@@ -163,9 +265,13 @@ const QUERIES: Record<string, () => Promise<Row[]>> = {
       titulo: s.title,
       tipo: s.type,
       data_sessao: s.sessionDate,
+      horario: s.startTime,
       ano: s.year,
       situacao: s.status,
+      pauta: s.agenda,
       video: s.videoUrl,
+      arquivo: s.fileUrl,
+      sistema_votacao: s.votingSystemUrl,
     }))
   },
 }
@@ -199,7 +305,7 @@ export default class OpenDataController {
       return response.notFound({ error: 'Conjunto de dados ou formato não encontrado.' })
     }
 
-    const rows = await RuntimeCache.getOrSet(`open-data:${dataset}:v1`, 300_000, QUERIES[dataset])
+    const rows = await RuntimeCache.getOrSet(`open-data:${dataset}:v2`, 300_000, QUERIES[dataset])
     response.header('Cache-Control', 'public, max-age=300')
 
     if (format === 'csv') {

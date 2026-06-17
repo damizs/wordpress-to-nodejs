@@ -1,6 +1,6 @@
 import { Head, useForm, Link } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Save, ArrowLeft, FileText } from 'lucide-react'
+import { Save, ArrowLeft, FileText, Link2 } from 'lucide-react'
 import {
   Button,
   Card,
@@ -8,6 +8,7 @@ import {
   Field,
   Input,
   Select,
+  Textarea,
 } from '~/components/admin/ui'
 
 interface Props {
@@ -24,7 +25,12 @@ export default function PlenarySessionForm({ session, sessionTypes = [] }: Props
     year: session?.year || new Date().getFullYear().toString(),
     start_time: session?.start_time || '',
     status: session?.status || 'realizada',
+    agenda: session?.agenda || '',
+    minutes: session?.minutes || '',
     video_url: session?.video_url || '',
+    file_url: session?.file_url || '',
+    voting_system_id: session?.voting_system_id || session?.votingSystemId || '',
+    voting_system_url: session?.voting_system_url || session?.votingSystemUrl || '',
   })
 
   function handleSubmit(e: React.FormEvent) {
@@ -111,10 +117,63 @@ export default function PlenarySessionForm({ session, sessionTypes = [] }: Props
               </Field>
             </div>
 
+            <Field label="Pauta / resumo da sessÃ£o">
+              <Textarea
+                value={data.agenda}
+                onChange={(e) => setData('agenda', e.target.value)}
+                rows={5}
+                placeholder="Resumo da pauta, matÃ©rias previstas ou orientaÃ§Ãµes ao cidadÃ£o."
+              />
+            </Field>
+
+            <Field label="Ata / minuta / observaÃ§Ãµes">
+              <Textarea
+                value={data.minutes}
+                onChange={(e) => setData('minutes', e.target.value)}
+                rows={5}
+                placeholder="Use este campo quando houver texto da ata ou observaÃ§Ãµes da sessÃ£o."
+              />
+            </Field>
+
+            <Field label="URL do PDF da sessÃ£o">
+              <Input
+                type="url"
+                value={data.file_url}
+                onChange={(e) => setData('file_url', e.target.value)}
+                placeholder="https://..."
+              />
+            </Field>
+
             <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg p-3 border border-border">
               As <strong>Atas</strong> e <strong>Pautas</strong> agora são módulos próprios
               (menu Legislativo). Cadastre-as separadamente em “Atas” e “Pautas”.
             </p>
+          </div>
+        </Card>
+
+        <Card>
+          <CardHeader
+            title="IntegraÃ§Ã£o com sistema de votaÃ§Ã£o"
+            description="Campos de conciliaÃ§Ã£o para quando a API do sistema de votaÃ§Ã£o for definida."
+            icon={Link2}
+          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Field label="ID da sessÃ£o no sistema de votaÃ§Ã£o">
+              <Input
+                type="text"
+                value={data.voting_system_id}
+                onChange={(e) => setData('voting_system_id', e.target.value)}
+                placeholder="Ex.: 12345"
+              />
+            </Field>
+            <Field label="URL da sessÃ£o no sistema de votaÃ§Ã£o">
+              <Input
+                type="url"
+                value={data.voting_system_url}
+                onChange={(e) => setData('voting_system_url', e.target.value)}
+                placeholder="https://..."
+              />
+            </Field>
           </div>
         </Card>
 

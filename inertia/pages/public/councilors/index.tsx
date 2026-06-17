@@ -20,7 +20,7 @@ interface Vereador {
 
 interface Props {
   vereadores: Vereador[];
-  legislature?: { name: string; year_start: number; year_end: number };
+  legislature?: { name: string; year_start: number | string; year_end: number | string };
 }
 
 export default function VereadoresIndex({ vereadores = [], legislature }: Props) {

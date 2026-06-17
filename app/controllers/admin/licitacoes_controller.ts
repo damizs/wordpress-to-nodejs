@@ -8,6 +8,8 @@ import { cuid } from '@adonisjs/core/helpers'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 import { existsSync } from 'node:fs'
+import { sanitizeRichHtml } from '#helpers/sanitize_html'
+import { assertSafeUpload } from '#helpers/upload_security'
 
 /** Extensões aceitas para documentos do processo licitatório */
 const DOC_EXTNAMES = ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'csv', 'odt', 'ods', 'zip', 'png', 'jpg', 'jpeg']
@@ -71,7 +73,7 @@ export default class LicitacoesController {
       modality: data.modality || null,
       status: data.status || 'aberta',
       object: data.object || null,
-      content: data.content || null,
+      content: sanitizeRichHtml(data.content) || null,
       estimatedValue: data.estimated_value ? Number.parseFloat(data.estimated_value) : null,
       openingDate: data.opening_date || null,
       closingDate: data.closing_date || null,
@@ -122,7 +124,7 @@ export default class LicitacoesController {
       modality: data.modality || null,
       status: data.status || 'aberta',
       object: data.object || null,
-      content: data.content || null,
+      content: sanitizeRichHtml(data.content) || null,
       estimatedValue: data.estimated_value ? Number.parseFloat(data.estimated_value) : null,
       openingDate: data.opening_date || null,
       closingDate: data.closing_date || null,
@@ -176,6 +178,7 @@ export default class LicitacoesController {
 
     for (const [i, file] of files.entries()) {
       if (!file) continue
+      await assertSafeUpload(file, DOC_EXTNAMES)
       const fileName = `lic-${cuid()}.${file.extname}`
       await file.move(uploadDir, { name: fileName })
       if (file.state !== 'moved') continue

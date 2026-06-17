@@ -22,6 +22,12 @@ export default class CouncilorsController {
       : []
 
     const siteSettings = await SiteSetting.allAsObject()
+    const yearOf = (value: unknown) => {
+      if (value instanceof Date) return value.getFullYear()
+      const raw = String(value ?? '')
+      const match = raw.match(/\d{4}/)
+      return match ? Number(match[0]) : ''
+    }
 
     return inertia.render('public/councilors/index', {
       vereadores: councilors.map((c) => ({
@@ -37,12 +43,8 @@ export default class CouncilorsController {
       legislature: currentLegislature
         ? {
             name: currentLegislature.name,
-            year_start: currentLegislature.startDate
-              ? String(currentLegislature.startDate).substring(0, 4)
-              : '',
-            year_end: currentLegislature.endDate
-              ? String(currentLegislature.endDate).substring(0, 4)
-              : '',
+            year_start: yearOf(currentLegislature.startDate),
+            year_end: yearOf(currentLegislature.endDate),
           }
         : null,
       siteSettings,

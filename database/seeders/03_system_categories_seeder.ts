@@ -3,10 +3,6 @@ import SystemCategory from '#models/system_category'
 
 export default class extends BaseSeeder {
   async run() {
-    // Only seed if empty
-    const count = await SystemCategory.query().count('* as total')
-    if (Number(count[0].$extras.total) > 0) return
-
     const categories = [
       // FAQ categories
       { type: 'faq', name: 'LAI', slug: 'lai', displayOrder: 1 },
@@ -83,6 +79,13 @@ export default class extends BaseSeeder {
         slug: 'carta-servicos',
         displayOrder: 17,
       },
+      { type: 'information_record', name: 'Diárias', slug: 'diarias', displayOrder: 18 },
+      {
+        type: 'information_record',
+        name: 'Ordem Cronológica de Pagamentos',
+        slug: 'ocp',
+        displayOrder: 19,
+      },
 
       // Publication types
       { type: 'publication', name: 'Portarias', slug: 'portarias', displayOrder: 1 },
@@ -101,6 +104,11 @@ export default class extends BaseSeeder {
       { type: 'session_type', name: 'Especial', slug: 'especial', displayOrder: 4 },
     ]
 
-    await SystemCategory.createMany(categories)
+    for (const category of categories) {
+      await SystemCategory.updateOrCreate(
+        { type: category.type, slug: category.slug },
+        { ...category, isActive: true }
+      )
+    }
   }
 }

@@ -329,7 +329,7 @@ export const Header = ({ logoUrl }: HeaderProps) => {
       <li key={index} className="relative group">
         <Link
           href={item.href}
-          className="flex items-center gap-1 px-4 py-3.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-primary-foreground/90 hover:text-navy-dark hover:bg-gold transition-colors no-underline border-b-2 border-transparent hover:border-gold"
+          className="flex items-center gap-1 px-3.5 py-3 text-sm font-semibold text-primary-foreground/90 hover:text-primary-foreground hover:bg-primary-foreground/10 transition-colors no-underline"
         >
           {item.label}
           {item.hasDropdown && (
@@ -337,7 +337,7 @@ export const Header = ({ logoUrl }: HeaderProps) => {
           )}
         </Link>
         {item.hasDropdown && item.subItems && (
-          <div className="invisible group-hover:visible group-focus-within:visible opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 absolute top-full left-0 mt-0 min-w-[220px] rounded-sm shadow-xl z-[9999] transition-all duration-200 py-2 bg-background text-foreground border border-border border-t-2 border-t-gold">
+          <div className="invisible group-hover:visible group-focus-within:visible opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 absolute top-full left-0 mt-1 min-w-[220px] rounded-xl shadow-xl z-[9999] transition-all duration-200 py-2 bg-background text-foreground border border-border">
             {item.subItems.map((sub, subIndex) => (
               <Link
                 key={subIndex}
@@ -517,45 +517,34 @@ export const Header = ({ logoUrl }: HeaderProps) => {
    * ========================================================================= */
   if (template === "classico") {
     return (
-      <header className="relative z-50">
+      <header className="relative z-50 bg-card shadow-sm">
         {widgets}
         {compactBar}
 
         {/* Faixa de identificação governamental */}
-        <div className="bg-navy-dark text-primary-foreground border-b border-gold/30">
-          <div className="container flex items-center justify-between h-9 text-xs">
-            <span className="flex items-center gap-2 font-medium tracking-wide">
-              <span className="w-1 h-3.5 bg-gold rounded-sm shrink-0" aria-hidden="true" />
-              {headerSubtitle}
-            </span>
-            <span className="hidden sm:flex items-center gap-2 opacity-85">
-              <span className="w-1.5 h-1.5 rounded-full bg-gold shrink-0" aria-hidden="true" />
-              Portal Oficial
-            </span>
-          </div>
-        </div>
-
         {/* Barra de identidade — limpa, clara e institucional */}
-        <div className="bg-background border-b border-border relative">
-          <div className="relative container flex items-center justify-between gap-4 py-4 md:py-5">
+        <div className="bg-card border-b border-border">
+          <div className="container flex items-center justify-between gap-4 py-4">
             <Link href="/" className="flex items-center gap-3 md:gap-4 no-underline min-w-0 flex-1">
-              <span className="hidden sm:block w-1 shrink-0 self-stretch min-h-[3rem] rounded-full bg-gold" aria-hidden="true" />
-              {logoOrInitial("h-12 md:h-16 w-auto object-contain shrink-0")}
-              <span className="min-w-0 border-l border-gold/30 pl-3 md:pl-4">
-                <span className="block text-[10px] md:text-xs font-semibold uppercase tracking-[0.15em] text-muted-foreground">
+              {logoOrInitial("h-11 md:h-14 w-auto object-contain shrink-0")}
+              <span className="min-w-0">
+                <span className="block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
                   {headerSubtitle}
                 </span>
-                <span className="block text-sm md:text-base lg:text-lg font-bold text-foreground leading-tight template-serif">
+                <span className="block text-base md:text-xl font-extrabold text-foreground leading-tight">
                   {headerTitle}
                 </span>
               </span>
             </Link>
+            <div className="hidden md:flex items-center gap-2 rounded-full border border-border bg-muted/50 px-3 py-1.5 text-xs font-semibold text-muted-foreground">
+              <span className="h-2 w-2 rounded-full bg-emerald-600" aria-hidden="true" />
+              Portal Oficial
+            </div>
             <div className="md:hidden shrink-0">{mobileButton("light")}</div>
           </div>
-          <div className="template-gold-rule-solid opacity-80" aria-hidden="true" />
         </div>
 
-        <nav className="hidden md:block bg-navy-dark text-primary-foreground border-b-[3px] border-gold shadow-md">
+        <nav className="hidden md:block bg-navy text-primary-foreground border-b border-navy-dark">
           <div className="container flex items-center">
             <ul className="flex items-center min-w-0">{renderClassicoNavLinks()}</ul>
             <div className="ml-auto pl-4 border-l border-primary-foreground/15">{searchButtonDark}</div>
@@ -581,15 +570,7 @@ export const Header = ({ logoUrl }: HeaderProps) => {
 
         <div className="relative container flex items-center justify-between gap-4 py-3.5 md:py-4">
           <Link href="/" className="flex items-center gap-3 md:gap-4 no-underline min-w-0 group">
-            {logoOrInitial("h-10 md:h-12 w-auto object-contain shrink-0")}
-            <span className="min-w-0 hidden sm:block border-l border-primary-foreground/15 pl-3 md:pl-4">
-              <span className="block text-[10px] font-semibold uppercase tracking-[0.14em] text-gold">
-                {headerSubtitle}
-              </span>
-              <span className="block text-sm md:text-[15px] font-bold text-primary-foreground leading-tight truncate">
-                {headerTitle}
-              </span>
-            </span>
+            {logoOrInitial("h-12 md:h-14 w-auto object-contain shrink-0")}
           </Link>
 
           <nav className="hidden md:block min-w-0">
@@ -622,10 +603,7 @@ export const Header = ({ logoUrl }: HeaderProps) => {
 
         <div className="container flex items-center justify-between gap-3 h-16">
           <Link href="/" className="flex items-center gap-2.5 no-underline min-w-0">
-            {logoOrInitial("h-10 w-auto object-contain")}
-            <span className="text-sm md:text-base font-bold text-primary-foreground truncate">
-              {headerTitle}
-            </span>
+            {logoOrInitial("h-12 w-auto object-contain")}
           </Link>
 
           <nav className="hidden md:block ml-auto">
@@ -681,7 +659,7 @@ export const Header = ({ logoUrl }: HeaderProps) => {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:block relative z-40">
-          <div className="glass rounded-2xl px-6 py-3 mx-auto max-w-3xl">
+          <div className="glass relative rounded-2xl px-14 lg:px-16 py-3 mx-auto max-w-3xl">
             <ul className="flex items-center justify-center gap-1 min-w-0">
               {desktopNavItems.map((item, index) => (
                 <li key={index} className="relative group">
@@ -711,19 +689,17 @@ export const Header = ({ logoUrl }: HeaderProps) => {
                   )}
                 </li>
               ))}
-              <li>
-                <button
-                  type="button"
-                  onClick={() => setSearchOpen((v) => !v)}
-                  aria-expanded={searchOpen}
-                  aria-label="Abrir busca"
-                  title="Buscar"
-                  className="flex items-center justify-center p-2.5 ml-1 rounded-xl hover:bg-primary-foreground/10 transition-all duration-300 text-primary-foreground"
-                >
-                  <Search className="w-5 h-5" aria-hidden="true" />
-                </button>
-              </li>
             </ul>
+            <button
+              type="button"
+              onClick={() => setSearchOpen((v) => !v)}
+              aria-expanded={searchOpen}
+              aria-label="Abrir busca"
+              title="Buscar"
+              className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center justify-center p-2.5 rounded-xl hover:bg-primary-foreground/10 transition-all duration-300 text-primary-foreground"
+            >
+              <Search className="w-5 h-5" aria-hidden="true" />
+            </button>
           </div>
         </nav>
 

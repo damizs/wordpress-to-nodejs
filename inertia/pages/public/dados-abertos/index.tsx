@@ -34,6 +34,7 @@ const DATASET_ICONS: Record<string, LucideIcon> = {
   materias: ScrollText,
   licitacoes: Gavel,
   publicacoes: FileText,
+  "diario-oficial": CalendarDays,
   votacoes: Vote,
   sessoes: CalendarDays,
 };

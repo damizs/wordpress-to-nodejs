@@ -7,6 +7,8 @@ import { cuid } from '@adonisjs/core/helpers'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 import { existsSync } from 'node:fs'
+import { sanitizeRichHtml } from '#helpers/sanitize_html'
+import { assertSafeUpload } from '#helpers/upload_security'
 
 export default class PautasController {
   async index({ inertia, request }: HttpContext) {
@@ -93,7 +95,7 @@ export default class PautasController {
       documentDate,
       year: d.year ? Number.parseInt(d.year) : new Date(documentDate).getFullYear(),
       docTime: d.doc_time || null,
-      content: d.content || null,
+      content: sanitizeRichHtml(d.content) || null,
       isPublished:
         d.is_published === undefined ? true : d.is_published === 'true' || d.is_published === true,
     }
@@ -111,6 +113,7 @@ export default class PautasController {
   private async saveFile(request: HttpContext['request'], pauta: Pauta) {
     const file = request.file('file', { size: '30mb', extnames: ['pdf'] })
     if (!file) return
+    await assertSafeUpload(file, ['pdf'])
     const uploadDir = join(app.publicPath(), 'uploads', 'pautas')
     if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true })
     const fileName = `pauta-${cuid()}.${file.extname}`

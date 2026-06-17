@@ -1,5 +1,6 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import Duodecimo from '#models/duodecimo'
+import { normalizeSafeWebUrl } from '#helpers/safe_url'
 
 /** Normaliza valor monetário ("1.234,56" ou "1234.56") para number */
 function parseMoney(raw: unknown): number | null {
@@ -55,7 +56,7 @@ export default class DuodecimosController {
         previsto,
         recebido: parseMoney(request.input('recebido')),
         repasseDate: request.input('repasse_date') || null,
-        documentUrl: request.input('document_url') || null,
+        documentUrl: normalizeSafeWebUrl(request.input('document_url')),
         notes: request.input('notes') || null,
       }
     )
@@ -77,7 +78,7 @@ export default class DuodecimosController {
       previsto,
       recebido: parseMoney(request.input('recebido')),
       repasseDate: request.input('repasse_date') || null,
-      documentUrl: request.input('document_url') || null,
+      documentUrl: normalizeSafeWebUrl(request.input('document_url')),
       notes: request.input('notes') || null,
     })
     await duodecimo.save()

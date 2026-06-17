@@ -5,6 +5,7 @@ import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 import { existsSync, unlinkSync } from 'node:fs'
 import { saveOptimizedImage } from '#helpers/image_upload'
+import { assertSafeUpload } from '#helpers/upload_security'
 
 export default class SealsController {
   async index({ inertia }: HttpContext) {
@@ -25,6 +26,7 @@ export default class SealsController {
     let imageUrl: string | null = null
 
     if (image) {
+      await assertSafeUpload(image, ['png', 'jpg', 'jpeg', 'webp'])
       const uploadDir = join(app.publicPath(), 'uploads', 'seals')
       if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true })
       const saved = await saveOptimizedImage(image, uploadDir, {
@@ -66,6 +68,7 @@ export default class SealsController {
 
     // Só atualiza imagem se uma nova foi enviada
     if (image && image.size > 0) {
+      await assertSafeUpload(image, ['png', 'jpg', 'jpeg', 'webp'])
       // Deleta imagem antiga
       if (seal.imageUrl) {
         const oldPath = join(app.publicPath(), seal.imageUrl)

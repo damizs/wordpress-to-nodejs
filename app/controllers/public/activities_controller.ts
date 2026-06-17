@@ -1,6 +1,11 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import LegislativeActivity from '#models/legislative_activity'
 import SiteSetting from '#models/site_setting'
+import {
+  LEGISLATIVE_ORIGINS,
+  legislativeOriginLabel,
+  normalizeLegislativeOrigin,
+} from '#helpers/legislative_origin'
 
 export default class ActivitiesController {
   async index({ inertia, request }: HttpContext) {
@@ -9,6 +14,8 @@ export default class ActivitiesController {
     const year = request.input('ano', '')
     const autor = request.input('autor', '')
     const status = request.input('situacao', '')
+    const originParam = request.input('origem', '')
+    const origin = originParam ? normalizeLegislativeOrigin(originParam) : ''
     const search = request.input('busca', '')
 
     let query = LegislativeActivity.query()
@@ -18,6 +25,7 @@ export default class ActivitiesController {
     if (type) query = query.where('type', type)
     if (year) query = query.where('year', year)
     if (status) query = query.where('status', status)
+    if (origin) query = query.where('origin', origin)
     if (search) {
       query = query.where((q) => {
         q.whereILike('title', `%${search}%`)
@@ -44,6 +52,28 @@ export default class ActivitiesController {
       .where('status', '!=', '')
       .distinct('status')
       .orderBy('status', 'asc')
+    const originRows = await LegislativeActivity.query()
+      .whereNotNull('origin')
+      .where('origin', '!=', '')
+      .distinct('origin')
+      .orderBy('origin', 'asc')
+    const projectLawRows = await LegislativeActivity.query()
+      .whereILike('type', '%Projeto de Lei%')
+      .select('origin')
+      .count('* as total')
+      .groupBy('origin')
+    const projectLawSummary = {
+      total: 0,
+      executivo: 0,
+      legislativo: 0,
+      nao_informado: 0,
+    }
+    for (const row of projectLawRows) {
+      const rowOrigin = normalizeLegislativeOrigin(row.origin)
+      const total = Number(row.$extras.total ?? 0)
+      projectLawSummary[rowOrigin] += total
+      projectLawSummary.total += total
+    }
 
     return inertia.render('public/activities/index', {
       activities: activities.all().map((a) => ({
@@ -53,6 +83,8 @@ export default class ActivitiesController {
         summary: a.summary || null,
         date: a.sessionDate || a.createdAt?.toISODate() || null,
         type: a.type,
+        origin: a.origin || 'nao_informado',
+        origin_label: legislativeOriginLabel(a.origin),
         author: a.author ? { name: a.author } : null,
         authors: a.authors.map((c) => ({
           id: c.id,
@@ -67,10 +99,16 @@ export default class ActivitiesController {
         lastPage: activities.lastPage,
         total: activities.total,
       },
-      filters: { type, year, autor, status, search },
+      filters: { type, year, autor, status, origin, search },
       types: typeRows.map((r) => r.type).filter(Boolean),
       years: yearRows.map((r) => r.year).filter(Boolean),
       statuses: statusRows.map((r) => r.status).filter(Boolean),
+      origins: originRows
+        .map((r) => normalizeLegislativeOrigin(r.origin))
+        .filter((value, index, list) => list.indexOf(value) === index)
+        .sort((a, b) => LEGISLATIVE_ORIGINS.indexOf(a) - LEGISLATIVE_ORIGINS.indexOf(b))
+        .map((value) => ({ value, label: legislativeOriginLabel(value) })),
+      projectLawSummary,
       siteSettings,
     })
   }
@@ -83,7 +121,10 @@ export default class ActivitiesController {
     if (!activity) return response.redirect().status(301).toPath('/atividades-legislativas')
     const siteSettings = await SiteSetting.allAsObject()
     return inertia.render('public/activities/show', {
-      activity: activity.serialize(),
+      activity: {
+        ...activity.serialize(),
+        origin_label: legislativeOriginLabel(activity.origin),
+      },
       exportUrl: `/atividades-legislativas/${activity.slug}/exportar`,
       authors: activity.authors.map((a) => ({
         id: a.id,
@@ -116,6 +157,8 @@ export default class ActivitiesController {
         summary: activity.summary,
         content: activity.content,
         status: activity.status,
+        origin: activity.origin,
+        originLabel: legislativeOriginLabel(activity.origin),
         sessionDate: activity.sessionDate,
         author: activity.author,
       },

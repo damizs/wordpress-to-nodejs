@@ -5,7 +5,7 @@ import { Header } from "~/components/Header";
 import { Breadcrumb } from "~/components/Breadcrumb";
 import { PageHero } from "~/components/PageHero";
 import { Footer } from "~/components/Footer";
-import { Coins, Download, Info, Calendar, TrendingUp } from "lucide-react";
+import { Coins, Download, Info, Calendar, TrendingUp, Database, Code2 } from "lucide-react";
 
 interface Row {
   month: number;
@@ -212,6 +212,63 @@ export default function DuodecimosIndex({
 }: Props) {
   const hasRows = rows.length > 0;
 
+  function exportData(format: "csv" | "json") {
+    const dataRows = rows.map((r) => ({
+      ano: selectedYear,
+      mes: r.month,
+      mes_nome: MONTHS[r.month - 1] ?? String(r.month),
+      previsto: r.previsto,
+      recebido: r.recebido,
+      diferenca: r.diferenca,
+      percentual_execucao: Number(r.percentual.toFixed(2)),
+      situacao: r.situacao,
+      data_repasse: r.repasseDate || "",
+      comprovante: r.documentUrl || "",
+    }));
+    const payload = {
+      ano: selectedYear,
+      ultima_atualizacao: lastUpdate,
+      totais: {
+        previsto: totals.previsto,
+        recebido: totals.recebido,
+        diferenca: totals.diferenca,
+        percentual_execucao: Number(totals.percentual.toFixed(2)),
+      },
+      registros: dataRows,
+    };
+    const body =
+      format === "json"
+        ? JSON.stringify(payload, null, 2)
+        : [
+            [
+              "ano",
+              "mes",
+              "mes_nome",
+              "previsto",
+              "recebido",
+              "diferenca",
+              "percentual_execucao",
+              "situacao",
+              "data_repasse",
+              "comprovante",
+            ].join(";"),
+            ...dataRows.map((row) =>
+              Object.values(row)
+                .map((value) => `"${String(value ?? "").replace(/"/g, '""')}"`)
+                .join(";")
+            ),
+          ].join("\n");
+    const blob = new Blob([format === "csv" ? `\ufeff${body}` : body], {
+      type: format === "csv" ? "text/csv;charset=utf-8" : "application/json;charset=utf-8",
+    });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `duodecimos-${selectedYear}.${format}`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <>
       <SeoHead
@@ -261,28 +318,36 @@ export default function DuodecimosIndex({
                 {/* Seletor de ano */}
                 <div
                   data-reveal="up"
-                  className="mb-6 flex flex-col sm:flex-row sm:items-center gap-3"
+                  className="mb-6 flex flex-col gap-3 rounded-2xl border border-border bg-card p-4 shadow-sm lg:flex-row lg:items-center"
                 >
                   <div className="flex items-center gap-2 flex-1 text-sm text-muted-foreground">
                     <Calendar className="w-4 h-4 text-muted-foreground/70" />
                     <span>Selecione o ano de exercício para visualizar os repasses</span>
                   </div>
-                  {years.length > 0 && (
-                    <select
-                      value={selectedYear}
-                      onChange={(e) =>
-                        router.get("/duodecimos", { ano: e.target.value }, { preserveScroll: true })
-                      }
-                      aria-label="Ano de exercício"
-                      className="px-4 py-2.5 rounded-xl border border-border bg-background text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
-                    >
-                      {years.map((y) => (
-                        <option key={y} value={y}>
-                          {y}
-                        </option>
-                      ))}
-                    </select>
-                  )}
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                    {years.length > 0 && (
+                      <select
+                        value={selectedYear}
+                        onChange={(e) =>
+                          router.get("/duodecimos", { ano: e.target.value }, { preserveScroll: true })
+                        }
+                        aria-label="Ano de exercício"
+                        className="h-11 rounded-xl border border-border bg-background px-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20"
+                      >
+                        {years.map((y) => (
+                          <option key={y} value={y}>
+                            {y}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                    <button type="button" onClick={() => exportData("csv")} disabled={!hasRows} className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 text-sm font-semibold text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary disabled:opacity-50">
+                      <Database className="h-4 w-4 text-emerald-600" /> CSV
+                    </button>
+                    <button type="button" onClick={() => exportData("json")} disabled={!hasRows} className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 text-sm font-semibold text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary disabled:opacity-50">
+                      <Code2 className="h-4 w-4 text-sky" /> JSON
+                    </button>
+                  </div>
                 </div>
 
                 {hasRows ? (

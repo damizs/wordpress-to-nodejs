@@ -18,7 +18,8 @@ import router from '@adonisjs/core/services/router'
  */
 const cptToListing: Record<string, string> = {
   // PNTP / acesso à informação (mesmo slug de categoria)
-  rgf: '/rgf',
+  rgf: '/relatorios-fiscais?tipo=RGF',
+  rreo: '/relatorios-fiscais?tipo=RREO',
   estagiarios: '/estagiarios',
   terceirizados: '/terceirizados',
   verbas: '/verbas',
@@ -57,6 +58,8 @@ const cptToListing: Record<string, string> = {
 /** Páginas soltas do WP sem rota equivalente direta */
 const pageRedirects: Record<string, string> = {
   'sample-page': '/',
+  rgf: '/relatorios-fiscais?tipo=RGF',
+  rreo: '/relatorios-fiscais?tipo=RREO',
   'indicacoes': '/atividades-legislativa',
   'listagem-dos-vereadores': '/vereadores',
   'listagem-das-legislaturas': '/vereadores',
@@ -66,7 +69,7 @@ const pageRedirects: Record<string, string> = {
   // Páginas de transparência fiscal (conteúdo consolidado em /transparencia)
   'licitantes-sancionados': '/transparencia',
   'adesao-ata': '/transparencia',
-  'ocp': '/transparencia',
+  // 'ocp' removido: agora e pagina dinamica real de Acesso a Informacao (/ocp).
   'fiscal-contrato': '/transparencia',
   'aditivos': '/transparencia',
   'despesas-mensais': '/transparencia',

@@ -13,6 +13,8 @@ interface Props {
     summary?: string | null;
     content?: string | null;
     status?: string;
+    origin?: string;
+    originLabel?: string;
     sessionDate?: string | null;
     author?: string | null;
   };
@@ -78,6 +80,9 @@ export default function ActivityExport({ activity, authors = [] }: Props) {
           {activity.status && (
             <span className="px-2 py-0.5 border border-black/20 rounded capitalize">{activity.status}</span>
           )}
+          {activity.originLabel && (
+            <span className="px-2 py-0.5 border border-black/20 rounded">{activity.originLabel}</span>
+          )}
         </div>
 
         <h1 className="text-xl font-bold leading-snug mb-4">{activity.title}</h1>
@@ -92,6 +97,11 @@ export default function ActivityExport({ activity, authors = [] }: Props) {
             {authorLine && (
               <p>
                 <strong className="text-black">Autoria:</strong> {authorLine}
+              </p>
+            )}
+            {activity.originLabel && (
+              <p>
+                <strong className="text-black">Origem:</strong> {activity.originLabel}
               </p>
             )}
             {activity.sessionDate && (

@@ -1,7 +1,7 @@
 {
-  "total_excel": 180,
+  "total_excel": 181,
   "by_matriz": {
-    "COMUM": 59,
+    "COMUM": 60,
     "COMUM (EXCETO ESTATAIS INDEPENDENTES)": 4,
     "EXECUTIVO": 23,
     "ESTATAIS": 40,
@@ -16,117 +16,1030 @@
     "DEFENSORIA PÚBLICA": 3
   },
   "portal_count": 83,
-  "missing_in_portal": [
-    "3.2",
-    "3.3",
-    "4.4",
-    "4.5",
-    "4.6",
-    "8.8",
-    "11.4",
-    "11.6",
-    "11.8",
-    "11.9",
-    "11.10",
-    "11.11",
-    "11.12",
-    "11.13",
-    "11.14",
-    "11.15",
-    "11.16",
-    "11.17",
-    "11.18",
-    "11.19",
-    "16.1",
-    "16.2",
-    "16.3",
-    "16.4",
-    "17.1",
-    "17.2",
-    "17.3",
-    "18.1",
-    "18.2",
-    "18.3",
-    "18.4",
-    "18.5",
-    "18.6",
-    "19.1",
-    "19.2",
-    "19.3",
-    "19.4",
-    "21.1",
-    "21.2",
-    "21.3",
-    "21.4",
-    "21.5",
-    "21.6",
-    "22.1",
-    "22.2",
-    "22.3",
-    "22.4",
-    "22.5",
-    "22.6",
-    "22.7",
-    "22.8",
-    "22.9",
-    "22.10",
-    "22.11",
-    "22.12",
-    "23.1",
-    "23.2",
-    "23.3",
-    "23.4",
-    "24.1",
-    "24.2",
-    "24.3",
-    "25.1",
-    "25.2",
-    "25.3",
-    "25.4",
-    "25.5",
-    "25.6",
-    "25.7",
-    "26.1",
-    "26.2",
-    "26.3",
-    "26.4",
-    "26.5",
-    "26.6",
-    "26.7",
-    "26.8",
-    "26.9",
-    "26.10",
-    "26.11",
-    "26.12",
-    "26.13",
-    "26.14",
-    "26.15",
-    "26.16",
-    "26.17",
-    "26.18",
-    "26.19",
-    "26.20",
-    "26.21",
-    "26.22",
-    "26.23",
-    "26.24",
-    "26.25",
-    "26.26",
-    "26.27",
-    "26.28",
-    "26.29"
-  ],
-  "extra_in_portal": [
-    "14.2"
-  ],
+  "missing_in_portal": [],
+  "extra_in_portal": [],
   "legislative": [
+    {
+      "code": "1.1",
+      "matriz": "COMUM",
+      "dimension": "Informações Prioritárias",
+      "title": "Possui sítio oficial próprio na internet?",
+      "classification": "essencial",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "1.2",
+      "matriz": "COMUM",
+      "dimension": "Informações Prioritárias",
+      "title": "Possui portal da transparência próprio ou compartilhado na internet?",
+      "classification": "essencial",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "1.3",
+      "matriz": "COMUM",
+      "dimension": "Informações Prioritárias",
+      "title": "O acesso ao portal transparência está visível na capa do site?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "1.4",
+      "matriz": "COMUM",
+      "dimension": "Informações Prioritárias",
+      "title": "O site e o portal de transparência contêm ferramenta de pesquisa de conteúdo que permita o acesso à informação?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "2.1",
+      "matriz": "COMUM",
+      "dimension": "Informações Institucionais",
+      "title": "Divulga a sua estrutura organizacional e a norma que a institui/altera?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "2.2",
+      "matriz": "COMUM",
+      "dimension": "Informações Institucionais",
+      "title": "Divulga competências e/ou atribuições?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "2.3",
+      "matriz": "COMUM",
+      "dimension": "Informações Institucionais",
+      "title": "Identifica o nome dos atuais responsáveis pela gestão do Poder/Órgão?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "2.4",
+      "matriz": "COMUM",
+      "dimension": "Informações Institucionais",
+      "title": "Divulga os endereços e telefones atuais do Poder ou órgão e e-mails institucionais?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "2.5",
+      "matriz": "COMUM",
+      "dimension": "Informações Institucionais",
+      "title": "Divulga o horário de atendimento?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "2.6",
+      "matriz": "COMUM",
+      "dimension": "Informações Institucionais",
+      "title": "Divulga os atos normativos próprios?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "2.7",
+      "matriz": "COMUM",
+      "dimension": "Informações Institucionais",
+      "title": "Divulga as perguntas e respostas mais frequentes relacionadas às atividades desenvolvidas pelo Poder/Órgão?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "2.8",
+      "matriz": "COMUM",
+      "dimension": "Informações Institucionais",
+      "title": "Participa em redes sociais e apresenta, no seu sítio institucional, link de acesso ao seu perfil?",
+      "classification": "recomendada",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "2.9",
+      "matriz": "COMUM",
+      "dimension": "Informações Institucionais",
+      "title": "Inclui botão do Radar da Transparência Pública no site institucional ou portal transparência?",
+      "classification": "recomendada",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "3.1",
+      "matriz": "COMUM (EXCETO ESTATAIS INDEPENDENTES)",
+      "dimension": "Receita",
+      "title": "Divulga as receitas do Poder ou órgão, evidenciando sua previsão e realização?",
+      "classification": "essencial",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "4.1",
+      "matriz": "COMUM (EXCETO ESTATAIS INDEPENDENTES)",
+      "dimension": "Despesa",
+      "title": "Divulga o total das despesas empenhadas, liquidadas e pagas?",
+      "classification": "essencial",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "4.2",
+      "matriz": "COMUM (EXCETO ESTATAIS INDEPENDENTES)",
+      "dimension": "Despesa",
+      "title": "Divulga as despesas por classificação orçamentária?",
+      "classification": "essencial",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "4.3",
+      "matriz": "COMUM (EXCETO ESTATAIS INDEPENDENTES)",
+      "dimension": "Despesa",
+      "title": "Possibilita a consulta de empenhos com os detalhes do beneficiário do pagamento ou credor, o valor, o bem fornecido ou serviço prestado e a identificação do procedimento licitatório originário da despesa?",
+      "classification": "essencial",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "5.1",
+      "matriz": "COMUM",
+      "dimension": "Convênios e Transferências",
+      "title": "Divulga as transferências recebidas a partir da celebração de convênios/acordos com indicação, no mínimo, do número/ano do convênio/termo ou ajuste, do valor total previsto dos recursos envolvidos, do valor recebido, do objeto, da vigência, da origem (órgão repassador/concedente) e o inteiro teor do instrumento de convênio/transferência?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "5.2",
+      "matriz": "COMUM",
+      "dimension": "Convênios e Transferências",
+      "title": "Divulga as transferências realizadas a partir da celebração de convênios/acordos/ajustes, com indicação, no mínimo, do número/ano do convênio/termo ou ajuste, do beneficiário, do objeto, da vigência, do valor total previsto para repasse, do valor concedido e inteiro teor do instrumento de convênio/termo ou ajuste?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "5.3",
+      "matriz": "COMUM",
+      "dimension": "Convênios e Transferências",
+      "title": "Divulga os acordos firmados que não envolvam transferência de recursos financeiros, identificando as partes, o número/ano do convênio/termo ou ajuste, o objeto, a vigência, as obrigações ajustadas e o inteiro teor do instrumento de convênio/termo ou ajuste?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "6.1",
+      "matriz": "COMUM",
+      "dimension": "Recursos Humanos",
+      "title": "Divulga a relação nominal dos servidores/autoridades/membros, seus cargos/funções, as respectivas lotações, as suas datas de admissão/exoneração/inativação e a carga horária do cargo/função ocupada/desempenhada?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "6.2",
+      "matriz": "COMUM",
+      "dimension": "Recursos Humanos",
+      "title": "Divulga a remuneração nominal de cada servidor/autoridade/Membro?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "6.3",
+      "matriz": "COMUM",
+      "dimension": "Recursos Humanos",
+      "title": "Divulga a tabela com o padrão remuneratório dos cargos e funções?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "6.4",
+      "matriz": "COMUM",
+      "dimension": "Recursos Humanos",
+      "title": "Divulga a lista de seus estagiários, contendo o nome dos estudantes; a data de contratação e a data de término do respectivo contrato?",
+      "classification": "recomendada",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "6.5",
+      "matriz": "COMUM",
+      "dimension": "Recursos Humanos",
+      "title": "Publica lista dos terceirizados que prestam serviços para o Poder ou órgão/entidades, contendo, em relação a cada um deles: nome completo, função ou atividade exercida e nome da empresa empregadora?",
+      "classification": "recomendada",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "6.6",
+      "matriz": "COMUM",
+      "dimension": "Recursos Humanos",
+      "title": "Divulga a íntegra dos editais de concursos e seleções públicas realizados pelo Poder ou órgão para provimento de cargos e empregos públicos?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "6.7",
+      "matriz": "COMUM",
+      "dimension": "Recursos Humanos",
+      "title": "Divulga informações sobre os demais atos dos concursos públicos e processos seletivos do Poder ou órgão, contendo no mínimo a lista de aprovados com as classificações e as nomeações?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "7.1",
+      "matriz": "COMUM",
+      "dimension": "Diárias",
+      "title": "Divulga o nome e o cargo/função do beneficiário, além do valor total recebido, número de diárias usufruídas por afastamento, período de afastamento, motivo do afastamento e local de destino?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "7.2",
+      "matriz": "COMUM",
+      "dimension": "Diárias",
+      "title": "Divulga tabela ou relação que explicite os valores das diárias dentro do Estado, fora do Estado e fora do país, conforme legislação local?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "8.1",
+      "matriz": "COMUM",
+      "dimension": "Licitações",
+      "title": "Divulga a relação das licitações em ordem sequencial, informando o número e modalidade licitatória, o objeto, a data, o valor estimado/homologado e a situação?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "8.2",
+      "matriz": "COMUM",
+      "dimension": "Licitações",
+      "title": "Divulga a íntegra dos editais de licitação?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "8.3",
+      "matriz": "COMUM",
+      "dimension": "Licitações",
+      "title": "Divulga a íntegra dos demais documentos das fases interna e externa das licitações?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "8.4",
+      "matriz": "COMUM",
+      "dimension": "Licitações",
+      "title": "Divulga a íntegra dos principais documentos dos processos de dispensa e inexigibilidade de licitação?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "8.5",
+      "matriz": "COMUM",
+      "dimension": "Licitações",
+      "title": "Divulga a íntegra das Atas de Adesão – SRP?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "8.6",
+      "matriz": "COMUM (EXCETO ESTATAIS)",
+      "dimension": "Licitações",
+      "title": "Divulga o plano de contratações anual?",
+      "classification": "recomendada",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "8.7",
+      "matriz": "COMUM",
+      "dimension": "Licitações",
+      "title": "Divulga a relação dos licitantes e/ou contratados sancionados administrativamente pelo Poder ou órgão?",
+      "classification": "recomendada",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "9.1",
+      "matriz": "COMUM",
+      "dimension": "Contratos",
+      "title": "Divulga a relação dos contratos celebrados em ordem sequencial, com o seu respectivo resumo, contendo, no mínimo, indicação do contratado(a), do valor, do objeto e da vigência, bem como dos aditivos deles decorrentes?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "9.2",
+      "matriz": "COMUM",
+      "dimension": "Contratos",
+      "title": "Divulga o inteiro teor dos contratos e dos respectivos termos aditivos?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "9.3",
+      "matriz": "COMUM",
+      "dimension": "Contratos",
+      "title": "Divulga a relação/lista dos fiscais de cada contrato vigente e encerrado?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "9.4",
+      "matriz": "COMUM (EXCETO ESTATAIS)",
+      "dimension": "Contratos",
+      "title": "Divulga a ordem cronológica de seus pagamentos, bem como as justificativas que fundamentaram a eventual alteração dessa ordem?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "10.1",
+      "matriz": "COMUM (EXCETO ESTATAIS)",
+      "dimension": "Obras",
+      "title": "Divulga informações sobre as obras contendo o objeto, a situação atual, as datas de início e de conclusão da obra, empresa contratada e o percentual concluído?",
+      "classification": "recomendada",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "10.2",
+      "matriz": "COMUM",
+      "dimension": "Obras",
+      "title": "Divulga os quantitativos, os preços unitários e totais contratados?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "10.3",
+      "matriz": "COMUM (EXCETO ESTATAIS)",
+      "dimension": "Obras",
+      "title": "Divulga os quantitativos executados e os preços efetivamente pagos?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "10.4",
+      "matriz": "COMUM (EXCETO ESTATAIS)",
+      "dimension": "Obras",
+      "title": "Divulga relação das obras paralisadas contendo o motivo, o responsável pela inexecução temporária do objeto do contrato e a data prevista para o reinício da sua execução?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "11.1",
+      "matriz": "COMUM (EXCETO ESTATAIS)",
+      "dimension": "Planejamento e Prestação de contas",
+      "title": "Publica a Prestação de Contas do Ano Anterior (Balanço Geral)?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "11.2",
+      "matriz": "COMUM (EXCETO ESTATAIS)",
+      "dimension": "Planejamento e Prestação de contas",
+      "title": "Divulga o Relatório de Gestão ou Atividades?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "11.3",
+      "matriz": "COMUM",
+      "dimension": "Planejamento e Prestação de contas",
+      "title": "Divulga a íntegra da decisão da apreciação ou julgamento das contas pelo Tribunal de Contas?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "11.5",
+      "matriz": "COMUM (EXCETO ESTATAIS)",
+      "dimension": "Planejamento e Prestação de contas",
+      "title": "Divulga o Relatório de Gestão Fiscal (RGF)?",
+      "classification": "essencial",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "11.7",
+      "matriz": "COMUM",
+      "dimension": "Planejamento e Prestação de contas",
+      "title": "Divulga o plano estratégico institucional?",
+      "classification": "recomendada",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "12.1",
+      "matriz": "COMUM",
+      "dimension": "Serviço de Informação ao Cidadão - SIC",
+      "title": "Existe o SIC no site ou no portal de transparência e indica a unidade/setor responsável?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "12.2",
+      "matriz": "COMUM",
+      "dimension": "Serviço de Informação ao Cidadão - SIC",
+      "title": "Indica o endereço físico, o telefone e o e-mail da unidade responsável pelo SIC, além do horário de funcionamento?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "12.3",
+      "matriz": "COMUM",
+      "dimension": "Serviço de Informação ao Cidadão - SIC",
+      "title": "Há possibilidade de envio de pedidos de informação de forma eletrônica (e­-SIC)?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "12.4",
+      "matriz": "COMUM",
+      "dimension": "Serviço de Informação ao Cidadão - SIC",
+      "title": "A solicitação por meio de eSic é simples, ou seja, sem a exigência de itens de identificação do requerente que dificultem ou impossibilitem o acesso à informação, tais como: envio de documentos, assinatura reconhecida, declaração de responsabilidade, maioridade?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "12.5",
+      "matriz": "COMUM",
+      "dimension": "Serviço de Informação ao Cidadão - SIC",
+      "title": "Divulga nesta seção, instrumento normativo local que regulamente a Lei nº 12.527/2011 – LAI?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "12.6",
+      "matriz": "COMUM",
+      "dimension": "Serviço de Informação ao Cidadão - SIC",
+      "title": "Divulga, na seção relativa ao e-SIC, os prazos de resposta ao cidadão, incluindo o recursal, e as autoridades competentes para o exame dos pedidos, além do procedimento referente à realização do pedido e de eventual recurso?",
+      "classification": "recomendada",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "12.7",
+      "matriz": "COMUM",
+      "dimension": "Serviço de Informação ao Cidadão - SIC",
+      "title": "Divulga relatório anual estatístico contendo a quantidade de pedidos de acesso recebidos, atendidos, indeferidos, bem como informações genéricas sobre os solicitantes?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "12.8",
+      "matriz": "COMUM",
+      "dimension": "Serviço de Informação ao Cidadão - SIC",
+      "title": "Divulga lista de documentos classificados em cada grau de sigilo, contendo pelo menos o assunto sobre o qual versa a informação, a categoria na qual ela se encontra, o dispositivo legal que fundamenta a classificação e o respectivo prazo?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "12.9",
+      "matriz": "COMUM",
+      "dimension": "Serviço de Informação ao Cidadão - SIC",
+      "title": "Divulga lista das informações que tenham sido desclassificadas nos últimos 12 (doze) meses?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "13.1",
+      "matriz": "COMUM",
+      "dimension": "Acessibilidade",
+      "title": "O site oficial e o portal de transparência contêm símbolo de acessibilidade em destaque?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "13.2",
+      "matriz": "COMUM",
+      "dimension": "Acessibilidade",
+      "title": "O site e o portal de transparência contêm exibição do “caminho” de páginas percorridas pelo usuário?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "13.3",
+      "matriz": "COMUM",
+      "dimension": "Acessibilidade",
+      "title": "O site e o portal de transparência contêm opção de alto contraste?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "13.4",
+      "matriz": "COMUM",
+      "dimension": "Acessibilidade",
+      "title": "O site e o portal de transparência contêm ferramenta de redimensionamento de texto?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "13.5",
+      "matriz": "COMUM",
+      "dimension": "Acessibilidade",
+      "title": "Contém mapa do site institucional?",
+      "classification": "recomendada",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "14.1",
+      "matriz": "COMUM",
+      "dimension": "Ouvidorias",
+      "title": "Há informações sobre o atendimento presencial pela Ouvidoria (Indicação de endereço físico e telefone, além do horário de funcionamento)?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "14.2",
+      "matriz": "COMUM",
+      "dimension": "Ouvidorias",
+      "title": "Há canal eletrônico de acesso/interação com a ouvidoria?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "14.3",
+      "matriz": "COMUM",
+      "dimension": "Ouvidorias",
+      "title": "Divulga Carta de Serviços ao Usuário?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "15.1",
+      "matriz": "COMUM",
+      "dimension": "Lei Geral de Proteção de Dados (LGPD) e Governo Digital",
+      "title": "Identifica o encarregado/responsável pelo tratamento de dados pessoais e disponibiliza Canal de Comunicação com esse servidor (telefone e/ou e-mail)?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "15.2",
+      "matriz": "COMUM",
+      "dimension": "Lei Geral de Proteção de Dados (LGPD) e Governo Digital",
+      "title": "Publica a sua Política de Privacidade e Proteção de Dados?",
+      "classification": "recomendada",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "15.3",
+      "matriz": "COMUM",
+      "dimension": "Lei Geral de Proteção de Dados (LGPD) e Governo Digital",
+      "title": "Possibilita a demanda e o acesso a serviços públicos por meio digital, sem necessidade de solicitação presencial?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "15.4",
+      "matriz": "COMUM",
+      "dimension": "Lei Geral de Proteção de Dados (LGPD) e Governo Digital",
+      "title": "Possibilita o acesso automatizado por sistemas externos em dados abertos (estruturados e legíveis por máquina), e a página contém as regras de utilização?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "15.5",
+      "matriz": "COMUM",
+      "dimension": "Lei Geral de Proteção de Dados (LGPD) e Governo Digital",
+      "title": "Regulamenta a Lei Federal nº 14.129/2021 (Governo Digital) e divulga a normativa em seu portal?",
+      "classification": "recomendada",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "15.6",
+      "matriz": "COMUM",
+      "dimension": "Lei Geral de Proteção de Dados (LGPD) e Governo Digital",
+      "title": "Realiza e divulga resultados de pesquisas de satisfação?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
     {
       "code": "20.1",
       "matriz": "PODER LEGISLATIVO",
       "dimension": "Atividades Finalísticas - PL",
       "title": "Divulga a composição da Casa, com a biografia dos parlamentares?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "20.2",
@@ -134,7 +1047,13 @@
       "dimension": "Atividades Finalísticas - PL",
       "title": "Divulga as leis e atos infralegais (resoluções, decretos, etc.) produzidos?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "20.3",
@@ -142,7 +1061,13 @@
       "dimension": "Atividades Finalísticas - PL",
       "title": "Divulga projetos de leis e de atos infralegais, bem como as respectivas tramitações (contemplando ementa, documentos anexos, situação atual e autor/relator)?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "20.4",
@@ -150,7 +1075,13 @@
       "dimension": "Atividades Finalísticas - PL",
       "title": "Divulga a pauta das sessões do Plenário?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "20.5",
@@ -158,7 +1089,13 @@
       "dimension": "Atividades Finalísticas - PL",
       "title": "Divulga a pauta das Comissões?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "20.6",
@@ -166,7 +1103,13 @@
       "dimension": "Atividades Finalísticas - PL",
       "title": "Divulga as atas das sessões, incluindo a lista de presença dos parlamentares em cada sessão?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "20.7",
@@ -174,7 +1117,13 @@
       "dimension": "Atividades Finalísticas - PL",
       "title": "Divulga lista sobre as votações nominais?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "20.8",
@@ -182,7 +1131,13 @@
       "dimension": "Atividades Finalísticas - PL",
       "title": "Divulga o ato que aprecia as Contas do Chefe do Poder Executivo (Decreto) e o teor do julgamento (Ata ou Resumo da Sessão que aprovou ou rejeitou as contas)?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "20.9",
@@ -190,7 +1145,13 @@
       "dimension": "Atividades Finalísticas - PL",
       "title": "Há transmissão de sessões, audiências públicas, consultas públicas ou outras formas de participação popular via meios de comunicação como rádio, TV, internet, entre outros?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "20.10",
@@ -198,7 +1159,13 @@
       "dimension": "Atividades Finalísticas - PL",
       "title": "Divulga a regulamentação e os valores relativos às cotas para exercício da atividade parlamentar/verba indenizatória?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "20.11",
@@ -206,7 +1173,13 @@
       "dimension": "Atividades Finalísticas - PL",
       "title": "Divulga dados sobre as atividades legislativas dos parlamentares?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     }
   ],
   "all": [
@@ -216,7 +1189,13 @@
       "dimension": "Informações Prioritárias",
       "title": "Possui sítio oficial próprio na internet?",
       "classification": "essencial",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "1.2",
@@ -224,7 +1203,13 @@
       "dimension": "Informações Prioritárias",
       "title": "Possui portal da transparência próprio ou compartilhado na internet?",
       "classification": "essencial",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "1.3",
@@ -232,7 +1217,13 @@
       "dimension": "Informações Prioritárias",
       "title": "O acesso ao portal transparência está visível na capa do site?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "1.4",
@@ -240,7 +1231,13 @@
       "dimension": "Informações Prioritárias",
       "title": "O site e o portal de transparência contêm ferramenta de pesquisa de conteúdo que permita o acesso à informação?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "2.1",
@@ -248,7 +1245,13 @@
       "dimension": "Informações Institucionais",
       "title": "Divulga a sua estrutura organizacional e a norma que a institui/altera?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "2.2",
@@ -256,7 +1259,13 @@
       "dimension": "Informações Institucionais",
       "title": "Divulga competências e/ou atribuições?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "2.3",
@@ -264,7 +1273,13 @@
       "dimension": "Informações Institucionais",
       "title": "Identifica o nome dos atuais responsáveis pela gestão do Poder/Órgão?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "2.4",
@@ -272,7 +1287,13 @@
       "dimension": "Informações Institucionais",
       "title": "Divulga os endereços e telefones atuais do Poder ou órgão e e-mails institucionais?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "2.5",
@@ -280,7 +1301,13 @@
       "dimension": "Informações Institucionais",
       "title": "Divulga o horário de atendimento?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "2.6",
@@ -288,7 +1315,13 @@
       "dimension": "Informações Institucionais",
       "title": "Divulga os atos normativos próprios?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "2.7",
@@ -296,7 +1329,13 @@
       "dimension": "Informações Institucionais",
       "title": "Divulga as perguntas e respostas mais frequentes relacionadas às atividades desenvolvidas pelo Poder/Órgão?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "2.8",
@@ -304,7 +1343,13 @@
       "dimension": "Informações Institucionais",
       "title": "Participa em redes sociais e apresenta, no seu sítio institucional, link de acesso ao seu perfil?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "2.9",
@@ -312,7 +1357,13 @@
       "dimension": "Informações Institucionais",
       "title": "Inclui botão do Radar da Transparência Pública no site institucional ou portal transparência?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "3.1",
@@ -320,7 +1371,13 @@
       "dimension": "Receita",
       "title": "Divulga as receitas do Poder ou órgão, evidenciando sua previsão e realização?",
       "classification": "essencial",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "3.2",
@@ -328,7 +1385,13 @@
       "dimension": "Receita",
       "title": "Divulga a classificação orçamentária por natureza da receita (categoria econômica, origem, espécie, desdobramento)?",
       "classification": "essencial",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "3.3",
@@ -336,7 +1399,13 @@
       "dimension": "Receita",
       "title": "Divulga a lista dos inscritos em dívida ativa, contendo, no mínimo, dados referentes ao nome do inscrito e o valor total da dívida?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "4.1",
@@ -344,7 +1413,13 @@
       "dimension": "Despesa",
       "title": "Divulga o total das despesas empenhadas, liquidadas e pagas?",
       "classification": "essencial",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "4.2",
@@ -352,7 +1427,13 @@
       "dimension": "Despesa",
       "title": "Divulga as despesas por classificação orçamentária?",
       "classification": "essencial",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "4.3",
@@ -360,7 +1441,13 @@
       "dimension": "Despesa",
       "title": "Possibilita a consulta de empenhos com os detalhes do beneficiário do pagamento ou credor, o valor, o bem fornecido ou serviço prestado e a identificação do procedimento licitatório originário da despesa?",
       "classification": "essencial",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "4.4",
@@ -368,7 +1455,13 @@
       "dimension": "Despesa",
       "title": "Publica relação das despesas com aquisições de bens efetuadas pela instituição contendo: identificação do bem, preço unitário, quantidade, nome do fornecedor e valor total de cada aquisição?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "4.5",
@@ -376,7 +1469,13 @@
       "dimension": "Despesa",
       "title": "Publica informações sobre despesas de patrocínio?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "4.6",
@@ -384,7 +1483,13 @@
       "dimension": "Despesa",
       "title": "Publica informações detalhadas sobre a execução dos contratos de publicidade, com nomes dos fornecedores de serviços especializados e veículos, bem como informações sobre os totais de valores pagos para cada tipo de serviço e meio de divulgação?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "5.1",
@@ -392,7 +1497,13 @@
       "dimension": "Convênios e Transferências",
       "title": "Divulga as transferências recebidas a partir da celebração de convênios/acordos com indicação, no mínimo, do número/ano do convênio/termo ou ajuste, do valor total previsto dos recursos envolvidos, do valor recebido, do objeto, da vigência, da origem (órgão repassador/concedente) e o inteiro teor do instrumento de convênio/transferência?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "5.2",
@@ -400,7 +1511,13 @@
       "dimension": "Convênios e Transferências",
       "title": "Divulga as transferências realizadas a partir da celebração de convênios/acordos/ajustes, com indicação, no mínimo, do número/ano do convênio/termo ou ajuste, do beneficiário, do objeto, da vigência, do valor total previsto para repasse, do valor concedido e inteiro teor do instrumento de convênio/termo ou ajuste?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "5.3",
@@ -408,7 +1525,13 @@
       "dimension": "Convênios e Transferências",
       "title": "Divulga os acordos firmados que não envolvam transferência de recursos financeiros, identificando as partes, o número/ano do convênio/termo ou ajuste, o objeto, a vigência, as obrigações ajustadas e o inteiro teor do instrumento de convênio/termo ou ajuste?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "6.1",
@@ -416,7 +1539,13 @@
       "dimension": "Recursos Humanos",
       "title": "Divulga a relação nominal dos servidores/autoridades/membros, seus cargos/funções, as respectivas lotações, as suas datas de admissão/exoneração/inativação e a carga horária do cargo/função ocupada/desempenhada?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "6.2",
@@ -424,7 +1553,13 @@
       "dimension": "Recursos Humanos",
       "title": "Divulga a remuneração nominal de cada servidor/autoridade/Membro?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "6.3",
@@ -432,7 +1567,13 @@
       "dimension": "Recursos Humanos",
       "title": "Divulga a tabela com o padrão remuneratório dos cargos e funções?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "6.4",
@@ -440,7 +1581,13 @@
       "dimension": "Recursos Humanos",
       "title": "Divulga a lista de seus estagiários, contendo o nome dos estudantes; a data de contratação e a data de término do respectivo contrato?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "6.5",
@@ -448,7 +1595,13 @@
       "dimension": "Recursos Humanos",
       "title": "Publica lista dos terceirizados que prestam serviços para o Poder ou órgão/entidades, contendo, em relação a cada um deles: nome completo, função ou atividade exercida e nome da empresa empregadora?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "6.6",
@@ -456,7 +1609,13 @@
       "dimension": "Recursos Humanos",
       "title": "Divulga a íntegra dos editais de concursos e seleções públicas realizados pelo Poder ou órgão para provimento de cargos e empregos públicos?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "6.7",
@@ -464,7 +1623,13 @@
       "dimension": "Recursos Humanos",
       "title": "Divulga informações sobre os demais atos dos concursos públicos e processos seletivos do Poder ou órgão, contendo no mínimo a lista de aprovados com as classificações e as nomeações?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "7.1",
@@ -472,7 +1637,13 @@
       "dimension": "Diárias",
       "title": "Divulga o nome e o cargo/função do beneficiário, além do valor total recebido, número de diárias usufruídas por afastamento, período de afastamento, motivo do afastamento e local de destino?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "7.2",
@@ -480,7 +1651,13 @@
       "dimension": "Diárias",
       "title": "Divulga tabela ou relação que explicite os valores das diárias dentro do Estado, fora do Estado e fora do país, conforme legislação local?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "8.1",
@@ -488,7 +1665,13 @@
       "dimension": "Licitações",
       "title": "Divulga a relação das licitações em ordem sequencial, informando o número e modalidade licitatória, o objeto, a data, o valor estimado/homologado e a situação?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "8.2",
@@ -496,7 +1679,13 @@
       "dimension": "Licitações",
       "title": "Divulga a íntegra dos editais de licitação?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "8.3",
@@ -504,7 +1693,13 @@
       "dimension": "Licitações",
       "title": "Divulga a íntegra dos demais documentos das fases interna e externa das licitações?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "8.4",
@@ -512,7 +1707,13 @@
       "dimension": "Licitações",
       "title": "Divulga a íntegra dos principais documentos dos processos de dispensa e inexigibilidade de licitação?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "8.5",
@@ -520,7 +1721,13 @@
       "dimension": "Licitações",
       "title": "Divulga a íntegra das Atas de Adesão – SRP?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "8.6",
@@ -528,7 +1735,13 @@
       "dimension": "Licitações",
       "title": "Divulga o plano de contratações anual?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "8.7",
@@ -536,7 +1749,13 @@
       "dimension": "Licitações",
       "title": "Divulga a relação dos licitantes e/ou contratados sancionados administrativamente pelo Poder ou órgão?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "8.8",
@@ -544,7 +1763,13 @@
       "dimension": "Licitações",
       "title": "Divulga regulamento interno de licitações e contratos?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "9.1",
@@ -552,7 +1777,13 @@
       "dimension": "Contratos",
       "title": "Divulga a relação dos contratos celebrados em ordem sequencial, com o seu respectivo resumo, contendo, no mínimo, indicação do contratado(a), do valor, do objeto e da vigência, bem como dos aditivos deles decorrentes?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "9.2",
@@ -560,7 +1791,13 @@
       "dimension": "Contratos",
       "title": "Divulga o inteiro teor dos contratos e dos respectivos termos aditivos?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "9.3",
@@ -568,7 +1805,13 @@
       "dimension": "Contratos",
       "title": "Divulga a relação/lista dos fiscais de cada contrato vigente e encerrado?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "9.4",
@@ -576,7 +1819,13 @@
       "dimension": "Contratos",
       "title": "Divulga a ordem cronológica de seus pagamentos, bem como as justificativas que fundamentaram a eventual alteração dessa ordem?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "10.1",
@@ -584,7 +1833,13 @@
       "dimension": "Obras",
       "title": "Divulga informações sobre as obras contendo o objeto, a situação atual, as datas de início e de conclusão da obra, empresa contratada e o percentual concluído?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "10.2",
@@ -592,7 +1847,13 @@
       "dimension": "Obras",
       "title": "Divulga os quantitativos, os preços unitários e totais contratados?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "10.3",
@@ -600,7 +1861,13 @@
       "dimension": "Obras",
       "title": "Divulga os quantitativos executados e os preços efetivamente pagos?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "10.4",
@@ -608,7 +1875,13 @@
       "dimension": "Obras",
       "title": "Divulga relação das obras paralisadas contendo o motivo, o responsável pela inexecução temporária do objeto do contrato e a data prevista para o reinício da sua execução?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "11.1",
@@ -616,7 +1889,13 @@
       "dimension": "Planejamento e Prestação de contas",
       "title": "Publica a Prestação de Contas do Ano Anterior (Balanço Geral)?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "11.2",
@@ -624,7 +1903,13 @@
       "dimension": "Planejamento e Prestação de contas",
       "title": "Divulga o Relatório de Gestão ou Atividades?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "11.3",
@@ -632,7 +1917,13 @@
       "dimension": "Planejamento e Prestação de contas",
       "title": "Divulga a íntegra da decisão da apreciação ou julgamento das contas pelo Tribunal de Contas?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "11.4",
@@ -640,7 +1931,13 @@
       "dimension": "Planejamento e Prestação de contas",
       "title": "Divulga o resultado do julgamento das Contas do Chefe do Poder Executivo pelo Poder Legislativo?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "11.5",
@@ -648,7 +1945,13 @@
       "dimension": "Planejamento e Prestação de contas",
       "title": "Divulga o Relatório de Gestão Fiscal (RGF)?",
       "classification": "essencial",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "11.6",
@@ -656,7 +1959,13 @@
       "dimension": "Planejamento e Prestação de contas",
       "title": "Divulga o Relatório Resumido da Execução Orçamentária (RREO)?",
       "classification": "essencial",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "11.7",
@@ -664,7 +1973,13 @@
       "dimension": "Planejamento e Prestação de contas",
       "title": "Divulga o plano estratégico institucional?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "11.8",
@@ -672,7 +1987,13 @@
       "dimension": "Planejamento e Prestação de contas",
       "title": "Divulga a Lei do Plano Plurianual (PPA) e seus anexos?",
       "classification": "essencial",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "11.9",
@@ -680,7 +2001,13 @@
       "dimension": "Planejamento e Prestação de contas",
       "title": "Divulga a Lei de Diretrizes Orçamentárias (LDO) e seus anexos?",
       "classification": "essencial",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "11.10",
@@ -688,7 +2015,13 @@
       "dimension": "Planejamento e Prestação de contas",
       "title": "Divulga a Lei Orçamentária (LOA) e seus anexos?",
       "classification": "essencial",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "11.11",
@@ -696,7 +2029,13 @@
       "dimension": "Planejamento e Prestação de contas",
       "title": "Divulga o Orçamento do Consórcio Público onde conste a estimativa da receita e a fixação da despesa para o exercício atual?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "11.12",
@@ -704,7 +2043,13 @@
       "dimension": "Planejamento e Prestação de contas",
       "title": "Divulga as demonstrações financeiras trimestrais?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "11.13",
@@ -712,7 +2057,13 @@
       "dimension": "Planejamento e Prestação de contas",
       "title": "Divulga as demonstrações financeiras (contábeis) acompanhadas dos pareceres do Conselho Fiscal e da auditoria independente?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "11.14",
@@ -720,7 +2071,13 @@
       "dimension": "Planejamento e Prestação de contas",
       "title": "Pública o Orçamento de Investimentos da instituição que compõe a Lei Orçamentária Anual?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "11.15",
@@ -728,7 +2085,13 @@
       "dimension": "Planejamento e Prestação de contas",
       "title": "Divulga as demonstrações contábeis auditadas em formato eletrônico editável?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "11.16",
@@ -736,7 +2099,13 @@
       "dimension": "Planejamento e Prestação de contas",
       "title": "Divulga o relatório anual elaborado pelo Comitê de Auditoria Estatutário com informações sobre as atividades e os resultados e suas conclusões e recomendações?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "11.17",
@@ -744,7 +2113,13 @@
       "dimension": "Planejamento e Prestação de contas",
       "title": "Divulga as atas das reuniões do Comitê de Auditoria Estatutário?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "11.18",
@@ -752,7 +2127,13 @@
       "dimension": "Planejamento e Prestação de contas",
       "title": "Divulga as atas das reuniões do Comitê de Elegibilidade Estatutário ou Comitê de Pessoas, Elegibilidade, Sucessão e Remuneração a partir de 2022, na forma de sumário dos fatos ocorridos, inclusive das dissidências e protestos?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "11.19",
@@ -760,7 +2141,13 @@
       "dimension": "Planejamento e Prestação de contas",
       "title": "Divulga anualmente relatório integrado ou de sustentabilidade?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "12.1",
@@ -768,7 +2155,13 @@
       "dimension": "Serviço de Informação ao Cidadão - SIC",
       "title": "Existe o SIC no site ou no portal de transparência e indica a unidade/setor responsável?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "12.2",
@@ -776,7 +2169,13 @@
       "dimension": "Serviço de Informação ao Cidadão - SIC",
       "title": "Indica o endereço físico, o telefone e o e-mail da unidade responsável pelo SIC, além do horário de funcionamento?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "12.3",
@@ -784,7 +2183,13 @@
       "dimension": "Serviço de Informação ao Cidadão - SIC",
       "title": "Há possibilidade de envio de pedidos de informação de forma eletrônica (e­-SIC)?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "12.4",
@@ -792,7 +2197,13 @@
       "dimension": "Serviço de Informação ao Cidadão - SIC",
       "title": "A solicitação por meio de eSic é simples, ou seja, sem a exigência de itens de identificação do requerente que dificultem ou impossibilitem o acesso à informação, tais como: envio de documentos, assinatura reconhecida, declaração de responsabilidade, maioridade?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "12.5",
@@ -800,7 +2211,13 @@
       "dimension": "Serviço de Informação ao Cidadão - SIC",
       "title": "Divulga nesta seção, instrumento normativo local que regulamente a Lei nº 12.527/2011 – LAI?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "12.6",
@@ -808,7 +2225,13 @@
       "dimension": "Serviço de Informação ao Cidadão - SIC",
       "title": "Divulga, na seção relativa ao e-SIC, os prazos de resposta ao cidadão, incluindo o recursal, e as autoridades competentes para o exame dos pedidos, além do procedimento referente à realização do pedido e de eventual recurso?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "12.7",
@@ -816,7 +2239,13 @@
       "dimension": "Serviço de Informação ao Cidadão - SIC",
       "title": "Divulga relatório anual estatístico contendo a quantidade de pedidos de acesso recebidos, atendidos, indeferidos, bem como informações genéricas sobre os solicitantes?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "12.8",
@@ -824,7 +2253,13 @@
       "dimension": "Serviço de Informação ao Cidadão - SIC",
       "title": "Divulga lista de documentos classificados em cada grau de sigilo, contendo pelo menos o assunto sobre o qual versa a informação, a categoria na qual ela se encontra, o dispositivo legal que fundamenta a classificação e o respectivo prazo?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "12.9",
@@ -832,7 +2267,13 @@
       "dimension": "Serviço de Informação ao Cidadão - SIC",
       "title": "Divulga lista das informações que tenham sido desclassificadas nos últimos 12 (doze) meses?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "13.1",
@@ -840,7 +2281,13 @@
       "dimension": "Acessibilidade",
       "title": "O site oficial e o portal de transparência contêm símbolo de acessibilidade em destaque?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "13.2",
@@ -848,7 +2295,13 @@
       "dimension": "Acessibilidade",
       "title": "O site e o portal de transparência contêm exibição do “caminho” de páginas percorridas pelo usuário?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "13.3",
@@ -856,7 +2309,13 @@
       "dimension": "Acessibilidade",
       "title": "O site e o portal de transparência contêm opção de alto contraste?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "13.4",
@@ -864,7 +2323,13 @@
       "dimension": "Acessibilidade",
       "title": "O site e o portal de transparência contêm ferramenta de redimensionamento de texto?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "13.5",
@@ -872,7 +2337,13 @@
       "dimension": "Acessibilidade",
       "title": "Contém mapa do site institucional?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "14.1",
@@ -880,7 +2351,27 @@
       "dimension": "Ouvidorias",
       "title": "Há informações sobre o atendimento presencial pela Ouvidoria (Indicação de endereço físico e telefone, além do horário de funcionamento)?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
+    },
+    {
+      "code": "14.2",
+      "matriz": "COMUM",
+      "dimension": "Ouvidorias",
+      "title": "Há canal eletrônico de acesso/interação com a ouvidoria?",
+      "classification": "obrigatoria",
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "14.3",
@@ -888,7 +2379,13 @@
       "dimension": "Ouvidorias",
       "title": "Divulga Carta de Serviços ao Usuário?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "15.1",
@@ -896,7 +2393,13 @@
       "dimension": "Lei Geral de Proteção de Dados (LGPD) e Governo Digital",
       "title": "Identifica o encarregado/responsável pelo tratamento de dados pessoais e disponibiliza Canal de Comunicação com esse servidor (telefone e/ou e-mail)?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "15.2",
@@ -904,7 +2407,13 @@
       "dimension": "Lei Geral de Proteção de Dados (LGPD) e Governo Digital",
       "title": "Publica a sua Política de Privacidade e Proteção de Dados?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "15.3",
@@ -912,15 +2421,27 @@
       "dimension": "Lei Geral de Proteção de Dados (LGPD) e Governo Digital",
       "title": "Possibilita a demanda e o acesso a serviços públicos por meio digital, sem necessidade de solicitação presencial?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "15.4",
       "matriz": "COMUM",
       "dimension": "Lei Geral de Proteção de Dados (LGPD) e Governo Digital",
-      "title": "Possibilita o acesso automatizado por sistemas externos em dados abertos  (estruturados e legíveis por máquina), e a página contém as regras de utilização?",
+      "title": "Possibilita o acesso automatizado por sistemas externos em dados abertos (estruturados e legíveis por máquina), e a página contém as regras de utilização?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "15.5",
@@ -928,7 +2449,13 @@
       "dimension": "Lei Geral de Proteção de Dados (LGPD) e Governo Digital",
       "title": "Regulamenta a Lei Federal nº 14.129/2021 (Governo Digital) e divulga a normativa em seu portal?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "15.6",
@@ -936,7 +2463,13 @@
       "dimension": "Lei Geral de Proteção de Dados (LGPD) e Governo Digital",
       "title": "Realiza e divulga resultados de pesquisas de satisfação?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "16.1",
@@ -944,7 +2477,13 @@
       "dimension": "Renúncias de Receitas",
       "title": "Divulga as desonerações tributárias concedidas e a fundamentação legal individualizada?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "16.2",
@@ -952,7 +2491,13 @@
       "dimension": "Renúncias de Receitas",
       "title": "Divulga os valores da renúncia fiscal prevista e realizada, por tipo ou espécie de benefício ou incentivo fiscal?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "16.3",
@@ -960,7 +2505,13 @@
       "dimension": "Renúncias de Receitas",
       "title": "Identifica os beneficiários das desonerações tributárias (benefícios ou incentivos fiscais)?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "16.4",
@@ -968,7 +2519,13 @@
       "dimension": "Renúncias de Receitas",
       "title": "Divulga informações sobre projetos de incentivo à cultura (incluindo esportivos), identificando os projetos aprovados, o respectivo beneficiário e o valor aprovado?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "17.1",
@@ -976,7 +2533,13 @@
       "dimension": "Emendas Parlamentares",
       "title": "Identifica as emendas parlamentares federais recebidas, contendo informações sobre a origem, a forma de repasse, o tipo de emenda, o número da emenda, a autoria, o valor previsto e realizado, o objeto e função de governo?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "17.2",
@@ -984,7 +2547,13 @@
       "dimension": "Emendas Parlamentares",
       "title": "Identifica as emendas parlamentares estaduais e municipais, contendo informações sobre a origem, a forma de repasse, o tipo de emenda, o número da emenda, a autoria, o valor previsto e realizado, o objeto e função de governo?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "17.3",
@@ -992,7 +2561,13 @@
       "dimension": "Emendas Parlamentares",
       "title": "Demonstra a execução orçamentária e financeira oriunda das emendas parlamentares recebidas e próprias?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "18.1",
@@ -1000,7 +2575,13 @@
       "dimension": "Saúde",
       "title": "Divulga o plano de saúde, a programação anual e o relatório de gestão?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "18.2",
@@ -1008,7 +2589,13 @@
       "dimension": "Saúde",
       "title": "Divulga informações relacionadas aos serviços de saúde, indicando os horários, os profissionais prestadores de serviços, as especialidades e local?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "18.3",
@@ -1016,7 +2603,13 @@
       "dimension": "Saúde",
       "title": "Divulga a lista de espera de regulação para acesso às consultas, exames e serviços médicos?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "18.4",
@@ -1024,7 +2617,13 @@
       "dimension": "Saúde",
       "title": "Divulga lista dos medicamentos a serem fornecidos pelo SUS e informações de como obter medicamentos, incluindo os de alto custo?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "18.5",
@@ -1032,7 +2631,13 @@
       "dimension": "Saúde",
       "title": "Divulga os estoques de medicamentos das farmácias públicas?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "18.6",
@@ -1040,7 +2645,13 @@
       "dimension": "Saúde",
       "title": "Divulga informações atualizadas sobre a composição e o funcionamento do Conselho de Saúde?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "19.1",
@@ -1048,7 +2659,13 @@
       "dimension": "Educação e Assistência Social",
       "title": "Divulga o plano de educação e o respectivo relatório de resultados?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "19.2",
@@ -1056,7 +2673,13 @@
       "dimension": "Educação e Assistência Social",
       "title": "Divulga a lista de espera em creches públicas e os critérios de priorização de acesso a elas?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "19.3",
@@ -1064,7 +2687,13 @@
       "dimension": "Educação e Assistência Social",
       "title": "Divulga informações atualizadas sobre a composição e o funcionamento do Conselho do Fundeb?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "19.4",
@@ -1072,7 +2701,13 @@
       "dimension": "Educação e Assistência Social",
       "title": "Divulga informações atualizadas sobre a composição e o funcionamento do Conselho de Assistência Social?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "20.1",
@@ -1080,7 +2715,13 @@
       "dimension": "Atividades Finalísticas - PL",
       "title": "Divulga a composição da Casa, com a biografia dos parlamentares?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "20.2",
@@ -1088,7 +2729,13 @@
       "dimension": "Atividades Finalísticas - PL",
       "title": "Divulga as leis e atos infralegais (resoluções, decretos, etc.) produzidos?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "20.3",
@@ -1096,7 +2743,13 @@
       "dimension": "Atividades Finalísticas - PL",
       "title": "Divulga projetos de leis e de atos infralegais, bem como as respectivas tramitações (contemplando ementa, documentos anexos, situação atual e autor/relator)?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "20.4",
@@ -1104,7 +2757,13 @@
       "dimension": "Atividades Finalísticas - PL",
       "title": "Divulga a pauta das sessões do Plenário?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "20.5",
@@ -1112,7 +2771,13 @@
       "dimension": "Atividades Finalísticas - PL",
       "title": "Divulga a pauta das Comissões?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "20.6",
@@ -1120,7 +2785,13 @@
       "dimension": "Atividades Finalísticas - PL",
       "title": "Divulga as atas das sessões, incluindo a lista de presença dos parlamentares em cada sessão?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "20.7",
@@ -1128,7 +2799,13 @@
       "dimension": "Atividades Finalísticas - PL",
       "title": "Divulga lista sobre as votações nominais?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "20.8",
@@ -1136,7 +2813,13 @@
       "dimension": "Atividades Finalísticas - PL",
       "title": "Divulga o ato que aprecia as Contas do Chefe do Poder Executivo (Decreto) e o teor do julgamento (Ata ou Resumo da Sessão que aprovou ou rejeitou as contas)?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "20.9",
@@ -1144,7 +2827,13 @@
       "dimension": "Atividades Finalísticas - PL",
       "title": "Há transmissão de sessões, audiências públicas, consultas públicas ou outras formas de participação popular via meios de comunicação como rádio, TV, internet, entre outros?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "20.10",
@@ -1152,7 +2841,13 @@
       "dimension": "Atividades Finalísticas - PL",
       "title": "Divulga a regulamentação e os valores relativos às cotas para exercício da atividade parlamentar/verba indenizatória?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "20.11",
@@ -1160,7 +2855,13 @@
       "dimension": "Atividades Finalísticas - PL",
       "title": "Divulga dados sobre as atividades legislativas dos parlamentares?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "21.1",
@@ -1168,7 +2869,13 @@
       "dimension": "Atividades Finalísticas - PJ",
       "title": "Divulga a composição da Casa, com a indicação de onde cada magistrado atua?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "21.2",
@@ -1176,7 +2883,13 @@
       "dimension": "Atividades Finalísticas - PJ",
       "title": "Divulga pauta das sessões?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "21.3",
@@ -1184,7 +2897,13 @@
       "dimension": "Atividades Finalísticas - PJ",
       "title": "Divulga ata das sessões de julgamento/deliberativas?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "21.4",
@@ -1192,7 +2911,13 @@
       "dimension": "Atividades Finalísticas - PJ",
       "title": "Divulga suas decisões?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "21.5",
@@ -1200,7 +2925,13 @@
       "dimension": "Atividades Finalísticas - PJ",
       "title": "Divulga informativo de jurisprudência contendo decisões atualizadas?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "21.6",
@@ -1208,7 +2939,13 @@
       "dimension": "Atividades Finalísticas - PJ",
       "title": "Há transmissão das sessões de julgamento e eventuais audiências públicas via meios de comunicação como rádio, TV, internet, entre outros?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "22.1",
@@ -1216,7 +2953,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Divulga a composição da Casa, com a indicação das funções exercidas por membro e onde cada um deles atua?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "22.2",
@@ -1224,7 +2967,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Divulga pauta das sessões?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "22.3",
@@ -1232,7 +2981,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Divulga ata das sessões de julgamento/deliberativas?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "22.4",
@@ -1240,7 +2995,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Divulga suas Decisões?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "22.5",
@@ -1248,7 +3009,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Divulga as peças dos processos em trâmite nos Tribunais de Contas a partir da análise do contraditório?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "22.6",
@@ -1256,7 +3023,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Divulga a íntegra dos processos após o trânsito em julgado?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "22.7",
@@ -1264,7 +3037,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Divulga informativo de jurisprudência contendo decisões atualizadas?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "22.8",
@@ -1272,7 +3051,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Divulga informações técnicas de cunho orientativo?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "22.9",
@@ -1280,7 +3065,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Informa sobre valor das condenações (débitos e multas)?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "22.10",
@@ -1288,7 +3079,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Divulga relação de responsáveis que tiveram suas contas julgadas irregulares ou receberam parecer pela reprovação de suas contas?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "22.11",
@@ -1296,7 +3093,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "O Tribunal de Contas disponibiliza dados atualizados encaminhados pelos respectivos entes fiscalizados (Estados ou Municípios) referentes à despesa e à receita?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "22.12",
@@ -1304,7 +3107,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Há transmissão das sessões de julgamento e eventuais audiências públicas via meios de comunicação como rádio, TV, internet, entre outros?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "23.1",
@@ -1312,7 +3121,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Divulga a composição da Casa, com a indicação de onde cada membro atual?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "23.2",
@@ -1320,7 +3135,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Divulga os registros de \"procedimentos preparatórios\" e de seus respectivos andamentos?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "23.3",
@@ -1328,7 +3149,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Divulga os registros de \"procedimentos de investigação” e de seus respectivos andamentos?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "23.4",
@@ -1336,7 +3163,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Divulga os registros sobre os \"inquéritos civis\" e de seus respectivos andamentos?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "24.1",
@@ -1344,7 +3177,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Divulga a composição da Casa?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "24.2",
@@ -1352,7 +3191,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Disponibiliza material informativo?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "24.3",
@@ -1360,7 +3205,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Disponibiliza informações sobre o atendimento?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "25.1",
@@ -1368,7 +3219,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Divulga o protocolo de intenções que antecede a formalização do Contrato?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "25.2",
@@ -1376,7 +3233,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Divulga estatuto do consórcio?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "25.3",
@@ -1384,7 +3247,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Divulga os contratos de rateio?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "25.4",
@@ -1392,7 +3261,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Divulga o Contrato de Programa?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "25.5",
@@ -1400,7 +3275,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Divulga a ata de eleição dos atuais dirigentes?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "25.6",
@@ -1408,7 +3289,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Divulga as atas da assembleia geral?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "25.7",
@@ -1416,7 +3303,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Divulga os entes consorciados (municípios integrantes)?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "26.1",
@@ -1424,7 +3317,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Divulga o plano de negócios para o exercício seguinte?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "26.2",
@@ -1432,7 +3331,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Divulga o ato ou lei de criação?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "26.3",
@@ -1440,7 +3345,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Divulga o estatuto social?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "26.4",
@@ -1448,7 +3359,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Divulga a missão, princípios e valores da instituição?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "26.5",
@@ -1456,7 +3373,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Código de Conduta e Integridade?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "26.6",
@@ -1464,7 +3387,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Divulga a composição do capital social?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "26.7",
@@ -1472,7 +3401,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Divulga a descrição da composição e da remuneração da diretoria executiva?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "26.8",
@@ -1480,7 +3415,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Divulga a composição dos conselhos de administração e fiscal?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "26.9",
@@ -1488,7 +3429,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Extrato das atas de assembleias gerais, quando for o caso?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "26.10",
@@ -1496,7 +3443,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Divulga fatos relevantes e comunicados ao mercado, quando houver?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "26.11",
@@ -1504,7 +3457,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Divulga currículo profissional resumido dos membros dos órgãos societários de administração e fiscalização?",
       "classification": "recomendada",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "26.12",
@@ -1512,7 +3471,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Publica a política de divulgação de informações?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "26.13",
@@ -1520,7 +3485,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Publica a política de distribuição de dividendos ?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "26.14",
@@ -1528,7 +3499,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Divulga política de transações com partes relacionadas, revisada ao menos anualmente e aprovada pelo Conselho de Administração?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "26.15",
@@ -1536,7 +3513,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Publica, no sítio eletrônico da instituição, carta anual subscrita pelos membros do Conselho de Administração contendo: Explicitação dos compromissos de consecução de objetivos de políticas públicas pela empresa estatal e por suas subsidiárias, em atendimento ao interesse coletivo ou ao imperativo de segurança nacional que justificou a autorização de sua criação?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "26.16",
@@ -1544,7 +3527,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Publica, no sítio eletrônico da instituição, carta anual subscrita pelos membros do Conselho de Administração contendo: Definição clara dos recursos a serem empregados na consecução de objetivos de políticas públicas?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "26.17",
@@ -1552,7 +3541,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Publica, no sítio eletrônico da instituição, carta anual subscrita pelos membros do Conselho de Administração contendo: Definição clara dos impactos econômico-financeiros da consecução de objetivos de políticas públicas, mensuráveis por meio de indicadores objetivos?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "26.18",
@@ -1560,7 +3555,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Publica, no sítio eletrônico da instituição, carta anual subscrita pelos membros do Conselho de Administração contendo: Informações relativas às atividades desenvolvidas pela instituição?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "26.19",
@@ -1568,7 +3569,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Publica, no sítio eletrônico da instituição, carta anual subscrita pelos membros do Conselho de Administração contendo: Informações relativas à estrutura de controle da instituição?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "26.20",
@@ -1576,7 +3583,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Publica, no sítio eletrônico da instituição, carta anual subscrita pelos membros do Conselho de Administração contendo: Informações relativas a fatores de risco?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "26.21",
@@ -1584,7 +3597,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Publica, no sítio eletrônico da instituição, carta anual subscrita pelos membros do Conselho de Administração contendo: Dados econômico-financeiros da instituição?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "26.22",
@@ -1592,7 +3611,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Publica, no sítio eletrônico da instituição, carta anual subscrita pelos membros do Conselho de Administração contendo: Comentários dos administradores sobre o desempenho da instituição?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "26.23",
@@ -1600,7 +3625,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Publica, no sítio eletrônico da instituição, carta anual subscrita pelos membros do Conselho de Administração contendo: Informações relativas a políticas e práticas de governança corporativa da instituição?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "26.24",
@@ -1608,7 +3639,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Divulga, de forma detalhada e individual, toda e qualquer remuneração dos dirigentes (administradores) e membros do Conselho Fiscal?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "26.25",
@@ -1616,7 +3653,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Divulga, em nota explicativa às demonstrações financeiras anuais, os seguintes valores, considerados na data de elaboração da nota: Maior e menor remuneração pagas a seus empregados e administradores, nelas computadas as vantagens e benefícios efetivamente percebidos?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "26.26",
@@ -1624,7 +3667,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Divulga, em nota explicativa às demonstrações financeiras anuais, os seguintes valores, considerados na data de elaboração da nota: Salário médio dos empregados e dos administradores, bem como dos membros do Conselho Fiscal e do Conselho de Administração?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "26.27",
@@ -1632,7 +3681,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Divulga, em nota explicativa às demonstrações financeiras anuais, os seguintes valores, considerados na data de elaboração da nota: Para os empregados, o valor médio global dos benefícios oferecidos, considerando assistências médica e odontológica, auxílios alimentação e refeição, cesta básica, auxílio creche, auxílio transporte, previdência complementar e outros benefícios?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "26.28",
@@ -1640,7 +3695,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Relativamente à exploração de atividade econômica, no que concerne às obrigações e responsabilidades assumidas em condições distintas às de qualquer outra empresa do setor privado em que atua, é dada ampla publicidade, no sítio eletrônico da instituição, aos contratos, convênios ou ajustes celebrados nessas condições?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     },
     {
       "code": "26.29",
@@ -1648,7 +3709,13 @@
       "dimension": "Atividades Finalísticas",
       "title": "Publica em seu sítio eletrônico os currículos profissionais dos membros da Diretoria Executiva e dos Conselhos de Administração e Fiscal?",
       "classification": "obrigatoria",
-      "verification": []
+      "verification": [
+        "Disponibilidade",
+        "Atualidade",
+        "S?rie hist?rica",
+        "Grava??o de relat?rios",
+        "Filtro de pesquisa"
+      ]
     }
   ]
 }

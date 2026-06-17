@@ -28,7 +28,6 @@ export default function PublicPageShow({ page }: Props) {
       }}
       breadcrumb={[{ label: page.title }]}
       hero={{ title: page.title, subtitle: page.hero_subtitle || undefined, centered: true }}
-      width="reading"
     >
       <article className="card-modern p-6 md:p-10">
         {hasBlocks ? (

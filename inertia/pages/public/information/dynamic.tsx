@@ -8,7 +8,21 @@ import { PageHero } from "~/components/PageHero";
 import { Footer } from "~/components/Footer";
 import { LinkModal } from "~/components/LinkModal";
 import { SafeHtml } from "~/components/SafeHtml";
-import { FileText, Download, Calendar, ChevronLeft, ChevronRight, X, Search, Eye } from "lucide-react";
+import {
+  FileText,
+  Download,
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  X,
+  Search,
+  Eye,
+  FolderOpen,
+  Database,
+  Code2,
+  Layers,
+  ChevronDown,
+} from "lucide-react";
 
 interface InfoRecord {
   id: number;
@@ -16,6 +30,8 @@ interface InfoRecord {
   year: number;
   content?: string | null;
   reference_date?: string | null;
+  updated_at?: string | null;
+  created_at?: string | null;
   file_url?: string | null;
   open_mode?: string | null;
   hide_chrome?: boolean | null;
@@ -39,10 +55,9 @@ export default function DynamicInfoPage({ records, category, allCategories = [],
   const meta = records?.meta;
   const currentPage = meta?.currentPage || meta?.current_page || 1;
   const lastPage = meta?.lastPage || meta?.last_page || 1;
-  const total = meta?.total ?? items.length;
-
   const [searchTerm, setSearchTerm] = useState(filters.search || "");
   const [modalRecord, setModalRecord] = useState<InfoRecord | null>(null);
+  const [collapsedYears, setCollapsedYears] = useState<Record<number, boolean>>({});
 
   function applyFilters(patch: Record<string, string>) {
     const params: Record<string, string> = {};
@@ -56,8 +71,73 @@ export default function DynamicInfoPage({ records, category, allCategories = [],
   const hasFilters = !!(filters.year || filters.search);
   const queryString = `${filters.year ? `&ano=${filters.year}` : ""}${filters.search ? `&busca=${encodeURIComponent(filters.search)}` : ""}`;
 
+  const normalizeTitle = (title: string, year: number) =>
+    title
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(new RegExp(`\\b${year}\\b`, "g"), "")
+      .replace(/[^\w]+/g, " ")
+      .trim();
+
+  const hasUsefulContent = (record: InfoRecord) =>
+    !!(record.file_url || record.content?.trim() || record.reference_date);
+
+  const visibleItems = items.filter((record) => {
+    if (hasUsefulContent(record)) return true;
+
+    const key = normalizeTitle(record.title, record.year);
+    return !items.some(
+      (candidate) =>
+        candidate.id !== record.id &&
+        candidate.year === record.year &&
+        hasUsefulContent(candidate) &&
+        normalizeTitle(candidate.title, candidate.year) === key
+    );
+  });
+  const total = visibleItems.length;
+  const latestUpdate = visibleItems
+    .map((record) => record.updated_at || record.reference_date || record.created_at)
+    .filter(Boolean)
+    .map((value) => new Date(value as string))
+    .filter((date) => !Number.isNaN(date.getTime()))
+    .sort((a, b) => b.getTime() - a.getTime())[0];
+  const latestUpdateLabel = latestUpdate ? latestUpdate.toLocaleDateString("pt-BR") : null;
+
+  function exportData(format: "csv" | "json") {
+    const rows = visibleItems.map((record) => ({
+      titulo: record.title,
+      ano: record.year,
+      data: record.reference_date ? new Date(record.reference_date).toLocaleDateString("pt-BR") : "",
+      arquivo: record.file_url || "",
+      conteudo: record.content?.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim() || "",
+    }));
+
+    const body =
+      format === "json"
+        ? JSON.stringify(rows, null, 2)
+        : [
+            ["titulo", "ano", "data", "arquivo", "conteudo"].join(";"),
+            ...rows.map((row) =>
+              [row.titulo, row.ano, row.data, row.arquivo, row.conteudo]
+                .map((value) => `"${String(value).replace(/"/g, '""')}"`)
+                .join(";")
+            ),
+          ].join("\n");
+
+    const blob = new Blob([format === "csv" ? `\ufeff${body}` : body], {
+      type: format === "csv" ? "text/csv;charset=utf-8" : "application/json;charset=utf-8",
+    });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `${category.slug}.${format}`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  }
+
   // Agrupa por ano para leitura mais fácil (como o cidadão espera encontrar)
-  const groupedByYear = items.reduce<Record<number, InfoRecord[]>>((acc, record) => {
+  const groupedByYear = visibleItems.reduce<Record<number, InfoRecord[]>>((acc, record) => {
     (acc[record.year] ||= []).push(record);
     return acc;
   }, {});
@@ -72,85 +152,150 @@ export default function DynamicInfoPage({ records, category, allCategories = [],
         <main>
           <section className="py-10 lg:py-14">
             <div className="container">
-            {/* Toolbar */}
-            <div data-reveal="up" className="mb-6 card-modern p-4 flex flex-col sm:flex-row gap-3">
-              <form className="relative flex-1" onSubmit={(e) => { e.preventDefault(); applyFilters({ busca: searchTerm }); }}>
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <input
-                  type="search"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Pesquisar nesta seção..."
-                  className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
-                />
-              </form>
-              <select
-                value={filters.year || ""}
-                onChange={(e) => applyFilters({ ano: e.target.value })}
-                className="px-4 py-2.5 rounded-xl border border-border bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
-              >
-                <option value="">Todos os anos</option>
-                {years.map((y) => <option key={y} value={y}>{y}</option>)}
-              </select>
-              {hasFilters && (
-                <button onClick={() => { setSearchTerm(""); router.get(`/${category.slug}`); }} className="flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
-                  <X className="w-4 h-4" /> Limpar
-                </button>
-              )}
+            <div data-reveal="up" className="mb-8 overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+              <div className="flex flex-col gap-4 bg-navy px-6 py-5 text-white sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/15 bg-white/10">
+                    <FolderOpen className="h-5 w-5" aria-hidden="true" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/60">
+                      Acesso à Informação
+                    </p>
+                    <p className="mt-1 flex items-center gap-2 text-sm font-semibold">
+                      <Calendar className="h-4 w-4 text-gold" aria-hidden="true" />
+                      Atualizado em: {latestUpdateLabel || "não informado"}
+                    </p>
+                  </div>
+                </div>
+                <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1.5 text-sm font-semibold">
+                  <Layers className="h-4 w-4 text-gold" aria-hidden="true" />
+                  {total} {total === 1 ? "registro encontrado" : "registros encontrados"}
+                </div>
+              </div>
+
+              <div className="p-5">
+                <div className="grid gap-3 md:grid-cols-[220px_1fr_auto]">
+                  <label className="block">
+                    <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                      Ano
+                    </span>
+                    <select
+                      value={filters.year || ""}
+                      onChange={(e) => applyFilters({ ano: e.target.value })}
+                      className="h-12 w-full rounded-xl border border-border bg-background px-4 text-sm text-foreground outline-none transition-shadow focus:border-primary focus:ring-2 focus:ring-primary/20"
+                    >
+                      <option value="">Todos</option>
+                      {years.map((y) => <option key={y} value={y}>{y}</option>)}
+                    </select>
+                  </label>
+
+                  <form className="block" onSubmit={(e) => { e.preventDefault(); applyFilters({ busca: searchTerm }); }}>
+                    <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                      Buscar
+                    </span>
+                    <div className="relative">
+                      <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+                      <input
+                        type="search"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        placeholder="Pesquisar nesta seção..."
+                        className="h-12 w-full rounded-xl border border-border bg-background pl-12 pr-4 text-sm text-foreground outline-none transition-shadow placeholder:text-muted-foreground/60 focus:border-primary focus:ring-2 focus:ring-primary/20"
+                      />
+                    </div>
+                  </form>
+
+                  {hasFilters && (
+                    <div className="flex items-end">
+                      <button onClick={() => { setSearchTerm(""); router.get(`/${category.slug}`); }} className="inline-flex h-12 items-center justify-center gap-1.5 rounded-xl px-4 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+                        <X className="w-4 h-4" /> Limpar
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <div className="mt-5 flex flex-col gap-3 border-t border-border pt-5 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-sm font-medium text-muted-foreground">Exportar dados:</span>
+                    <button type="button" onClick={() => exportData("csv")} className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary">
+                      <Database className="h-4 w-4 text-emerald-600" aria-hidden="true" /> CSV
+                    </button>
+                    <button type="button" onClick={() => exportData("json")} className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:border-primary/40 hover:text-primary">
+                      <Code2 className="h-4 w-4 text-sky" aria-hidden="true" /> JSON
+                    </button>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Dados exportados conforme os filtros atuais da página.
+                  </p>
+                </div>
+              </div>
             </div>
 
-            <p data-reveal="fade" className="mb-8 text-sm text-muted-foreground text-right">
-              {total} {total === 1 ? "registro encontrado" : "registros encontrados"}
-            </p>
-
-            {items.length > 0 ? (
+            {visibleItems.length > 0 ? (
               <div className="space-y-8">
-                {sortedYears.map((year) => (
-                  <section key={year}>
-                    <div data-reveal="up" className="flex items-center gap-3 mb-4">
-                      <div className="w-9 h-9 rounded-lg bg-primary text-primary-foreground flex items-center justify-center">
-                        <Calendar className="w-5 h-5" />
-                      </div>
-                      <h2 className="text-lg font-bold text-foreground">{category.name} — {year}</h2>
-                      <span className="text-xs text-muted-foreground">{groupedByYear[year].length} registro(s)</span>
-                      <div className="flex-1 h-px bg-border" />
-                    </div>
-                    <div className="space-y-3">
-                      {groupedByYear[year].map((record, i) => (
-                        <div key={record.id} data-reveal="up" data-reveal-delay={String(Math.min(i, 5) * 60)} className="card-modern p-4 flex items-center justify-between gap-4 hover-lift group">
-                          <div className="flex items-center gap-4 min-w-0">
-                            <div className="w-11 h-11 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                              <FileText className="w-5 h-5 text-primary" />
-                            </div>
-                            <div className="min-w-0">
-                              <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors">{record.title}</h3>
-                              <p className="text-xs text-muted-foreground mt-0.5">
-                                Ano: {record.year}
-                                {record.reference_date && ` · Data: ${new Date(record.reference_date).toLocaleDateString('pt-BR')}`}
-                              </p>
-                              {record.content && (
-                                <SafeHtml html={record.content} className="text-sm text-muted-foreground mt-1 line-clamp-2" />
+                {sortedYears.map((year) => {
+                  const recordsForYear = groupedByYear[year];
+                  const collapsed = collapsedYears[year] ?? false;
+
+                  return (
+                    <section key={year} className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+                      <button
+                        type="button"
+                        onClick={() => setCollapsedYears((prev) => ({ ...prev, [year]: !collapsed }))}
+                        className="flex w-full items-center justify-between gap-4 bg-navy px-5 py-5 text-left text-white transition-colors hover:bg-navy-dark"
+                      >
+                        <div className="flex min-w-0 items-center gap-4">
+                          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/10 text-gold">
+                            <Calendar className="h-5 w-5" aria-hidden="true" />
+                          </div>
+                          <div className="min-w-0">
+                            <h2 className="truncate text-base font-bold uppercase tracking-wide sm:text-lg">
+                              {category.name} — {year}
+                            </h2>
+                            <p className="mt-0.5 text-sm text-white/70">
+                              {recordsForYear.length} {recordsForYear.length === 1 ? "registro" : "registros"}
+                            </p>
+                          </div>
+                        </div>
+                        <ChevronDown
+                          className={`h-5 w-5 shrink-0 transition-transform ${collapsed ? "rotate-180" : ""}`}
+                          aria-hidden="true"
+                        />
+                      </button>
+
+                      {!collapsed && (
+                        <div className="space-y-3 bg-background/60 p-4 sm:p-5">
+                          {recordsForYear.map((record, i) => (
+                            <div key={record.id} data-reveal="up" data-reveal-delay={String(Math.min(i, 5) * 60)} className="flex flex-col gap-4 rounded-xl border border-border bg-card p-4 shadow-sm transition-shadow hover:shadow-md sm:flex-row sm:items-center sm:justify-between">
+                              <div className="flex min-w-0 items-center gap-4">
+                                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-red-500/10 text-red-600 dark:text-red-400">
+                                  <FileText className="h-5 w-5" aria-hidden="true" />
+                                </div>
+                                <div className="min-w-0">
+                                  <h3 className="font-semibold text-foreground">{record.title}</h3>
+                                  <p className="mt-0.5 text-sm text-muted-foreground">
+                                    Ano: {record.year}
+                                    {record.reference_date && " · Data: " + new Date(record.reference_date).toLocaleDateString('pt-BR')}
+                                  </p>
+                                  {record.content && (
+                                    <SafeHtml html={record.content} className="mt-1 line-clamp-2 text-sm text-muted-foreground" />
+                                  )}
+                                </div>
+                              </div>
+                              {record.file_url && (
+                                <button type="button" onClick={() => setModalRecord(record)} className="inline-flex items-center justify-center gap-2 rounded-xl border border-red-500/35 px-4 py-2.5 text-sm font-semibold text-red-600 transition-colors hover:bg-red-600 hover:text-white dark:text-red-400 dark:hover:text-white sm:min-w-36">
+                                  <Eye className="h-4 w-4" aria-hidden="true" />
+                                  Visualizar
+                                </button>
                               )}
                             </div>
-                          </div>
-                          {record.file_url && (
-                            record.open_mode === "modal" ? (
-                              <button type="button" onClick={() => setModalRecord(record)} className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-primary/20 text-primary text-sm font-medium hover:bg-primary hover:text-primary-foreground transition-colors shrink-0">
-                                <Eye className="w-4 h-4" /> <span className="hidden sm:inline">Visualizar</span>
-                                <Download className="w-4 h-4 sm:hidden" />
-                              </button>
-                            ) : (
-                              <a href={record.file_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-primary/20 text-primary text-sm font-medium hover:bg-primary hover:text-primary-foreground transition-colors no-underline shrink-0">
-                                <Eye className="w-4 h-4" /> <span className="hidden sm:inline">Visualizar</span>
-                                <Download className="w-4 h-4 sm:hidden" />
-                              </a>
-                            )
-                          )}
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                  </section>
-                ))}
+                      )}
+                    </section>
+                  );
+                })}
               </div>
             ) : (
               <div className="text-center py-20">

@@ -76,6 +76,49 @@ function normalize(text: string) {
   return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
+function isRevenueLink(link: TransparencyLink) {
+  return normalize(link.title).includes("receita");
+}
+
+function splitRevenueAndExpenseSections(sections: TransparencySection[]) {
+  const output: TransparencySection[] = [];
+
+  for (const section of sections) {
+    const title = normalize(section.title);
+    const shouldSplit = title.includes("despesa") && title.includes("receita");
+
+    if (!shouldSplit) {
+      output.push(section);
+      continue;
+    }
+
+    const revenueLinks = section.links.filter(isRevenueLink);
+    const expenseLinks = section.links.filter((link) => !isRevenueLink(link));
+
+    if (expenseLinks.length > 0) {
+      output.push({
+        ...section,
+        title: "Despesas",
+        slug: `${section.slug}-despesas`,
+        links: expenseLinks,
+      });
+    }
+
+    if (revenueLinks.length > 0) {
+      output.push({
+        ...section,
+        id: section.id * 1000 + 1,
+        title: "Receitas",
+        slug: `${section.slug}-receitas`,
+        icon: "TrendingUp",
+        links: revenueLinks,
+      });
+    }
+  }
+
+  return output;
+}
+
 function CardLink({
   link,
   onOpenModal,
@@ -101,7 +144,7 @@ function CardLink({
       )}
     </>
   );
-  if (link.open_mode === "modal") {
+  if (link.slug) {
     return (
       <button type="button" onClick={() => onOpenModal(link)} className={className}>
         {inner}
@@ -121,10 +164,11 @@ function CardLink({
 
 export default function TransparenciaIndex({ sections = [], openLink = null }: Props) {
   const [query, setQuery] = useState("");
+  const displaySections = useMemo(() => splitRevenueAndExpenseSections(sections), [sections]);
   // openLink inicial = acesso direto a /transparencia/<slug>: modal já aberto no mount
   const [modalLink, setModalLink] = useState<TransparencyLink | null>(openLink);
   const [activeSection, setActiveSection] = useState<string | null>(
-    sections[0]?.slug ?? null
+    displaySections[0]?.slug ?? null
   );
 
   // Deep-link: a prop openLink (rota /transparencia/<slug>) controla o modal —
@@ -132,6 +176,10 @@ export default function TransparenciaIndex({ sections = [], openLink = null }: P
   useEffect(() => {
     setModalLink(openLink ?? null);
   }, [openLink]);
+
+  useEffect(() => {
+    if (!activeSection && displaySections[0]) setActiveSection(displaySections[0].slug);
+  }, [activeSection, displaySections]);
 
   /** Abre o modal e leva a URL para /transparencia/<slug> (sem remontar a página) */
   const openModal = useCallback((link: TransparencyLink) => {
@@ -154,19 +202,19 @@ export default function TransparenciaIndex({ sections = [], openLink = null }: P
 
   const filtered = useMemo(() => {
     const q = normalize(query.trim());
-    if (!q) return sections;
-    return sections
+    if (!q) return displaySections;
+    return displaySections
       .map((s) => ({
         ...s,
         // Filtra item a item pelo título do link (o título da seção não "libera" a seção inteira)
         links: s.links.filter((l) => normalize(l.title).includes(q)),
       }))
       .filter((s) => s.links.length > 0);
-  }, [sections, query]);
+  }, [displaySections, query]);
 
   const totalLinks = useMemo(
-    () => sections.reduce((acc, s) => acc + s.links.length, 0),
-    [sections]
+    () => displaySections.reduce((acc, s) => acc + s.links.length, 0),
+    [displaySections]
   );
 
   // Scrollspy: observa os headings das seções do conteúdo e marca na sidebar
@@ -214,11 +262,11 @@ export default function TransparenciaIndex({ sections = [], openLink = null }: P
         <main>
           <section className="py-10 lg:py-14">
             <div className="container">
-            <div className="lg:flex lg:items-start lg:gap-12 xl:gap-16">
+            <div className="lg:flex lg:items-start lg:gap-12 xl:gap-16 2xl:gap-20">
               {/* Sidebar de navegação (padrão dos portais) — fixa, acompanha a
                   rolagem (sticky) sem rolagem interna própria. */}
-              <aside className="hidden lg:block w-[280px] shrink-0 self-start sticky top-24 rounded-2xl">
-                <nav className="bg-card rounded-2xl shadow-md border border-border/60 overflow-hidden">
+              <aside className="hidden lg:block w-[280px] 2xl:w-[340px] shrink-0 self-start sticky top-24 rounded-2xl">
+                <nav className="max-h-[calc(100vh-7rem)] overflow-y-auto overscroll-contain bg-card rounded-2xl shadow-md border border-border/60 [scrollbar-width:thin]">
                   {filtered.map((section) => {
                     const Icon = iconMap[section.icon || ""] || FolderOpen;
                     const isActive = activeSection === section.slug;
@@ -255,7 +303,7 @@ export default function TransparenciaIndex({ sections = [], openLink = null }: P
                         </a>
                         <div className="py-2 pl-11 pr-4">
                           {section.links.map((link) =>
-                            link.open_mode === "modal" ? (
+                            link.slug ? (
                               <button
                                 key={link.id}
                                 type="button"
@@ -295,7 +343,7 @@ export default function TransparenciaIndex({ sections = [], openLink = null }: P
               <div className="flex-1 min-w-0">
                 {/* Busca */}
                 <div data-reveal="up" className="mb-10">
-                  <div className="flex max-w-xl">
+                  <div className="flex max-w-4xl">
                     <input
                       type="search"
                       value={query}
@@ -338,7 +386,7 @@ export default function TransparenciaIndex({ sections = [], openLink = null }: P
                           </span>
                         </header>
 
-                        <div className="grid gap-3 sm:gap-4 grid-cols-1 min-[400px]:grid-cols-2 sm:grid-cols-[repeat(auto-fill,minmax(170px,1fr))]">
+                        <div className="grid gap-3 sm:gap-4 2xl:gap-5 grid-cols-1 min-[400px]:grid-cols-2 sm:grid-cols-[repeat(auto-fill,minmax(180px,1fr))] 2xl:grid-cols-[repeat(auto-fill,minmax(210px,1fr))]">
                           {section.links.map((link) => (
                             <CardLink key={link.id} link={link} onOpenModal={openModal} />
                           ))}

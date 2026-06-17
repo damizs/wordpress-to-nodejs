@@ -82,6 +82,7 @@ export default class InstagramController {
   async saveSettings({ request, response, session }: HttpContext) {
     const data = request.only([
       'instagram_profile_url',
+      'instagram_scraper_provider',
       'instagram_sessionid',
       'instagram_useragent',
       'rapidapi_key',

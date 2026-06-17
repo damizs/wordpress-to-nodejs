@@ -47,6 +47,14 @@ function makeExcerpt(raw: string | null | undefined, term: string, length = 180)
   return (start > 0 ? '…' : '') + slice + (start + length < text.length ? '…' : '')
 }
 
+function textOnly(raw: string | null | undefined): string {
+  return String(raw || '')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
 function like(term: string) {
   return `%${term}%`
 }
@@ -258,10 +266,10 @@ export default class SearchController {
       })
     }
 
-    for (const f of faqs) {
+    for (const f of faqs.filter((item) => textOnly(item.answer).length > 0)) {
       results.push({
         type: 'FAQ',
-        title: f.question,
+        title: textOnly(f.question),
         excerpt: makeExcerpt(f.answer, q),
         url: '/perguntas-frequentes',
         date: null,

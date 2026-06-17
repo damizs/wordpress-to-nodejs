@@ -7,6 +7,7 @@ import { cuid } from '@adonisjs/core/helpers'
 import Councilor from '#models/councilor'
 import LegislativeActivity from '#models/legislative_activity'
 import { buildActivitySummary } from '#helpers/text_excerpt'
+import { inferLegislativeOrigin } from '#helpers/legislative_origin'
 /**
  * Importa as Atividades Legislativas (CPT `a-legislativa`) com a AUTORIA dos
  * vereadores, a partir de `database/wp_activities.json` (gerado por
@@ -184,6 +185,14 @@ export async function importActivitiesWithAuthors(
       const summary = buildActivitySummary(a.ementa, content, a.title)
       const fileUrl = await resolvePdfUrl(a.anexoPath, wpDir, slug)
       const status = mapStatus(a.situacao)
+      const origin = inferLegislativeOrigin({
+        type: a.type,
+        title: a.title,
+        summary,
+        content,
+        author: a.authors?.[0]?.parliamentaryName || a.authors?.[0]?.name || null,
+        authorsCount: a.authors?.length ?? 0,
+      })
 
       const activity = await LegislativeActivity.updateOrCreate(
         { slug },
@@ -196,6 +205,7 @@ export async function importActivitiesWithAuthors(
           summary,
           content,
           status,
+          origin,
           author: a.authors?.[0]?.parliamentaryName || a.authors?.[0]?.name || null,
           sessionDate: a.date || null,
           fileUrl,

@@ -8,6 +8,8 @@ import { existsSync } from 'node:fs'
 import { mkdir } from 'node:fs/promises'
 import string from '@adonisjs/core/helpers/string'
 import { saveOptimizedImage } from '#helpers/image_upload'
+import { sanitizeRichHtml } from '#helpers/sanitize_html'
+import { assertSafeUpload } from '#helpers/upload_security'
 
 export default class NewsController {
   /** List all news with pagination */
@@ -73,7 +75,7 @@ export default class NewsController {
       title: data.title,
       slug,
       excerpt: data.excerpt || null,
-      content: data.content || '',
+      content: sanitizeRichHtml(data.content),
       status: data.status || 'draft',
       categoryId: data.category_id || null,
       authorId: auth.user!.id,
@@ -87,6 +89,7 @@ export default class NewsController {
       extnames: ['jpg', 'jpeg', 'png', 'webp'],
     })
     if (cover) {
+      await assertSafeUpload(cover, ['jpg', 'jpeg', 'png', 'webp'])
       const uploadDir = join(app.publicPath(), 'uploads', 'news')
       if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true })
       const saved = await saveOptimizedImage(cover, uploadDir, {
@@ -127,7 +130,7 @@ export default class NewsController {
 
     news.title = data.title
     news.excerpt = data.excerpt || null
-    news.content = data.content || ''
+    news.content = sanitizeRichHtml(data.content)
     news.status = data.status || 'draft'
     news.categoryId = data.category_id || null
 
@@ -144,6 +147,7 @@ export default class NewsController {
       extnames: ['jpg', 'jpeg', 'png', 'webp'],
     })
     if (cover) {
+      await assertSafeUpload(cover, ['jpg', 'jpeg', 'png', 'webp'])
       const uploadDir = join(app.publicPath(), 'uploads', 'news')
       if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true })
       const saved = await saveOptimizedImage(cover, uploadDir, {

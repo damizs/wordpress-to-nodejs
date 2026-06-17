@@ -1,6 +1,7 @@
 node_modules
 build
 tmp
+tmp_pntp2026/
 .env
 .env.local
 *.log

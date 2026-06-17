@@ -6,6 +6,8 @@ import { cuid } from '@adonisjs/core/helpers'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 import { existsSync } from 'node:fs'
+import { sanitizeRichHtml } from '#helpers/sanitize_html'
+import { assertSafeUpload } from '#helpers/upload_security'
 
 export default class InformationRecordsController {
   async index({ inertia, request }: HttpContext) {
@@ -55,6 +57,7 @@ export default class InformationRecordsController {
     let fileUrl: string | null = null
     const file = request.file('file', { size: '20mb', extnames: ['pdf'] })
     if (file) {
+      await assertSafeUpload(file, ['pdf'])
       const uploadDir = join(app.publicPath(), 'uploads', 'acesso-informacao')
       if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true })
       const fileName = `info-${cuid()}.${file.extname}`
@@ -66,7 +69,7 @@ export default class InformationRecordsController {
       title: data.title,
       category: data.category,
       year: Number.parseInt(data.year),
-      content: data.content || null,
+      content: sanitizeRichHtml(data.content) || null,
       referenceDate: data.reference_date || null,
       fileUrl,
       isActive: true,
@@ -103,6 +106,7 @@ export default class InformationRecordsController {
 
     const file = request.file('file', { size: '20mb', extnames: ['pdf'] })
     if (file) {
+      await assertSafeUpload(file, ['pdf'])
       const uploadDir = join(app.publicPath(), 'uploads', 'acesso-informacao')
       if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true })
       const fileName = `info-${cuid()}.${file.extname}`
@@ -114,7 +118,7 @@ export default class InformationRecordsController {
       title: data.title,
       category: data.category,
       year: Number.parseInt(data.year),
-      content: data.content || null,
+      content: sanitizeRichHtml(data.content) || null,
       referenceDate: data.reference_date || null,
       isActive: data.is_active === 'true' || data.is_active === true || data.is_active === '1',
       openMode: data.open_mode === 'modal' ? 'modal' : 'nova_aba',

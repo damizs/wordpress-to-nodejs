@@ -5,7 +5,8 @@ import {
   FileDown, Printer, CheckCircle2, XCircle, ExternalLink,
   ChevronDown, ChevronUp, Sparkles, Gem, Save, Filter,
   Clock, Database, ArrowUpRight, ArrowDownRight, ListChecks, TrendingUp, RotateCcw,
-  ShieldAlert, PieChart, Radar as RadarIcon, Link2, AlertTriangle, type LucideIcon,
+  ShieldAlert, PieChart, Radar as RadarIcon, Link2, AlertTriangle, Bot, FileJson,
+  ClipboardCheck, RefreshCw, type LucideIcon,
 } from 'lucide-react'
 import {
   Badge,
@@ -38,6 +39,8 @@ interface Criterion {
   external?: boolean
   status: StatusValue
   source: Source
+  autoCheck?: string
+  keywords?: string[]
   autoStatus: StatusValue | null
   divergent: boolean
   evidenceUrl: string | null
@@ -879,6 +882,33 @@ export default function AtriconIndex({
   // Barras: piores dimensões primeiro (evidencia as lacunas)
   const dimsByGap = [...scores.dimensions].sort((a, b) => a.pct - b.pct)
 
+  const aiFlow = useMemo(() => {
+    const ownInfoPages = matrix.filter((c) => c.autoCheck?.startsWith('info:'))
+    const externalSystems = matrix.filter((c) => c.external || c.status === 'externo')
+    const transparencyOrLinks = matrix.filter(
+      (c) => c.route?.startsWith('/transparencia') || (!c.autoCheck && (c.keywords?.length ?? 0) > 0)
+    )
+    const nativeModules = matrix.filter(
+      (c) =>
+        c.actionHref?.startsWith('/painel/') &&
+        !ownInfoPages.includes(c) &&
+        !transparencyOrLinks.includes(c) &&
+        !externalSystems.includes(c)
+    )
+    const staleContent = contentMap.filter((m) => m.freshness !== 'em_dia')
+    const needsReview = matrix.filter(
+      (c) => c.status === 'pendente' || c.status === 'parcial' || c.divergent
+    )
+    return {
+      ownInfoPages,
+      externalSystems,
+      transparencyOrLinks,
+      nativeModules,
+      staleContent,
+      needsReview,
+    }
+  }, [matrix, contentMap])
+
   return (
     <AdminLayout title="Radar ATRICON">
       <Head title="Radar ATRICON - Painel" />
@@ -948,6 +978,84 @@ export default function AtriconIndex({
           accent="bg-sky/10 text-sky"
         />
       </div>
+
+      <Card className="mb-6 border-navy/15">
+        <CardHeader
+          title="Rotina de verificação periódica com IA"
+          description="Use este fluxo para revisar o portal antes e durante o ciclo PNTP: ler evidências, separar links externos, preencher módulos internos e revalidar o Radar."
+          icon={Bot}
+        />
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-4">
+          <div className="rounded-lg border border-border bg-muted/30 p-3">
+            <p className="text-2xl font-bold text-foreground tabular-nums">{aiFlow.needsReview.length}</p>
+            <p className="text-xs text-muted-foreground">Critérios para revisar</p>
+          </div>
+          <div className="rounded-lg border border-border bg-muted/30 p-3">
+            <p className="text-2xl font-bold text-foreground tabular-nums">{aiFlow.staleContent.length}</p>
+            <p className="text-xs text-muted-foreground">Módulos vazios/desatualizados</p>
+          </div>
+          <div className="rounded-lg border border-border bg-muted/30 p-3">
+            <p className="text-2xl font-bold text-foreground tabular-nums">{linkAudit.contentGaps.length}</p>
+            <p className="text-xs text-muted-foreground">Links com atenção</p>
+          </div>
+          <div className="rounded-lg border border-border bg-muted/30 p-3">
+            <p className="text-2xl font-bold text-foreground tabular-nums">{aiFlow.ownInfoPages.length}</p>
+            <p className="text-xs text-muted-foreground">Páginas próprias PNTP</p>
+          </div>
+          <div className="rounded-lg border border-border bg-muted/30 p-3">
+            <p className="text-2xl font-bold text-foreground tabular-nums">{aiFlow.externalSystems.length}</p>
+            <p className="text-xs text-muted-foreground">Sistemas externos</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-3">
+          {[
+            {
+              icon: FileJson,
+              title: '1. Ler evidências',
+              text: 'A IA usa o JSON do Radar com matriz, links, módulos, pendências, evidências e instruções de leitura.',
+            },
+            {
+              icon: Link2,
+              title: '2. Conferir externos',
+              text: 'e-SIC, Ouvidoria, folha e remuneração podem ser externos, mas precisam de link visível e válido.',
+            },
+            {
+              icon: ClipboardCheck,
+              title: '3. Preencher módulos',
+              text: 'O que for interno vai para o módulo correto: Acesso à Informação, Transparência, RGF, Duodécimos, Contratos etc.',
+            },
+            {
+              icon: RefreshCw,
+              title: '4. Revalidar',
+              text: 'Após corrigir, reabra o Radar para recalcular os checks automáticos e gerar o snapshot do dia.',
+            },
+          ].map((step) => (
+            <div key={step.title} className="rounded-xl border border-border bg-card p-4">
+              <step.icon className="w-5 h-5 text-navy mb-3" />
+              <p className="text-sm font-semibold text-foreground">{step.title}</p>
+              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{step.text}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-4 flex flex-wrap gap-2">
+          <a
+            href="/painel/atricon/evidencias.json"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-navy text-white rounded-lg text-sm font-medium hover:bg-navy-dark transition-colors no-underline"
+          >
+            <FileJson className="w-4 h-4" /> Abrir pacote IA
+          </a>
+          <ButtonLink href="/painel/transparencia" variant="secondary">
+            <Link2 className="w-4 h-4" /> Links da Transparência
+          </ButtonLink>
+          <ButtonLink href="/painel/acesso-informacao" variant="secondary">
+            <Database className="w-4 h-4" /> Acesso à Informação
+          </ButtonLink>
+        </div>
+      </Card>
 
       {/* Painel de gráficos: índice + distribuição + radar */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">

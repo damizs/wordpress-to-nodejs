@@ -1,6 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import FaqItem from '#models/faq_item'
 import SystemCategory from '#models/system_category'
+import { sanitizeRichHtml } from '#helpers/sanitize_html'
 
 export default class FaqController {
   async index({ inertia }: HttpContext) {
@@ -23,7 +24,7 @@ export default class FaqController {
 
     await FaqItem.create({
       question: data.question,
-      answer: data.answer,
+      answer: sanitizeRichHtml(data.answer),
       category: data.category,
       displayOrder: Number.parseInt(data.display_order) || 0,
       isActive: data.is_active === 'true' || data.is_active === true,
@@ -48,7 +49,7 @@ export default class FaqController {
 
     item.merge({
       question: data.question,
-      answer: data.answer,
+      answer: sanitizeRichHtml(data.answer),
       category: data.category,
       displayOrder: Number.parseInt(data.display_order) || 0,
       isActive: data.is_active === 'true' || data.is_active === true,

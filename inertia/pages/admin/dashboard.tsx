@@ -4,6 +4,7 @@ import { StatusBadge } from '~/components/admin/ui'
 import {
   Newspaper, FileText, Users, ArrowUpRight, Clock, Gavel, ScrollText,
   ShoppingCart, FolderOpen, MessageSquare, CalendarDays, Radar,
+  BarChart3, PieChart, Activity, CheckCircle2, AlertTriangle, ListChecks,
 } from 'lucide-react'
 
 interface Props {
@@ -16,10 +17,20 @@ interface Props {
     category?: { name: string } | null
   }>
   upcomingSessions: Array<{ id: number; title: string; date: string }>
+  contentHealth: Array<{
+    key: string
+    label: string
+    href: string
+    total: number
+    latest: string | null
+    daysSince: number | null
+    status: 'em_dia' | 'desatualizado' | 'vazio'
+    detail: string
+  }>
   userName: string
 }
 
-export default function Dashboard({ stats, recentNews, upcomingSessions, userName }: Props) {
+export default function Dashboard({ stats, recentNews, upcomingSessions, contentHealth, userName }: Props) {
   const { auth } = usePage().props as any
   const permissions: string[] = auth?.permissions || []
   const can = (p: string) => permissions.includes(p) || permissions.includes('*')
@@ -55,10 +66,227 @@ export default function Dashboard({ stats, recentNews, upcomingSessions, userNam
     day: 'numeric',
     month: 'long',
   })
+  const statTotal = statCards.reduce((sum, card) => sum + Number(stats[card.key] || 0), 0)
+  const chartCards = statCards.filter((card) => Number(stats[card.key] || 0) > 0)
+  const maxStat = Math.max(1, ...statCards.map((card) => Number(stats[card.key] || 0)))
+  const atriconTotal = Number(stats.atriconPending || 0)
+  const pntpTotal = Number(stats.pntpRecords || 0)
+  const complianceScore = pntpTotal + atriconTotal > 0
+    ? Math.round((pntpTotal / (pntpTotal + atriconTotal)) * 100)
+    : null
+  const donutColors = ['#141b47', '#d9a404', '#0f766e', '#2563eb', '#7c3aed', '#ea580c', '#64748b', '#be123c']
+  const healthMeta = {
+    em_dia: {
+      label: 'Em dia',
+      icon: CheckCircle2,
+      badge: 'bg-emerald-600/10 text-emerald-700',
+      iconClass: 'bg-emerald-600/10 text-emerald-700',
+    },
+    desatualizado: {
+      label: 'Desatualizado',
+      icon: AlertTriangle,
+      badge: 'bg-amber-500/10 text-amber-700',
+      iconClass: 'bg-amber-500/10 text-amber-700',
+    },
+    vazio: {
+      label: 'Vazio',
+      icon: AlertTriangle,
+      badge: 'bg-destructive/10 text-destructive',
+      iconClass: 'bg-destructive/10 text-destructive',
+    },
+  } as const
+  const needsAttention = contentHealth.filter((item) => item.status !== 'em_dia')
+
+  const formatHealthDate = (iso: string | null) => {
+    if (!iso) return 'Sem registro'
+    const d = new Date(iso)
+    if (Number.isNaN(d.getTime())) return 'Sem registro'
+    return d.toLocaleDateString('pt-BR')
+  }
+
+  const StatDonut = () => {
+    if (chartCards.length === 0 || statTotal === 0) {
+      return (
+        <div className="flex h-56 items-center justify-center rounded-xl border border-dashed border-border text-sm text-muted-foreground">
+          Sem dados suficientes para o gráfico
+        </div>
+      )
+    }
+
+    let donutOffset = 25
+
+    return (
+      <div className="grid gap-5 md:grid-cols-[220px_1fr] md:items-center">
+        <div className="relative mx-auto h-52 w-52">
+          <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90">
+            <circle cx="60" cy="60" r="40" fill="none" stroke="hsl(var(--muted))" strokeWidth="16" />
+            {chartCards.map((card, index) => {
+              const value = Number(stats[card.key] || 0)
+              const length = (value / statTotal) * 251.2
+              const segment = (
+                <circle
+                  key={card.key}
+                  cx="60"
+                  cy="60"
+                  r="40"
+                  fill="none"
+                  stroke={donutColors[index % donutColors.length]}
+                  strokeWidth="16"
+                  strokeDasharray={`${length} ${251.2 - length}`}
+                  strokeDashoffset={-donutOffset}
+                  strokeLinecap="round"
+                />
+              )
+              donutOffset += length
+              return segment
+            })}
+          </svg>
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+            <span className="text-3xl font-bold text-foreground tabular-nums">{statTotal}</span>
+            <span className="text-xs font-medium text-muted-foreground">registros</span>
+          </div>
+        </div>
+        <div className="space-y-2">
+          {chartCards.slice(0, 7).map((card, index) => (
+            <div key={card.key} className="flex items-center justify-between gap-3 rounded-lg bg-muted/40 px-3 py-2">
+              <div className="flex min-w-0 items-center gap-2">
+                <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: donutColors[index % donutColors.length] }} />
+                <span className="truncate text-sm font-medium text-foreground">{card.label}</span>
+              </div>
+              <span className="text-sm font-bold tabular-nums text-foreground">{stats[card.key]}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <AdminLayout title="Dashboard">
       <Head title="Dashboard - Painel" />
+
+      {statCards.length > 0 && (
+        <div className="grid gap-5 xl:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.75fr)] mb-8">
+          <div className="bg-card rounded-2xl border border-border shadow-sm p-5 lg:p-6">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between mb-5">
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full bg-navy/10 px-3 py-1 text-xs font-bold uppercase tracking-wide text-navy">
+                  <PieChart className="h-3.5 w-3.5" />
+                  Panorama
+                </div>
+                <h2 className="mt-3 text-xl font-bold text-foreground">DistribuiÃ§Ã£o dos mÃ³dulos</h2>
+                <p className="text-sm text-muted-foreground">Volume geral dos conteÃºdos e rotinas sob sua permissÃ£o.</p>
+              </div>
+              <div className="rounded-xl bg-muted/60 px-4 py-2 text-right">
+                <p className="text-2xl font-bold text-foreground tabular-nums">{statTotal}</p>
+                <p className="text-xs font-medium text-muted-foreground">itens monitorados</p>
+              </div>
+            </div>
+            <StatDonut />
+          </div>
+
+          <div className="bg-card rounded-2xl border border-border shadow-sm p-5 lg:p-6">
+            <div className="flex items-center gap-2 mb-5">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gold/15 text-gold">
+                <Activity className="h-5 w-5" />
+              </div>
+              <div>
+                <h2 className="font-bold text-foreground">Conformidade</h2>
+                <p className="text-xs text-muted-foreground">PNTP e Radar ATRICON</p>
+              </div>
+            </div>
+
+            {complianceScore === null ? (
+              <div className="rounded-xl border border-dashed border-border p-6 text-sm text-muted-foreground">
+                Sem dados de conformidade para calcular o painel.
+              </div>
+            ) : (
+              <div className="space-y-5">
+                <div className="relative mx-auto h-40 w-40">
+                  <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90">
+                    <circle cx="60" cy="60" r="42" fill="none" stroke="hsl(var(--muted))" strokeWidth="14" />
+                    <circle
+                      cx="60"
+                      cy="60"
+                      r="42"
+                      fill="none"
+                      stroke="#d9a404"
+                      strokeWidth="14"
+                      strokeLinecap="round"
+                      strokeDasharray={`${(complianceScore / 100) * 263.89} 263.89`}
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-3xl font-bold text-foreground tabular-nums">{complianceScore}%</span>
+                    <span className="text-xs font-medium text-muted-foreground">estimado</span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <Link href="/painel/acesso-informacao" className="rounded-xl bg-emerald-600/10 p-3 no-underline">
+                    <div className="flex items-center gap-2 text-emerald-700">
+                      <CheckCircle2 className="h-4 w-4" />
+                      <span className="text-xs font-bold uppercase">PNTP</span>
+                    </div>
+                    <p className="mt-2 text-2xl font-bold text-foreground tabular-nums">{pntpTotal}</p>
+                    <p className="text-xs text-muted-foreground">registros</p>
+                  </Link>
+                  <Link href="/painel/atricon" className="rounded-xl bg-amber-500/10 p-3 no-underline">
+                    <div className="flex items-center gap-2 text-amber-700">
+                      <AlertTriangle className="h-4 w-4" />
+                      <span className="text-xs font-bold uppercase">ATRICON</span>
+                    </div>
+                    <p className="mt-2 text-2xl font-bold text-foreground tabular-nums">{atriconTotal}</p>
+                    <p className="text-xs text-muted-foreground">pendÃªncias</p>
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {statCards.length > 0 && (
+        <div className="bg-card rounded-2xl border border-border shadow-sm p-5 lg:p-6 mb-8">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-5">
+            <div>
+              <div className="inline-flex items-center gap-2 rounded-full bg-muted px-3 py-1 text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                <BarChart3 className="h-3.5 w-3.5" />
+                Indicadores
+              </div>
+              <h2 className="mt-3 text-xl font-bold text-foreground">Volume por Ã¡rea do painel</h2>
+            </div>
+            <p className="text-sm text-muted-foreground">Clique nos cards para ir direto ao mÃ³dulo.</p>
+          </div>
+          <div className="space-y-3">
+            {statCards.map((card, index) => {
+              const value = Number(stats[card.key] || 0)
+              const width = Math.max(value > 0 ? 8 : 2, (value / maxStat) * 100)
+              return (
+                <Link
+                  key={card.key}
+                  href={card.href}
+                  className="grid gap-2 rounded-xl border border-border/70 p-3 no-underline transition-colors hover:border-navy/30 hover:bg-muted/30 md:grid-cols-[210px_1fr_70px] md:items-center"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${card.accent}`}>
+                      <card.icon className="h-4 w-4" />
+                    </div>
+                    <span className="text-sm font-semibold text-foreground">{card.label}</span>
+                  </div>
+                  <div className="h-3 overflow-hidden rounded-full bg-muted">
+                    <div
+                      className="h-full rounded-full"
+                      style={{ width: `${width}%`, backgroundColor: donutColors[index % donutColors.length] }}
+                    />
+                  </div>
+                  <span className="text-right text-lg font-bold text-foreground tabular-nums">{value}</span>
+                </Link>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Hero de boas-vindas */}
       <div className="bg-gradient-hero rounded-2xl px-6 py-7 lg:px-8 mb-8 text-white shadow-md relative overflow-hidden">
@@ -88,6 +316,97 @@ export default function Dashboard({ stats, recentNews, upcomingSessions, userNam
       </div>
 
       {/* Stats — só dos módulos que o usuário acessa */}
+      {contentHealth.length > 0 && (
+        <div className="grid gap-5 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)] mb-8">
+          <div className="bg-card rounded-2xl border border-border shadow-sm p-5 lg:p-6">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between mb-5">
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full bg-navy/10 px-3 py-1 text-xs font-bold uppercase tracking-wide text-navy">
+                  <Radar className="h-3.5 w-3.5" />
+                  Radar de atualização
+                </div>
+                <h2 className="mt-3 text-xl font-bold text-foreground">O que precisa de ação agora</h2>
+                <p className="text-sm text-muted-foreground">
+                  Atas, pautas e votações usam meta quinzenal; os demais módulos seguem a janela definida no Radar.
+                </p>
+              </div>
+              <Link
+                href="/painel/atricon"
+                className="inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-semibold text-foreground no-underline transition-colors hover:bg-muted"
+              >
+                Abrir Radar <ArrowUpRight className="h-4 w-4" />
+              </Link>
+            </div>
+
+            {needsAttention.length === 0 ? (
+              <div className="rounded-xl border border-emerald-600/20 bg-emerald-600/5 p-5 text-sm font-medium text-emerald-700">
+                Tudo em dia nos módulos que você gerencia.
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {needsAttention.slice(0, 6).map((item) => {
+                  const meta = healthMeta[item.status]
+                  const Icon = meta.icon
+                  return (
+                    <Link
+                      key={item.key}
+                      href={item.href}
+                      className="grid gap-3 rounded-xl border border-border p-3 no-underline transition-colors hover:border-navy/30 hover:bg-muted/30 md:grid-cols-[1fr_auto] md:items-center"
+                    >
+                      <div className="flex min-w-0 items-start gap-3">
+                        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${meta.iconClass}`}>
+                          <Icon className="h-4 w-4" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className="font-semibold text-foreground">{item.label}</p>
+                            <span className={`rounded-full px-2 py-0.5 text-[11px] font-bold uppercase ${meta.badge}`}>
+                              {meta.label}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-sm text-muted-foreground">{item.detail}</p>
+                        </div>
+                      </div>
+                      <div className="text-left text-xs text-muted-foreground md:text-right">
+                        <p className="font-semibold text-foreground tabular-nums">{item.total} registro(s)</p>
+                        <p>Último: {formatHealthDate(item.latest)}</p>
+                      </div>
+                    </Link>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+
+          <div className="bg-card rounded-2xl border border-border shadow-sm p-5 lg:p-6">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gold/15 text-gold">
+                <ListChecks className="h-5 w-5" />
+              </div>
+              <div>
+                <h2 className="font-bold text-foreground">Rotina quinzenal</h2>
+                <p className="text-xs text-muted-foreground">Fluxo recomendado para fechar avaliação</p>
+              </div>
+            </div>
+            <div className="space-y-3 text-sm">
+              {[
+                'Atualizar atas, pautas e votações mais recentes.',
+                'Conferir links externos de e-SIC, Ouvidoria, folha e remuneração.',
+                'Preencher registros PNTP por ano/período, preferindo dados estruturados.',
+                'Abrir o Radar, revisar pendências e exportar o relatório quinzenal.',
+              ].map((step, index) => (
+                <div key={step} className="flex gap-3 rounded-xl bg-muted/40 p-3">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-navy text-xs font-bold text-white">
+                    {index + 1}
+                  </span>
+                  <p className="text-muted-foreground">{step}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {statCards.length > 0 && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {statCards.map((card) => (

@@ -53,6 +53,7 @@ const KNOWN_GROUPS: SitemapGroup[] = [
     title: 'Documentos',
     links: [
       { label: 'Atividades Legislativas', href: '/atividades-legislativas' },
+      { label: 'Agenda de Sessões', href: '/agenda' },
       { label: 'Atas das Sessões', href: '/atas' },
       { label: 'Pautas', href: '/pautas' },
       { label: 'Publicações Oficiais', href: '/publicacoes-oficiais' },

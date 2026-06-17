@@ -3,8 +3,9 @@
  * Fonte oficial: planilha "Matriz de Critérios 2026 (Final)" + Erratas (abr–jun/2026)
  * + Nota Técnica PNTP (15/06/2026) + Síntese das alterações ciclo 2026.
  *
- * Aplicável ao Legislativo: matriz COMUM (59) + COMUM exceto estatais (12) +
- * PODER LEGISLATIVO (11) = 82 critérios.
+ * Aplicável ao Legislativo: matriz COMUM (60) + COMUM exceto estatais
+ * independentes (4) + COMUM exceto estatais (8) + PODER LEGISLATIVO (11)
+ * = 83 critérios.
  *
  * Classificação: essencial (2) | obrigatória (1,5) | recomendada (1).
  * Itens de verificação: disponibilidade, atualidade, série histórica,
@@ -107,6 +108,7 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
     verification: [D],
     hint: 'Busca geral visível na capa, com resultados relevantes independentes de acentos/maiúsculas.',
     route: '/busca',
+    autoCheck: 'siteSearch',
   },
 
   // 2. Informações Institucionais
@@ -214,6 +216,7 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
     verification: [D, A, H, G, F],
     hint: 'Duodécimos/repasses com previsão e realização. Para o Legislativo, a atualidade considera o repasse até o dia 20 de cada mês (art. 168 CF). Geralmente via portal de transparência do sistema contábil.',
     route: '/transparencia',
+    autoCheck: 'duodecimos',
     keywords: ['receita', 'duodécimo', 'repasse'],
   },
 
@@ -368,7 +371,8 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
     classification: 'obrigatoria',
     verification: [D, A, H, G, F],
     hint: 'Seção específica de diárias (não basta o detalhamento da despesa). Declarar inexistência quando for o caso.',
-    route: '/transparencia',
+    route: '/diarias',
+    autoCheck: 'info:diarias',
     keywords: ['diárias'],
   },
   {
@@ -378,7 +382,8 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
     classification: 'obrigatoria',
     verification: [D, A, H, F],
     hint: 'Tabela da legislação local na seção de diárias. Sem previsão de diária internacional? Informar expressamente.',
-    route: '/transparencia',
+    route: '/diarias',
+    autoCheck: 'info:diarias',
     keywords: ['tabela de diárias', 'valores de diárias'],
   },
 
@@ -496,7 +501,8 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
     classification: 'obrigatoria',
     verification: [D, A, H, G, F],
     hint: 'Lista mensal de créditos com vencimento, pagamento, credor e valor, por categoria contratual.',
-    route: '/transparencia',
+    route: '/ocp',
+    autoCheck: 'info:ocp',
     keywords: ['ordem cronológica', 'pagamentos'],
   },
 
@@ -508,7 +514,7 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
     classification: 'recomendada',
     verification: [D, A, G, F],
     hint: 'Tabela de obras em seção específica. Sem obras? Informar expressamente no portal.',
-    route: '/transparencia',
+    route: '/carta-servicos',
     autoCheck: 'info:obras',
     keywords: ['obras'],
   },
@@ -606,7 +612,7 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
   // 12. SIC / e-SIC — atendido por sistema externo
   {
     code: '12.1',
-    dimension: 'Serviço de Informação ao Cidadão - SIC',
+    dimension: 'sic',
     title: 'Existe o SIC no site ou no portal de transparência e indica a unidade/setor responsável?',
     classification: 'obrigatoria',
     verification: [D],
@@ -616,7 +622,7 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
   },
   {
     code: '12.2',
-    dimension: 'Serviço de Informação ao Cidadão - SIC',
+    dimension: 'sic',
     title: 'Indica o endereço físico, o telefone e o e-mail da unidade responsável pelo SIC, além do horário de funcionamento?',
     classification: 'obrigatoria',
     verification: [D],
@@ -626,7 +632,7 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
   },
   {
     code: '12.3',
-    dimension: 'Serviço de Informação ao Cidadão - SIC',
+    dimension: 'sic',
     title: 'Há possibilidade de envio de pedidos de informação de forma eletrônica (e­-SIC)?',
     classification: 'obrigatoria',
     verification: [D],
@@ -636,7 +642,7 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
   },
   {
     code: '12.4',
-    dimension: 'Serviço de Informação ao Cidadão - SIC',
+    dimension: 'sic',
     title: 'A solicitação por meio de eSic é simples, ou seja, sem a exigência de itens de identificação do requerente que dificultem ou impossibilitem o acesso à informação, tais como: envio de documentos, assinatura reconhecida, declaração de responsabilidade, maioridade?',
     classification: 'obrigatoria',
     verification: [D],
@@ -646,17 +652,18 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
   },
   {
     code: '12.5',
-    dimension: 'Serviço de Informação ao Cidadão - SIC',
+    dimension: 'sic',
     title: 'Divulga nesta seção, instrumento normativo local que regulamente a Lei nº 12.527/2011 – LAI?',
     classification: 'obrigatoria',
     verification: [D],
     hint: 'Ato normativo local (lei/decreto/resolução) que regulamenta a Lei 12.527/2011, em local visível.',
     route: '/acesso-a-informacao',
+    autoCheck: 'laiRegulation',
     keywords: ['regulamenta', 'lai', 'lei de acesso'],
   },
   {
     code: '12.6',
-    dimension: 'Serviço de Informação ao Cidadão - SIC',
+    dimension: 'sic',
     title: 'Divulga, na seção relativa ao e-SIC, os prazos de resposta ao cidadão, incluindo o recursal, e as autoridades competentes para o exame dos pedidos, além do procedimento referente à realização do pedido e de eventual recurso?',
     classification: 'recomendada',
     verification: [D],
@@ -666,7 +673,7 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
   },
   {
     code: '12.7',
-    dimension: 'Serviço de Informação ao Cidadão - SIC',
+    dimension: 'sic',
     title: 'Divulga relatório anual estatístico contendo a quantidade de pedidos de acesso recebidos, atendidos, indeferidos, bem como informações genéricas sobre os solicitantes?',
     classification: 'obrigatoria',
     verification: [D, A, H, G, F],
@@ -676,7 +683,7 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
   },
   {
     code: '12.8',
-    dimension: 'Serviço de Informação ao Cidadão - SIC',
+    dimension: 'sic',
     title: 'Divulga lista de documentos classificados em cada grau de sigilo, contendo pelo menos o assunto sobre o qual versa a informação, a categoria na qual ela se encontra, o dispositivo legal que fundamenta a classificação e o respectivo prazo?',
     classification: 'obrigatoria',
     verification: [D, A, H, G, F],
@@ -686,7 +693,7 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
   },
   {
     code: '12.9',
-    dimension: 'Serviço de Informação ao Cidadão - SIC',
+    dimension: 'sic',
     title: 'Divulga lista das informações que tenham sido desclassificadas nos últimos 12 (doze) meses?',
     classification: 'obrigatoria',
     verification: [D, A, H, G, F],
@@ -744,6 +751,7 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
     verification: [D],
     hint: 'Página "Mapa do Site" linkada no rodapé.',
     route: '/mapa-do-site',
+    autoCheck: 'sitemap',
   },
 
   // 14. Ouvidoria e Carta de Serviços
@@ -753,7 +761,17 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
     title: 'Há informações sobre o atendimento presencial pela Ouvidoria (Indicação de endereço físico e telefone, além do horário de funcionamento)?',
     classification: 'obrigatoria',
     verification: [D],
-    hint: 'Endereço físico, telefone e horário da Ouvidoria no portal (sistema externo). Canal eletrônico continua recomendado, mas o critério 14.2 foi extinto no ciclo 2026.',
+    hint: 'Endereço físico, telefone e horário da Ouvidoria no portal (sistema externo).',
+    route: '/ouvidoria',
+    external: true,
+  },
+  {
+    code: '14.2',
+    dimension: 'ouvidoria',
+    title: 'Há canal eletrônico de acesso/interação com a ouvidoria?',
+    classification: 'obrigatoria',
+    verification: [D],
+    hint: 'Canal eletrônico da Ouvidoria, normalmente em sistema externo, com link visível no portal.',
     route: '/ouvidoria',
     external: true,
   },
@@ -778,6 +796,7 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
     verification: [D],
     hint: 'Nome do encarregado pelo tratamento de dados + telefone/e-mail, em seção LGPD.',
     route: '/transparencia',
+    autoCheck: 'dpo',
     keywords: ['encarregado', 'dpo', 'lgpd'],
   },
   {
@@ -788,6 +807,7 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
     verification: [D],
     hint: 'Política de privacidade publicada no portal.',
     route: '/transparencia',
+    autoCheck: 'privacyPolicy',
     keywords: ['política de privacidade', 'proteção de dados'],
   },
   {
@@ -798,15 +818,17 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
     verification: [D],
     hint: 'Para o Legislativo: envio de sugestões legislativas e acompanhamento de proposições online.',
     route: '/fale-conosco',
+    autoCheck: 'digitalServices',
   },
   {
     code: '15.4',
     dimension: 'lgpd',
-    title: 'Possibilita o acesso automatizado por sistemas externos em dados abertos  (estruturados e legíveis por máquina), e a página contém as regras de utilização?',
+    title: 'Possibilita o acesso automatizado por sistemas externos em dados abertos (estruturados e legíveis por máquina), e a página contém as regras de utilização?',
     classification: 'obrigatoria',
     verification: [D],
     hint: 'Pelo menos um conjunto de dados legível por máquina (CSV/JSON) + página com regras de utilização.',
     route: '/dados-abertos',
+    autoCheck: 'openData',
     keywords: ['dados abertos'],
   },
   {
@@ -921,6 +943,7 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
     verification: [D],
     hint: 'Transmissão ao vivo (ex.: YouTube/Facebook) divulgada no portal, com link nas sessões.',
     route: '/sessoes',
+    autoCheck: 'liveSessions',
   },
   {
     code: '20.10',
@@ -980,7 +1003,9 @@ export const STATUS_CREDIT: Record<AtriconStatusValue, number | null> = {
  * Critérios `info:*` são resolvidos no módulo Acesso à Informação.
  */
 export const AUTO_CHECK_ACTION_HREF: Record<string, string> = {
+  siteSearch: '/busca',
   transparency: '/painel/transparencia',
+  duodecimos: '/painel/duodecimos',
   councilors: '/painel/vereadores',
   mesaDiretora: '/painel/bienios',
   contactSettings: '/painel/aparencia',
@@ -995,12 +1020,19 @@ export const AUTO_CHECK_ACTION_HREF: Record<string, string> = {
   contracts: '/painel/contratos',
   contractsFiscais: '/painel/contratos',
   rgf: '/painel/relatorios-fiscais',
+  laiRegulation: '/painel/paginas',
   atas: '/painel/atas',
   pautas: '/painel/pautas',
+  sitemap: '/mapa-do-site',
   committees: '/painel/comissoes',
   activities: '/painel/atividades',
   survey: '/painel/pesquisa-satisfacao',
   votacoes: '/painel/votacoes',
+  dpo: '/painel/aparencia',
+  privacyPolicy: '/politica-de-privacidade',
+  digitalServices: '/painel/aparencia',
+  openData: '/dados-abertos',
+  liveSessions: '/painel/sessoes',
 }
 
 /** Resolve o link de ação de um critério: actionHref explícito → mapa por autoCheck → transparência (keywords). */
