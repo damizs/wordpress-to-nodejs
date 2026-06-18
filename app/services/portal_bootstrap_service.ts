@@ -10,6 +10,7 @@ import { ATRICON_CRITERIA } from '#helpers/atricon_matrix'
 import {
   DEFAULT_FOOTER_COLUMNS,
   DEFAULT_HEADER_MENU,
+  normalizeHeaderMenu,
   type FooterColumn,
   type MenuItem,
 } from '#controllers/admin/menus_controller'
@@ -264,10 +265,12 @@ async function applySiteSettings(externals: BootstrapData['atricon_externals'], 
   const ouvHref = '/ouvidoria'
 
   const headerRaw = await SiteSetting.getValue('header_menu')
-  const header = patchMenuHref(
-    patchMenuHref(parseJsonMenu(headerRaw, DEFAULT_HEADER_MENU), /e-?sic/i, esicHref),
-    /ouvidoria/i,
-    ouvHref
+  const header = normalizeHeaderMenu(
+    patchMenuHref(
+      patchMenuHref(parseJsonMenu(headerRaw, DEFAULT_HEADER_MENU), /e-?sic/i, esicHref),
+      /ouvidoria/i,
+      ouvHref
+    )
   )
   if (!header.some((i) => i.children?.some((c) => /e-?sic/i.test(c.label)))) {
     const cidadao = header.find((i) => /cidad/i.test(i.label))

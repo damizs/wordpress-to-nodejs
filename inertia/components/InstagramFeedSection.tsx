@@ -90,7 +90,7 @@ export const InstagramFeedSection = ({
   }, []);
 
   return (
-    <section className="section-block bg-background">
+    <section className="bg-background py-10 sm:py-12 lg:py-16">
       <div className="container min-w-0">
         <SectionHeading
           badge="Redes Sociais"
@@ -101,7 +101,7 @@ export const InstagramFeedSection = ({
         {posts.length > 0 ? (
           <>
             {/* Profile header */}
-            <div className="flex items-center justify-center gap-3 mb-10" data-reveal>
+            <div className="flex items-center justify-center gap-3 mb-8" data-reveal>
               <ProfileAvatar profileImageUrl={profileImageUrl} />
               <div>
                 <a
@@ -120,7 +120,7 @@ export const InstagramFeedSection = ({
             <div className="relative max-w-full min-w-0" data-reveal>
               <div
                 ref={scrollerRef}
-                className="flex gap-4 sm:gap-6 overflow-x-auto overscroll-x-contain snap-x snap-mandatory scroll-smooth pb-1 max-w-full [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                className="flex gap-4 sm:gap-5 overflow-x-auto overscroll-x-contain snap-x snap-mandatory scroll-smooth pb-1 max-w-full [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
               >
                 {posts.map((post) => {
                   const card = (
@@ -153,7 +153,7 @@ export const InstagramFeedSection = ({
                   return (
                     <div
                       key={post.id}
-                      className="snap-start carousel-slide-md animate-fade-in"
+                      className="snap-start shrink-0 w-[240px] min-[400px]:w-[260px] sm:w-[290px] lg:w-[315px] animate-fade-in"
                     >
                       {post.slug ? (
                         <Link href={`/noticias/${post.slug}`} className="no-underline block h-full">

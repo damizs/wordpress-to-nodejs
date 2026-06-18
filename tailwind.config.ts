@@ -9,7 +9,15 @@ export default {
       center: true,
       // Container padrão ÚNICO do site (breadcrumb, header, footer e conteúdo das
       // páginas usam esta mesma classe → alinhamento perfeito em qualquer tela).
-      padding: '1.25rem', // 20px de respiro lateral
+      // O padding é responsivo para manter margem de segurança real em mobile,
+      // tablet e desktop largo.
+      padding: {
+        DEFAULT: '1.5rem',
+        sm: '1.75rem',
+        lg: '2rem',
+        xl: '2.5rem',
+        '2xl': '3rem',
+      },
       screens: {
         sm: '640px',
         md: '768px',

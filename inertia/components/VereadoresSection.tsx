@@ -42,12 +42,12 @@ export const VereadoresSection = ({
 
         {/* Carrossel infinito automático */}
         <div data-reveal>
-          <InfiniteCarousel ariaLabel="Vereadores" gapClass="gap-6" className="pb-1">
+          <InfiniteCarousel ariaLabel="Vereadores" gapClass="gap-5" className="pb-1">
             {vereadores.map((vereador) => (
-              <div key={vereador.id} className="carousel-slide-md">
+              <div key={vereador.id} className="shrink-0 w-[250px] min-[400px]:w-[270px] sm:w-[300px] lg:w-[320px]">
                 <Link href={`/vereadores/${vereador.slug}`} className="no-underline">
                   <div className="card-modern overflow-hidden group">
-                    <div className="relative aspect-[3/4] overflow-hidden">
+                    <div className="relative aspect-[4/5] overflow-hidden">
                       {vereador.ativo && (
                         <span className="absolute top-3 left-3 z-10 px-2.5 py-1 bg-navy-dark/90 text-white text-[10px] font-bold tracking-wide rounded-md shadow-lg">
                           EM EXERCÍCIO
@@ -60,7 +60,7 @@ export const VereadoresSection = ({
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                     </div>
-                    <div className="p-5">
+                    <div className="p-4">
                       <h3 className="font-bold text-foreground text-sm leading-tight mb-2 line-clamp-2">
                         {vereador.nome.toUpperCase()}
                       </h3>

@@ -24,11 +24,11 @@ export function ReelsSection({
   const hasMore = reels.length > limit;
 
   return (
-    <section className="section-block bg-muted/30">
+    <section className="bg-muted/30 py-10 sm:py-12 lg:py-16">
       <div className="container min-w-0">
         <SectionHeading badge={badge} title={title} subtitle={subtitle} />
 
-        <div data-reveal>
+        <div data-reveal className="mx-auto max-w-5xl">
           <ReelsGallery reels={shown} variant="compact" />
         </div>
 

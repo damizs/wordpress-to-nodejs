@@ -18,6 +18,7 @@ export const NEWS_PLACEHOLDER = "/images/placeholder-news.jpg";
 interface NewsSectionProps {
   news?: NewsItem[];
   backgroundImage?: string | null;
+  bannerImage?: string | null;
   /** Modelo de exibição: mosaico | grade | lista | destaque (Aparência → Notícias) */
   layout?: string | null;
   /** Máximo de cards exibidos (painel → personalizar modelo) */
@@ -100,7 +101,7 @@ export function NewsHeroPanel({ news, limit }: { news: NewsItem[]; limit?: numbe
   );
 }
 
-export const NewsSection = ({ news = [], backgroundImage, layout, limit, plain = false }: NewsSectionProps) => {
+export const NewsSection = ({ news = [], backgroundImage, bannerImage, layout, limit, plain = false }: NewsSectionProps) => {
   const items = limit ? news.slice(0, limit) : news;
   if (items.length === 0) return null;
   const variant = getNewsLayout(layout);
@@ -130,7 +131,7 @@ export const NewsSection = ({ news = [], backgroundImage, layout, limit, plain =
         )}
         {variant === "grade" && <GridLayout news={items} />}
         {variant === "lista" && <ListLayout news={items} />}
-        {variant === "destaque" && (plain ? <HighlightListPlainLayout news={items} /> : <HighlightListLayout news={items} />)}
+        {variant === "destaque" && (plain ? <HighlightListPlainLayout news={items} bannerImage={bannerImage} /> : <HighlightListLayout news={items} />)}
         {variant === "mosaico" && <MosaicLayout news={items} />}
       </div>
 
@@ -211,6 +212,7 @@ function MosaicLayout({ news }: { news: NewsItem[] }) {
           </Link>
         ))}
       </div>
+
     </div>
   );
 }
@@ -348,12 +350,12 @@ function HighlightListLayout({ news }: { news: NewsItem[] }) {
   );
 }
 
-function HighlightListPlainLayout({ news }: { news: NewsItem[] }) {
+function HighlightListPlainLayout({ news, bannerImage }: { news: NewsItem[]; bannerImage?: string | null }) {
   const featured = news.find((n) => n.featured) || news[0];
-  const others = news.filter((n) => n.id !== featured?.id).slice(0, 5);
+  const others = news.filter((n) => n.id !== featured?.id).slice(0, 3);
 
   return (
-    <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(340px,0.85fr)] lg:gap-6">
+    <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1.05fr)_minmax(290px,0.75fr)] lg:gap-5 xl:grid-cols-[minmax(0,1.05fr)_minmax(290px,0.7fr)_minmax(260px,0.46fr)]">
       {featured && (
         <Link href={`/noticias/${featured.slug}`} className="no-underline">
           <article className="group h-full overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all hover:-translate-y-1 hover:border-navy/25 hover:shadow-xl">
@@ -390,7 +392,7 @@ function HighlightListPlainLayout({ news }: { news: NewsItem[] }) {
         {others.map((item, index) => (
           <Link href={`/noticias/${item.slug}`} key={item.id} className="no-underline">
             <article
-              className="group grid grid-cols-[96px_1fr] gap-3 rounded-2xl border border-border bg-card p-3 shadow-sm transition-all hover:-translate-y-0.5 hover:border-navy/25 hover:shadow-md sm:grid-cols-[132px_1fr] sm:gap-4"
+              className="group grid grid-cols-[92px_1fr] gap-3 rounded-2xl border border-border bg-card p-3 shadow-sm transition-all hover:-translate-y-0.5 hover:border-navy/25 hover:shadow-md sm:grid-cols-[116px_1fr] sm:gap-4"
               style={{ animationDelay: `${index * 80}ms` }}
             >
               <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-muted">
@@ -418,6 +420,34 @@ function HighlightListPlainLayout({ news }: { news: NewsItem[] }) {
           </Link>
         ))}
       </div>
+
+      <aside className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
+        <div className="relative aspect-[16/10] overflow-hidden bg-navy">
+          {bannerImage ? (
+            <img src={bannerImage} alt="" className="absolute inset-0 h-full w-full object-cover" />
+          ) : (
+            <div className="absolute inset-0 bg-gradient-to-br from-navy via-navy-light to-navy-dark" />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/82 via-navy-dark/30 to-transparent" />
+          <div className="absolute bottom-4 left-4 right-4">
+            <span className="inline-flex rounded-full bg-gold px-3 py-1 text-xs font-bold uppercase tracking-wide text-navy-dark">
+              Banners
+            </span>
+            <h3 className="mt-3 text-xl font-bold leading-tight text-white">
+              Comunicados e campanhas oficiais
+            </h3>
+          </div>
+        </div>
+        <div className="p-5">
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            Espaço para avisos, campanhas institucionais e chamadas importantes da Câmara.
+          </p>
+          <Link href="/publicacoes-oficiais" className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-navy no-underline transition-all hover:gap-3">
+            Ver publicações
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+      </aside>
     </div>
   );
 }

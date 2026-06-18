@@ -908,7 +908,7 @@ export default function VereadorShow({
                       <>
                         {timeline.length > 0 && <ProductionExplorer timeline={timeline} />}
 
-                        <div>
+                        <div className="bg-card border border-border rounded-2xl p-5 sm:p-6 shadow-sm">
                           <h2 className="text-2xl font-bold text-foreground mb-6">
                             Últimas matérias vinculadas
                           </h2>
@@ -918,7 +918,7 @@ export default function VereadorShow({
                               <li key={a.id} className="relative pl-7">
                                 <span
                                   aria-hidden="true"
-                                  className="absolute -left-[7px] top-1.5 w-3 h-3 rounded-full bg-gold ring-4 ring-background"
+                                  className="absolute -left-[7px] top-1.5 w-3 h-3 rounded-full bg-gold ring-4 ring-card"
                                 />
                                 <div className="flex flex-wrap items-center gap-2.5 text-xs text-muted-foreground mb-1">
                                   {a.date && (

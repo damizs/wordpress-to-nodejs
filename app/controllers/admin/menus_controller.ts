@@ -12,6 +12,13 @@ export interface FooterColumn {
   links: { label: string; href: string }[]
 }
 
+const materiaLinks = [
+  { label: 'Atividades Legislativas', href: '/atividades-legislativas' },
+  { label: 'Atas das Sessões', href: '/atas' },
+  { label: 'Pautas', href: '/pautas' },
+  { label: 'Publicações Oficiais', href: '/publicacoes-oficiais' },
+]
+
 /** Defaults = menu que era hardcoded no Header.tsx/Footer.tsx */
 export const DEFAULT_HEADER_MENU: MenuItem[] = [
   { label: 'Início', href: '/' },
@@ -23,11 +30,12 @@ export const DEFAULT_HEADER_MENU: MenuItem[] = [
       { label: 'Vereadores', href: '/vereadores' },
       { label: 'Mesa Diretora', href: '/mesa-diretora' },
       { label: 'Comissões Permanentes', href: '/comissoes' },
-      { label: 'Atividades Legislativas', href: '/atividades-legislativas' },
-      { label: 'Atas das Sessões', href: '/atas' },
-      { label: 'Pautas', href: '/pautas' },
-      { label: 'Publicações Oficiais', href: '/publicacoes-oficiais' },
     ],
+  },
+  {
+    label: 'Matérias',
+    href: '/atividades-legislativas',
+    children: materiaLinks,
   },
   { label: 'Transparência', href: '/transparencia' },
   { label: 'Licitações', href: '/licitacoes' },
@@ -85,6 +93,67 @@ function parseJson<T>(raw: string | null, fallback: T): T {
   }
 }
 
+const materiaHrefs = new Set(materiaLinks.map((item) => item.href))
+
+function normalizeLabel(label: string) {
+  return label
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+}
+
+export function normalizeHeaderMenu(items: MenuItem[]): MenuItem[] {
+  const materialChildren: { label: string; href: string }[] = []
+  const normalized = items
+    .map((item) => {
+      const keptChildren: { label: string; href: string }[] = []
+      for (const child of item.children ?? []) {
+        if (materiaHrefs.has(child.href)) {
+          if (!materialChildren.some((existing) => existing.href === child.href)) {
+            materialChildren.push(child)
+          }
+        } else {
+          keptChildren.push(child)
+        }
+      }
+
+      if (materiaHrefs.has(item.href)) {
+        if (!materialChildren.some((existing) => existing.href === item.href)) {
+          materialChildren.push({ label: item.label, href: item.href })
+        }
+        return null
+      }
+
+      return {
+        ...item,
+        ...(keptChildren.length > 0 ? { children: keptChildren } : { children: undefined }),
+      }
+    })
+    .filter((item): item is MenuItem => item !== null)
+
+  const children = materiaLinks.map(
+    (fallback) => materialChildren.find((item) => item.href === fallback.href) ?? fallback
+  )
+  const existingIndex = normalized.findIndex((item) => normalizeLabel(item.label).includes('materia'))
+  if (existingIndex >= 0) {
+    normalized[existingIndex] = {
+      ...normalized[existingIndex],
+      href: normalized[existingIndex].href || '/atividades-legislativas',
+      children,
+    }
+    return normalized
+  }
+
+  const insertAfter = normalized.findIndex((item) => normalizeLabel(item.label).includes('camara'))
+  normalized.splice(insertAfter >= 0 ? insertAfter + 1 : 1, 0, {
+    label: 'Matérias',
+    href: '/atividades-legislativas',
+    children,
+  })
+
+  return normalized
+}
+
 /** Sanitiza itens: descarta entradas sem label/href */
 function cleanMenu(items: any[]): MenuItem[] {
   if (!Array.isArray(items)) return []
@@ -125,10 +194,10 @@ function cleanColumns(cols: any[]): FooterColumn[] {
 
 export default class MenusController {
   async index({ inertia }: HttpContext) {
-    const headerMenu = parseJson<MenuItem[]>(
+    const headerMenu = normalizeHeaderMenu(parseJson<MenuItem[]>(
       await SiteSetting.getValue('header_menu'),
       DEFAULT_HEADER_MENU
-    )
+    ))
     const footerColumns = parseJson<FooterColumn[]>(
       await SiteSetting.getValue('footer_columns'),
       DEFAULT_FOOTER_COLUMNS
@@ -138,7 +207,7 @@ export default class MenusController {
 
   async update({ request, response, session }: HttpContext) {
     try {
-      const headerMenu = cleanMenu(request.input('header_menu', []))
+      const headerMenu = normalizeHeaderMenu(cleanMenu(request.input('header_menu', [])))
       const footerColumns = cleanColumns(request.input('footer_columns', []))
 
       if (headerMenu.length === 0) {

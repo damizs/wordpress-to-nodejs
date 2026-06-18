@@ -198,6 +198,7 @@ export default function Home({
                 <NewsSection
                   news={newsForHome}
                   backgroundImage={modernNewsSection ? null : newsBackgroundImage}
+                  bannerImage={modernNewsSection ? newsBackgroundImage : null}
                   layout={modernNewsSection ? "destaque" : newsLayout}
                   limit={newsLimit}
                   plain={modernNewsSection}

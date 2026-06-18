@@ -80,7 +80,8 @@ fixos no chrome (quebra o modo escuro).
   vai num `<div>` próprio porque `.heading-accent` é `inline-block`). `tone`
   light/dark, `align` center/left.
 - **Container padrão ÚNICO:** a classe Tailwind `.container` (em `tailwind.config.ts`:
-  centralizado, **max 1480px em telas grandes**, **padding lateral 20px**). Breadcrumb, header, footer
+  centralizado, **max 1480px em telas grandes**, com **padding lateral responsivo
+  de 24px no mobile até 48px no desktop**. Breadcrumb, header, footer
   E o conteúdo de TODA página usam a MESMA `.container` → alinhamento perfeito em
   qualquer tela. Componente reutilizável: `inertia/components/PageContainer.tsx`.
   **Nunca** use `max-w-* mx-auto` no conteúdo principal (centraliza e desalinha do
@@ -160,6 +161,10 @@ em Números, Diário, Instagram, Conheça Sumé, Certificações, Pesquisa) → 
 - **Busca global:** lupa no header → `/busca` (ILIKE em 9 entidades).
 - **Menus editáveis:** header e rodapé lidos de `site_settings` (JSON), com
   fallback nos defaults de `menus_controller.ts`. TopBar tem links próprios.
+  No header, mantenha **A Câmara** para institucional/composição (História,
+  Vereadores, Mesa Diretora, Comissões) e use **Matérias** para produção
+  legislativa/documentos (Atividades Legislativas, Atas, Pautas, Publicações
+  Oficiais).
 - **Páginas com editor de blocos:** heading, texto (markdown-lite seguro),
   imagem, documentos, acordeão, destaque, botões, vídeo. `BlockRenderer.tsx`.
   O painel de páginas tem prévia renderizada, modelos prontos e botão para
@@ -258,7 +263,7 @@ em Números, Diário, Instagram, Conheça Sumé, Certificações, Pesquisa) → 
 - [ ] **QR Code** em páginas de detalhe (publicações, atas, vereador, transparência).
 
 **Qualidade**
-- [x] Container padrão único (1480/20px em telas grandes), conteúdo alinhado ao breadcrumb em todas
+- [x] Container padrão único (1480px + padding responsivo de 24px a 48px), conteúdo alinhado ao breadcrumb em todas
       as páginas, contraste das tags douradas corrigido, filtros com altura uniforme
       e responsivos (empilham < md), gráfico do Legislativo com área 3D/4D + cards
       numéricos com hierarquia.

@@ -31,6 +31,9 @@ const camaraSubItems = [
   { label: "Vereadores", href: "/vereadores" },
   { label: "Mesa Diretora", href: "/mesa-diretora" },
   { label: "Comissões Permanentes", href: "/comissoes" },
+];
+
+const materiaSubItems = [
   { label: "Atividades Legislativas", href: "/atividades-legislativas" },
   { label: "Atas das Sessões", href: "/atas" },
   { label: "Pautas", href: "/pautas" },
@@ -49,11 +52,73 @@ const cidadaoSubItems = [
 const defaultNavItems: NavItem[] = [
   { label: "Início", href: "/" },
   { label: "A Câmara", href: "/historia-da-camara", hasDropdown: true, subItems: camaraSubItems },
+  { label: "Matérias", href: "/atividades-legislativas", hasDropdown: true, subItems: materiaSubItems },
   { label: "Transparência", href: "/transparencia" },
   { label: "Licitações", href: "/licitacoes" },
   { label: "Notícias", href: "/noticias" },
   { label: "Cidadão", href: "/ouvidoria", hasDropdown: true, subItems: cidadaoSubItems },
 ];
+
+const materialHrefs = new Set(materiaSubItems.map((item) => item.href));
+
+function normalizeHeaderMenu(items: NavItem[]): NavItem[] {
+  const materialChildren: NavSubItem[] = [];
+  const normalized = items
+    .map((item) => {
+      const keptChildren: NavSubItem[] = [];
+      for (const child of item.subItems || []) {
+        if (materialHrefs.has(child.href)) {
+          if (!materialChildren.some((existing) => existing.href === child.href)) {
+            materialChildren.push(child);
+          }
+        } else {
+          keptChildren.push(child);
+        }
+      }
+
+      if (item.href && materialHrefs.has(item.href)) {
+        if (!materialChildren.some((existing) => existing.href === item.href)) {
+          materialChildren.push({ label: item.label, href: item.href });
+        }
+        return null;
+      }
+
+      return {
+        ...item,
+        hasDropdown: keptChildren.length > 0,
+        subItems: keptChildren.length > 0 ? keptChildren : undefined,
+      };
+    })
+    .filter((item): item is NavItem => item !== null);
+
+  const materials = materiaSubItems.map(
+    (fallback) => materialChildren.find((item) => item.href === fallback.href) || fallback
+  );
+  const existingIndex = normalized.findIndex((item) => normalizeMenuLabel(item.label).includes("materia"));
+  if (existingIndex >= 0) {
+    const existing = normalized[existingIndex];
+    normalized[existingIndex] = {
+      ...existing,
+      href: existing.href || "/atividades-legislativas",
+      hasDropdown: true,
+      subItems: materials,
+    };
+    return normalized;
+  }
+
+  const insertAfter = normalized.findIndex((item) => normalizeMenuLabel(item.label).includes("camara"));
+  normalized.splice(insertAfter >= 0 ? insertAfter + 1 : 1, 0, {
+    label: "Matérias",
+    href: "/atividades-legislativas",
+    hasDropdown: true,
+    subItems: materials,
+  });
+  return normalized;
+}
+
+function normalizeMenuLabel(label: string) {
+  return label.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
 
 const DESKTOP_NAV_LIMIT_BY_TEMPLATE: Record<string, number> = {
   institucional: 5,
@@ -90,7 +155,7 @@ function parseNavItems(raw: string | null | undefined): NavItem[] {
   try {
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed) || parsed.length === 0) return defaultNavItems;
-    return parsed
+    const items = parsed
       .filter((i: any) => i && i.label && i.href)
       .map((i: any) => ({
         label: String(i.label),
@@ -102,6 +167,7 @@ function parseNavItems(raw: string | null | undefined): NavItem[] {
               .map((c: any) => ({ label: String(c.label), href: String(c.href) }))
           : undefined,
       }));
+    return normalizeHeaderMenu(items);
   } catch {
     return defaultNavItems;
   }
@@ -223,8 +289,8 @@ export const Header = ({ logoUrl }: HeaderProps) => {
       }`}
     >
       <div className="glass-dark shadow-lg">
-        <div className="container h-14 flex items-center justify-between gap-4">
-          <Link href="/" className="flex items-center gap-2.5 no-underline min-w-0">
+        <div className="container relative h-14 flex items-center justify-between gap-4">
+          <Link href="/" className="flex items-center no-underline min-w-0 shrink-0" aria-label="Início">
             {resolvedLogo ? (
               <img src={resolvedLogo} alt={headerTitle} className="h-11 w-auto object-contain" />
             ) : (
@@ -232,9 +298,36 @@ export const Header = ({ logoUrl }: HeaderProps) => {
                 {titleFirstWord.charAt(0)}
               </span>
             )}
-            <span className="text-sm font-bold text-white truncate">{headerTitle}</span>
           </Link>
-          <ul className="flex items-center gap-0.5">
+          <nav className="absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 lg:block">
+            <ul className="flex items-center justify-center gap-0.5">
+              {desktopNavItems.map((item, index) => (
+                <li key={index} className="relative group">
+                  <Link
+                    href={item.href}
+                    className="flex items-center gap-1 px-3 py-2 text-[13px] font-medium rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors no-underline"
+                  >
+                    {item.label}
+                    {item.hasDropdown && <ChevronDown className="w-3.5 h-3.5 opacity-60 group-hover:rotate-180 transition-transform duration-300" />}
+                  </Link>
+                  {item.hasDropdown && item.subItems && (
+                    <div className="invisible group-hover:visible group-focus-within:visible opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 absolute top-full right-0 mt-1 min-w-[220px] rounded-xl shadow-xl z-[9999] transition-all duration-200 py-2 bg-background text-foreground border border-border">
+                      {item.subItems.map((sub, subIndex) => (
+                        <Link
+                          key={subIndex}
+                          href={sub.href}
+                          className="block w-full text-left px-4 py-2.5 text-sm hover:bg-muted hover:text-primary transition-colors duration-200 no-underline"
+                        >
+                          {sub.label}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </nav>
+          <ul className="ml-auto hidden items-center gap-0.5 md:flex lg:hidden">
             {desktopNavItems.map((item, index) => (
               <li key={index} className="relative group">
                 <Link
@@ -259,31 +352,29 @@ export const Header = ({ logoUrl }: HeaderProps) => {
                 )}
               </li>
             ))}
-            <li>
-              <button
-                type="button"
-                onClick={() => setSearchOpen((v) => !v)}
-                aria-expanded={searchOpen}
-                aria-label="Abrir busca"
-                title="Buscar"
-                className="flex items-center justify-center p-2 ml-1 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors"
-              >
-                <Search className="w-4 h-4" aria-hidden="true" />
-              </button>
-            </li>
-            <li>
-              <button
-                type="button"
-                onClick={toggleDark}
-                aria-pressed={dark}
-                aria-label={dark ? "Desativar modo escuro" : "Ativar modo escuro"}
-                title={dark ? "Modo claro" : "Modo escuro"}
-                className="flex items-center justify-center p-2 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors"
-              >
-                {dark ? <Sun className="w-4 h-4" aria-hidden="true" /> : <Moon className="w-4 h-4" aria-hidden="true" />}
-              </button>
-            </li>
           </ul>
+          <div className="flex items-center gap-0.5 shrink-0 lg:ml-auto">
+            <button
+              type="button"
+              onClick={() => setSearchOpen((v) => !v)}
+              aria-expanded={searchOpen}
+              aria-label="Abrir busca"
+              title="Buscar"
+              className="flex items-center justify-center p-2 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+            >
+              <Search className="w-4 h-4" aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              onClick={toggleDark}
+              aria-pressed={dark}
+              aria-label={dark ? "Desativar modo escuro" : "Ativar modo escuro"}
+              title={dark ? "Modo claro" : "Modo escuro"}
+              className="flex items-center justify-center p-2 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+            >
+              {dark ? <Sun className="w-4 h-4" aria-hidden="true" /> : <Moon className="w-4 h-4" aria-hidden="true" />}
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -513,43 +604,27 @@ export const Header = ({ logoUrl }: HeaderProps) => {
 
   /* ===========================================================================
    * MODELO: CLÁSSICO / GOVERNAMENTAL
-   * Faixa de identificação + barra de identidade clara + menu sólido (navy).
+   * Menu governamental compacto: logo + navegação em uma barra sólida.
    * ========================================================================= */
   if (template === "classico") {
     return (
-      <header className="relative z-50 bg-card shadow-sm">
+      <header className="relative z-50 bg-navy text-primary-foreground shadow-sm">
         {widgets}
         {compactBar}
 
-        {/* Faixa de identificação governamental */}
-        {/* Barra de identidade — limpa, clara e institucional */}
-        <div className="bg-card border-b border-border">
-          <div className="container flex items-center justify-between gap-4 py-4">
-            <Link href="/" className="flex items-center gap-3 md:gap-4 no-underline min-w-0 flex-1">
-              {logoOrInitial("h-11 md:h-14 w-auto object-contain shrink-0")}
-              <span className="min-w-0">
-                <span className="block text-[11px] font-bold uppercase tracking-wide text-muted-foreground">
-                  {headerSubtitle}
-                </span>
-                <span className="block text-base md:text-xl font-extrabold text-foreground leading-tight">
-                  {headerTitle}
-                </span>
-              </span>
+        {/* Identidade enxuta: a logo já carrega o nome da Câmara. */}
+        <div className="border-b border-primary-foreground/10">
+          <div className="container flex items-center gap-4 py-3">
+            <Link href="/" className="flex items-center no-underline shrink-0">
+              {logoOrInitial("h-12 md:h-14 w-auto object-contain")}
             </Link>
-            <div className="hidden md:flex items-center gap-2 rounded-full border border-border bg-muted/50 px-3 py-1.5 text-xs font-semibold text-muted-foreground">
-              <span className="h-2 w-2 rounded-full bg-emerald-600" aria-hidden="true" />
-              Portal Oficial
-            </div>
-            <div className="md:hidden shrink-0">{mobileButton("light")}</div>
+            <nav className="hidden md:block ml-auto min-w-0">
+              <ul className="flex items-center min-w-0">{renderClassicoNavLinks()}</ul>
+            </nav>
+            <div className="hidden md:block pl-4 border-l border-primary-foreground/15">{searchButtonDark}</div>
+            <div className="md:hidden ml-auto shrink-0">{mobileButton("dark")}</div>
           </div>
         </div>
-
-        <nav className="hidden md:block bg-navy text-primary-foreground border-b border-navy-dark">
-          <div className="container flex items-center">
-            <ul className="flex items-center min-w-0">{renderClassicoNavLinks()}</ul>
-            <div className="ml-auto pl-4 border-l border-primary-foreground/15">{searchButtonDark}</div>
-          </div>
-        </nav>
 
         {searchStripNeutral}
         {mobileNavNeutral}
@@ -601,9 +676,9 @@ export const Header = ({ logoUrl }: HeaderProps) => {
       <header className="sticky top-0 z-50 bg-navy text-primary-foreground shadow-md">
         {widgets}
 
-        <div className="container flex items-center justify-between gap-3 h-16">
+        <div className="container flex items-center justify-between gap-3 h-[4.75rem] sm:h-20">
           <Link href="/" className="flex items-center gap-2.5 no-underline min-w-0">
-            {logoOrInitial("h-12 w-auto object-contain")}
+            {logoOrInitial("h-14 sm:h-16 md:h-[4.25rem] w-auto max-w-[230px] object-contain")}
           </Link>
 
           <nav className="hidden md:block ml-auto">
