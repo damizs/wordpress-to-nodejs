@@ -62,6 +62,8 @@ const ALL_KEYS: HomeSectionKey[] = [
   'survey',
 ]
 
+const REQUIRED_HOME_KEYS: HomeSectionKey[] = ['diario']
+
 export function parseTemplateConfig(raw: string | null | undefined): TemplateConfigStore {
   if (!raw?.trim()) return {}
   try {
@@ -98,14 +100,19 @@ export function getTemplateCustomConfig(
 
 /** Garante que todas as seções existam na ordem (appende as que faltam). */
 function normalizeOrder(order: HomeSectionKey[], fallback: HomeSectionKey[]): HomeSectionKey[] {
-  const valid = order.filter((k) => ALL_KEYS.includes(k))
-  const seen = new Set(valid)
-  for (const k of fallback) {
-    if (!seen.has(k)) valid.push(k)
+  const valid: HomeSectionKey[] = []
+  const seen = new Set<HomeSectionKey>()
+  const append = (key: HomeSectionKey) => {
+    if (!ALL_KEYS.includes(key) || seen.has(key)) return
+    valid.push(key)
+    seen.add(key)
   }
-  for (const k of ALL_KEYS) {
-    if (!seen.has(k)) valid.push(k)
-  }
+
+  for (const k of order) append(k)
+  for (const k of fallback) append(k)
+  for (const k of REQUIRED_HOME_KEYS) append(k)
+  for (const k of ALL_KEYS) append(k)
+
   return valid
 }
 

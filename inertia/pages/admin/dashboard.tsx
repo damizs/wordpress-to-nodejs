@@ -174,8 +174,8 @@ export default function Dashboard({ stats, recentNews, upcomingSessions, content
                   <PieChart className="h-3.5 w-3.5" />
                   Panorama
                 </div>
-                <h2 className="mt-3 text-xl font-bold text-foreground">DistribuiÃ§Ã£o dos mÃ³dulos</h2>
-                <p className="text-sm text-muted-foreground">Volume geral dos conteÃºdos e rotinas sob sua permissÃ£o.</p>
+                <h2 className="mt-3 text-xl font-bold text-foreground">Distribuição dos módulos</h2>
+                <p className="text-sm text-muted-foreground">Volume geral dos conteúdos e rotinas sob sua permissão.</p>
               </div>
               <div className="rounded-xl bg-muted/60 px-4 py-2 text-right">
                 <p className="text-2xl font-bold text-foreground tabular-nums">{statTotal}</p>
@@ -237,7 +237,7 @@ export default function Dashboard({ stats, recentNews, upcomingSessions, content
                       <span className="text-xs font-bold uppercase">ATRICON</span>
                     </div>
                     <p className="mt-2 text-2xl font-bold text-foreground tabular-nums">{atriconTotal}</p>
-                    <p className="text-xs text-muted-foreground">pendÃªncias</p>
+                    <p className="text-xs text-muted-foreground">pendências</p>
                   </Link>
                 </div>
               </div>
@@ -254,9 +254,9 @@ export default function Dashboard({ stats, recentNews, upcomingSessions, content
                 <BarChart3 className="h-3.5 w-3.5" />
                 Indicadores
               </div>
-              <h2 className="mt-3 text-xl font-bold text-foreground">Volume por Ã¡rea do painel</h2>
+              <h2 className="mt-3 text-xl font-bold text-foreground">Volume por área do painel</h2>
             </div>
-            <p className="text-sm text-muted-foreground">Clique nos cards para ir direto ao mÃ³dulo.</p>
+            <p className="text-sm text-muted-foreground">Clique nos cards para ir direto ao módulo.</p>
           </div>
           <div className="space-y-3">
             {statCards.map((card, index) => {

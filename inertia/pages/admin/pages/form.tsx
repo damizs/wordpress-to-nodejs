@@ -528,9 +528,9 @@ function PagePreview({
     <div className="overflow-hidden rounded-xl border border-border bg-background">
       <div className="border-b border-border bg-gradient-hero px-5 py-7 text-center text-white">
         <span className="inline-flex rounded-full bg-gold px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-navy-dark">
-          PrÃ©via
+          Prévia
         </span>
-        <h2 className="mt-3 text-2xl font-bold">{title || 'TÃ­tulo da pÃ¡gina'}</h2>
+        <h2 className="mt-3 text-2xl font-bold">{title || 'Título da página'}</h2>
         {subtitle && <p className="mt-2 text-sm text-white/75">{subtitle}</p>}
       </div>
       <div className="max-h-[620px] overflow-auto p-5">
@@ -540,7 +540,7 @@ function PagePreview({
           <RichText text={content} className="text-foreground/90" />
         ) : (
           <div className="rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
-            Adicione blocos ou texto simples para visualizar a pÃ¡gina.
+            Adicione blocos ou texto simples para visualizar a página.
           </div>
         )}
       </div>
@@ -638,10 +638,10 @@ export default function PageForm({ page }: Props) {
                 <Monitor className="h-3.5 w-3.5" />
                 Editor visual
               </div>
-              <h2 className="mt-3 text-lg font-bold text-foreground">Edite com blocos e confira a prÃ©via</h2>
+              <h2 className="mt-3 text-lg font-bold text-foreground">Edite com blocos e confira a prévia</h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Sem Elementor, esta tela precisa concentrar as alteraÃ§Ãµes comuns: conteÃºdo, ordem dos blocos,
-                publicaÃ§Ã£o, visualizaÃ§Ã£o e restauraÃ§Ã£o antes de salvar.
+                Sem Elementor, esta tela precisa concentrar as alterações comuns: conteúdo, ordem dos blocos,
+                publicação, visualização e restauração antes de salvar.
               </p>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -651,7 +651,7 @@ export default function PageForm({ page }: Props) {
                 </ButtonLink>
               )}
               <Button type="button" variant="secondary" onClick={resetChanges}>
-                <RotateCcw className="w-4 h-4" /> Redefinir alteraÃ§Ãµes
+                <RotateCcw className="w-4 h-4" /> Redefinir alterações
               </Button>
             </div>
           </div>
@@ -661,19 +661,19 @@ export default function PageForm({ page }: Props) {
                 <Layers className="h-4 w-4 text-navy" />
                 1. Estrutura
               </div>
-              <p className="mt-1 text-xs text-muted-foreground">Adicione blocos conforme a necessidade da pÃ¡gina.</p>
+              <p className="mt-1 text-xs text-muted-foreground">Adicione blocos conforme a necessidade da página.</p>
             </div>
             <div className="rounded-xl border border-border bg-muted/30 p-4">
               <div className="flex items-center gap-2 text-sm font-bold text-foreground">
                 <Eye className="h-4 w-4 text-navy" />
-                2. PrÃ©via
+                2. Prévia
               </div>
               <p className="mt-1 text-xs text-muted-foreground">Confira o resultado renderizado antes de salvar.</p>
             </div>
             <div className="rounded-xl border border-border bg-muted/30 p-4">
               <div className="flex items-center gap-2 text-sm font-bold text-foreground">
                 <Save className="h-4 w-4 text-navy" />
-                3. PublicaÃ§Ã£o
+                3. Publicação
               </div>
               <p className="mt-1 text-xs text-muted-foreground">Publique ou deixe como rascunho sem sair do editor.</p>
             </div>
@@ -883,8 +883,8 @@ export default function PageForm({ page }: Props) {
           <aside className="xl:sticky xl:top-6 space-y-4 min-w-0">
             <Card>
               <CardHeader
-                title="PrÃ©-visualizaÃ§Ã£o"
-                description="Atualiza conforme vocÃª edita os campos e blocos."
+                title="Pré-visualização"
+                description="Atualiza conforme você edita os campos e blocos."
                 icon={Eye}
               />
               <PagePreview

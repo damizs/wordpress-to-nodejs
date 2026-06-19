@@ -117,25 +117,25 @@ export default function PlenarySessionForm({ session, sessionTypes = [] }: Props
               </Field>
             </div>
 
-            <Field label="Pauta / resumo da sessÃ£o">
+            <Field label="Pauta / resumo da sessão">
               <Textarea
                 value={data.agenda}
                 onChange={(e) => setData('agenda', e.target.value)}
                 rows={5}
-                placeholder="Resumo da pauta, matÃ©rias previstas ou orientaÃ§Ãµes ao cidadÃ£o."
+                placeholder="Resumo da pauta, matérias previstas ou orientações ao cidadão."
               />
             </Field>
 
-            <Field label="Ata / minuta / observaÃ§Ãµes">
+            <Field label="Ata / minuta / observações">
               <Textarea
                 value={data.minutes}
                 onChange={(e) => setData('minutes', e.target.value)}
                 rows={5}
-                placeholder="Use este campo quando houver texto da ata ou observaÃ§Ãµes da sessÃ£o."
+                placeholder="Use este campo quando houver texto da ata ou observações da sessão."
               />
             </Field>
 
-            <Field label="URL do PDF da sessÃ£o">
+            <Field label="URL do PDF da sessão">
               <Input
                 type="url"
                 value={data.file_url}
@@ -153,12 +153,12 @@ export default function PlenarySessionForm({ session, sessionTypes = [] }: Props
 
         <Card>
           <CardHeader
-            title="IntegraÃ§Ã£o com sistema de votaÃ§Ã£o"
-            description="Campos de conciliaÃ§Ã£o para quando a API do sistema de votaÃ§Ã£o for definida."
+            title="Integração com sistema de votação"
+            description="Campos de conciliação para quando a API do sistema de votação for definida."
             icon={Link2}
           />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field label="ID da sessÃ£o no sistema de votaÃ§Ã£o">
+            <Field label="ID da sessão no sistema de votação">
               <Input
                 type="text"
                 value={data.voting_system_id}
@@ -166,7 +166,7 @@ export default function PlenarySessionForm({ session, sessionTypes = [] }: Props
                 placeholder="Ex.: 12345"
               />
             </Field>
-            <Field label="URL da sessÃ£o no sistema de votaÃ§Ã£o">
+            <Field label="URL da sessão no sistema de votação">
               <Input
                 type="url"
                 value={data.voting_system_url}

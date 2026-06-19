@@ -37,8 +37,8 @@ export const DEFAULT_HEADER_MENU: MenuItem[] = [
     href: '/atividades-legislativas',
     children: materiaLinks,
   },
-  { label: 'Transparência', href: '/transparencia' },
   { label: 'Licitações', href: '/licitacoes' },
+  { label: 'Transparência', href: '/transparencia' },
   { label: 'Notícias', href: '/noticias' },
   {
     label: 'Cidadão',
@@ -102,6 +102,27 @@ function normalizeLabel(label: string) {
     .replace(/[\u0300-\u036f]/g, '')
 }
 
+function isLicitationItem(item: MenuItem) {
+  const label = normalizeLabel(item.label)
+  return item.href === '/licitacoes' || label.includes('licitacao') || label.includes('licitacoes')
+}
+
+function reorderPrimaryMenu(items: MenuItem[]): MenuItem[] {
+  const withoutLicitation = items.filter((item) => !isLicitationItem(item))
+  const licitation = items.find(isLicitationItem) ?? { label: 'Licitações', href: '/licitacoes' }
+  const transparencyIndex = withoutLicitation.findIndex((item) =>
+    normalizeLabel(item.label).includes('transparencia')
+  )
+
+  if (transparencyIndex >= 0) {
+    withoutLicitation.splice(transparencyIndex, 0, licitation)
+    return withoutLicitation
+  }
+
+  withoutLicitation.splice(Math.min(3, withoutLicitation.length), 0, licitation)
+  return withoutLicitation
+}
+
 export function normalizeHeaderMenu(items: MenuItem[]): MenuItem[] {
   const materialChildren: { label: string; href: string }[] = []
   const normalized = items
@@ -141,7 +162,7 @@ export function normalizeHeaderMenu(items: MenuItem[]): MenuItem[] {
       href: normalized[existingIndex].href || '/atividades-legislativas',
       children,
     }
-    return normalized
+    return reorderPrimaryMenu(normalized)
   }
 
   const insertAfter = normalized.findIndex((item) => normalizeLabel(item.label).includes('camara'))
@@ -151,7 +172,7 @@ export function normalizeHeaderMenu(items: MenuItem[]): MenuItem[] {
     children,
   })
 
-  return normalized
+  return reorderPrimaryMenu(normalized)
 }
 
 /** Sanitiza itens: descarta entradas sem label/href */

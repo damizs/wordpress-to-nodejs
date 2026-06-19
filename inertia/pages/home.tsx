@@ -156,9 +156,15 @@ export default function Home({
   /** Modelo Moderno: notícias ficam no hero unificado — não repetir seção abaixo. */
   const modernNewsSection = template.key === "moderno" && template.homeHero;
 
+  const hasGazetteContent = Boolean(latestGazette || gazetteEntries.length || gazetteDates.length);
+
   // Módulos da homepage: ativar/desativar pelo painel (Homepage > Visibilidade das Seções).
-  // Sem configuração explícita ('false'), a seção fica visível.
-  const visible = (section: string) => siteSettings?.[`section_${section}_visible`] !== 'false';
+  // Sem configuração explícita ('false'), a seção fica visível. O Diário Oficial é
+  // alimentado por importador próprio e deve voltar à home sempre que houver publicações.
+  const visible = (section: string) => {
+    if (section === 'diario' && hasGazetteContent) return true;
+    return siteSettings?.[`section_${section}_visible`] !== 'false';
+  };
   const setting = (key: string) => {
     const value = siteSettings?.[key];
     return value && value.trim() !== '' ? value : undefined;

@@ -87,11 +87,11 @@ export default function PagesIndex({ pages, filters }: Props) {
               <Info className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold">Por que sÃ³ aparece uma pÃ¡gina aqui?</h2>
+              <h2 className="text-lg font-bold">Por que só aparece uma página aqui?</h2>
               <p className="mt-1 text-sm leading-relaxed text-white/75">
-                Esta tela lista apenas pÃ¡ginas livres, criadas com blocos. PÃ¡ginas como vereadores,
-                licitaÃ§Ãµes, transparÃªncia, histÃ³ria e perguntas frequentes sÃ£o mÃ³dulos prÃ³prios,
-                porque tÃªm dados, regras e telas especÃ­ficas.
+                Esta tela lista apenas páginas livres, criadas com blocos. Páginas como vereadores,
+                licitações, transparência, história e perguntas frequentes são módulos próprios,
+                porque têm dados, regras e telas específicas.
               </p>
             </div>
           </div>
@@ -103,7 +103,7 @@ export default function PagesIndex({ pages, filters }: Props) {
               <LayoutList className="h-4 w-4" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-foreground">PÃ¡ginas gerenciadas por mÃ³dulo</h2>
+              <h2 className="text-sm font-bold text-foreground">Páginas gerenciadas por módulo</h2>
               <p className="text-xs text-muted-foreground">Atalhos para alterar o restante do site.</p>
             </div>
           </div>

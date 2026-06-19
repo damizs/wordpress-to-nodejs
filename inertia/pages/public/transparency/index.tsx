@@ -262,11 +262,11 @@ export default function TransparenciaIndex({ sections = [], openLink = null }: P
         <main>
           <section className="py-10 lg:py-14">
             <div className="container">
-            <div className="lg:flex lg:items-stretch lg:gap-12 xl:gap-16 2xl:gap-20">
-              {/* Sidebar de navegação (padrão dos portais): a coluna acompanha a
-                  altura do conteúdo, enquanto a lista interna fica sticky. */}
-              <aside className="hidden lg:block w-[280px] 2xl:w-[340px] shrink-0 self-stretch rounded-2xl bg-card/80 border border-border/60 shadow-sm">
-                <nav className="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto overscroll-contain rounded-2xl [scrollbar-width:thin]">
+            <div className="lg:flex lg:items-start lg:gap-12 xl:gap-16 2xl:gap-20">
+              {/* Sidebar de navegação (padrão dos portais): card fixo no viewport,
+                  sem ocupar toda a altura da página. */}
+              <aside className="hidden lg:block w-[280px] 2xl:w-[320px] shrink-0 self-start sticky top-24">
+                <nav className="max-h-[calc(100vh-7rem)] overflow-y-auto overscroll-contain rounded-2xl bg-card/80 border border-border/60 shadow-sm [scrollbar-width:thin]">
                   {filtered.map((section) => {
                     const Icon = iconMap[section.icon || ""] || FolderOpen;
                     const isActive = activeSection === section.slug;

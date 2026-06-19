@@ -76,9 +76,9 @@ const DATASETS: DatasetMeta[] = [
   },
   {
     id: 'duodecimos',
-    title: 'DuodÃ©cimos',
+    title: 'Duodécimos',
     description:
-      'Repasses mensais do duodÃ©cimo: ano, mÃªs, valores previstos/recebidos, percentual de execuÃ§Ã£o e comprovante.',
+      'Repasses mensais do duodécimo: ano, mês, valores previstos/recebidos, percentual de execução e comprovante.',
     fields: [
       'id',
       'ano',
@@ -94,9 +94,9 @@ const DATASETS: DatasetMeta[] = [
   },
   {
     id: 'relatorios-fiscais',
-    title: 'RelatÃ³rios Fiscais',
+    title: 'Relatórios Fiscais',
     description:
-      'RGF, RREO e demais relatÃ³rios fiscais organizados por ano, tipo, perÃ­odo e arquivo.',
+      'RGF, RREO e demais relatórios fiscais organizados por ano, tipo, período e arquivo.',
     fields: [
       'id',
       'tipo',
@@ -224,12 +224,12 @@ const QUERIES: Record<string, () => Promise<Row[]>> = {
       .orderBy('year', 'desc')
       .orderBy('report_type', 'asc')
       .orderBy('period_number', 'asc')
-    const ordinal = ['', '1Âº', '2Âº', '3Âº', '4Âº', '5Âº', '6Âº']
+    const ordinal = ['', '1º', '2º', '3º', '4º', '5º', '6º']
     return rows.map((r) => {
       const periodo =
         r.periodKind === 'anual' || !r.periodNumber
           ? 'Anual'
-          : `${ordinal[r.periodNumber] ?? `${r.periodNumber}Âº`} ${r.periodKind}`
+          : `${ordinal[r.periodNumber] ?? `${r.periodNumber}º`} ${r.periodKind}`
       return {
         id: r.id,
         tipo: r.reportType,

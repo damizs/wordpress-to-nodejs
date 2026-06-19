@@ -46,6 +46,7 @@ const shieldConfig = defineConfig({
         'https://vlibras.gov.br',
         'https://www.vlibras.gov.br',
         'https://getpublic.inf.br',
+        'https://portaldatransparencia.publicsoft.com.br',
         'https://camaradesume.pb.gov.br',
       ],
       workerSrc: ["'self'", 'blob:'],

@@ -53,8 +53,8 @@ const defaultNavItems: NavItem[] = [
   { label: "Início", href: "/" },
   { label: "A Câmara", href: "/historia-da-camara", hasDropdown: true, subItems: camaraSubItems },
   { label: "Matérias", href: "/atividades-legislativas", hasDropdown: true, subItems: materiaSubItems },
-  { label: "Transparência", href: "/transparencia" },
   { label: "Licitações", href: "/licitacoes" },
+  { label: "Transparência", href: "/transparencia" },
   { label: "Notícias", href: "/noticias" },
   { label: "Cidadão", href: "/ouvidoria", hasDropdown: true, subItems: cidadaoSubItems },
 ];
@@ -120,11 +120,32 @@ function normalizeMenuLabel(label: string) {
   return label.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
+function isLicitationItem(item: NavItem) {
+  const label = normalizeMenuLabel(item.label);
+  return item.href === "/licitacoes" || label.includes("licitacao") || label.includes("licitacoes");
+}
+
+function reorderPrimaryMenu(items: NavItem[]): NavItem[] {
+  const withoutLicitation = items.filter((item) => !isLicitationItem(item));
+  const licitation = items.find(isLicitationItem) || { label: "Licitações", href: "/licitacoes" };
+  const transparencyIndex = withoutLicitation.findIndex((item) =>
+    normalizeMenuLabel(item.label).includes("transparencia")
+  );
+
+  if (transparencyIndex >= 0) {
+    withoutLicitation.splice(transparencyIndex, 0, licitation);
+    return withoutLicitation;
+  }
+
+  withoutLicitation.splice(Math.min(3, withoutLicitation.length), 0, licitation);
+  return withoutLicitation;
+}
+
 const DESKTOP_NAV_LIMIT_BY_TEMPLATE: Record<string, number> = {
-  institucional: 5,
+  institucional: 6,
   classico: 6,
-  moderno: 5,
-  compacto: 4,
+  moderno: 6,
+  compacto: 5,
 };
 
 function buildDesktopNavItems(items: NavItem[], limit: number): NavItem[] {
@@ -151,10 +172,10 @@ function buildDesktopNavItems(items: NavItem[], limit: number): NavItem[] {
 
 /** Menu editável no painel (/painel/menus); cai no padrão se a setting estiver vazia */
 function parseNavItems(raw: string | null | undefined): NavItem[] {
-  if (!raw) return defaultNavItems;
+  if (!raw) return reorderPrimaryMenu(defaultNavItems);
   try {
     const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed) || parsed.length === 0) return defaultNavItems;
+    if (!Array.isArray(parsed) || parsed.length === 0) return reorderPrimaryMenu(defaultNavItems);
     const items = parsed
       .filter((i: any) => i && i.label && i.href)
       .map((i: any) => ({
@@ -167,9 +188,9 @@ function parseNavItems(raw: string | null | undefined): NavItem[] {
               .map((c: any) => ({ label: String(c.label), href: String(c.href) }))
           : undefined,
       }));
-    return normalizeHeaderMenu(items);
+    return reorderPrimaryMenu(normalizeHeaderMenu(items));
   } catch {
-    return defaultNavItems;
+    return reorderPrimaryMenu(defaultNavItems);
   }
 }
 
@@ -734,7 +755,7 @@ export const Header = ({ logoUrl }: HeaderProps) => {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:block relative z-40">
-          <div className="glass relative rounded-2xl px-14 lg:px-16 py-3 mx-auto max-w-3xl">
+          <div className="glass relative rounded-2xl px-6 lg:px-8 py-3 mx-auto max-w-4xl">
             <ul className="flex items-center justify-center gap-1 min-w-0">
               {desktopNavItems.map((item, index) => (
                 <li key={index} className="relative group">
@@ -764,17 +785,19 @@ export const Header = ({ logoUrl }: HeaderProps) => {
                   )}
                 </li>
               ))}
+              <li className="relative">
+                <button
+                  type="button"
+                  onClick={() => setSearchOpen((v) => !v)}
+                  aria-expanded={searchOpen}
+                  aria-label="Abrir busca"
+                  title="Buscar"
+                  className="flex items-center justify-center p-2.5 rounded-xl hover:bg-primary-foreground/10 transition-all duration-300 text-primary-foreground"
+                >
+                  <Search className="w-5 h-5" aria-hidden="true" />
+                </button>
+              </li>
             </ul>
-            <button
-              type="button"
-              onClick={() => setSearchOpen((v) => !v)}
-              aria-expanded={searchOpen}
-              aria-label="Abrir busca"
-              title="Buscar"
-              className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center justify-center p-2.5 rounded-xl hover:bg-primary-foreground/10 transition-all duration-300 text-primary-foreground"
-            >
-              <Search className="w-5 h-5" aria-hidden="true" />
-            </button>
           </div>
         </nav>
 
