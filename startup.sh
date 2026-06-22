@@ -11,7 +11,7 @@ node ace db:seed || true
 # Roda automaticamente UMA vez por versao do dataset: o marcador fica no volume
 # de uploads (persistente). Para reimportar (ex.: backup novo do WP), suba o
 # numero do marcador aqui ou rode com FORCE_ACTIVITIES_IMPORT=true.
-ACT_MARKER="/app/public/uploads/.activities-imported-v4"
+ACT_MARKER="/app/public/uploads/.activities-imported-v5"
 if [ "$FORCE_ACTIVITIES_IMPORT" = "true" ] || [ ! -f "$ACT_MARKER" ]; then
   echo "=== Importing legislative activities + authorship ==="
   if node ace wp:activities; then
@@ -25,7 +25,7 @@ fi
 # bloqueia healthcheck): cria as categorias/registros por slug e usa o link
 # remoto do PDF. O DOWNLOAD dos PDFs para o portal acontece no one-off pesado
 # (scripts/wp_import.sh) ou com FORCE_PNTP_IMPORT=true. Idempotente.
-PNTP_MARKER="/app/public/uploads/.pntp-imported-v1"
+PNTP_MARKER="/app/public/uploads/.pntp-imported-v2"
 if [ "$FORCE_PNTP_IMPORT" = "true" ] || [ ! -f "$PNTP_MARKER" ]; then
   echo "=== Importing PNTP information records (boot: sem download) ==="
   if [ "$FORCE_PNTP_IMPORT" = "true" ]; then
@@ -34,6 +34,28 @@ if [ "$FORCE_PNTP_IMPORT" = "true" ] || [ ! -f "$PNTP_MARKER" ]; then
     mkdir -p /app/public/uploads && touch "$PNTP_MARKER"
   else
     echo "PNTP import had errors (non-fatal)"
+  fi
+fi
+
+# Diario Oficial sincronizado do WordPress/GET Public. Import leve e idempotente.
+DIARIO_MARKER="/app/public/uploads/.diario-imported-v1"
+if [ "$FORCE_DIARIO_IMPORT" = "true" ] || [ ! -f "$DIARIO_MARKER" ]; then
+  echo "=== Importing official gazette entries ==="
+  if node ace wp:diario; then
+    mkdir -p /app/public/uploads && touch "$DIARIO_MARKER"
+  else
+    echo "Diario import had errors (non-fatal)"
+  fi
+fi
+
+# Links rapidos da home vindos do plugin WordPress links-rapidos.
+QUICK_LINKS_MARKER="/app/public/uploads/.quick-links-imported-v1"
+if [ "$FORCE_QUICK_LINKS_IMPORT" = "true" ] || [ ! -f "$QUICK_LINKS_MARKER" ]; then
+  echo "=== Importing WordPress quick links ==="
+  if node ace wp:quick-links; then
+    mkdir -p /app/public/uploads && touch "$QUICK_LINKS_MARKER"
+  else
+    echo "Quick links import had errors (non-fatal)"
   fi
 fi
 

@@ -17,7 +17,16 @@ fi
 echo "=== Importing PNTP records + downloading files ==="
 node ace wp:pntp || echo "PNTP import had errors (non-fatal)"
 
+echo "=== Importing official gazette entries ==="
+node ace wp:diario || echo "Diario import had errors (non-fatal)"
+
+echo "=== Importing WordPress quick links ==="
+node ace wp:quick-links || echo "Quick links import had errors (non-fatal)"
+
 echo "=== Portal bootstrap (links externos, E-SIC, menus, ATRICON) ==="
 node ace portal:bootstrap || echo "Portal bootstrap had errors (non-fatal)"
+
+echo "=== Importing full WordPress legacy posts/pages ==="
+node ace wp:legacy-content || echo "Legacy content import had errors (non-fatal)"
 
 sh "$(dirname "$0")/optimize_images.sh"
