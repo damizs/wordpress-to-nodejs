@@ -182,7 +182,8 @@ export default function Home({
         <TopBar />
         <Header logoUrl={logoUrl} />
         
-        <main>
+        <main id="conteudo" tabIndex={-1} className="outline-none">
+          <h1 className="sr-only">Câmara Municipal de Sumé — Portal Oficial</h1>
           {template.homeHero && (
             <HomeHero
               template={template.key}

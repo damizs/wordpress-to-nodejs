@@ -18,11 +18,15 @@ import {
   type ButtonHTMLAttributes,
   type InputHTMLAttributes,
   type ReactNode,
+  type ReactElement,
   type SelectHTMLAttributes,
   type TextareaHTMLAttributes,
   type ThHTMLAttributes,
   type TdHTMLAttributes,
+  cloneElement,
   forwardRef,
+  isValidElement,
+  useId,
   useState,
 } from 'react'
 
@@ -203,15 +207,44 @@ export function Field({
   children: ReactNode
   className?: string
 }) {
+  const autoId = useId()
+  const childProps = (isValidElement(children) ? (children.props as Record<string, unknown>) : {}) as Record<
+    string,
+    unknown
+  >
+  const fieldId = (childProps.id as string) || `field-${autoId}`
+  const hintId = `${fieldId}-hint`
+  const errorId = `${fieldId}-error`
+  const describedBy = error ? errorId : hint ? hintId : undefined
+
+  // Associa o controle ao label/dica/erro sem exigir mudança em cada formulário.
+  const control = isValidElement(children)
+    ? cloneElement(children as ReactElement<Record<string, unknown>>, {
+        id: fieldId,
+        'aria-describedby':
+          [childProps['aria-describedby'] as string | undefined, describedBy].filter(Boolean).join(' ') ||
+          undefined,
+        'aria-invalid': error ? true : (childProps['aria-invalid'] as boolean | undefined),
+      })
+    : children
+
   return (
     <div className={className}>
-      <label className="block text-[13px] font-semibold text-foreground mb-1.5">
+      <label htmlFor={fieldId} className="block text-[13px] font-semibold text-foreground mb-1.5">
         {label}
         {required && <span className="text-destructive ml-0.5">*</span>}
       </label>
-      {children}
-      {hint && !error && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
-      {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
+      {control}
+      {hint && !error && (
+        <p id={hintId} className="mt-1 text-xs text-muted-foreground">
+          {hint}
+        </p>
+      )}
+      {error && (
+        <p id={errorId} className="mt-1 text-xs text-destructive">
+          {error}
+        </p>
+      )}
     </div>
   )
 }
