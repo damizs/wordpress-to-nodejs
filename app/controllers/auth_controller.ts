@@ -7,6 +7,7 @@ import {
   isLoginRateLimited,
   recordFailedLogin,
 } from '#services/login_rate_limiter'
+import EvolutionAlertService from '#services/evolution_alert_service'
 
 export default class AuthController {
   async showLogin({ inertia, auth, response }: HttpContext) {
@@ -22,6 +23,16 @@ export default class AuthController {
     const ip = request.ip()
 
     if (isLoginRateLimited(ip, email)) {
+      void EvolutionAlertService.sendAlert(
+        'login',
+        'Login bloqueado por limite',
+        `O painel bloqueou novas tentativas para ${email} a partir do IP ${ip}.`,
+        {
+          dedupeKey: `login-rate:${ip}:${email}`,
+          throttleMinutes: 60,
+          metadata: { ip, email },
+        }
+      ).catch(() => null)
       session.flash('error', 'Muitas tentativas de acesso. Aguarde alguns minutos e tente novamente.')
       return response.redirect('/login')
     }
@@ -46,6 +57,18 @@ export default class AuthController {
       return response.redirect('/painel')
     } catch {
       recordFailedLogin(ip, email)
+      if (isLoginRateLimited(ip, email)) {
+        void EvolutionAlertService.sendAlert(
+          'login',
+          'Tentativas suspeitas de login',
+          `O painel recebeu varias tentativas invalidas para ${email} a partir do IP ${ip}.`,
+          {
+            dedupeKey: `login-failed:${ip}:${email}`,
+            throttleMinutes: 60,
+            metadata: { ip, email },
+          }
+        ).catch(() => null)
+      }
       session.flash('error', 'Email ou senha inválidos.')
       return response.redirect('/login')
     }

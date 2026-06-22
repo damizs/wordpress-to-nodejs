@@ -68,9 +68,6 @@ export function sanitizeRichHtml(value: unknown): string {
       th: ['colspan', 'rowspan', 'scope'],
     },
     allowedSchemes: ['http', 'https', 'mailto', 'tel'],
-    allowedSchemesByTag: {
-      img: ['http', 'https'],
-    },
     allowProtocolRelative: false,
     transformTags: {
       a: (_tagName, attribs) => ({

@@ -1,5 +1,19 @@
 import { defineConfig } from '@adonisjs/shield'
 
+const trustedFrameSources = [
+  "'self'",
+  'https://www.youtube.com',
+  'https://www.youtube-nocookie.com',
+  'https://www.instagram.com',
+  'https://platform.instagram.com',
+  'https://vlibras.gov.br',
+  'https://www.vlibras.gov.br',
+  'https://getpublic.inf.br',
+  'https://portaldatransparencia.publicsoft.com.br',
+  'https://transparencia.elmartecnologia.com.br',
+  'https://camaradesume.pb.gov.br',
+]
+
 const shieldConfig = defineConfig({
   /**
    * Configure CSP policies for your app. Refer documentation
@@ -37,18 +51,8 @@ const shieldConfig = defineConfig({
       imgSrc: ["'self'", 'data:', 'blob:', 'https:'],
       mediaSrc: ["'self'", 'blob:', 'https:'],
       connectSrc: ["'self'", 'https:'],
-      frameSrc: [
-        "'self'",
-        'https://www.youtube.com',
-        'https://www.youtube-nocookie.com',
-        'https://www.instagram.com',
-        'https://platform.instagram.com',
-        'https://vlibras.gov.br',
-        'https://www.vlibras.gov.br',
-        'https://getpublic.inf.br',
-        'https://portaldatransparencia.publicsoft.com.br',
-        'https://camaradesume.pb.gov.br',
-      ],
+      frameSrc: trustedFrameSources,
+      childSrc: trustedFrameSources,
       workerSrc: ["'self'", 'blob:'],
       frameAncestors: ["'self'"],
       formAction: ["'self'"],

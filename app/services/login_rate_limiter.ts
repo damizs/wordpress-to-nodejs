@@ -1,6 +1,7 @@
 const WINDOW_MS = 15 * 60 * 1000
 const MAX_ATTEMPTS_PER_ACCOUNT = 5
 const MAX_ATTEMPTS_PER_IP = 25
+const MAX_BUCKETS = 5_000
 
 interface AttemptBucket {
   count: number
@@ -14,11 +15,27 @@ function now() {
 }
 
 function keyFor(ip: string, email: string) {
-  return `${ip}:${email.toLowerCase()}`
+  return `${ip || 'unknown'}:${email.trim().toLowerCase()}`
 }
 
 function ipKeyFor(ip: string) {
-  return `ip:${ip}`
+  return `ip:${ip || 'unknown'}`
+}
+
+function pruneExpiredBuckets(timestamp = now()) {
+  for (const [key, bucket] of attempts) {
+    if (bucket.resetAt <= timestamp) attempts.delete(key)
+  }
+
+  if (attempts.size <= MAX_BUCKETS) return
+
+  const overflow = attempts.size - MAX_BUCKETS
+  const oldestKeys = [...attempts.entries()]
+    .sort((a, b) => a[1].resetAt - b[1].resetAt)
+    .slice(0, overflow)
+    .map(([key]) => key)
+
+  for (const key of oldestKeys) attempts.delete(key)
 }
 
 function getActiveBucket(key: string) {
@@ -34,6 +51,7 @@ function getActiveBucket(key: string) {
 function increment(key: string) {
   const current = attempts.get(key)
   const timestamp = now()
+  pruneExpiredBuckets(timestamp)
   if (!current || current.resetAt <= timestamp) {
     attempts.set(key, { count: 1, resetAt: timestamp + WINDOW_MS })
     return
