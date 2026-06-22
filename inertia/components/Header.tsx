@@ -649,12 +649,10 @@ export const Header = ({ logoUrl }: HeaderProps) => {
           </Link>
 
           <nav className="hidden lg:block min-w-0">
-            <div className="rounded-full px-1.5 py-1 border border-primary-foreground/12 bg-primary-foreground/[0.08]">
-              <ul className="flex items-center gap-0.5 min-w-0">
-                {renderNavLinks("right")}
-                <li className="pl-0.5">{searchButtonDark}</li>
-              </ul>
-            </div>
+            <ul className="flex items-center gap-0.5 min-w-0">
+              {renderNavLinks("right")}
+              <li className="ml-1 border-l border-primary-foreground/15 pl-1">{searchButtonDark}</li>
+            </ul>
           </nav>
 
           <div className="lg:hidden shrink-0">{mobileButton("dark")}</div>
