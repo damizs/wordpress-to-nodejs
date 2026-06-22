@@ -122,8 +122,8 @@ export const SITE_TEMPLATES: SiteTemplate[] = [
     key: 'compacto',
     label: 'Compacto / Notícias',
     description:
-      'Cabeçalho slim + faixa de manchetes (últimas notícias em texto) no topo, depois a home densa orientada a atualidade. Estilo portal de notícias.',
-    homeHero: true,
+      'Cabeçalho slim em uma linha (logo + menu + busca), sem hero — a home abre direto nas notícias. Denso e orientado a atualidade.',
+    homeHero: false,
     // Foco em densidade/atualidade: notícias, atalhos, legislativo e diário no topo.
     homeOrder: [
       'news',

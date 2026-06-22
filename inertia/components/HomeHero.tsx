@@ -6,7 +6,6 @@ import {
   Gavel,
   Landmark,
   MessageSquare,
-  Newspaper,
   Scale,
   Search,
   Shield,
@@ -46,7 +45,7 @@ const SERVICE_LINKS = [
 ];
 
 /** Busca do hero → /busca?q= */
-function HeroSearch({ tone = "light" }: { tone?: "light" | "dark" }) {
+function HeroSearch() {
   return (
     <form action="/busca" method="get" role="search" className="flex w-full items-stretch overflow-hidden rounded-xl border-2 border-border bg-card focus-within:border-navy">
       <label htmlFor="hero-q" className="sr-only">Buscar no portal</label>
@@ -65,24 +64,6 @@ function HeroSearch({ tone = "light" }: { tone?: "light" | "dark" }) {
   );
 }
 
-function ServiceChips() {
-  return (
-    <div className="grid grid-cols-2 gap-2">
-      {SERVICE_LINKS.map((s, i) => (
-        <Link
-          key={s.href}
-          href={s.href}
-          className="group inline-flex items-center gap-2 rounded-xl border border-primary-foreground/15 bg-primary-foreground/[0.08] px-3 py-2.5 text-sm font-semibold text-primary-foreground no-underline transition-colors hover:border-gold/55 hover:bg-primary-foreground/[0.14]"
-        >
-          <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-navy-dark ${i % 2 === 0 ? "bg-gradient-gold" : "bg-sky"}`}>
-            <s.icon className="h-4 w-4" aria-hidden="true" />
-          </span>
-          {s.title}
-        </Link>
-      ))}
-    </div>
-  );
-}
 
 function Cover({ image, className = "" }: { image: string | null; className?: string }) {
   if (image) {
@@ -113,10 +94,10 @@ export function HomeHero({ template, backgroundImage, news = [], legislativo }: 
             </Link>
           </div>
 
-          <div className="grid gap-5 lg:grid-cols-[1.55fr_1fr]">
-            {/* Destaque principal */}
+          <div className="grid gap-5 lg:grid-cols-[1.5fr_1fr] lg:items-stretch">
+            {/* Destaque principal — estica para a altura da coluna de recentes */}
             {featured ? (
-              <Link href={`/noticias/${featured.slug}`} className="group relative block min-h-[320px] overflow-hidden rounded-3xl no-underline sm:min-h-[400px]">
+              <Link href={`/noticias/${featured.slug}`} className="group relative block min-h-[300px] overflow-hidden rounded-3xl no-underline lg:min-h-0 lg:h-full">
                 <Cover image={featured.image} className="transition-transform duration-700 group-hover:scale-105" />
                 <div className="absolute inset-0 bg-gradient-to-t from-navy-dark via-navy-dark/55 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-6 sm:p-8">
@@ -133,61 +114,26 @@ export function HomeHero({ template, backgroundImage, news = [], legislativo }: 
                 </div>
               </Link>
             ) : (
-              <div className="flex min-h-[320px] flex-col justify-center rounded-3xl bg-primary-foreground/5 p-8">
+              <div className="flex min-h-[300px] flex-col justify-center rounded-3xl bg-primary-foreground/5 p-8">
                 <h3 className="text-3xl font-extrabold">{settings.header_title || "Câmara Municipal de Sumé"}</h3>
                 <p className="mt-3 max-w-md text-primary-foreground/80">{settings.footer_description || "Transparência e serviço ao cidadão."}</p>
               </div>
             )}
 
-            {/* Coluna: últimas + atalhos */}
+            {/* Coluna: últimas notícias (cada item cresce para casar com o destaque) */}
             <div className="flex flex-col gap-3">
               {recent.map((item) => (
-                <Link key={item.id} href={`/noticias/${item.slug}`} className="group grid grid-cols-[88px_1fr] gap-3 overflow-hidden rounded-2xl border border-primary-foreground/12 bg-primary-foreground/[0.06] p-2.5 no-underline transition-colors hover:border-gold/40 hover:bg-primary-foreground/[0.1]">
-                  <div className="relative aspect-square overflow-hidden rounded-xl">
+                <Link key={item.id} href={`/noticias/${item.slug}`} className="group flex flex-1 items-center gap-3 overflow-hidden rounded-2xl border border-primary-foreground/12 bg-primary-foreground/[0.06] p-2.5 no-underline transition-colors hover:border-gold/40 hover:bg-primary-foreground/[0.1]">
+                  <div className="relative aspect-[4/3] w-28 shrink-0 overflow-hidden rounded-xl sm:w-32">
                     <Cover image={item.image} />
                   </div>
-                  <div className="min-w-0 self-center">
+                  <div className="min-w-0">
                     <span className="text-[11px] font-semibold text-gold">{item.date}</span>
                     <p className="mt-0.5 line-clamp-2 text-sm font-bold leading-snug text-primary-foreground group-hover:text-gold">{item.title}</p>
                   </div>
                 </Link>
               ))}
-              <div className="mt-1">
-                <ServiceChips />
-              </div>
             </div>
-          </div>
-        </div>
-      </section>
-    );
-  }
-
-  /* ============================ COMPACTO / NOTÍCIAS — faixa de manchetes ============================ */
-  if (template === "compacto") {
-    const headlines = news.slice(0, 5);
-    if (headlines.length === 0) return null;
-    return (
-      <section className="border-b border-border bg-muted/30">
-        <div className="container py-4">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-6">
-            <span className="inline-flex shrink-0 items-center gap-2 rounded-full bg-navy px-3.5 py-1.5 text-xs font-bold uppercase tracking-wide text-white">
-              <Newspaper className="h-3.5 w-3.5" aria-hidden="true" /> Últimas
-            </span>
-            <ul className="grid min-w-0 flex-1 gap-x-8 gap-y-2 sm:grid-cols-2">
-              {headlines.map((item) => (
-                <li key={item.id} className="min-w-0">
-                  <Link href={`/noticias/${item.slug}`} className="group flex items-baseline gap-2 no-underline">
-                    <span className="shrink-0 text-xs font-semibold tabular-nums text-gold">{item.date}</span>
-                    <span className="line-clamp-1 text-sm font-medium text-foreground transition-colors group-hover:text-navy dark:group-hover:text-sky">
-                      {item.title}
-                    </span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-            <Link href="/noticias" className="hidden shrink-0 items-center gap-1.5 text-sm font-semibold text-navy no-underline transition-all hover:gap-2.5 dark:text-sky lg:inline-flex">
-              Ver todas <ArrowRight className="h-4 w-4" aria-hidden="true" />
-            </Link>
           </div>
         </div>
       </section>
@@ -204,16 +150,25 @@ export function HomeHero({ template, backgroundImage, news = [], legislativo }: 
     : [];
 
   return (
-    <section className="border-b border-border bg-gradient-to-b from-secondary/40 to-background">
-      <div className="h-1 bg-gradient-to-r from-navy via-gold to-navy" aria-hidden="true" />
-      <div className="container py-9 lg:py-12">
-        {/* Busca + título institucional */}
+    <section className="relative overflow-hidden border-b border-border text-primary-foreground">
+      {backgroundImage ? (
+        <div className="absolute inset-0" aria-hidden="true">
+          <img src={backgroundImage} alt="" className="h-full w-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-r from-navy-dark/95 via-navy-dark/85 to-navy-dark/60" />
+          <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/85 to-navy-dark/35" />
+        </div>
+      ) : (
+        <div className="absolute inset-0 bg-gradient-hero" aria-hidden="true" />
+      )}
+      <div className="absolute inset-x-0 top-0 z-10 h-1 bg-gradient-to-r from-gold to-gold/0" aria-hidden="true" />
+      <div className="relative container py-9 lg:py-12">
+        {/* Busca + título institucional sobre a imagem */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="min-w-0">
-            <span className="inline-flex items-center rounded-full bg-navy/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-navy dark:bg-primary-foreground/10 dark:text-primary-foreground">
+            <span className="inline-flex items-center rounded-full bg-gold px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-navy-dark">
               {subtitle}
             </span>
-            <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-navy dark:text-primary-foreground sm:text-3xl">
+            <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-white drop-shadow sm:text-3xl">
               Serviços e informações ao cidadão
             </h2>
           </div>

@@ -206,7 +206,7 @@ export default function Home({
               news: shell(
                 <NewsSection
                   news={newsForHome}
-                  backgroundImage={modernNewsSection ? null : newsBackgroundImage}
+                  backgroundImage={template.homeHero ? null : newsBackgroundImage}
                   bannerImage={modernNewsSection ? newsBackgroundImage : null}
                   layout={modernNewsSection ? "destaque" : newsLayout}
                   limit={newsLimit}
