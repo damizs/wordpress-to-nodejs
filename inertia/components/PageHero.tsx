@@ -15,19 +15,11 @@ export const PageHero = ({ title, subtitle, badge, centered = false, size = "com
         isCompact ? "py-6 sm:py-8 md:py-10" : "py-8 sm:py-12 md:py-16"
       }`}
     >
-      {/* Background decorations */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-1/2 -right-1/4 w-96 h-96 bg-gold/10 rounded-full blur-3xl" />
-        <div className="absolute -bottom-1/2 -left-1/4 w-96 h-96 bg-sky/10 rounded-full blur-3xl" />
-        <div
-          className="absolute inset-0 opacity-[0.04]"
-          style={{
-            backgroundImage:
-              'radial-gradient(circle at 1px 1px, currentColor 1px, transparent 0)',
-            backgroundSize: '28px 28px',
-          }}
-        />
-      </div>
+      {/* Decoração sutil — um único brilho dourado (dieta de efeitos) */}
+      <div
+        className="absolute -top-24 -right-16 w-80 h-80 bg-gold/10 rounded-full blur-3xl pointer-events-none"
+        aria-hidden="true"
+      />
 
       <div className={`relative container ${centered ? 'text-center' : ''}`}>
         {badge && (
@@ -50,7 +42,7 @@ export const PageHero = ({ title, subtitle, badge, centered = false, size = "com
           <p
             data-reveal="up"
             data-reveal-delay="100"
-            className={`text-base md:text-lg text-primary-foreground/75 ${centered ? 'max-w-2xl mx-auto' : 'max-w-2xl'}`}
+            className={`text-base md:text-lg text-primary-foreground/85 ${centered ? 'max-w-2xl mx-auto' : 'max-w-2xl'}`}
           >
             {subtitle}
           </p>

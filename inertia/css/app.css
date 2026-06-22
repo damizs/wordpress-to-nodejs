@@ -472,34 +472,12 @@ html.js-anim [data-reveal].no-transition {
     background: var(--gradient-gold);
   }
 
-  /** Grade sutil — faixa institucional / governamental */
-  .template-classico-grid {
-    background-image:
-      linear-gradient(hsl(var(--gold) / 0.07) 1px, transparent 1px),
-      linear-gradient(90deg, hsl(var(--gold) / 0.07) 1px, transparent 1px);
-    background-size: 22px 22px;
-  }
-
-  /** Mesh + grade — hero moderno */
-  .template-modern-mesh {
-    background-image:
-      radial-gradient(ellipse 70% 55% at 15% 0%, hsl(var(--gold) / 0.14), transparent 55%),
-      radial-gradient(ellipse 55% 45% at 85% 100%, hsl(var(--sky) / 0.18), transparent 50%);
-  }
-
+  /* Grade discreta do hero moderno (única decoração de template em uso) */
   .template-modern-grid {
     background-image:
       linear-gradient(hsl(var(--primary-foreground) / 0.045) 1px, transparent 1px),
       linear-gradient(90deg, hsl(var(--primary-foreground) / 0.045) 1px, transparent 1px);
     background-size: 28px 28px;
-  }
-
-  .template-gold-rule {
-    @apply h-1 bg-gradient-to-r from-transparent via-gold to-transparent;
-  }
-
-  .template-gold-rule-solid {
-    @apply h-1 bg-gold;
   }
 
   /* Fundo suave de seções (home E-SIC, transparência, etc.) */
