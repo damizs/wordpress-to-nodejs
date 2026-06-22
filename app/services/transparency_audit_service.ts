@@ -51,7 +51,7 @@ export interface TransparencyAuditReport {
   checkedAt: string
 }
 
-interface ModuleProbe {
+export interface ModuleProbe {
   key: string
   label: string
   adminHref: string
@@ -192,7 +192,7 @@ function toDateTime(value: unknown): DateTime | null {
   return sql.isValid ? sql : null
 }
 
-function normalizePath(url: string): string | null {
+export function normalizePath(url: string): string | null {
   const trimmed = url.trim()
   if (!trimmed || trimmed === '#' || trimmed.startsWith('javascript:')) return null
   try {
@@ -237,7 +237,7 @@ async function probeModule(probe: ModuleProbe): Promise<ModuleSnapshot> {
   return snapshot
 }
 
-function evaluateModuleHealth(
+export function evaluateModuleHealth(
   probe: ModuleProbe,
   snap: ModuleSnapshot
 ): { health: LinkHealth; detail: string } {

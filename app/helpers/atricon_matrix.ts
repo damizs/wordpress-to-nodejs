@@ -618,6 +618,7 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
     verification: [D],
     hint: 'Indicar no portal a unidade responsável pelo SIC físico.',
     route: '/acesso-a-informacao',
+    autoCheck: 'sicContact',
     external: true,
   },
   {
@@ -628,6 +629,7 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
     verification: [D],
     hint: 'Dados completos do SIC físico no portal.',
     route: '/acesso-a-informacao',
+    autoCheck: 'sicContact',
     external: true,
   },
   {
@@ -638,6 +640,7 @@ export const ATRICON_CRITERIA: AtriconCriterion[] = [
     verification: [D],
     hint: 'Formulário e-SIC do sistema externo, com link destacado no portal.',
     route: '/acesso-a-informacao',
+    autoCheck: 'esicDigital',
     external: true,
   },
   {
@@ -1031,6 +1034,8 @@ export const AUTO_CHECK_ACTION_HREF: Record<string, string> = {
   dpo: '/painel/aparencia',
   privacyPolicy: '/politica-de-privacidade',
   digitalServices: '/painel/aparencia',
+  esicDigital: '/painel/aparencia',
+  sicContact: '/painel/aparencia',
   openData: '/dados-abertos',
   liveSessions: '/painel/sessoes',
 }

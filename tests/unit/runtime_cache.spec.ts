@@ -28,4 +28,21 @@ test.group('RuntimeCache', () => {
 
     assert.equal(value, 'fresh')
   })
+
+  test('does not reuse expired values', async ({ assert }) => {
+    let calls = 0
+
+    await RuntimeCache.getOrSet('test:expired', -1, async () => {
+      calls++
+      return 'old'
+    })
+
+    const value = await RuntimeCache.getOrSet('test:expired', 1_000, async () => {
+      calls++
+      return 'fresh'
+    })
+
+    assert.equal(value, 'fresh')
+    assert.equal(calls, 2)
+  })
 })

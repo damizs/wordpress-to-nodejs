@@ -50,6 +50,15 @@ export default class DynamicInfoController {
     const allCategories = await SystemCategory.byType('information_record')
     const siteSettings = await SiteSetting.allAsObject()
 
+    const latestRecord = await InformationRecord.query()
+      .where('category', slug)
+      .where('is_active', true)
+      .where((builder) => {
+        builder.whereNotNull('reference_date').orWhereNotNull('updated_at').orWhereNotNull('created_at')
+      })
+      .orderByRaw('COALESCE(reference_date, updated_at, created_at) DESC')
+      .first()
+
     const yearRows = await InformationRecord.query()
       .where('category', slug)
       .where('is_active', true)
@@ -62,6 +71,11 @@ export default class DynamicInfoController {
       allCategories: allCategories.map((c) => c.serialize()),
       years: yearRows.map((r) => r.year).filter(Boolean),
       filters: { year, search },
+      latestUpdate:
+        latestRecord?.referenceDate ||
+        latestRecord?.updatedAt?.toISO() ||
+        latestRecord?.createdAt?.toISO() ||
+        null,
       siteSettings,
     })
   }

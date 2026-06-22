@@ -350,6 +350,18 @@ async function runAutoChecks(): Promise<Record<string, AutoCheckResult>> {
   const esicOk = hasUsefulUrl(settings.esic_new_url) || hasUsefulUrl(settings.esic_consult_url)
   const ouvidoriaOk = hasUsefulUrl(settings.ouvidoria_url)
   const hasContactChannel = Boolean(settings.footer_email || settings.footer_phone || ouvidoriaOk)
+  const sicHasResponsibleUnit = Boolean(settings.sic_unit || settings.sic_monitoring_authority)
+  const sicHasLocation = Boolean(settings.homepage_esic_address || settings.footer_address)
+  const sicHasHours = Boolean(settings.homepage_esic_hours || settings.footer_hours)
+  const sicHasPhone = Boolean(settings.homepage_esic_phone || settings.esic_phone || settings.footer_phone)
+  const sicHasEmail = Boolean(settings.homepage_esic_email || settings.esic_email || settings.footer_email)
+  const sicContactMissing = [
+    !sicHasResponsibleUnit && 'unidade/setor responsável',
+    !sicHasLocation && 'endereço físico',
+    !sicHasPhone && 'telefone',
+    !sicHasEmail && 'e-mail',
+    !sicHasHours && 'horário de atendimento',
+  ].filter(Boolean)
 
   const checks: Record<string, AutoCheckResult> = {
     always: ok('Recurso nativo do portal — disponível em todas as páginas'),
@@ -523,6 +535,17 @@ async function runAutoChecks(): Promise<Record<string, AutoCheckResult>> {
         : esicOk || ouvidoriaOk
           ? parcial('Há canal digital configurado, mas falta e-SIC ou Ouvidoria eletrônica')
           : falha('Configure os links externos do e-SIC e da Ouvidoria em Aparência/menus'),
+
+    esicDigital: esicOk
+      ? ok('e-SIC eletrônico configurado e publicado no portal')
+      : falha('Configure o link do e-SIC eletrônico em Aparência ou Menus do Site'),
+
+    sicContact:
+      esicOk && sicContactMissing.length === 0
+        ? ok('SIC com sistema eletrônico, endereço físico, telefone, e-mail e horário de atendimento')
+        : esicOk
+          ? parcial(`e-SIC configurado, mas falta explicitar: ${sicContactMissing.join(', ')}`)
+          : falha('Configure o e-SIC e os dados da unidade responsável pelo SIC físico'),
 
     openData: ok('Dados abertos nativos disponíveis em JSON e CSV, com licença CC BY 4.0 e dicionário de campos'),
 
