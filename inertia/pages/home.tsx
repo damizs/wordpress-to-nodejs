@@ -203,16 +203,18 @@ export default function Home({
             );
 
             const node = {
-              news: shell(
-                <NewsSection
-                  news={newsForHome}
-                  backgroundImage={template.homeHero ? null : newsBackgroundImage}
-                  bannerImage={modernNewsSection ? newsBackgroundImage : null}
-                  layout={modernNewsSection ? "destaque" : newsLayout}
-                  limit={newsLimit}
-                  plain={modernNewsSection}
-                />
-              ),
+              // No modelo Moderno o hero já é a vitrine de notícias — não repetir a seção.
+              news: modernNewsSection
+                ? null
+                : shell(
+                    <NewsSection
+                      news={newsForHome}
+                      backgroundImage={template.homeHero ? null : newsBackgroundImage}
+                      bannerImage={null}
+                      layout={newsLayout}
+                      limit={newsLimit}
+                    />
+                  ),
               quickaccess: shell(
                 <QuickAccessSection
                   quickLinks={quickLinks}
