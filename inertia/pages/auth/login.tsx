@@ -11,7 +11,7 @@ interface LoginProps {
 
 export default function Login({ siteSettings = {} }: LoginProps) {
   const [showPassword, setShowPassword] = useState(false)
-  const { data, setData, post, processing } = useForm({
+  const { data, setData, post, processing, errors } = useForm({
     email: '',
     password: '',
   })
@@ -53,7 +53,7 @@ export default function Login({ siteSettings = {} }: LoginProps) {
               Acesso restrito
             </p>
             <h1 className="text-2xl font-bold text-white">{loginTitle}</h1>
-            <p className="text-white/65 text-sm mt-1">{loginSubtitle}</p>
+            <p className="text-white/80 text-sm mt-1">{loginSubtitle}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-xl p-8 space-y-5">
@@ -62,7 +62,7 @@ export default function Login({ siteSettings = {} }: LoginProps) {
                 Email
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" aria-hidden="true" />
                 <input
                   id="email"
                   type="email"
@@ -71,8 +71,15 @@ export default function Login({ siteSettings = {} }: LoginProps) {
                   className="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none transition-all"
                   placeholder="seu@email.com"
                   required
+                  aria-invalid={!!errors.email}
+                  aria-describedby={errors.email ? 'email-error' : undefined}
                 />
               </div>
+              {errors.email && (
+                <p id="email-error" role="alert" className="mt-1.5 text-xs text-red-600">
+                  {errors.email}
+                </p>
+              )}
             </div>
 
             <div>
@@ -80,7 +87,7 @@ export default function Login({ siteSettings = {} }: LoginProps) {
                 Senha
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" aria-hidden="true" />
                 <input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
@@ -89,16 +96,23 @@ export default function Login({ siteSettings = {} }: LoginProps) {
                   className="w-full pl-11 pr-11 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none transition-all"
                   placeholder="Sua senha"
                   required
+                  aria-invalid={!!errors.password}
+                  aria-describedby={errors.password ? 'password-error' : undefined}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
                   aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
                 >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showPassword ? <EyeOff className="w-5 h-5" aria-hidden="true" /> : <Eye className="w-5 h-5" aria-hidden="true" />}
                 </button>
               </div>
+              {errors.password && (
+                <p id="password-error" role="alert" className="mt-1.5 text-xs text-red-600">
+                  {errors.password}
+                </p>
+              )}
             </div>
 
             <button
@@ -110,8 +124,8 @@ export default function Login({ siteSettings = {} }: LoginProps) {
             </button>
           </form>
 
-          <p className="text-center text-white/40 text-xs mt-6">
-            {new Date().getFullYear()} {loginSubtitle}
+          <p className="text-center text-white/70 text-xs mt-6">
+            © {new Date().getFullYear()} {loginSubtitle}
           </p>
         </div>
       </div>

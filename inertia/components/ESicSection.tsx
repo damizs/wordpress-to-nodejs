@@ -92,11 +92,10 @@ export const ESicSection = ({ title, subtitle, hideHeading = false }: ESicSectio
 
   return (
     <section id="esic" className="relative section-block overflow-hidden">
-      {/* Fundo navy de ponta a ponta (full-bleed) */}
+      {/* Fundo navy de ponta a ponta (full-bleed) — um único brilho sutil */}
       <div className="absolute inset-0 bg-gradient-hero" aria-hidden />
       <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden>
         <div className="absolute top-0 right-0 w-96 h-96 bg-gold/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-96 h-96 bg-sky/10 rounded-full blur-3xl" />
       </div>
 
       <div className="relative container">
@@ -164,9 +163,7 @@ export const ESicSection = ({ title, subtitle, hideHeading = false }: ESicSectio
             className="relative overflow-hidden rounded-2xl sm:rounded-3xl p-5 sm:p-8 text-primary-foreground shadow-xl min-h-[280px] sm:min-h-[320px] border border-primary-foreground/10"
           >
             <div className="absolute inset-0 bg-gradient-navy" />
-            <div className="absolute inset-0 bg-gradient-to-br from-gold/10 via-transparent to-sky/10" />
             <div className="absolute -top-20 -right-20 h-60 w-60 rounded-full bg-gold/10 blur-3xl" />
-            <div className="absolute -bottom-20 -left-20 h-60 w-60 rounded-full bg-sky/10 blur-3xl" />
 
             <div className="relative">
               <h3 className="text-xl font-bold mb-8">Atendimento Presencial</h3>
