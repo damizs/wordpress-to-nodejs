@@ -122,8 +122,8 @@ export const SITE_TEMPLATES: SiteTemplate[] = [
     key: 'compacto',
     label: 'Compacto / Notícias',
     description:
-      'Cabeçalho slim em uma linha (logo + menu + busca) e faixa compacta de abertura (busca + atalhos), sem hero gigante. Home densa, orientada a notícias e atalhos.',
-    homeHero: true,
+      'Cabeçalho slim em uma linha (logo + menu + busca), sem hero — a home abre direto nas notícias. Denso e orientado a atualidade.',
+    homeHero: false,
     // Foco em densidade/atualidade: notícias, atalhos, legislativo e diário no topo.
     homeOrder: [
       'news',

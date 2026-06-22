@@ -64,7 +64,6 @@ export function HomeHero({ template, backgroundImage }: HomeHeroProps) {
     "Comprometida com a transparência e o bem-estar da população.";
   const [titleFirstWord, ...titleRest] = title.split(" ");
   const titleTail = titleRest.join(" ");
-  const resolvedLogo = settings.logo_url || null;
 
   /* ===================== MODERNO / DESTAQUE — imagem em destaque ===================== */
   if (template === "moderno") {
@@ -83,9 +82,6 @@ export function HomeHero({ template, backgroundImage }: HomeHeroProps) {
 
         <div className="relative container py-14 lg:py-20">
           <div className="max-w-xl" data-reveal="fade-right">
-            {resolvedLogo && (
-              <img src={resolvedLogo} alt="" className="mb-6 h-16 w-auto max-w-[240px] object-contain drop-shadow-2xl sm:h-20" />
-            )}
             <div className="mb-4 flex items-center gap-3">
               <span className="text-xs font-semibold uppercase tracking-[0.16em] text-gold">{subtitle}</span>
               <span className="h-px w-12 bg-gradient-to-r from-gold/70 to-transparent" aria-hidden="true" />
@@ -127,42 +123,6 @@ export function HomeHero({ template, backgroundImage }: HomeHeroProps) {
     );
   }
 
-  /* ===================== COMPACTO / NOTÍCIAS — faixa slim ===================== */
-  if (template === "compacto") {
-    return (
-      <section className="relative overflow-hidden border-b border-border bg-card">
-        <div className="container py-4">
-          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex min-w-0 items-center gap-3">
-              {resolvedLogo ? (
-                <img src={resolvedLogo} alt="" className="h-10 w-auto max-w-[150px] object-contain sm:h-12" />
-              ) : null}
-              <div className="hidden min-w-0 border-l border-border pl-3 sm:block">
-                <p className="truncate text-sm font-extrabold leading-tight text-foreground">{title}</p>
-                <p className="truncate text-xs text-muted-foreground">Notícias e serviços do Legislativo</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <nav className="hidden items-center gap-1 md:flex">
-                {SERVICE_LINKS.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-muted-foreground no-underline transition-colors hover:bg-muted hover:text-navy dark:hover:text-sky"
-                  >
-                    <item.icon className="h-3.5 w-3.5 text-navy dark:text-sky" aria-hidden="true" />
-                    {item.title.replace("Portal da ", "")}
-                  </Link>
-                ))}
-              </nav>
-              <HeroSearch size="sm" />
-            </div>
-          </div>
-        </div>
-      </section>
-    );
-  }
-
   /* ===================== CLÁSSICO / GOVERNAMENTAL — claro, sóbrio ===================== */
   return (
     <section className="relative border-b border-border bg-gradient-to-b from-secondary/40 to-background">
@@ -171,9 +131,6 @@ export function HomeHero({ template, backgroundImage }: HomeHeroProps) {
         <div className="grid items-center gap-10 lg:grid-cols-[1fr_0.92fr]">
           {/* Identidade + busca */}
           <div data-reveal="fade-right">
-            {resolvedLogo && (
-              <img src={resolvedLogo} alt="" className="mb-5 h-16 w-auto max-w-[240px] object-contain sm:h-20" />
-            )}
             <span className="inline-flex items-center rounded-full bg-navy/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-navy dark:bg-primary-foreground/10 dark:text-primary-foreground">
               {subtitle}
             </span>

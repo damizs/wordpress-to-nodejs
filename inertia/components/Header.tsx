@@ -610,19 +610,21 @@ export const Header = ({ logoUrl }: HeaderProps) => {
         {widgets}
         {compactBar}
 
-        {/* Identidade enxuta: a logo já carrega o nome da Câmara. */}
-        <div className="border-b border-primary-foreground/10">
-          <div className="container flex items-center gap-4 py-3">
-            <Link href="/" className="flex items-center no-underline shrink-0">
-              {logoOrInitial("h-12 md:h-14 w-auto object-contain")}
-            </Link>
-            <nav className="hidden lg:block ml-auto min-w-0">
-              <ul className="flex items-center min-w-0">{renderClassicoNavLinks()}</ul>
-            </nav>
-            <div className="hidden lg:block pl-4 border-l border-primary-foreground/15">{searchButtonDark}</div>
-            <div className="lg:hidden ml-auto shrink-0">{mobileButton("dark")}</div>
-          </div>
+        {/* Linha 1 — identidade + busca (a logo já carrega o nome da Câmara) */}
+        <div className="container flex items-center justify-between gap-4 py-3">
+          <Link href="/" className="flex items-center no-underline shrink-0">
+            {logoOrInitial("h-12 md:h-14 w-auto object-contain")}
+          </Link>
+          <div className="hidden lg:block">{searchButtonDark}</div>
+          <div className="lg:hidden shrink-0">{mobileButton("dark")}</div>
         </div>
+
+        {/* Linha 2 — barra de navegação (gov.br): alinhada ao conteúdo, sem vão solto */}
+        <nav className="hidden border-t border-primary-foreground/10 bg-navy-dark lg:block">
+          <div className="container">
+            <ul className="flex items-center gap-0.5">{renderClassicoNavLinks()}</ul>
+          </div>
+        </nav>
 
         {searchStripNeutral}
         {mobileNavNeutral}
