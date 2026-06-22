@@ -199,14 +199,17 @@ export const AccessibilityBar = () => {
   const btnActive = "bg-gold text-navy-dark hover:bg-gold-light";
 
   return (
-    <div ref={rootRef} className="fixed bottom-24 right-6 z-50">
+    <div
+      ref={rootRef}
+      className="fixed right-[var(--mobile-dock-right)] bottom-[calc(var(--mobile-dock-bottom)+var(--mobile-dock-step))] z-50 sm:right-6 sm:bottom-24"
+    >
       {/* Painel popover (abre acima do botão) */}
       {open && (
         <div
           id="painel-acessibilidade"
           role="dialog"
           aria-label="Opções de acessibilidade"
-          className="absolute bottom-full right-0 mb-3 w-72 max-w-[calc(100vw-48px)] rounded-xl border border-border bg-card text-card-foreground shadow-lg p-4 animate-fade-in"
+          className="absolute bottom-full right-0 mb-3 w-[min(18rem,calc(100vw-1.5rem))] rounded-xl border border-border bg-card text-card-foreground shadow-lg p-4 animate-fade-in"
         >
           <div className="flex items-center justify-between mb-3">
             <span className="flex items-center gap-1.5 text-sm font-bold">
@@ -317,9 +320,9 @@ export const AccessibilityBar = () => {
         aria-controls={open ? "painel-acessibilidade" : undefined}
         aria-label={open ? "Fechar opções de acessibilidade" : "Abrir opções de acessibilidade"}
         title="Acessibilidade"
-        className="w-14 h-14 rounded-full bg-navy text-white shadow-lg hover:shadow-xl hover:scale-110 hover:bg-gold hover:text-navy-dark transition-all duration-300 flex items-center justify-center"
+        className="flex h-[var(--mobile-dock-size)] w-[var(--mobile-dock-size)] items-center justify-center rounded-full bg-navy text-white shadow-lg ring-1 ring-white/15 transition-all duration-300 hover:scale-105 hover:bg-gold hover:text-navy-dark hover:shadow-xl sm:h-14 sm:w-14"
       >
-        <PersonStanding className="w-7 h-7" aria-hidden="true" />
+        <PersonStanding className="h-6 w-6 sm:h-7 sm:w-7" aria-hidden="true" />
       </button>
     </div>
   );

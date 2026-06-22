@@ -262,11 +262,11 @@ export default function TransparenciaIndex({ sections = [], openLink = null }: P
         <main>
           <section className="py-10 lg:py-14">
             <div className="container">
-            <div className="lg:flex lg:items-start lg:gap-12 xl:gap-16 2xl:gap-20">
+            <div className="lg:flex lg:items-start lg:gap-8 xl:gap-10 2xl:gap-12">
               {/* Sidebar de navegação (padrão dos portais): card fixo no viewport,
                   sem ocupar toda a altura da página. */}
-              <aside className="hidden lg:block w-[280px] 2xl:w-[320px] shrink-0 self-start sticky top-24">
-                <nav className="max-h-[calc(100vh-7rem)] overflow-y-auto overscroll-contain rounded-2xl bg-card/80 border border-border/60 shadow-sm [scrollbar-width:thin]">
+              <aside className="hidden lg:block w-[260px] xl:w-[280px] shrink-0 self-start sticky top-20">
+                <nav className="max-h-[calc(100vh-6rem)] overflow-y-auto overscroll-contain rounded-2xl bg-card/95 border border-border/60 shadow-sm [scrollbar-width:thin]">
                   {filtered.map((section) => {
                     const Icon = iconMap[section.icon || ""] || FolderOpen;
                     const isActive = activeSection === section.slug;
@@ -343,7 +343,7 @@ export default function TransparenciaIndex({ sections = [], openLink = null }: P
               <div className="flex-1 min-w-0">
                 {/* Busca */}
                 <div data-reveal="up" className="mb-10">
-                  <div className="flex max-w-4xl">
+                  <div className="flex w-full">
                     <input
                       type="search"
                       value={query}
@@ -386,7 +386,7 @@ export default function TransparenciaIndex({ sections = [], openLink = null }: P
                           </span>
                         </header>
 
-                        <div className="grid gap-3 sm:gap-4 2xl:gap-5 grid-cols-1 min-[400px]:grid-cols-2 sm:grid-cols-[repeat(auto-fill,minmax(180px,1fr))] 2xl:grid-cols-[repeat(auto-fill,minmax(210px,1fr))]">
+                        <div className="grid gap-3 sm:gap-4 2xl:gap-5 grid-cols-1 min-[400px]:grid-cols-2 sm:grid-cols-[repeat(auto-fill,minmax(180px,1fr))] 2xl:grid-cols-[repeat(auto-fill,minmax(190px,1fr))]">
                           {section.links.map((link) => (
                             <CardLink key={link.id} link={link} onOpenModal={openModal} />
                           ))}

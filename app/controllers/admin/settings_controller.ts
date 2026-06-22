@@ -171,6 +171,8 @@ const APPEARANCE_KEYS: Record<
   social_youtube: { group: 'social', defaultValue: '', type: 'text', label: 'YouTube' },
   esic_new_url: { group: 'esic', defaultValue: '#', type: 'text', label: 'Link Nova Demanda' },
   esic_consult_url: { group: 'esic', defaultValue: '#', type: 'text', label: 'Link Consultar' },
+  sic_unit: { group: 'esic', defaultValue: 'Serviço de Informação ao Cidadão (SIC) da Câmara Municipal de Sumé', type: 'text', label: 'Unidade responsável pelo SIC' },
+  sic_monitoring_authority: { group: 'esic', defaultValue: 'Presidência da Câmara Municipal de Sumé', type: 'text', label: 'Autoridade de monitoramento' },
   esic_phone: { group: 'esic', defaultValue: '', type: 'text', label: 'Telefone E-SIC' },
   esic_email: { group: 'esic', defaultValue: '', type: 'text', label: 'Email E-SIC' },
 }

@@ -49,6 +49,14 @@ export const ESicSection = ({ title, subtitle, hideHeading = false }: ESicSectio
     settings.esic_email,
     SUME_ESIC_CONTACT.email
   );
+  const sicUnit = pickSetting(
+    settings.sic_unit,
+    "Serviço de Informação ao Cidadão (SIC) da Câmara Municipal de Sumé"
+  );
+  const monitoringAuthority = pickSetting(
+    settings.sic_monitoring_authority,
+    "Presidência da Câmara Municipal de Sumé"
+  );
 
   const linkProps = (url: string) =>
     url.startsWith("http") ? { target: "_blank", rel: "noopener noreferrer" as const } : {};
@@ -189,6 +197,31 @@ export const ESicSection = ({ title, subtitle, hideHeading = false }: ESicSectio
                   );
                 })}
               </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-6 sm:mt-8 max-w-6xl mx-auto rounded-2xl border border-primary-foreground/15 bg-card/95 p-5 sm:p-6 shadow-lg" data-reveal>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 text-sm">
+            <div>
+              <span className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+                Unidade responsável
+              </span>
+              <p className="font-semibold text-foreground leading-relaxed">{sicUnit}</p>
+            </div>
+            <div>
+              <span className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+                Autoridade de monitoramento
+              </span>
+              <p className="font-semibold text-foreground leading-relaxed">{monitoringAuthority}</p>
+            </div>
+            <div>
+              <span className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
+                Prazos da LAI
+              </span>
+              <p className="text-muted-foreground leading-relaxed">
+                Resposta em até 20 dias, prorrogáveis por 10 dias mediante justificativa. O recurso deve seguir os prazos informados no sistema e-SIC.
+              </p>
             </div>
           </div>
         </div>

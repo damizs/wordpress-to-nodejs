@@ -47,7 +47,7 @@ const BLOCK_TYPES = new Set([
 ])
 
 /** Garante que `blocks` vindo do form é um array de blocos com tipos conhecidos. */
-function sanitizeBlocks(raw: unknown): PageBlock[] | null {
+export function sanitizeBlocks(raw: unknown): PageBlock[] | null {
   let value = raw
   if (typeof value === 'string') {
     try {

@@ -1,5 +1,14 @@
 import { Link, usePage } from "@inertiajs/react";
-import { MapPin, Phone, Mail, Clock, Facebook, Instagram, Youtube } from "lucide-react";
+import {
+  ChevronDown,
+  Clock,
+  Facebook,
+  Instagram,
+  Mail,
+  MapPin,
+  Phone,
+  Youtube,
+} from "lucide-react";
 import { useSiteSettings } from "~/hooks/use_site_settings";
 
 interface FooterProps {
@@ -43,20 +52,20 @@ const defaultFooterColumns: FooterColumn[] = [
   },
 ];
 
-/** Colunas editáveis no painel (/painel/menus); cai no padrão se a setting estiver vazia */
+/** Colunas editáveis no painel (/painel/menus); cai no padrão se a setting estiver vazia. */
 function parseFooterColumns(raw: string | null | undefined): FooterColumn[] {
   if (!raw) return defaultFooterColumns;
   try {
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed) || parsed.length === 0) return defaultFooterColumns;
     return parsed
-      .filter((c: any) => c && c.title)
-      .map((c: any) => ({
-        title: String(c.title),
-        links: Array.isArray(c.links)
-          ? c.links
-              .filter((l: any) => l && l.label && l.href)
-              .map((l: any) => ({ label: String(l.label), href: String(l.href) }))
+      .filter((column: any) => column && column.title)
+      .map((column: any) => ({
+        title: String(column.title),
+        links: Array.isArray(column.links)
+          ? column.links
+              .filter((link: any) => link && link.label && link.href)
+              .map((link: any) => ({ label: String(link.label), href: String(link.href) }))
           : [],
       }));
   } catch {
@@ -66,7 +75,6 @@ function parseFooterColumns(raw: string | null | undefined): FooterColumn[] {
 
 export const Footer = ({ logoUrl }: FooterProps) => {
   const settings = useSiteSettings();
-  // Modo embed (?embed=1): página renderizada dentro de um modal/iframe — sem rodapé
   const { url: currentUrl } = usePage();
   const isEmbed = /[?&]embed=1/.test(currentUrl);
   const footerColumns = parseFooterColumns(settings.footer_columns);
@@ -82,60 +90,69 @@ export const Footer = ({ logoUrl }: FooterProps) => {
   const email = settings.footer_email || "contato@camaradesume.pb.gov.br";
   const hours = settings.footer_hours || "Seg a Sex, 8h às 14h";
 
-  // Sempre exibe os 3 ícones; usa a URL configurada quando existir, senão cai na home.
   const socials = [
     { icon: Facebook, label: "Facebook", url: settings.social_facebook },
     { icon: Instagram, label: "Instagram", url: settings.social_instagram },
     { icon: Youtube, label: "YouTube", url: settings.social_youtube },
-  ].map((s) => {
-    const configured = s.url && s.url.trim() !== "";
+  ].map((social) => {
+    const configured = social.url && social.url.trim() !== "";
     return {
-      icon: s.icon,
-      label: s.label,
-      href: configured ? s.url!.trim() : "/",
+      icon: social.icon,
+      label: social.label,
+      href: configured ? social.url!.trim() : "/",
       external: !!configured,
     };
   });
 
   if (isEmbed) return null;
 
+  const renderFooterLink = (link: FooterLink, className: string) =>
+    link.href.startsWith("http") ? (
+      <a href={link.href} target="_blank" rel="noopener noreferrer" className={className}>
+        {link.label}
+      </a>
+    ) : (
+      <Link href={link.href} className={className}>
+        {link.label}
+      </Link>
+    );
+
   return (
     <footer className="bg-navy-dark text-primary-foreground">
-      {/* Acento gold fino e discreto no topo */}
       <div className="h-0.5 w-full bg-gold/60" />
 
-      {/* Main Footer */}
-      <div className="container py-14 lg:py-16 min-w-0">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12">
-          {/* Logo & Description */}
-          <div className="lg:max-w-xs">
-            <div className="flex items-center gap-3 mb-5">
+      <div className="container min-w-0 py-8 sm:py-10 lg:py-16">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4 lg:gap-12">
+          <div className="rounded-2xl border border-primary-foreground/10 bg-primary-foreground/[0.04] p-5 text-center md:text-left lg:max-w-xs lg:border-0 lg:bg-transparent lg:p-0">
+            <div className="mb-4 flex items-center justify-center gap-3 md:justify-start lg:mb-5">
               {resolvedLogo ? (
                 <img
                   src={resolvedLogo}
                   alt={headerTitle}
-                  className="h-16 w-auto object-contain"
+                  className="h-14 w-auto max-w-[14rem] object-contain sm:h-16"
                 />
               ) : (
                 <>
-                  <div className="w-12 h-12 rounded-full bg-primary-foreground/10 flex items-center justify-center border border-primary-foreground/30">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full border border-primary-foreground/30 bg-primary-foreground/10">
                     <span className="text-xl font-bold">{titleFirstWord.charAt(0)}</span>
                   </div>
                   <div>
-                    <h3 className="font-bold text-lg leading-tight">{titleFirstWord}</h3>
-                    <p className="text-gold text-sm">{titleRest.join(" ")}</p>
+                    <h3 className="text-lg font-bold leading-tight">{titleFirstWord}</h3>
+                    <p className="text-sm text-gold">{titleRest.join(" ")}</p>
                   </div>
                 </>
               )}
             </div>
-            <p className="text-sm text-primary-foreground/70 mb-6 leading-relaxed">
+
+            <p className="mx-auto mb-5 max-w-sm text-sm leading-relaxed text-primary-foreground/72 md:mx-0 lg:mb-6">
               {description}
             </p>
-            <div className="flex gap-3">
+
+            <div className="flex justify-center gap-3 md:justify-start">
               {socials.map((social, index) => {
                 const Icon = social.icon;
                 const className =
-                  "w-10 h-10 rounded-full bg-primary-foreground/10 flex items-center justify-center text-primary-foreground/90 hover:bg-gold hover:text-navy-dark transition-colors duration-200";
+                  "flex h-10 w-10 items-center justify-center rounded-full bg-primary-foreground/10 text-primary-foreground/90 transition-colors duration-200 hover:bg-gold hover:text-navy-dark";
                 return social.external ? (
                   <a
                     key={index}
@@ -146,7 +163,7 @@ export const Footer = ({ logoUrl }: FooterProps) => {
                     title={social.label}
                     className={className}
                   >
-                    <Icon className="w-[18px] h-[18px]" />
+                    <Icon className="h-[18px] w-[18px]" />
                   </a>
                 ) : (
                   <Link
@@ -156,80 +173,87 @@ export const Footer = ({ logoUrl }: FooterProps) => {
                     title={social.label}
                     className={className}
                   >
-                    <Icon className="w-[18px] h-[18px]" />
+                    <Icon className="h-[18px] w-[18px]" />
                   </Link>
                 );
               })}
             </div>
           </div>
 
-          {/* Colunas de links (editáveis em /painel/menus) */}
-          {footerColumns.map((column, ci) => (
-            <div key={ci}>
-              <h4 className="font-bold text-sm uppercase tracking-wider mb-2">{column.title}</h4>
-              <div className="w-8 h-0.5 bg-gold rounded-full mb-5" />
-              <ul className="space-y-3 text-sm">
-                {column.links.map((link, li) => (
-                  <li key={li}>
-                    {link.href.startsWith("http") ? (
-                      <a
-                        href={link.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary-foreground/70 hover:text-gold transition-colors duration-200 no-underline"
-                      >
-                        {link.label}
-                      </a>
-                    ) : (
-                      <Link
-                        href={link.href}
-                        className="text-primary-foreground/70 hover:text-gold transition-colors duration-200 no-underline"
-                      >
-                        {link.label}
-                      </Link>
-                    )}
-                  </li>
-                ))}
-              </ul>
+          {footerColumns.map((column, columnIndex) => (
+            <div key={columnIndex}>
+              <details className="group rounded-2xl border border-primary-foreground/10 bg-primary-foreground/[0.04] md:hidden">
+                <summary className="flex min-h-[3.5rem] cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-bold uppercase tracking-wider [&::-webkit-details-marker]:hidden">
+                  {column.title}
+                  <ChevronDown
+                    className="h-4 w-4 text-gold transition-transform group-open:rotate-180"
+                    aria-hidden="true"
+                  />
+                </summary>
+                <ul className="space-y-1 border-t border-primary-foreground/10 px-3 pb-3 pt-2 text-sm">
+                  {column.links.map((link, linkIndex) => (
+                    <li key={linkIndex}>
+                      {renderFooterLink(
+                        link,
+                        "block rounded-xl px-3 py-2.5 text-primary-foreground/72 transition-colors duration-200 no-underline hover:bg-primary-foreground/10 hover:text-gold"
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </details>
+
+              <div className="hidden md:block">
+                <h4 className="mb-2 text-sm font-bold uppercase tracking-wider">{column.title}</h4>
+                <div className="mb-5 h-0.5 w-8 rounded-full bg-gold" />
+                <ul className="space-y-3 text-sm">
+                  {column.links.map((link, linkIndex) => (
+                    <li key={linkIndex}>
+                      {renderFooterLink(
+                        link,
+                        "text-primary-foreground/70 transition-colors duration-200 no-underline hover:text-gold"
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           ))}
 
-          {/* Contact */}
-          <div>
-            <h4 className="font-bold text-sm uppercase tracking-wider mb-2">Contato</h4>
-            <div className="w-8 h-0.5 bg-gold rounded-full mb-5" />
-            <ul className="space-y-4 text-sm">
+          <div className="rounded-2xl border border-primary-foreground/10 bg-primary-foreground/[0.04] p-5 lg:border-0 lg:bg-transparent lg:p-0">
+            <h4 className="mb-2 text-sm font-bold uppercase tracking-wider">Contato</h4>
+            <div className="mb-5 h-0.5 w-8 rounded-full bg-gold" />
+            <ul className="space-y-3 text-sm lg:space-y-4">
               {address && (
-                <li className="flex items-start gap-3">
-                  <MapPin className="w-[18px] h-[18px] text-gold shrink-0 mt-0.5" />
-                  <span className="text-primary-foreground/75 leading-relaxed">{address}</span>
+                <li className="flex items-start gap-3 rounded-xl bg-primary-foreground/[0.03] p-3 lg:bg-transparent lg:p-0">
+                  <MapPin className="mt-0.5 h-[18px] w-[18px] shrink-0 text-gold" />
+                  <span className="leading-relaxed text-primary-foreground/75">{address}</span>
                 </li>
               )}
               {phone && (
-                <li className="flex items-center gap-3">
-                  <Phone className="w-[18px] h-[18px] text-gold shrink-0" />
+                <li className="flex items-center gap-3 rounded-xl bg-primary-foreground/[0.03] p-3 lg:bg-transparent lg:p-0">
+                  <Phone className="h-[18px] w-[18px] shrink-0 text-gold" />
                   <a
                     href={`tel:${phone.replace(/[^\d+]/g, "")}`}
-                    className="text-primary-foreground/75 hover:text-gold transition-colors no-underline"
+                    className="text-primary-foreground/75 no-underline transition-colors hover:text-gold"
                   >
                     {phone}
                   </a>
                 </li>
               )}
               {email && (
-                <li className="flex items-start gap-3">
-                  <Mail className="w-[18px] h-[18px] text-gold shrink-0 mt-0.5" />
+                <li className="flex items-start gap-3 rounded-xl bg-primary-foreground/[0.03] p-3 lg:bg-transparent lg:p-0">
+                  <Mail className="mt-0.5 h-[18px] w-[18px] shrink-0 text-gold" />
                   <a
                     href={`mailto:${email}`}
-                    className="text-primary-foreground/75 hover:text-gold transition-colors no-underline break-words [overflow-wrap:anywhere]"
+                    className="break-words text-primary-foreground/75 no-underline transition-colors [overflow-wrap:anywhere] hover:text-gold"
                   >
                     {email}
                   </a>
                 </li>
               )}
               {hours && (
-                <li className="flex items-start gap-3">
-                  <Clock className="w-[18px] h-[18px] text-gold shrink-0 mt-0.5" />
+                <li className="flex items-start gap-3 rounded-xl bg-primary-foreground/[0.03] p-3 lg:bg-transparent lg:p-0">
+                  <Clock className="mt-0.5 h-[18px] w-[18px] shrink-0 text-gold" />
                   <span className="text-primary-foreground/75">{hours}</span>
                 </li>
               )}
@@ -238,14 +262,13 @@ export const Footer = ({ logoUrl }: FooterProps) => {
         </div>
       </div>
 
-      {/* Bottom Bar */}
       <div className="border-t border-primary-foreground/10">
-        <div className="container mx-auto py-5">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-2 text-xs">
-            <p className="text-primary-foreground/60">
+        <div className="container py-4 sm:py-5">
+          <div className="flex flex-col items-center justify-between gap-2 text-center text-[11px] leading-relaxed sm:text-xs md:flex-row md:text-left">
+            <p className="max-w-full text-primary-foreground/60 [overflow-wrap:anywhere]">
               © {new Date().getFullYear()} {headerTitle}. Todos os direitos reservados.
             </p>
-            <p className="text-primary-foreground/50">
+            <p className="max-w-full text-primary-foreground/50 [overflow-wrap:anywhere]">
               Desenvolvido com transparência e compromisso público.
             </p>
           </div>

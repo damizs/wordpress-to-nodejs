@@ -48,9 +48,10 @@ interface Props {
   allCategories?: Category[];
   years?: number[];
   filters?: { year?: string; search?: string };
+  latestUpdate?: string | null;
 }
 
-export default function DynamicInfoPage({ records, category, allCategories = [], years = [], filters = {} }: Props) {
+export default function DynamicInfoPage({ records, category, allCategories = [], years = [], filters = {}, latestUpdate: latestUpdateFromServer = null }: Props) {
   const items = records?.data || [];
   const meta = records?.meta;
   const currentPage = meta?.currentPage || meta?.current_page || 1;
@@ -96,8 +97,8 @@ export default function DynamicInfoPage({ records, category, allCategories = [],
     );
   });
   const total = visibleItems.length;
-  const latestUpdate = visibleItems
-    .map((record) => record.updated_at || record.reference_date || record.created_at)
+  const latestUpdate = (latestUpdateFromServer ? [latestUpdateFromServer] : visibleItems
+    .map((record) => record.reference_date || record.updated_at || record.created_at))
     .filter(Boolean)
     .map((value) => new Date(value as string))
     .filter((date) => !Number.isNaN(date.getTime()))

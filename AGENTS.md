@@ -128,7 +128,9 @@ Biblioteca de Mídia, Aparência (**em abas**: Tema/Campanhas · Modelo & Layout
 Cores · Identidade/logos · **Notícias** (modelo de card: `news_layout` =
 mosaico/grade/lista/destaque) · Rodapé & Contato), Menus do Site,
 Feriados, Selos, Links Rápidos, Categorias, Fotos da Cidade.
-**Sistema:** Usuários, Papéis e Permissões (RBAC).
+**Sistema:** Usuários, Papéis e Permissões (RBAC), **Seguranca e Backups**
+(firewall de aplicacao, auditoria de eventos, backup local/envio via rclone e
+alertas WhatsApp via Evolution API).
 
 ---
 
@@ -158,6 +160,10 @@ em Números, Diário, Instagram, Conheça Sumé, Certificações, Pesquisa) → 
   então fica em **todo o site** (qualquer página, inclusive painel), independente
   do React; só não aparece em conteúdo embedado (`?embed=1`). A barra apenas
   mostra/esconde esse widget global (preferência persistida em `localStorage`).
+- **CSP/embeds oficiais:** `config/shield.ts` mantém allowlist explícita para
+  VLibras, YouTube, Instagram, GET Public, PublicSoft e Elmar. Links PublicSoft/
+  Elmar da Transparência abrem em modal/iframe; e-SIC/Ouvidoria/Radar seguem em
+  nova aba.
 - **Busca global:** lupa no header → `/busca` (ILIKE em 9 entidades).
 - **Menus editáveis:** header e rodapé lidos de `site_settings` (JSON), com
   fallback nos defaults de `menus_controller.ts`. TopBar tem links próprios.
@@ -174,6 +180,21 @@ em Números, Diário, Instagram, Conheça Sumé, Certificações, Pesquisa) → 
 - **Feriados:** nacionais calculados (computus da Páscoa) + municipais/estaduais
   editáveis. `HolidaysStrip` no corpo da home.
 - **Dados abertos:** `/dados-abertos` com export JSON/CSV (6 datasets).
+- **Seguranca operacional:** `/painel/seguranca` controla um firewall de aplicacao
+  global (`AppFirewallMiddleware`) com modo bloquear/monitorar, allowlist/blocklist
+  de IP e bloqueio por trechos de URL. Eventos ficam em `security_events`.
+- **Backups:** `node ace backup:run` gera dump do PostgreSQL (`pg_dump`) e pacote do
+  site (`site.tar.gz`) em `storage/backups` ou `BACKUP_LOCAL_DIR`. Envio para
+  Google Drive/Dropbox usa `rclone` configurado no servidor via
+  `BACKUP_RCLONE_TARGETS` (ex.: `gdrive:camara-sume,dropbox:camara-sume`).
+  Historico das execucoes fica em `backup_runs`.
+- **Alertas WhatsApp (Evolution API):** `/painel/seguranca` configura URL da
+  Evolution, instancia, API key, numeros destinatarios, mensagem do relatorio e
+  gatilhos (login suspeito, bloqueio de firewall e falha/parcial de backup). O
+  comando `node ace evolution:alerts` deve rodar diariamente no servidor: ele
+  verifica a conexao e envia o relatorio quinzenal apenas quando vencer o periodo.
+  A API key nunca volta para o frontend; o painel mostra so se existe chave
+  cadastrada. Todos os envios ficam em `notification_logs` para auditoria/dedupe.
 - **Radar ATRICON:** matriz PNTP/ATRICON 2026 alinhada à planilha oficial
   (`Matriz de Critérios 2026 (Final)`: 83 critérios aplicáveis ao Legislativo
   Municipal), verificação automática REAL do conteúdo (`runAutoChecks`),
@@ -192,7 +213,9 @@ em Números, Diário, Instagram, Conheça Sumé, Certificações, Pesquisa) → 
 - **Convenção PNTP:** e-SIC e Ouvidoria vivem em rotas/canais próprios (`/esic` e
   `/ouvidoria`); folha/remuneração permanece como link externo em Transparência;
   Ordem Cronológica (`/ocp`), Diárias (`/diarias`) e Carta de Serviços
-  (`/carta-servicos`) são páginas dinâmicas de Acesso à Informação.
+  (`/carta-servicos`) são páginas dinâmicas de Acesso à Informação. A seção E-SIC
+  também expõe unidade responsável, autoridade de monitoramento, contato e prazos
+  da LAI; esses campos são editáveis em Aparência → E-SIC.
 - **Modal de links da transparência:** `/transparencia/:slug` (deep-link) abre o
   conteúdo configurado; links internos escondem header/rodapé (`?embed=1`).
 - **SEO:** `SeoController` (sitemap.xml, robots.txt), `SeoHead`.
@@ -269,9 +292,10 @@ em Números, Diário, Instagram, Conheça Sumé, Certificações, Pesquisa) → 
       numéricos com hierarquia.
 - [ ] Passada dedicada de **responsividade/UX** ("site bem preenchido", todas as
       telas) e de acessibilidade.
-- [ ] Rate limiting no login; bloquear/sanear upload de SVG; cache de
-      `siteSettings`; pipeline de otimização de imagem (sharp) nos uploads.
-- [ ] Primeiros testes automatizados (Japa) dos fluxos críticos.
+- [x] Primeiros testes automatizados (Japa) para CSP, saneamento HTML/blocos,
+      uploads (bloqueio SVG/falso PDF), rate limit de login, cache runtime,
+      Radar/frescor, fontes legais da Transparência e rotas públicas críticas.
+- [ ] Pipeline de otimização de imagem (sharp) nos uploads.
 
 ---
 
@@ -280,7 +304,7 @@ em Números, Diário, Instagram, Conheça Sumé, Certificações, Pesquisa) → 
 Plugins ativos no site de Sumé e equivalente nativo:
 - `camara-filters` → filtros das listagens ✅ · `camara-sitemap` → `/mapa-do-site` ✅
 - `portal-transparencia` → Transparência ✅ · `pntp-legislativo` → Radar ATRICON ✅
-- `diario-oficial-sync` → Diário Oficial ✅ (visual do plugin) · `links-rapidos` ✅
+- `diario-oficial-sync` → Diário Oficial ✅ (visual do plugin + import `wp:diario`) · `links-rapidos` ✅ (`wp:quick-links`)
 - `pesquisa-satisfacao` ✅ · `automacao-legislativa-ai` / `noticias-instagram` →
   Automação Instagram ✅ · `pdf-popup-viewer` → LinkModal ✅
 - `pojo-accessibility` + `vlibras-widget` → AccessibilityBar + VLibras ✅
@@ -334,20 +358,35 @@ Fontes de referência em `.acervo/plugins/`.
  Acesso à Informação filtram por **slug** (`information_records.category` = slug,
  não o nome) — o import antigo do `wp:migrate` (por nome) foi desativado.
 - **Migração WP — Diário Oficial / GET Public:** o plugin `diario-oficial-sync`
- sincronizava a tabela GET `MATERIA` para `<prefix>dos_materias` e renderizava
- via shortcode `[diario_oficial]`. Para backup novo: extrair `database.sql` do zip
- e rodar `node scripts/extract_wp_diario.mjs <database.sql>` → gera
- `database/wp_diario_oficial.json` (somente dados públicos; credenciais `dos_*`
- não são exportadas). O comando `node ace wp:diario` importa para
+sincronizava a tabela GET `MATERIA` para `<prefix>dos_materias` e renderizava
+via shortcode `[diario_oficial]`. Para backup novo: extrair `database.sql` do zip
+e rodar `node scripts/extract_wp_diario.mjs <database.sql>` → gera
+`database/wp_diario_oficial.json` (somente dados públicos; credenciais `dos_*`
+não são exportadas). O comando `node ace wp:diario` importa para
  `official_gazette_entries` por `edition_number = materia_codigo`, usando
  `https://getpublic.inf.br/api/document/<codigo>/pdf` como `file_url` para o modal
- público do Diário Oficial.
+ público do Diário Oficial. O `startup.sh` roda esse import uma vez por marcador
+ `.diario-imported-v1` (ou `FORCE_DIARIO_IMPORT=true`).
 - **Migração WP — Links Rápidos:** o plugin `links-rapidos` mantém
- `<prefix>lr_links`/`<prefix>lr_secoes`. Para backup novo, rodar
- `node scripts/extract_wp_quick_links.mjs <database.sql>` → gera
- `database/wp_quick_links.json`. O `wp:migrate` prefere esse JSON quando ele existe
- e importa apenas `secao_id = 1` como atalhos da home; `secao_id = 2` é Acesso à
- Informação/PNTP e fica nos módulos próprios.
+`<prefix>lr_links`/`<prefix>lr_secoes`. Para backup novo, rodar
+`node scripts/extract_wp_quick_links.mjs <database.sql>` → gera
+ `database/wp_quick_links.json`. O comando leve `node ace wp:quick-links` importa
+ apenas `secao_id = 1` como atalhos da home; `secao_id = 2` é Acesso à
+ Informação/PNTP e fica nos módulos próprios. O `startup.sh` roda esse import uma
+ vez por marcador `.quick-links-imported-v1` (ou `FORCE_QUICK_LINKS_IMPORT=true`).
+- **Migração WP — acervo completo de posts/páginas/uploads:** para backup novo,
+extrair o `database.sql` do zip e rodar
+`node scripts/extract_wp_legacy_content.mjs <database.sql>` → gera
+`database/wp_legacy_content.json` (posts publicados, páginas WP, anexos e caminhos
+de upload). Extrair `wp-content/uploads` para `public/uploads/wp-migration/`
+(diretório ignorado no Git); em Windows, usar
+`powershell -ExecutionPolicy Bypass -File scripts\extract_wp_uploads_from_backup.ps1 -BackupZip <backup.zip>`.
+O comando `node ace wp:legacy-content` importa os posts como Notícias históricas e
+preserva páginas antigas no módulo Páginas; slugs que colidem com módulos nativos
+viram `legado-...` e não sobrescrevem rotas. URLs de mídia são reescritas para
+`/uploads/wp-migration/...` quando o arquivo existe; quando o backup não traz o
+arquivo, fica o link remoto original como fallback. O one-off `scripts/wp_import.sh`
+já roda esse importador depois dos módulos específicos.
 
 ---
 

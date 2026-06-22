@@ -119,9 +119,9 @@ export default function SearchIndex({ q = "", results = [], total = 0 }: Props) 
             <div className="container">
               <div>
                 {/* Campo de busca */}
-                <form onSubmit={submit} role="search" className="relative mb-8">
+                <form onSubmit={submit} role="search" className="relative mb-8 flex flex-col gap-3 sm:block">
                   <Search
-                    className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground/60 pointer-events-none"
+                    className="absolute left-4 top-6 h-5 w-5 -translate-y-1/2 text-muted-foreground/60 pointer-events-none sm:top-1/2"
                     aria-hidden="true"
                   />
                   <input
@@ -131,11 +131,11 @@ export default function SearchIndex({ q = "", results = [], total = 0 }: Props) 
                     placeholder="O que você procura?"
                     aria-label="Termo de busca"
                     autoFocus
-                    className="w-full pl-12 pr-32 py-4 rounded-2xl border border-border/60 bg-card text-foreground placeholder:text-muted-foreground/60 shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/40 transition-shadow"
+                    className="w-full rounded-2xl border border-border/60 bg-card py-4 pl-12 pr-4 text-foreground shadow-sm transition-shadow placeholder:text-muted-foreground/60 focus:border-primary/40 focus:outline-none focus:ring-2 focus:ring-primary/40 sm:pr-32"
                   />
                   <button
                     type="submit"
-                    className="absolute right-2 top-1/2 -translate-y-1/2 inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90 transition-opacity"
+                    className="inline-flex min-h-[2.75rem] w-full items-center justify-center gap-1.5 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 sm:absolute sm:right-2 sm:top-1/2 sm:min-h-0 sm:w-auto sm:-translate-y-1/2"
                   >
                     Buscar
                   </button>

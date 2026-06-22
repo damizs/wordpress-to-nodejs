@@ -78,6 +78,8 @@ export default function Appearance({ settings }: Props) {
     social_youtube: getVal(social, 'social_youtube'),
     esic_new_url: getVal(esic, 'esic_new_url'),
     esic_consult_url: getVal(esic, 'esic_consult_url'),
+    sic_unit: getVal(esic, 'sic_unit'),
+    sic_monitoring_authority: getVal(esic, 'sic_monitoring_authority'),
     esic_phone: getVal(esic, 'esic_phone'),
     esic_email: getVal(esic, 'esic_email'),
     logo_url: null as File | null,
@@ -459,6 +461,8 @@ export default function Appearance({ settings }: Props) {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <TextField label="Link Nova Demanda" value={data.esic_new_url} onChange={(v) => setData('esic_new_url', v)} />
                   <TextField label="Link Consultar" value={data.esic_consult_url} onChange={(v) => setData('esic_consult_url', v)} />
+                  <TextField label="Unidade responsável pelo SIC" value={data.sic_unit} onChange={(v) => setData('sic_unit', v)} />
+                  <TextField label="Autoridade de monitoramento" value={data.sic_monitoring_authority} onChange={(v) => setData('sic_monitoring_authority', v)} />
                   <TextField label="Telefone E-SIC" value={data.esic_phone} onChange={(v) => setData('esic_phone', v)} />
                   <TextField label="Email E-SIC" value={data.esic_email} onChange={(v) => setData('esic_email', v)} />
                 </div>

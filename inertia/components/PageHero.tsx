@@ -3,11 +3,18 @@ interface PageHeroProps {
   subtitle?: string;
   badge?: string;
   centered?: boolean;
+  size?: "default" | "compact";
 }
 
-export const PageHero = ({ title, subtitle, badge, centered = false }: PageHeroProps) => {
+export const PageHero = ({ title, subtitle, badge, centered = false, size = "compact" }: PageHeroProps) => {
+  const isCompact = size === "compact";
+
   return (
-    <section className="relative bg-gradient-hero text-primary-foreground py-8 sm:py-12 md:py-16 overflow-hidden">
+    <section
+      className={`relative bg-gradient-hero text-primary-foreground overflow-hidden ${
+        isCompact ? "py-6 sm:py-8 md:py-10" : "py-8 sm:py-12 md:py-16"
+      }`}
+    >
       {/* Background decorations */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-1/2 -right-1/4 w-96 h-96 bg-gold/10 rounded-full blur-3xl" />
@@ -31,7 +38,12 @@ export const PageHero = ({ title, subtitle, badge, centered = false }: PageHeroP
             {badge}
           </span>
         )}
-        <h1 data-reveal="up" className="text-2xl sm:text-3xl md:text-4xl lg:text-[2.6rem] font-bold mb-3 leading-tight">
+        <h1
+          data-reveal="up"
+          className={`font-bold mb-3 leading-tight ${
+            isCompact ? "text-2xl sm:text-3xl md:text-[2.35rem]" : "text-2xl sm:text-3xl md:text-4xl lg:text-[2.6rem]"
+          }`}
+        >
           {title}
         </h1>
         {subtitle && (

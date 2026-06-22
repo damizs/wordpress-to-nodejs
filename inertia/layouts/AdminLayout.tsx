@@ -5,7 +5,7 @@ import {
   LogOut, Menu, User, Home, Users, FileText, Link2, Shield, UserCog,
   ScrollText, Settings, Monitor, HelpCircle, Info, Tags, Calendar, Users2,
   Gavel, ClipboardCheck, Image, Radar, Vote, ExternalLink, Award, Files,
-  BookOpen, FolderOpen, Coins, FileSignature, FileBarChart, Search, X,
+  BookOpen, FolderOpen, Coins, FileSignature, FileBarChart, Search, X, HardDrive,
 } from 'lucide-react'
 import { useState, useEffect, type ReactNode } from 'react'
 
@@ -102,6 +102,12 @@ const navGroups: NavGroup[] = [
           { label: 'Todos os Usuários', href: '/painel/usuarios' },
           { label: 'Papéis e Permissões', href: '/painel/papeis' },
         ],
+      },
+      {
+        label: 'Seguranca e Backups',
+        href: '/painel/seguranca',
+        icon: HardDrive,
+        permissions: ['usuario.gerenciar'],
       },
     ],
   },
@@ -509,7 +515,7 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
         </header>
 
         {/* Page content — ocupa 100% da área útil; padding seguro nas bordas */}
-        <main className="w-full min-w-0 px-4 sm:px-6 lg:px-8 py-4 lg:py-8">{children}</main>
+        <main className="w-full min-w-0 px-4 py-4 sm:px-6 lg:px-8 lg:py-8 xl:px-10 2xl:px-12">{children}</main>
       </div>
     </div>
   )

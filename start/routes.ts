@@ -72,6 +72,7 @@ const AdminInstagramController = () => import('#controllers/admin/instagram_cont
 const InstagramProxyController = () => import('#controllers/admin/instagram_proxy_controller')
 const AdminUsersController = () => import('#controllers/admin/users_controller')
 const AdminRolesController = () => import('#controllers/admin/roles_controller')
+const AdminSecurityController = () => import('#controllers/admin/security_controller')
 const AdminNominalVotingsController = () =>
   import('#controllers/admin/nominal_votings_controller')
 const AdminDuodecimosController = () => import('#controllers/admin/duodecimos_controller')
@@ -490,6 +491,16 @@ router
         router.get('/papeis/:id/editar', [AdminRolesController, 'edit'])
         router.put('/papeis/:id', [AdminRolesController, 'update'])
         router.delete('/papeis/:id', [AdminRolesController, 'destroy'])
+
+        router.get('/seguranca', [AdminSecurityController, 'index'])
+        router.post('/seguranca/firewall', [AdminSecurityController, 'updateFirewall'])
+        router.post('/seguranca/backups/run', [AdminSecurityController, 'runBackup'])
+        router.post('/seguranca/evolution', [AdminSecurityController, 'updateEvolution'])
+        router.post('/seguranca/evolution/test', [AdminSecurityController, 'testEvolution'])
+        router.post('/seguranca/evolution/relatorio', [
+          AdminSecurityController,
+          'sendEvolutionReport',
+        ])
       })
       .use(middleware.can(['usuario.gerenciar']))
   })

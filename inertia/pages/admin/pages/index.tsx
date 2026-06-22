@@ -80,15 +80,15 @@ export default function PagesIndex({ pages, filters }: Props) {
         actions={<CreateButton href="/painel/paginas/nova">Nova Página</CreateButton>}
       />
 
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(360px,0.45fr)] mb-6">
-        <Card className="bg-navy text-white border-navy">
+      <div className="mb-6 grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(360px,0.45fr)]">
+        <Card className="border-navy bg-navy text-white">
           <div className="flex items-start gap-4">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-gold">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/10 text-gold">
               <Info className="h-5 w-5" />
             </div>
-            <div>
+            <div className="min-w-0">
               <h2 className="text-lg font-bold">Por que só aparece uma página aqui?</h2>
-              <p className="mt-1 text-sm leading-relaxed text-white/75">
+              <p className="mt-1 max-w-5xl text-sm leading-relaxed text-white/75">
                 Esta tela lista apenas páginas livres, criadas com blocos. Páginas como vereadores,
                 licitações, transparência, história e perguntas frequentes são módulos próprios,
                 porque têm dados, regras e telas específicas.
@@ -98,7 +98,7 @@ export default function PagesIndex({ pages, filters }: Props) {
         </Card>
 
         <Card>
-          <div className="flex items-center gap-3 mb-3">
+          <div className="mb-3 flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gold/15 text-gold">
               <LayoutList className="h-4 w-4" />
             </div>
@@ -170,14 +170,14 @@ export default function PagesIndex({ pages, filters }: Props) {
                       <p className="font-medium text-foreground">{page.title}</p>
                     </TD>
                     <TD>
-                      <code className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+                      <code className="rounded bg-muted px-2 py-1 text-xs text-muted-foreground">
                         /{page.slug}
                       </code>
                     </TD>
                     <TD>
                       <StatusBadge status={page.is_published ? 'published' : 'draft'} />
                     </TD>
-                    <TD className="text-muted-foreground whitespace-nowrap">
+                    <TD className="whitespace-nowrap text-muted-foreground">
                       {formatDate(page.updated_at)}
                     </TD>
                     <TD>
