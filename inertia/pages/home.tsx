@@ -188,6 +188,8 @@ export default function Home({
             <HomeHero
               template={template.key}
               backgroundImage={newsBackgroundImage}
+              news={news}
+              legislativo={legislativo}
             />
           )}
           <HolidaysStrip />
