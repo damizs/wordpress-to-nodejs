@@ -113,36 +113,26 @@ function PdfPreviewModal({
           </button>
         </header>
 
-        <div className="min-h-0 flex-1 bg-muted">
-          <iframe
-            src={entry.file_url}
-            title={entryTitle(entry)}
-            className="h-full w-full"
-            loading="lazy"
-          />
-        </div>
-
-        <footer className="flex flex-col gap-3 border-t border-border bg-card px-4 py-3 sm:flex-row sm:items-center sm:justify-center">
+        <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-4 bg-muted px-6 py-12 text-center">
+          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+            <FileText className="h-8 w-8" />
+          </div>
+          <div>
+            <p className="text-base font-bold text-foreground">{entryTitle(entry)}</p>
+            <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
+              A matéria abre no Diário Oficial (sistema GetPublic), em uma nova aba.
+            </p>
+          </div>
           <a
             href={entry.file_url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground no-underline shadow-sm transition-colors hover:bg-primary/90"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground no-underline shadow-sm transition-colors hover:bg-primary/90"
           >
             <ExternalLink className="h-4 w-4" />
-            Abrir em nova aba
+            Abrir matéria
           </a>
-          <a
-            href={entry.file_url}
-            download
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 rounded-xl border border-border px-5 py-2.5 text-sm font-semibold text-foreground no-underline transition-colors hover:bg-muted"
-          >
-            <Download className="h-4 w-4" />
-            Baixar PDF
-          </a>
-        </footer>
+        </div>
       </div>
     </div>
   );

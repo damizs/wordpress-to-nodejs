@@ -368,9 +368,14 @@ Fontes de referência em `.acervo/plugins/`.
  e rodar `node scripts/extract_wp_diario.mjs <database.sql>` → gera
  `database/wp_diario_oficial.json` (somente dados públicos; credenciais `dos_*`
  não são exportadas). O comando `node ace wp:diario` importa para
- `official_gazette_entries` por `edition_number = materia_codigo`, usando
- `https://getpublic.inf.br/api/document/<codigo>/pdf` como `file_url` para o modal
- público do Diário Oficial.
+ `official_gazette_entries` por `edition_number = materia_codigo`, usando o
+ **visualizador público da matéria** como `file_url`:
+ `https://getpublic.inf.br/system/visualizar-materia?materia=<codigo>&link=CMSU`
+ (helper `getpublicMateriaUrl` em `app/helpers/document_file_url.ts`). É o mesmo
+ link que o site oficial usa — **não** o `/api/document/<id>/pdf` (endpoint errado,
+ PDF cru). Por ser página HTML, abre em **nova aba** (não embeda em iframe). A
+ migração `2026_06_23_000000_fix_getpublic_materia_urls` reescreve URLs antigas já
+ gravadas (diário, publicações, licitações, atividades) sem apagar registros.
 - **Migração WP — Links Rápidos:** o plugin `links-rapidos` mantém
  `<prefix>lr_links`/`<prefix>lr_secoes`. Para backup novo, rodar
  `node scripts/extract_wp_quick_links.mjs <database.sql>` → gera

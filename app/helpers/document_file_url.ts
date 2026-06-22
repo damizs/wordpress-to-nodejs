@@ -2,16 +2,31 @@ const GETPUBLIC_CONVERT_RE = /getpublic\.inf\.br\/uploads\/CMSU\/convert\/(\d{14
 const GETPUBLIC_CODIGO_RE = /^\d{14}$/
 const PDF_HREF_RE = /href=["']([^"']+\.pdf(?:[^"']*)?)["']/i
 
-/** URL pública do PDF no sistema GetPublic (matérias licitatórias da Câmara). */
-export function getpublicPdfUrl(documentId: string): string {
-  return `https://getpublic.inf.br/api/document/${documentId}/pdf`
+/** Identificador da entidade no GetPublic (Câmara Municipal de Sumé). */
+export const GETPUBLIC_ENTITY = 'CMSU'
+
+/**
+ * URL pública da matéria no GetPublic — o visualizador oficial usado pelo site
+ * (ex.: Diário Oficial, atos de licitação). NÃO usar /api/document/<id>/pdf:
+ * aquele endpoint não é o link público correto e abre PDF cru. O visualizador
+ * é uma página HTML (abrir em nova aba, não embedar em iframe).
+ */
+export function getpublicMateriaUrl(documentId: string): string {
+  return `https://getpublic.inf.br/system/visualizar-materia?materia=${documentId}&link=${GETPUBLIC_ENTITY}`
+}
+
+/** Converte uma URL antiga /api/document/<id>/pdf para o visualizador correto. */
+export function fixGetpublicUrl(url: string | null | undefined): string | null {
+  if (!url) return url ?? null
+  const m = url.match(/getpublic\.inf\.br\/api\/document\/(\d{14})\/pdf/)
+  return m ? getpublicMateriaUrl(m[1]) : url
 }
 
 /**
- * Resolve a URL de download do PDF de um documento oficial:
- * 1. `file_url` nativo (upload ou migração WP)
+ * Resolve a URL pública de um documento oficial:
+ * 1. `file_url` nativo (upload ou migração WP) — corrigindo formato GetPublic antigo
  * 2. Link `.pdf` embutido no HTML da descrição
- * 3. Imagens GetPublic (`convert/{id}/`) → API `/api/document/{id}/pdf`
+ * 3. Imagens GetPublic (`convert/{id}/`) → visualizador da matéria
  * 4. Código GetPublic de 14 dígitos no campo `number`
  */
 export function resolveDocumentFileUrl(
@@ -20,7 +35,7 @@ export function resolveDocumentFileUrl(
   documentNumber: string | null | undefined
 ): string | null {
   const stored = fileUrl?.trim()
-  if (stored) return stored
+  if (stored) return fixGetpublicUrl(stored)
 
   const html = description || ''
 
@@ -30,10 +45,10 @@ export function resolveDocumentFileUrl(
   }
 
   const convertMatch = html.match(GETPUBLIC_CONVERT_RE)
-  if (convertMatch?.[1]) return getpublicPdfUrl(convertMatch[1])
+  if (convertMatch?.[1]) return getpublicMateriaUrl(convertMatch[1])
 
   const num = (documentNumber || '').trim()
-  if (GETPUBLIC_CODIGO_RE.test(num)) return getpublicPdfUrl(num)
+  if (GETPUBLIC_CODIGO_RE.test(num)) return getpublicMateriaUrl(num)
 
   return null
 }

@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs'
 import app from '@adonisjs/core/services/app'
 import OfficialGazetteEntry from '#models/official_gazette_entry'
+import { getpublicMateriaUrl } from '#helpers/document_file_url'
 
 interface WpDiarioRecord {
   codigo: string
@@ -65,10 +66,12 @@ export async function importWpDiarioOficial(
       continue
     }
 
+    // O link público correto é o visualizador da matéria (visualizar-materia),
+    // montado a partir do código de 14 dígitos — NÃO o /api/document/<id>/pdf.
     const payload = {
       publicationDate,
       description: cleanTitle(record),
-      fileUrl: record.pdfUrl || record.link,
+      fileUrl: /^\d{14}$/.test(code) ? getpublicMateriaUrl(code) : record.link,
     }
 
     const existing = await OfficialGazetteEntry.findBy('editionNumber', code)

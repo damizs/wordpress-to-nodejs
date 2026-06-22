@@ -363,10 +363,14 @@ via shortcode `[diario_oficial]`. Para backup novo: extrair `database.sql` do zi
 e rodar `node scripts/extract_wp_diario.mjs <database.sql>` → gera
 `database/wp_diario_oficial.json` (somente dados públicos; credenciais `dos_*`
 não são exportadas). O comando `node ace wp:diario` importa para
- `official_gazette_entries` por `edition_number = materia_codigo`, usando
- `https://getpublic.inf.br/api/document/<codigo>/pdf` como `file_url` para o modal
- público do Diário Oficial. O `startup.sh` roda esse import uma vez por marcador
- `.diario-imported-v1` (ou `FORCE_DIARIO_IMPORT=true`).
+ `official_gazette_entries` por `edition_number = materia_codigo`, usando o
+ **visualizador público da matéria** como `file_url`:
+ `https://getpublic.inf.br/system/visualizar-materia?materia=<codigo>&link=CMSU`
+ (helper `getpublicMateriaUrl`). É o link que o site oficial usa — **não** o
+ `/api/document/<id>/pdf` (endpoint errado). Página HTML → abre em **nova aba**
+ (não embeda). A migração `2026_06_23_000000_fix_getpublic_materia_urls` reescreve
+ as URLs antigas já gravadas sem apagar registros. O `startup.sh` roda esse import
+ uma vez por marcador `.diario-imported-v1` (ou `FORCE_DIARIO_IMPORT=true`).
 - **Migração WP — Links Rápidos:** o plugin `links-rapidos` mantém
 `<prefix>lr_links`/`<prefix>lr_secoes`. Para backup novo, rodar
 `node scripts/extract_wp_quick_links.mjs <database.sql>` → gera

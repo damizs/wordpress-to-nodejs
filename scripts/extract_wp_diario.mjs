@@ -199,7 +199,10 @@ function dateOnly(value) {
 }
 
 function getpublicPdfUrl(code) {
-  return /^\d{14}$/.test(code || '') ? `https://getpublic.inf.br/api/document/${code}/pdf` : null
+  // Visualizador público da matéria (mesmo link do site). NÃO usar /api/document/<id>/pdf.
+  return /^\d{14}$/.test(code || '')
+    ? `https://getpublic.inf.br/system/visualizar-materia?materia=${code}&link=CMSU`
+    : null
 }
 
 const table = findTable('dos_materias')
