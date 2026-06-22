@@ -14,7 +14,36 @@
 
 export type AtriconClassification = 'essencial' | 'obrigatoria' | 'recomendada'
 
-export type AtriconStatusValue = 'atendido' | 'parcial' | 'pendente' | 'externo' | 'nao_se_aplica'
+export type AtriconStatusValue =
+  | 'atendido'
+  | 'parcial'
+  | 'pendente'
+  | 'externo'
+  | 'nao_se_aplica'
+  | 'nao_ocorre'
+
+/**
+ * Itens de verificação (subdimensões) da metodologia PNTP 2026, com pesos:
+ * Disponibilidade 30% · Atualidade 30% · Série histórica 20% ·
+ * Gravação/Download de relatórios 10% · Filtro de pesquisa 10%.
+ */
+export type AtriconSubdim = 'D' | 'A' | 'H' | 'G' | 'F'
+
+export const SUBDIM_LABEL: Record<AtriconSubdim, string> = {
+  D: 'Disponibilidade',
+  A: 'Atualidade',
+  H: 'Série histórica',
+  G: 'Gravação de relatórios',
+  F: 'Filtro de pesquisa',
+}
+
+export const SUBDIM_WEIGHT: Record<AtriconSubdim, number> = {
+  D: 30,
+  A: 30,
+  H: 20,
+  G: 10,
+  F: 10,
+}
 
 export interface AtriconDimension {
   key: string
@@ -41,6 +70,11 @@ export interface AtriconCriterion {
   keywords?: string[]
   /** Deep-link do módulo do painel que resolve o critério (sobrepõe o mapa por autoCheck) */
   actionHref?: string
+  /**
+   * Obrigação legal de elaborar/publicar: NÃO admite "declaração de não ocorrência"
+   * (ex.: documentos cuja existência é exigida por lei). Bloqueia o status nao_ocorre.
+   */
+  legalObligation?: boolean
 }
 
 export const ATRICON_DIMENSIONS: AtriconDimension[] = [
@@ -67,6 +101,22 @@ const A = 'Atualidade (até 30 dias)'
 const H = 'Série histórica (3 anos)'
 const G = 'Gravação de relatórios'
 const F = 'Filtro de pesquisa'
+
+/** Mapa rótulo de verificação → chave da subdimensão (D/A/H/G/F). */
+const SUBDIM_BY_LABEL: Record<string, AtriconSubdim> = {
+  [D]: 'D',
+  [A]: 'A',
+  [H]: 'H',
+  [G]: 'G',
+  [F]: 'F',
+}
+
+/** Subdimensões exigidas por um critério (derivadas do campo `verification`). */
+export function requiredSubdims(c: AtriconCriterion): AtriconSubdim[] {
+  return c.verification
+    .map((v) => SUBDIM_BY_LABEL[v])
+    .filter((x): x is AtriconSubdim => Boolean(x))
+}
 
 export const ATRICON_CRITERIA: AtriconCriterion[] = [
   // 1. Informações Prioritárias
@@ -990,6 +1040,7 @@ export const STATUS_LABEL: Record<AtriconStatusValue, string> = {
   pendente: 'Pendente',
   externo: 'Sistema externo',
   nao_se_aplica: 'Não se aplica',
+  nao_ocorre: 'Não ocorre (declarado)',
 }
 
 /** Crédito do status no cálculo do índice (atende = 1, parcial = 0,5). */
@@ -999,7 +1050,13 @@ export const STATUS_CREDIT: Record<AtriconStatusValue, number | null> = {
   pendente: 0,
   externo: 1, // atendido via sistema externo (link no portal)
   nao_se_aplica: null, // excluído do cálculo
+  // Declaração de não ocorrência: conta como atendido (PNTP credita D/F/G).
+  // Vedado para obrigações legais (ver legalObligation) — bloqueado na UI.
+  nao_ocorre: 1,
 }
+
+/** Status que contam como "cumprido" para o índice e para a regra dos essenciais. */
+export const MET_STATUSES: AtriconStatusValue[] = ['atendido', 'externo', 'nao_ocorre']
 
 /**
  * Deep-link do módulo do painel que resolve cada autoCheck.

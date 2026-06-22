@@ -10,9 +10,13 @@ import {
   ATRICON_DIMENSIONS,
   CLASSIFICATION_WEIGHT,
   STATUS_CREDIT,
+  MET_STATUSES,
+  SUBDIM_LABEL,
   criterionActionHref,
+  requiredSubdims,
   transparencyLevel,
   type AtriconStatusValue,
+  type AtriconSubdim,
 } from '#helpers/atricon_matrix'
 import TransparencyAuditService, { FRESHNESS_DAYS } from '#services/transparency_audit_service'
 
@@ -22,6 +26,7 @@ const VALID_STATUSES: AtriconStatusValue[] = [
   'pendente',
   'externo',
   'nao_se_aplica',
+  'nao_ocorre',
 ]
 
 /* ============================== Utilitários de data/consulta ============================== */
@@ -59,12 +64,14 @@ interface TableStats {
   total: number
   recent: number
   yearCount: number
+  /** Quantidade de exercícios (anos) distintos com registro — base para a Série Histórica (H). */
+  distinctYears: number
   latest: DateTime | null
 }
 
 /**
  * Estatística verídica de uma tabela: total, registros desde `since`,
- * registros do ano corrente e data do registro mais recente.
+ * registros do ano corrente, nº de exercícios distintos e data do registro mais recente.
  */
 async function tableStats(
   table: string,
@@ -79,12 +86,14 @@ async function tableStats(
     .select(db.raw('count(*) as total'))
     .select(db.raw(`count(case when ${dateExpr} >= ? then 1 end) as recent`, [since]))
     .select(db.raw(`count(case when ${dateExpr} >= ? then 1 end) as year_count`, [yearStart]))
+    .select(db.raw(`count(distinct extract(year from ${dateExpr})) as distinct_years`))
     .select(db.raw(`max(${dateExpr}) as latest`))
     .first()
   return {
     total: Number(row?.total ?? 0),
     recent: Number(row?.recent ?? 0),
     yearCount: Number(row?.year_count ?? 0),
+    distinctYears: Number(row?.distinct_years ?? 0),
     latest: toDateTime(row?.latest),
   }
 }
@@ -101,14 +110,43 @@ async function tableCount(table: string, where?: (q: any) => any): Promise<numbe
 /** Resultado de uma verificação: ok (atende), parcial (há dados, mas desatualizados/incompletos) ou falha. */
 export type AutoVerdict = 'ok' | 'parcial' | 'falha'
 
+/** Veredito automático por subdimensão (apenas D/A/H são auto-verificáveis; G/F dependem de conferência). */
+export type SubcheckMap = Partial<Record<AtriconSubdim, AutoVerdict>>
+
 export interface AutoCheckResult {
   status: AutoVerdict
   detail: string
+  /** Veredito por subdimensão quando o módulo tem dados para medir (D/A/H). */
+  subchecks?: SubcheckMap
 }
 
 const ok = (detail: string): AutoCheckResult => ({ status: 'ok', detail })
 const parcial = (detail: string): AutoCheckResult => ({ status: 'parcial', detail })
 const falha = (detail: string): AutoCheckResult => ({ status: 'falha', detail })
+
+/**
+ * Deriva os veredictos de Disponibilidade (D), Atualidade (A) e Série Histórica (H)
+ * a partir das estatísticas reais de um módulo. Gravação (G) e Filtro (F) não são
+ * auto-detectáveis e ficam para conferência manual.
+ */
+function statsSubchecks(
+  stats: TableStats,
+  opts: { thresholdDays?: number | null; history?: boolean }
+): SubcheckMap {
+  const sub: SubcheckMap = {}
+  sub.D = stats.total > 0 ? 'ok' : 'falha'
+  if (opts.thresholdDays != null) {
+    if (!stats.latest) sub.A = 'falha'
+    else {
+      const days = Math.floor(DateTime.now().diff(stats.latest, 'days').days)
+      sub.A = days <= opts.thresholdDays ? 'ok' : 'parcial'
+    }
+  }
+  if (opts.history) {
+    sub.H = stats.distinctYears >= 3 ? 'ok' : stats.distinctYears >= 1 ? 'parcial' : 'falha'
+  }
+  return sub
+}
 
 /**
  * Frescor periódico (ex.: quinzenal para atas/pautas/votações).
@@ -323,6 +361,7 @@ async function runAutoChecks(): Promise<Record<string, AutoCheckResult>> {
           year,
         ])
       )
+      .select(db.raw('count(distinct year) as distinct_years'))
       .select(db.raw('max(coalesce(repasse_date::timestamp, updated_at, created_at)) as latest'))
       .first(),
     tableCount('pages', (q) =>
@@ -346,6 +385,7 @@ async function runAutoChecks(): Promise<Record<string, AutoCheckResult>> {
   const duodecimosTotal = Number(duodecimosRow?.total ?? 0)
   const duodecimosCurrentYear = Number(duodecimosRow?.current_year ?? 0)
   const duodecimosReceived = Number(duodecimosRow?.current_received ?? 0)
+  const duodecimosDistinctYears = Number(duodecimosRow?.distinct_years ?? 0)
   const duodecimosLatest = toDateTime(duodecimosRow?.latest)
   const esicOk = hasUsefulUrl(settings.esic_new_url) || hasUsefulUrl(settings.esic_consult_url)
   const ouvidoriaOk = hasUsefulUrl(settings.ouvidoria_url)
@@ -557,6 +597,20 @@ async function runAutoChecks(): Promise<Record<string, AutoCheckResult>> {
           : falha('Configure o YouTube e cadastre o link de transmissão/vídeo nas sessões'),
   }
 
+  // Veredictos por subdimensão (D/A/H) para os módulos com dados de data/série.
+  // Gravação (G) e Filtro (F) não são auto-detectáveis e ficam para conferência.
+  checks.atas.subchecks = statsSubchecks(atas, { thresholdDays: FRESHNESS_DAYS.biweekly, history: true })
+  checks.pautas.subchecks = statsSubchecks(pautas, { thresholdDays: FRESHNESS_DAYS.biweekly, history: true })
+  checks.votacoes.subchecks = statsSubchecks(votacoes, { thresholdDays: FRESHNESS_DAYS.biweekly, history: true })
+  checks.publications.subchecks = statsSubchecks(publications, { thresholdDays: FRESHNESS_DAYS.quarterly, history: true })
+  checks.licitacoes.subchecks = statsSubchecks(licitacoes, { thresholdDays: FRESHNESS_DAYS.quarterly, history: true })
+  checks.survey.subchecks = statsSubchecks(surveys, { thresholdDays: FRESHNESS_DAYS.quarterly })
+  checks.duodecimos.subchecks = {
+    D: duodecimosTotal > 0 ? 'ok' : 'falha',
+    A: duodecimosReceived > 0 ? 'ok' : duodecimosCurrentYear > 0 ? 'parcial' : 'falha',
+    H: duodecimosDistinctYears >= 3 ? 'ok' : duodecimosDistinctYears >= 1 ? 'parcial' : 'falha',
+  }
+
   // Checagens das categorias de Acesso à Informação (info:<slug>)
   const statBySlug = new Map(infoCategories.map((c) => [c.slug, c]))
   const slugs = new Set<string>([
@@ -632,12 +686,21 @@ async function buildMatrix() {
     }
     const divergent = source === 'manual' && autoStatus !== null && status !== autoStatus
 
+    // Detalhamento por subdimensão (D/A/H auto; G/F sempre para conferência manual)
+    const autoSubs = autoResult?.subchecks
+    const subdimensions = requiredSubdims(c).map((sd) => ({
+      key: sd,
+      label: SUBDIM_LABEL[sd],
+      status: (autoSubs?.[sd] ?? 'manual') as AutoVerdict | 'manual',
+    }))
+
     return {
       ...c,
       status,
       source,
       autoStatus,
       divergent,
+      subdimensions,
       evidenceUrl: record?.evidenceUrl ?? null,
       notes: record?.notes ?? null,
       lastUpdate: record?.updatedAt?.toISO() ?? null,
@@ -709,6 +772,8 @@ function buildEvidencePack({
     generatedAt: DateTime.now().toISO(),
     purpose:
       'Pacote de evidencias para leitura periodica por IA e conferencias PNTP/ATRICON do portal da Camara Municipal de Sume.',
+    disclaimer:
+      'Ferramenta interna de autodiagnostico e preparacao. NAO e a avaliacao oficial do PNTP/ATRICON nem substitui a autoavaliacao no sistema Avalia, a validacao pelo Tribunal de Contas ou o Radar da Transparencia Publica oficial. Indices e niveis aqui sao estimativas para orientar a equipe.',
     readingFlow: [
       {
         step: 1,
@@ -772,6 +837,7 @@ function buildEvidencePack({
       title: c.title,
       classification: c.classification,
       verification: c.verification,
+      subdimensions: c.subdimensions,
       status: c.status,
       source: c.source,
       place: criterionPlace(c),
@@ -809,7 +875,7 @@ function computeScores(matrix: MatrixItem[]) {
     return {
       ...dim,
       total: items.length,
-      met: items.filter((c) => c.status === 'atendido' || c.status === 'externo').length,
+      met: items.filter((c) => MET_STATUSES.includes(c.status as AtriconStatusValue)).length,
       partial: items.filter((c) => c.status === 'parcial').length,
       pending: items.filter((c) => c.status === 'pendente').length,
       notApplicable: items.filter((c) => c.status === 'nao_se_aplica').length,
@@ -823,8 +889,8 @@ function computeScores(matrix: MatrixItem[]) {
     Math.round((dimensions.reduce((s, d) => s + d.pct * d.weight, 0) / weightSum) * 10) / 10
 
   const essentials = matrix.filter((c) => c.classification === 'essencial')
-  const allEssentialsMet = essentials.every(
-    (c) => c.status === 'atendido' || c.status === 'externo'
+  const allEssentialsMet = essentials.every((c) =>
+    MET_STATUSES.includes(c.status as AtriconStatusValue)
   )
 
   return {
@@ -1195,6 +1261,15 @@ export default class AtriconController {
 
     if (!VALID_STATUSES.includes(status)) {
       session.flash('error', 'Status inválido.')
+      return response.redirect().back()
+    }
+
+    // Declaração de "não ocorrência" é vedada para obrigações legais de publicação.
+    if (status === 'nao_ocorre' && criterion.legalObligation) {
+      session.flash(
+        'error',
+        `O critério ${code} é de publicação obrigatória por lei e não admite declaração de não ocorrência.`
+      )
       return response.redirect().back()
     }
 

@@ -22,8 +22,14 @@ import {
   type BadgeTone,
 } from '~/components/admin/ui'
 
-type StatusValue = 'atendido' | 'parcial' | 'pendente' | 'externo' | 'nao_se_aplica'
+type StatusValue = 'atendido' | 'parcial' | 'pendente' | 'externo' | 'nao_se_aplica' | 'nao_ocorre'
 type AutoVerdict = 'ok' | 'parcial' | 'falha'
+type SubdimStatus = AutoVerdict | 'manual'
+interface SubdimensionView {
+  key: 'D' | 'A' | 'H' | 'G' | 'F'
+  label: string
+  status: SubdimStatus
+}
 type Source = 'auto' | 'manual' | 'padrao'
 type Classification = 'essencial' | 'obrigatoria' | 'recomendada'
 type Freshness = 'em_dia' | 'desatualizado' | 'vazio'
@@ -34,7 +40,9 @@ interface Criterion {
   title: string
   classification: Classification
   verification: string[]
+  subdimensions?: SubdimensionView[]
   hint: string
+  legalObligation?: boolean
   route?: string
   external?: boolean
   status: StatusValue
@@ -144,6 +152,15 @@ const STATUS_META: Record<StatusValue, { label: string; tone: BadgeTone; dot: st
   pendente: { label: 'Pendente', tone: 'danger', dot: 'bg-destructive' },
   externo: { label: 'Sistema externo', tone: 'info', dot: 'bg-sky' },
   nao_se_aplica: { label: 'Não se aplica', tone: 'neutral', dot: 'bg-muted-foreground/40' },
+  nao_ocorre: { label: 'Não ocorre (declarado)', tone: 'neutral', dot: 'bg-muted-foreground/60' },
+}
+
+/** Cor do indicador de cada subdimensão (D/A/H/G/F). */
+const SUBDIM_META: Record<SubdimStatus, { tone: string; title: string }> = {
+  ok: { tone: 'bg-emerald-500 text-white', title: 'Atende (verificação automática)' },
+  parcial: { tone: 'bg-amber-500 text-navy-dark', title: 'Parcial — revisar' },
+  falha: { tone: 'bg-destructive text-destructive-foreground', title: 'Não atende' },
+  manual: { tone: 'bg-muted text-muted-foreground', title: 'Conferência manual (não auto-detectável)' },
 }
 
 const CLASS_TONE: Record<Classification, BadgeTone> = {
@@ -695,10 +712,37 @@ function CriterionRow({ criterion }: { criterion: Criterion }) {
             {criterion.hint}
           </p>
 
-          <div className="flex flex-wrap gap-1.5">
-            {criterion.verification.map((v) => (
-              <span key={v} className="text-[11px] bg-muted text-muted-foreground px-2 py-0.5 rounded-full">{v}</span>
-            ))}
+          <div className="space-y-1.5">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+              Itens de verificação (PNTP 2026)
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {(criterion.subdimensions?.length
+                ? criterion.subdimensions
+                : criterion.verification.map((v) => ({
+                    key: 'D' as const,
+                    label: v,
+                    status: 'manual' as SubdimStatus,
+                  }))
+              ).map((s, i) => {
+                const meta = SUBDIM_META[s.status]
+                return (
+                  <span
+                    key={i}
+                    title={meta.title}
+                    className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${meta.tone}`}
+                  >
+                    {s.label}
+                  </span>
+                )
+              })}
+            </div>
+            {criterion.subdimensions?.length ? (
+              <p className="text-[10px] text-muted-foreground">
+                Disponibilidade/Atualidade/Série histórica verificados automaticamente; Gravação de
+                relatórios e Filtro de pesquisa exigem conferência manual.
+              </p>
+            ) : null}
           </div>
 
           {auto && autoMeta && (
@@ -745,6 +789,9 @@ function CriterionRow({ criterion }: { criterion: Criterion }) {
                 <option value="pendente">Pendente</option>
                 <option value="externo">Sistema externo</option>
                 <option value="nao_se_aplica">Não se aplica</option>
+                {!criterion.legalObligation && (
+                  <option value="nao_ocorre">Não ocorre (declarado)</option>
+                )}
               </Select>
             </Field>
             <Field label="Link de evidência (para o avaliador)">
@@ -876,7 +923,7 @@ export default function AtriconIndex({
 
   const essTotal = scores.essentials.length
   const essMet = scores.essentials.filter(
-    (e) => e.status === 'atendido' || e.status === 'externo'
+    (e) => e.status === 'atendido' || e.status === 'externo' || e.status === 'nao_ocorre'
   ).length
 
   // Barras: piores dimensões primeiro (evidencia as lacunas)
@@ -1356,6 +1403,7 @@ export default function AtriconIndex({
             <option value="atendido">Atendidos</option>
             <option value="externo">Sistema externo</option>
             <option value="nao_se_aplica">Não se aplica</option>
+            <option value="nao_ocorre">Não ocorre (declarado)</option>
           </Select>
         </div>
         <span className="text-xs text-muted-foreground ml-auto">{filtered.length} critérios exibidos</span>
