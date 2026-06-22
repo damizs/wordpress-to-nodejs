@@ -165,6 +165,33 @@ export default function Dashboard({ stats, recentNews, upcomingSessions, content
     <AdminLayout title="Dashboard">
       <Head title="Dashboard - Painel" />
 
+      {/* Hero de boas-vindas — lidera o dashboard */}
+      <div className="bg-gradient-hero rounded-2xl px-6 py-7 lg:px-8 mb-8 text-white shadow-md relative overflow-hidden">
+        <div className="absolute -top-16 -right-16 w-56 h-56 bg-gold/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
+          <div>
+            <p className="text-white/75 text-xs capitalize mb-1">{today}</p>
+            <h2 className="text-2xl font-bold mb-1">
+              {greeting}, {firstName}!
+            </h2>
+            <p className="text-sm text-white/80">Aqui está o resumo das suas áreas de trabalho.</p>
+          </div>
+          {quickActions.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {quickActions.map((action) => (
+                <Link
+                  key={action.href}
+                  href={action.href}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-white/10 hover:bg-gold hover:text-navy-dark border border-white/15 rounded-xl text-[13px] font-semibold transition-colors no-underline"
+                >
+                  <action.icon className="w-4 h-4" /> {action.label}
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
       {statCards.length > 0 && (
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.75fr)] mb-8">
           <div className="bg-card rounded-2xl border border-border shadow-sm p-5 lg:p-6">
@@ -224,7 +251,7 @@ export default function Dashboard({ stats, recentNews, upcomingSessions, content
 
                 <div className="grid grid-cols-2 gap-3">
                   <Link href="/painel/acesso-informacao" className="rounded-xl bg-emerald-600/10 p-3 no-underline">
-                    <div className="flex items-center gap-2 text-emerald-700">
+                    <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-300">
                       <CheckCircle2 className="h-4 w-4" />
                       <span className="text-xs font-bold uppercase">PNTP</span>
                     </div>
@@ -232,7 +259,7 @@ export default function Dashboard({ stats, recentNews, upcomingSessions, content
                     <p className="text-xs text-muted-foreground">registros</p>
                   </Link>
                   <Link href="/painel/atricon" className="rounded-xl bg-amber-500/10 p-3 no-underline">
-                    <div className="flex items-center gap-2 text-amber-700">
+                    <div className="flex items-center gap-2 text-amber-700 dark:text-amber-300">
                       <AlertTriangle className="h-4 w-4" />
                       <span className="text-xs font-bold uppercase">ATRICON</span>
                     </div>
@@ -287,33 +314,6 @@ export default function Dashboard({ stats, recentNews, upcomingSessions, content
           </div>
         </div>
       )}
-
-      {/* Hero de boas-vindas */}
-      <div className="bg-gradient-hero rounded-2xl px-6 py-7 lg:px-8 mb-8 text-white shadow-md relative overflow-hidden">
-        <div className="absolute -top-16 -right-16 w-56 h-56 bg-gold/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
-          <div>
-            <p className="text-white/60 text-xs capitalize mb-1">{today}</p>
-            <h2 className="text-2xl font-bold mb-1">
-              {greeting}, {firstName}!
-            </h2>
-            <p className="text-sm text-white/70">Aqui está o resumo das suas áreas de trabalho.</p>
-          </div>
-          {quickActions.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {quickActions.map((action) => (
-                <Link
-                  key={action.href}
-                  href={action.href}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-white/10 hover:bg-gold hover:text-navy-dark border border-white/15 rounded-xl text-[13px] font-semibold transition-colors no-underline"
-                >
-                  <action.icon className="w-4 h-4" /> {action.label}
-                </Link>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
 
       {/* Stats — só dos módulos que o usuário acessa */}
       {contentHealth.length > 0 && (
