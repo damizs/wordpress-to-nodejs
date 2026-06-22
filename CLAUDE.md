@@ -80,7 +80,8 @@ fixos no chrome (quebra o modo escuro).
   vai num `<div>` próprio porque `.heading-accent` é `inline-block`). `tone`
   light/dark, `align` center/left.
 - **Container padrão ÚNICO:** a classe Tailwind `.container` (em `tailwind.config.ts`:
-  centralizado, **max 1200px**, **padding lateral 20px**). Breadcrumb, header, footer
+  centralizado, **max 1480px em telas grandes**, **padding lateral responsivo de
+  24px (mobile) a 48px (desktop largo)**). Breadcrumb, header, footer
   E o conteúdo de TODA página usam a MESMA `.container` → alinhamento perfeito em
   qualquer tela. Componente reutilizável: `inertia/components/PageContainer.tsx`.
   **Nunca** use `max-w-* mx-auto` no conteúdo principal (centraliza e desalinha do
@@ -292,7 +293,7 @@ em Números, Diário, Instagram, Conheça Sumé, Certificações, Pesquisa) → 
 - [ ] **QR Code** em páginas de detalhe (publicações, atas, vereador, transparência).
 
 **Qualidade**
-- [x] Container padrão único (1200/20px), conteúdo alinhado ao breadcrumb em todas
+- [x] Container padrão único (1480px + padding responsivo 24–48px), conteúdo alinhado ao breadcrumb em todas
       as páginas, contraste das tags douradas corrigido, filtros com altura uniforme
       e responsivos (empilham < md), gráfico do Legislativo com área 3D/4D + cards
       numéricos com hierarquia.

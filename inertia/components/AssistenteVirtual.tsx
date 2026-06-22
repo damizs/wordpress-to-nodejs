@@ -288,7 +288,7 @@ export const AssistenteVirtual = () => {
       {/* Botão flutuante */}
       <button
         onClick={() => setIsOpen(true)}
-        className={`fixed bottom-6 right-6 w-14 h-14 rounded-full bg-gradient-to-br from-gold to-gold-light text-navy-dark shadow-lg shadow-gold/20 ring-1 ring-white/30 hover:shadow-xl hover:scale-110 transition-all duration-300 flex items-center justify-center z-50 ${isOpen ? "hidden" : ""}`}
+        className={`fixed right-[var(--mobile-dock-right)] bottom-[var(--mobile-dock-bottom)] z-50 flex h-[var(--mobile-dock-size)] w-[var(--mobile-dock-size)] items-center justify-center rounded-full bg-gradient-to-br from-gold to-gold-light text-navy-dark shadow-lg shadow-gold/20 ring-1 ring-white/30 transition-all duration-300 hover:scale-105 hover:shadow-xl sm:right-6 sm:bottom-6 sm:h-14 sm:w-14 ${isOpen ? "hidden" : ""}`}
         aria-label="Abrir assistente virtual"
       >
         <Headset className="w-6 h-6" />
@@ -296,7 +296,7 @@ export const AssistenteVirtual = () => {
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 w-[380px] max-w-[calc(100vw-48px)] h-[500px] max-h-[calc(100vh-120px)] bg-card text-foreground rounded-2xl border border-border shadow-2xl flex flex-col overflow-hidden z-50 animate-fade-in">
+        <div className="fixed inset-x-3 bottom-[calc(env(safe-area-inset-bottom)+1rem)] z-50 flex h-[min(78dvh,520px)] flex-col overflow-hidden rounded-2xl border border-border bg-card text-foreground shadow-2xl animate-fade-in sm:inset-x-auto sm:right-6 sm:bottom-6 sm:h-[500px] sm:max-h-[calc(100vh-120px)] sm:w-[380px] sm:max-w-[calc(100vw-48px)]">
           {/* Header */}
           <div className="bg-gradient-to-r from-gold/20 via-card to-sky/10 border-b border-border p-4 flex items-center gap-3">
             <div className="relative w-12 h-12 rounded-full bg-gold/20 text-navy-dark flex items-center justify-center ring-1 ring-gold/30">
@@ -308,7 +308,7 @@ export const AssistenteVirtual = () => {
             <div className="flex-1">
               <h3 className="font-bold text-foreground">Assistente Virtual</h3>
               <p className="text-xs text-muted-foreground flex items-center gap-1">
-                <span className="w-2 h-2 rounded-full bg-green-400"></span>
+                <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                 Online 24h
               </p>
             </div>

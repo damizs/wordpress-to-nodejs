@@ -141,7 +141,7 @@ function ShareBar({ url, title }: { url: string; title: string }) {
         title={copied ? "Link copiado!" : "Copiar link"}
         className="w-9 h-9 inline-flex items-center justify-center rounded-full border border-border text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors"
       >
-        {copied ? <Check className="w-4 h-4 text-green-600" aria-hidden="true" /> : <Link2 className="w-4 h-4" aria-hidden="true" />}
+        {copied ? <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" aria-hidden="true" /> : <Link2 className="w-4 h-4" aria-hidden="true" />}
       </button>
       <button
         type="button"

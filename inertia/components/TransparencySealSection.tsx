@@ -11,7 +11,7 @@ export const TransparencySealSection = () => {
               <div className="w-24 h-24 rounded-full bg-gradient-to-br from-gold to-gold-light flex items-center justify-center shadow-md">
                 <Award className="w-12 h-12 text-navy-dark" />
               </div>
-              <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-green-500 flex items-center justify-center border-4 border-background">
+              <div className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-emerald-500 flex items-center justify-center border-4 border-background">
                 <CheckCircle className="w-4 h-4 text-white" />
               </div>
             </div>

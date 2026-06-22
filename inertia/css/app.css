@@ -132,11 +132,6 @@
     color: hsl(207 80% 70%);
   }
 
-  html.dark .glass-card {
-    background: rgba(13, 27, 42, 0.7);
-    border-color: rgba(255, 255, 255, 0.12);
-  }
-
   html.dark ::-webkit-scrollbar-thumb {
     background: hsl(210 20% 45% / 0.5);
   }
@@ -319,10 +314,10 @@
     letter-spacing: 0;
   }
 
-  html[data-template='classico'] .card-modern {
-    border-top: 0;
-    border-radius: var(--radius);
-  }
+  /* O modelo de site (data-template) controla ESTRUTURA, não a forma do card —
+     a forma do card é do data-layout. Antes havia um border-top:0 aqui que
+     anulava o filete dourado do layout 'classico' quando ambos eram 'classico'.
+     Removido para que os eixos fiquem realmente ortogonais. */
 
   html[data-template='moderno'] h1,
   html[data-template='moderno'] h2 {
@@ -517,26 +512,30 @@ html.js-anim [data-reveal].no-transition {
     );
   }
 
-  /* Glassmorphism */
+  /* Glassmorphism — tokenizado (segue tema/preset/dark). .glass é um frost
+     CLARO pensado para superfícies escuras (header navy, chips sobre hero);
+     primary-foreground é branco em light e dark, então o frost é estável. */
   .glass {
-    background: rgba(255, 255, 255, 0.1);
+    background: hsl(var(--primary-foreground) / 0.1);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid hsl(var(--primary-foreground) / 0.15);
   }
 
+  /* .glass-dark segue o navy ATIVO (preset/campanha) em vez de azul fixo */
   .glass-dark {
-    background: rgba(10, 61, 98, 0.8);
+    background: hsl(var(--navy-dark) / 0.82);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid hsl(var(--primary-foreground) / 0.1);
   }
 
+  /* .glass-card é um cartão frost que segue o token de card (dark-safe) */
   .glass-card {
-    background: rgba(255, 255, 255, 0.7);
+    background: hsl(var(--card) / 0.72);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    border: 1px solid hsl(var(--border) / 0.6);
   }
 
   /* Modern Card Styles */
@@ -772,6 +771,11 @@ html.js-anim [data-reveal].no-transition {
   html {
     overflow-x: hidden;
     -webkit-text-size-adjust: 100%;
+    --mobile-dock-right: max(0.75rem, env(safe-area-inset-right));
+    --mobile-dock-bottom: calc(env(safe-area-inset-bottom) + 0.875rem);
+    --mobile-dock-size: 3rem;
+    --mobile-dock-gap: 0.625rem;
+    --mobile-dock-step: calc(var(--mobile-dock-size) + var(--mobile-dock-gap));
   }
   body {
     overflow-x: hidden;
@@ -779,5 +783,19 @@ html.js-anim [data-reveal].no-transition {
   }
   #app {
     min-width: 0;
+  }
+
+  [vw] {
+    z-index: 45 !important;
+  }
+
+  @media (max-width: 640px) {
+    [vw] {
+      right: var(--mobile-dock-right) !important;
+      bottom: calc(var(--mobile-dock-bottom) + var(--mobile-dock-step) + var(--mobile-dock-step)) !important;
+      top: auto !important;
+      transform: scale(0.82);
+      transform-origin: bottom right;
+    }
   }
 }

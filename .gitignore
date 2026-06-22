@@ -8,3 +8,10 @@ tmp_pntp2026/
 .DS_Store
 .next
 public/assets/
+public/uploads/
+storage/backups/
+
+# Harness de preview/validação visual (ferramenta local, não vai p/ produção)
+/inertia/preview/
+/vite.preview.config.ts
+/.tmp/

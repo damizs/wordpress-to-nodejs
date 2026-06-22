@@ -113,12 +113,12 @@ const calloutStyles: Record<
   warning: {
     wrapper: 'bg-amber-500/10 border-amber-500/30',
     icon: AlertTriangle,
-    iconColor: 'text-amber-600',
+    iconColor: 'text-amber-600 dark:text-amber-400',
   },
   success: {
     wrapper: 'bg-emerald-600/10 border-emerald-600/30',
     icon: CheckCircle2,
-    iconColor: 'text-emerald-700',
+    iconColor: 'text-emerald-700 dark:text-emerald-300',
   },
 }
 

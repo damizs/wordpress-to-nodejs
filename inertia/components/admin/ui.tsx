@@ -417,13 +417,13 @@ export function TableEmpty({ colSpan, children }: { colSpan: number; children: R
 export type BadgeTone = 'success' | 'warning' | 'danger' | 'info' | 'neutral' | 'navy' | 'gold'
 
 const badgeTones: Record<BadgeTone, string> = {
-  success: 'bg-emerald-600/10 text-emerald-700',
-  warning: 'bg-amber-500/10 text-amber-700',
+  success: 'bg-emerald-600/10 text-emerald-700 dark:text-emerald-300',
+  warning: 'bg-amber-500/10 text-amber-700 dark:text-amber-300',
   danger: 'bg-destructive/10 text-destructive',
   info: 'bg-sky/10 text-sky',
   neutral: 'bg-muted text-muted-foreground',
-  navy: 'bg-navy/10 text-navy',
-  gold: 'bg-gold/15 text-amber-700',
+  navy: 'bg-navy/10 text-navy dark:text-navy-light',
+  gold: 'bg-gold/15 text-amber-700 dark:text-amber-300',
 }
 
 export function Badge({

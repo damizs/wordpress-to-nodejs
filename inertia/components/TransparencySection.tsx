@@ -41,10 +41,10 @@ function categoryIcon(name: string) {
 
 /** Paleta restrita aos tokens do design system, alternando por índice */
 const CATEGORY_PALETTE = [
-  { circle: "bg-navy/10", icon: "text-navy" },
-  { circle: "bg-gold/15", icon: "text-amber-700" },
+  { circle: "bg-navy/10", icon: "text-navy dark:text-navy-light" },
+  { circle: "bg-gold/15", icon: "text-amber-700 dark:text-amber-300" },
   { circle: "bg-sky/10", icon: "text-sky" },
-  { circle: "bg-emerald-600/10", icon: "text-emerald-700" },
+  { circle: "bg-emerald-600/10", icon: "text-emerald-700 dark:text-emerald-300" },
 ] as const;
 
 export const TransparencySection = ({
