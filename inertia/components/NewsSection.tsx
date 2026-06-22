@@ -350,12 +350,12 @@ function HighlightListLayout({ news }: { news: NewsItem[] }) {
   );
 }
 
-function HighlightListPlainLayout({ news, bannerImage }: { news: NewsItem[]; bannerImage?: string | null }) {
+function HighlightListPlainLayout({ news }: { news: NewsItem[]; bannerImage?: string | null }) {
   const featured = news.find((n) => n.featured) || news[0];
-  const others = news.filter((n) => n.id !== featured?.id).slice(0, 3);
+  const others = news.filter((n) => n.id !== featured?.id).slice(0, 4);
 
   return (
-    <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1.05fr)_minmax(290px,0.75fr)] lg:gap-5 xl:grid-cols-[minmax(0,1.05fr)_minmax(290px,0.7fr)_minmax(260px,0.46fr)]">
+    <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.8fr)] lg:gap-6">
       {featured && (
         <Link href={`/noticias/${featured.slug}`} className="no-underline">
           <article className="group h-full overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-all hover:-translate-y-1 hover:border-navy/25 hover:shadow-xl">
@@ -420,34 +420,6 @@ function HighlightListPlainLayout({ news, bannerImage }: { news: NewsItem[]; ban
           </Link>
         ))}
       </div>
-
-      <aside className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-        <div className="relative aspect-[16/10] overflow-hidden bg-navy">
-          {bannerImage ? (
-            <img src={bannerImage} alt="" className="absolute inset-0 h-full w-full object-cover" />
-          ) : (
-            <div className="absolute inset-0 bg-gradient-to-br from-navy via-navy-light to-navy-dark" />
-          )}
-          <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/82 via-navy-dark/30 to-transparent" />
-          <div className="absolute bottom-4 left-4 right-4">
-            <span className="inline-flex rounded-full bg-gold px-3 py-1 text-xs font-bold uppercase tracking-wide text-navy-dark">
-              Banners
-            </span>
-            <h3 className="mt-3 text-xl font-bold leading-tight text-white">
-              Comunicados e campanhas oficiais
-            </h3>
-          </div>
-        </div>
-        <div className="p-5">
-          <p className="text-sm leading-relaxed text-muted-foreground">
-            Espaço para avisos, campanhas institucionais e chamadas importantes da Câmara.
-          </p>
-          <Link href="/publicacoes-oficiais" className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-navy no-underline transition-all hover:gap-3">
-            Ver publicações
-            <ArrowRight className="h-4 w-4" />
-          </Link>
-        </div>
-      </aside>
     </div>
   );
 }
