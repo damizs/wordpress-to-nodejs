@@ -47,10 +47,20 @@ const fmtMoney = (v: number | null) =>
     ? "—"
     : new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(v));
 
-function Row({ icon: Icon, label, children }: { icon: any; label: string; children: React.ReactNode }) {
+function Row({
+  icon: Icon,
+  label,
+  children,
+  fullWidth = false,
+}: {
+  icon: any;
+  label: string;
+  children: React.ReactNode;
+  fullWidth?: boolean;
+}) {
   return (
-    <div className="flex items-start gap-3 py-3 border-b border-border last:border-0">
-      <Icon className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
+    <div className={`flex items-start gap-3 py-3 border-b border-border/70 ${fullWidth ? "sm:col-span-2" : ""}`}>
+      <Icon className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" aria-hidden="true" />
       <div className="min-w-0">
         <dt className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</dt>
         <dd className="text-sm text-foreground mt-0.5">{children}</dd>
@@ -88,9 +98,9 @@ export default function ContractShow({ contract }: Props) {
               </div>
 
               <div className="card-modern p-6 sm:p-8">
-                <dl>
+                <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8">
                   {contract.object && (
-                    <Row icon={FileSignature} label="Objeto">{contract.object}</Row>
+                    <Row icon={FileSignature} label="Objeto" fullWidth>{contract.object}</Row>
                   )}
                   {(contract.modality || contract.legal_basis) && (
                     <Row icon={Gavel} label="Modalidade">

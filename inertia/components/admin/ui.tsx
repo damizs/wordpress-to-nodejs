@@ -249,6 +249,32 @@ export function Field({
   )
 }
 
+/**
+ * Resumo de erros de validação (role="alert"). Lê os erros e, se houver, mostra
+ * uma caixa no topo do conteúdo. Use a versão global no AdminLayout (cobre todos
+ * os forms via props.errors do Inertia) ou passe `errors` manualmente num form.
+ */
+export function ErrorSummary({ errors, className = '' }: { errors?: Record<string, string>; className?: string }) {
+  const items = Object.entries(errors || {}).filter(([, v]) => Boolean(v))
+  if (items.length === 0) return null
+  return (
+    <div
+      role="alert"
+      className={`rounded-lg border border-l-4 border-l-destructive bg-destructive/5 p-4 text-sm ${className}`}
+    >
+      <p className="flex items-center gap-2 font-semibold text-foreground">
+        <AlertTriangle className="h-4 w-4 shrink-0 text-destructive" aria-hidden="true" />
+        {items.length === 1 ? 'Corrija o campo abaixo:' : 'Corrija os campos abaixo:'}
+      </p>
+      <ul className="mt-2 list-disc space-y-1 pl-9 text-muted-foreground">
+        {items.map(([key, value]) => (
+          <li key={key}>{value}</li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
 /** Busca com ícone — Enter dispara onSearch */
 export function SearchInput({
   value,

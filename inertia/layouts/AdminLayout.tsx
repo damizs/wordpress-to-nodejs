@@ -1,5 +1,6 @@
 import { Link, usePage, router } from '@inertiajs/react'
 import { FlashMessages } from '~/components/FlashMessages'
+import { ErrorSummary } from '~/components/admin/ui'
 import {
   LayoutDashboard, Newspaper, Palette, ChevronLeft, ChevronRight, ChevronDown,
   LogOut, Menu, User, Home, Users, FileText, Link2, Shield, UserCog,
@@ -120,7 +121,7 @@ function hasAny(userPermissions: string[], required?: string[]) {
 }
 
 export default function AdminLayout({ children, title }: AdminLayoutProps) {
-  const { auth } = usePage().props as any
+  const { auth, errors } = usePage().props as any
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [commandOpen, setCommandOpen] = useState(false)
@@ -515,7 +516,12 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
         </header>
 
         {/* Page content — ocupa 100% da área útil; padding seguro nas bordas */}
-        <main className="w-full min-w-0 px-4 py-4 sm:px-6 lg:px-8 lg:py-8 xl:px-10 2xl:px-12">{children}</main>
+        <main className="w-full min-w-0 px-4 py-4 sm:px-6 lg:px-8 lg:py-8 xl:px-10 2xl:px-12">
+          {errors && Object.keys(errors).length > 0 && (
+            <ErrorSummary errors={errors} className="mb-6" />
+          )}
+          {children}
+        </main>
       </div>
     </div>
   )

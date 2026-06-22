@@ -259,13 +259,13 @@ export default function TransparenciaIndex({ sections = [], openLink = null }: P
           centered
         />
 
-        <main>
+        <main id="conteudo" tabIndex={-1} className="outline-none">
           <section className="py-10 lg:py-14">
             <div className="container">
             <div className="lg:flex lg:items-start lg:gap-8 xl:gap-10 2xl:gap-12">
               {/* Sidebar de navegação (padrão dos portais): card fixo no viewport,
                   sem ocupar toda a altura da página. */}
-              <aside className="hidden lg:block w-[260px] xl:w-[280px] shrink-0 self-start sticky top-20">
+              <aside className="hidden lg:block w-[260px] xl:w-[300px] 2xl:w-[340px] shrink-0 self-start sticky top-20">
                 <nav className="max-h-[calc(100vh-6rem)] overflow-y-auto overscroll-contain rounded-2xl bg-card/95 border border-border/60 shadow-sm [scrollbar-width:thin]">
                   {filtered.map((section) => {
                     const Icon = iconMap[section.icon || ""] || FolderOpen;
@@ -374,11 +374,11 @@ export default function TransparenciaIndex({ sections = [], openLink = null }: P
                             <Icon className="w-6 h-6" />
                           </div>
                           <div className="min-w-0">
-                            <h2 className="text-xl font-bold text-foreground leading-tight">
+                            <h2 className="text-xl xl:text-2xl font-bold text-foreground leading-tight">
                               {section.title}
                             </h2>
                             {section.description && (
-                              <p className="text-xs text-muted-foreground mt-0.5">{section.description}</p>
+                              <p className="text-xs xl:text-sm text-muted-foreground mt-0.5">{section.description}</p>
                             )}
                           </div>
                           <span className="ml-auto shrink-0 px-2.5 py-1 rounded-full bg-muted text-muted-foreground text-xs font-semibold">
@@ -386,7 +386,7 @@ export default function TransparenciaIndex({ sections = [], openLink = null }: P
                           </span>
                         </header>
 
-                        <div className="grid gap-3 sm:gap-4 2xl:gap-5 grid-cols-1 min-[400px]:grid-cols-2 sm:grid-cols-[repeat(auto-fill,minmax(180px,1fr))] 2xl:grid-cols-[repeat(auto-fill,minmax(190px,1fr))]">
+                        <div className="grid gap-3 sm:gap-4 2xl:gap-5 grid-cols-1 min-[400px]:grid-cols-2 sm:grid-cols-[repeat(auto-fill,minmax(200px,1fr))] xl:grid-cols-[repeat(auto-fill,minmax(220px,1fr))] 2xl:grid-cols-[repeat(auto-fill,minmax(240px,1fr))]">
                           {section.links.map((link) => (
                             <CardLink key={link.id} link={link} onOpenModal={openModal} />
                           ))}
