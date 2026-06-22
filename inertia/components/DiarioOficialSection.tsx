@@ -78,16 +78,24 @@ const MONTHS = [
   "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro",
 ];
 
-/** Converte "YYYY-MM-DD" em partes numéricas sem deslocamento de fuso. */
-function parseIso(value: string): { y: number; m: number; d: number } | null {
-  const m = String(value).match(/^(\d{4})-(\d{2})-(\d{2})/);
+/** Converte "YYYY-MM-DD" (ou um Date) em partes numéricas sem deslocamento de fuso. */
+function parseIso(value: unknown): { y: number; m: number; d: number } | null {
+  if (value instanceof Date && !isNaN(value.getTime())) {
+    return { y: value.getFullYear(), m: value.getMonth() + 1, d: value.getDate() };
+  }
+  const m = String(value ?? "").match(/^(\d{4})-(\d{2})-(\d{2})/);
   if (!m) return null;
   return { y: Number(m[1]), m: Number(m[2]), d: Number(m[3]) };
 }
 
-function formatLongDate(value: string): string {
+/** Garante string mesmo se receber um Date/objeto (evita "Objects are not valid as a React child"). */
+function safeStr(value: unknown): string {
+  return typeof value === "string" ? value : "";
+}
+
+function formatLongDate(value: unknown): string {
   const p = parseIso(value);
-  if (!p) return value;
+  if (!p) return safeStr(value);
   return new Date(p.y, p.m - 1, p.d).toLocaleDateString("pt-BR", {
     weekday: "long",
     day: "numeric",
@@ -96,9 +104,9 @@ function formatLongDate(value: string): string {
   });
 }
 
-function formatShortDate(value: string): string {
+function formatShortDate(value: unknown): string {
   const p = parseIso(value);
-  if (!p) return value;
+  if (!p) return safeStr(value);
   return `${String(p.d).padStart(2, "0")}/${String(p.m).padStart(2, "0")}/${p.y}`;
 }
 

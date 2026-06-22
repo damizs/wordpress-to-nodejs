@@ -147,6 +147,13 @@ export default class HomeController {
         value instanceof Date ? DateTime.fromJSDate(value) : DateTime.fromISO(String(value))
       return dt.isValid ? dt.toFormat('dd/MM/yyyy') : ''
     }
+    // ISO "YYYY-MM-DD" para o componente do Diário (que faz parseIso); nunca devolve Date
+    const toIsoDate = (value: unknown): string => {
+      if (!value) return ''
+      const dt =
+        value instanceof Date ? DateTime.fromJSDate(value) : DateTime.fromISO(String(value))
+      return dt.isValid ? (dt.toISODate() ?? '') : String(value).slice(0, 10)
+    }
 
     // Homepage mostra só os vereadores da legislatura atual (evita mesas duplicadas)
     const currentCouncilors = currentLegislature
@@ -302,7 +309,7 @@ export default class HomeController {
         ? {
             id: latestGazette.id,
             editionNumber: latestGazette.editionNumber,
-            publicationDate: latestGazette.publicationDate,
+            publicationDate: toIsoDate(latestGazette.publicationDate),
             description: latestGazette.description,
             fileUrl: latestGazette.fileUrl,
           }
@@ -312,20 +319,15 @@ export default class HomeController {
       gazetteEntries: gazetteRecent.slice(0, 60).map((g) => ({
         id: g.id,
         editionNumber: g.editionNumber,
-        publicationDate: g.publicationDate,
+        publicationDate: toIsoDate(g.publicationDate),
         description: g.description,
         fileUrl: g.fileUrl,
       })),
-      gazetteDates: gazetteRecent.map((g) => {
-        const raw: unknown = g.publicationDate
-        const dt =
-          raw instanceof Date ? DateTime.fromJSDate(raw) : DateTime.fromISO(String(raw))
-        return {
-          date: dt.isValid ? dt.toISODate() : String(raw).slice(0, 10),
-          editionNumber: g.editionNumber,
-          fileUrl: g.fileUrl,
-        }
-      }),
+      gazetteDates: gazetteRecent.map((g) => ({
+        date: toIsoDate(g.publicationDate),
+        editionNumber: g.editionNumber,
+        fileUrl: g.fileUrl,
+      })),
       siteSettings,
       infoCategories: infoCategories.map((c) => ({ id: c.id, name: c.name, slug: c.slug })),
       newsBackgroundImage: siteSettings.news_background_image || null,
