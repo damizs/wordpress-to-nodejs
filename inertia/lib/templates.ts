@@ -79,7 +79,7 @@ export const SITE_TEMPLATES: SiteTemplate[] = [
     key: 'classico',
     label: 'Clássico / Governamental',
     description:
-      'Faixa clara de identidade + menu navy (estilo gov.br). Home abre com busca e serviços ao cidadão em cards uniformes.',
+      'Faixa navy com busca centralizada (estilo gov.br). Atalhos vêm na seção Acesso Rápido — sem duplicar cards no hero.',
     homeHero: true,
     // Foco em serviço ao cidadão: acesso rápido, e-SIC e transparência vêm antes.
     homeOrder: [
@@ -102,7 +102,7 @@ export const SITE_TEMPLATES: SiteTemplate[] = [
     key: 'moderno',
     label: 'Moderno / Destaque',
     description:
-      'Cabeçalho claro e enxuto. Home abre com hero editorial em duas colunas (texto + foto) e grade uniforme de serviços.',
+      'Hero navy com notícias em destaque integradas. Demais notícias e seções seguem em fundo claro.',
     homeHero: true,
     homeOrder: [
       'news',

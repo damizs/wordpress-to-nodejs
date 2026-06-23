@@ -20,7 +20,7 @@ import { ConhecaSumeSection } from "~/components/ConhecaSumeSection";
 import { CertificationsSection } from "~/components/CertificationsSection";
 import { SatisfactionSurvey } from "~/components/SatisfactionSurvey";
 import { AssistenteVirtual } from "~/components/AssistenteVirtual";
-import { HomeHero } from "~/components/HomeHero";
+import { HomeHero, MODERNO_HERO_NEWS_COUNT } from "~/components/HomeHero";
 import { HomeSectionShell } from "~/components/HomeSectionShell";
 import { getSiteTemplate } from "~/lib/templates";
 import {
@@ -156,6 +156,9 @@ export default function Home({
   );
   const newsLayout = siteSettings?.news_layout || customConfig.newsLayout || "mosaico";
   const newsForHome = news.slice(0, newsLimit);
+  const usePlainNews = template.key === "classico" || template.key === "moderno";
+  const newsForSection =
+    template.key === "moderno" ? newsForHome.slice(MODERNO_HERO_NEWS_COUNT) : newsForHome;
 
   const hasGazetteContent = Boolean(latestGazette || gazetteEntries.length || gazetteDates.length);
 
@@ -189,8 +192,8 @@ export default function Home({
             <HomeHero
               template={template.key}
               backgroundImage={newsBackgroundImage}
-              news={news}
-              legislativo={legislativo}
+              news={newsForHome}
+              newsLimit={MODERNO_HERO_NEWS_COUNT}
             />
           )}
           <HolidaysStrip />
@@ -206,11 +209,12 @@ export default function Home({
             const node = {
               news: shell(
                 <NewsSection
-                  news={newsForHome}
+                  news={newsForSection}
                   backgroundImage={template.homeHero ? null : newsBackgroundImage}
                   bannerImage={null}
                   layout={newsLayout}
                   limit={newsLimit}
+                  plain={usePlainNews}
                 />
               ),
               quickaccess: shell(

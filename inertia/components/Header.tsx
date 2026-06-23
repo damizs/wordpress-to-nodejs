@@ -377,6 +377,40 @@ export const Header = ({ logoUrl }: HeaderProps) => {
     </div>
   );
 
+  /** Navegação estilo institucional (glass + filete dourado no hover). */
+  const renderNavLinksInstitutional = (dropdownAlign: "left" | "right" = "left") =>
+    desktopNavItems.map((item, index) => (
+      <li key={index} className="relative group">
+        <Link
+          href={item.href}
+          className="relative flex items-center gap-1 px-3 lg:px-4 py-2.5 text-sm font-medium tracking-wide rounded-xl text-primary-foreground no-underline transition-all duration-300 hover:bg-primary-foreground/10"
+        >
+          {item.label}
+          {item.hasDropdown && (
+            <ChevronDown className="h-4 w-4 opacity-60 transition-all duration-300 group-hover:rotate-180 group-hover:opacity-100" />
+          )}
+          <span className="absolute bottom-1 left-4 right-4 h-0.5 origin-left scale-x-0 rounded-full bg-gold transition-transform duration-300 group-hover:scale-x-100" />
+        </Link>
+        {item.hasDropdown && item.subItems && (
+          <div
+            className={`invisible absolute top-full z-[9999] mt-1 min-w-[220px] rounded-xl border border-border bg-background py-2 text-foreground opacity-0 shadow-xl transition-all duration-200 group-focus-within:visible group-hover:visible group-focus-within:opacity-100 group-hover:opacity-100 ${
+              dropdownAlign === "right" ? "right-0" : "left-0"
+            }`}
+          >
+            {item.subItems.map((sub, subIndex) => (
+              <Link
+                key={subIndex}
+                href={sub.href}
+                className="block w-full px-4 py-2.5 text-left text-sm no-underline transition-colors duration-200 hover:bg-accent hover:text-accent-foreground"
+              >
+                {sub.label}
+              </Link>
+            ))}
+          </div>
+        )}
+      </li>
+    ));
+
   /** Itens de navegação (desktop) sobre superfície escura (navy). */
   const renderNavLinks = (dropdownAlign: "left" | "right" = "left") =>
     desktopNavItems.map((item, index) => (
@@ -410,68 +444,6 @@ export const Header = ({ logoUrl }: HeaderProps) => {
       </li>
     ));
 
-  /** Navegação sobre fundo claro (modelo moderno). */
-  const renderNavLinksLight = (dropdownAlign: "left" | "right" = "left") =>
-    desktopNavItems.map((item, index) => (
-      <li key={index} className="relative group">
-        <Link
-          href={item.href}
-          className="flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg text-foreground/80 hover:text-navy hover:bg-muted transition-colors no-underline dark:hover:text-sky"
-        >
-          {item.label}
-          {item.hasDropdown && (
-            <ChevronDown className="w-3.5 h-3.5 opacity-60 group-hover:rotate-180 transition-transform duration-300" />
-          )}
-        </Link>
-        {item.hasDropdown && item.subItems && (
-          <div
-            className={`invisible group-hover:visible group-focus-within:visible opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 absolute top-full ${
-              dropdownAlign === "right" ? "right-0" : "left-0"
-            } mt-1 min-w-[220px] rounded-xl shadow-xl z-[9999] transition-all duration-200 py-2 bg-background text-foreground border border-border`}
-          >
-            {item.subItems.map((sub, subIndex) => (
-              <Link
-                key={subIndex}
-                href={sub.href}
-                className="block w-full text-left px-4 py-2.5 text-sm hover:bg-muted hover:text-primary transition-colors duration-200 no-underline"
-              >
-                {sub.label}
-              </Link>
-            ))}
-          </div>
-        )}
-      </li>
-    ));
-
-  /** Menu governamental — uppercase, filete dourado no hover */
-  const renderClassicoNavLinks = () =>
-    desktopNavItems.map((item, index) => (
-      <li key={index} className="relative group">
-        <Link
-          href={item.href}
-          className="flex items-center gap-1 px-3.5 py-3 text-sm font-semibold text-primary-foreground/90 hover:text-primary-foreground hover:bg-primary-foreground/10 transition-colors no-underline"
-        >
-          {item.label}
-          {item.hasDropdown && (
-            <ChevronDown className="w-3 h-3 opacity-60 group-hover:rotate-180 transition-transform duration-300" />
-          )}
-        </Link>
-        {item.hasDropdown && item.subItems && (
-          <div className="invisible group-hover:visible group-focus-within:visible opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 absolute top-full left-0 mt-1 min-w-[220px] rounded-xl shadow-xl z-[9999] transition-all duration-200 py-2 bg-background text-foreground border border-border">
-            {item.subItems.map((sub, subIndex) => (
-              <Link
-                key={subIndex}
-                href={sub.href}
-                className="block w-full text-left px-4 py-2.5 text-sm hover:bg-muted hover:text-primary transition-colors duration-200 no-underline"
-              >
-                {sub.label}
-              </Link>
-            ))}
-          </div>
-        )}
-      </li>
-    ));
-
   const searchButtonDark = (
     <button
       type="button"
@@ -480,19 +452,6 @@ export const Header = ({ logoUrl }: HeaderProps) => {
       aria-label="Abrir busca"
       title="Buscar"
       className="flex items-center justify-center p-2.5 rounded-lg text-primary-foreground/85 hover:text-primary-foreground hover:bg-primary-foreground/10 transition-colors"
-    >
-      <Search className="w-5 h-5" aria-hidden="true" />
-    </button>
-  );
-
-  const searchButtonLight = (
-    <button
-      type="button"
-      onClick={() => setSearchOpen((v) => !v)}
-      aria-expanded={searchOpen}
-      aria-label="Abrir busca"
-      title="Buscar"
-      className="flex items-center justify-center p-2.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
     >
       <Search className="w-5 h-5" aria-hidden="true" />
     </button>
@@ -648,33 +607,34 @@ export const Header = ({ logoUrl }: HeaderProps) => {
 
   /* ===========================================================================
    * MODELO: CLÁSSICO / GOVERNAMENTAL
-   * Faixa clara de identidade + barra navy de navegação (estilo gov.br).
+   * Gradiente institucional + logo à esquerda + menu glass (mesmo vocabulário visual).
    * ========================================================================= */
   if (template === "classico") {
     return (
-      <header className="relative z-50 bg-card border-b border-border shadow-sm">
+      <header className="relative z-50 overflow-visible bg-gradient-hero text-primary-foreground">
         {widgets}
         {showCompactBar && compactBar}
 
-        <div className="container flex items-center gap-4 py-2.5 lg:py-3">
-          <Link href="/" className="flex items-center gap-3 no-underline shrink-0 min-w-0">
-            {logoOrInitial("h-10 md:h-12 w-auto object-contain shrink-0")}
-            <span className="hidden min-w-0 sm:block">
-              <span className="block text-[10px] font-bold uppercase tracking-widest text-muted-foreground truncate">
-                {headerSubtitle}
-              </span>
-              <span className="block text-sm font-bold text-foreground truncate">{headerTitle}</span>
-            </span>
-          </Link>
-          <div className="ml-auto hidden lg:block">{searchButtonLight}</div>
-          <div className="lg:hidden shrink-0">{mobileButton("light")}</div>
+        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+          <div className="absolute -top-1/2 -right-1/4 h-96 w-96 rounded-full bg-gold/[0.04] blur-3xl" />
+          <div className="absolute -bottom-1/2 -left-1/4 h-96 w-96 rounded-full bg-sky/[0.04] blur-3xl" />
         </div>
 
-        <nav className="hidden border-t border-primary-foreground/10 bg-navy text-primary-foreground lg:block">
-          <div className="container">
-            <ul className="flex items-center gap-0.5">{renderClassicoNavLinks()}</ul>
+        <div className="relative container py-3 sm:py-4">
+          <div className="flex items-center justify-between gap-4">
+            <Link href="/" className="flex items-center no-underline shrink-0 min-w-0">
+              {logoOrInitial("h-11 md:h-14 w-auto max-w-[min(100%,16rem)] object-contain")}
+            </Link>
+            <div className="hidden lg:block">{searchButtonDark}</div>
+            <div className="lg:hidden shrink-0">{mobileButton("dark")}</div>
           </div>
-        </nav>
+
+          <nav className="relative z-40 mt-3 hidden lg:block">
+            <div className="glass relative w-full rounded-2xl px-3 py-2.5 lg:px-5">
+              <ul className="flex flex-wrap items-center gap-1">{renderNavLinksInstitutional()}</ul>
+            </div>
+          </nav>
+        </div>
 
         {searchStripNeutral}
         {mobileNavNeutral}
@@ -684,26 +644,35 @@ export const Header = ({ logoUrl }: HeaderProps) => {
 
   /* ===========================================================================
    * MODELO: MODERNO / DESTAQUE
-   * Cabeçalho claro sticky; hero editorial na home (HomeHero).
+   * Header sticky no gradiente institucional + nav glass (compacto).
    * ========================================================================= */
   if (template === "moderno") {
     return (
-      <header className="sticky top-0 z-50 border-b border-border bg-card/95 text-foreground shadow-sm backdrop-blur supports-[backdrop-filter]:bg-card/90">
+      <header className="sticky top-0 z-50 overflow-visible border-b border-primary-foreground/10 bg-gradient-hero text-primary-foreground shadow-sm backdrop-blur supports-[backdrop-filter]:bg-gradient-hero/95">
         {widgets}
 
-        <div className="container flex items-center justify-between gap-4 h-14 lg:h-16">
-          <Link href="/" className="flex items-center no-underline shrink-0 min-w-0">
-            {logoOrInitial("h-10 lg:h-12 w-auto max-w-[calc(100vw-8rem)] sm:max-w-[14rem] object-contain")}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
+          <div className="absolute -right-20 top-0 h-48 w-48 rounded-full bg-gold/[0.05] blur-3xl" />
+          <div className="absolute -left-20 bottom-0 h-40 w-40 rounded-full bg-sky/[0.05] blur-3xl" />
+        </div>
+
+        <div className="relative container flex flex-wrap items-center gap-3 py-3 lg:gap-4">
+          <Link href="/" className="order-1 shrink-0 no-underline">
+            {logoOrInitial("h-10 lg:h-12 w-auto max-w-[12rem] object-contain")}
           </Link>
 
-          <nav className="hidden lg:block min-w-0 ml-auto">
-            <ul className="flex items-center gap-0.5 min-w-0">
-              {renderNavLinksLight("right")}
-              <li className="ml-1 border-l border-border pl-1">{searchButtonLight}</li>
-            </ul>
+          <nav className="order-3 hidden min-w-0 w-full lg:order-2 lg:block lg:w-auto lg:flex-1">
+            <div className="glass rounded-2xl px-2 py-2 lg:px-3">
+              <ul className="flex items-center justify-end gap-0.5 min-w-0">
+                {renderNavLinksInstitutional("right")}
+                <li className="relative ml-1 border-l border-primary-foreground/15 pl-1">
+                  {searchButtonDark}
+                </li>
+              </ul>
+            </div>
           </nav>
 
-          <div className="lg:hidden shrink-0">{mobileButton("light")}</div>
+          <div className="order-2 ml-auto lg:hidden">{mobileButton("dark")}</div>
         </div>
 
         {searchStripNeutral}
@@ -718,10 +687,10 @@ export const Header = ({ logoUrl }: HeaderProps) => {
    * ========================================================================= */
   if (template === "compacto") {
     return (
-      <header className="sticky top-0 z-50 bg-navy text-primary-foreground border-b border-primary-foreground/10 shadow-sm">
+      <header className="sticky top-0 z-50 border-b border-primary-foreground/10 bg-gradient-hero text-primary-foreground shadow-sm">
         {widgets}
 
-        <div className="container flex items-center justify-between gap-3 h-14">
+        <div className="container flex h-14 items-center justify-between gap-3">
           <Link href="/" className="flex items-center no-underline min-w-0 shrink-0">
             {logoOrInitial("h-10 sm:h-11 w-auto max-w-[calc(100vw-8rem)] sm:max-w-[12rem] object-contain")}
           </Link>
