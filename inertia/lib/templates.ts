@@ -79,7 +79,7 @@ export const SITE_TEMPLATES: SiteTemplate[] = [
     key: 'classico',
     label: 'Clássico / Governamental',
     description:
-      'Barra de identificação no topo, logo à esquerda e menu sólido em barra própria (estilo gov.br). Home abre com hero institucional e prioriza serviços/transparência.',
+      'Faixa clara de identidade + menu navy (estilo gov.br). Home abre com busca e serviços ao cidadão em cards uniformes.',
     homeHero: true,
     // Foco em serviço ao cidadão: acesso rápido, e-SIC e transparência vêm antes.
     homeOrder: [
@@ -102,10 +102,8 @@ export const SITE_TEMPLATES: SiteTemplate[] = [
     key: 'moderno',
     label: 'Moderno / Destaque',
     description:
-      'Cabeçalho enxuto com logo à esquerda, navegação e busca à direita. Home abre com hero de destaque e prioriza notícias e pessoas.',
+      'Cabeçalho claro e enxuto. Home abre com hero editorial em duas colunas (texto + foto) e grade uniforme de serviços.',
     homeHero: true,
-    // Hero imersivo (foto + serviços em destaque); notícias em grade logo abaixo,
-    // depois pessoas/legislativo (foco editorial/visual).
     homeOrder: [
       'news',
       'vereadores',
@@ -126,9 +124,8 @@ export const SITE_TEMPLATES: SiteTemplate[] = [
     key: 'compacto',
     label: 'Compacto / Notícias',
     description:
-      'Cabeçalho slim + abertura MODULAR (grade de serviços em blocos coloridos), depois a home densa orientada a notícias.',
+      'Cabeçalho slim sticky + abertura curta com busca e atalhos densos. Home prioriza notícias e conteúdo.',
     homeHero: true,
-    // Hero modular (bento de serviços coloridos); notícias e atalhos logo abaixo.
     homeOrder: [
       'news',
       'quickaccess',

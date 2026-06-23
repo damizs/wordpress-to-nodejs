@@ -377,14 +377,46 @@ export const Header = ({ logoUrl }: HeaderProps) => {
     </div>
   );
 
-  /* Itens de navegação (desktop) reutilizados pelos modelos novos — sempre
-     sobre superfície escura (navy/gradiente), então tom claro. */
+  /** Itens de navegação (desktop) sobre superfície escura (navy). */
   const renderNavLinks = (dropdownAlign: "left" | "right" = "left") =>
     desktopNavItems.map((item, index) => (
       <li key={index} className="relative group">
         <Link
           href={item.href}
           className="flex items-center gap-1 px-3.5 py-2.5 text-sm font-medium rounded-lg text-primary-foreground/85 hover:text-primary-foreground hover:bg-primary-foreground/10 transition-colors no-underline"
+        >
+          {item.label}
+          {item.hasDropdown && (
+            <ChevronDown className="w-3.5 h-3.5 opacity-60 group-hover:rotate-180 transition-transform duration-300" />
+          )}
+        </Link>
+        {item.hasDropdown && item.subItems && (
+          <div
+            className={`invisible group-hover:visible group-focus-within:visible opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 absolute top-full ${
+              dropdownAlign === "right" ? "right-0" : "left-0"
+            } mt-1 min-w-[220px] rounded-xl shadow-xl z-[9999] transition-all duration-200 py-2 bg-background text-foreground border border-border`}
+          >
+            {item.subItems.map((sub, subIndex) => (
+              <Link
+                key={subIndex}
+                href={sub.href}
+                className="block w-full text-left px-4 py-2.5 text-sm hover:bg-muted hover:text-primary transition-colors duration-200 no-underline"
+              >
+                {sub.label}
+              </Link>
+            ))}
+          </div>
+        )}
+      </li>
+    ));
+
+  /** Navegação sobre fundo claro (modelo moderno). */
+  const renderNavLinksLight = (dropdownAlign: "left" | "right" = "left") =>
+    desktopNavItems.map((item, index) => (
+      <li key={index} className="relative group">
+        <Link
+          href={item.href}
+          className="flex items-center gap-1 px-3 py-2 text-sm font-medium rounded-lg text-foreground/80 hover:text-navy hover:bg-muted transition-colors no-underline dark:hover:text-sky"
         >
           {item.label}
           {item.hasDropdown && (
@@ -448,6 +480,19 @@ export const Header = ({ logoUrl }: HeaderProps) => {
       aria-label="Abrir busca"
       title="Buscar"
       className="flex items-center justify-center p-2.5 rounded-lg text-primary-foreground/85 hover:text-primary-foreground hover:bg-primary-foreground/10 transition-colors"
+    >
+      <Search className="w-5 h-5" aria-hidden="true" />
+    </button>
+  );
+
+  const searchButtonLight = (
+    <button
+      type="button"
+      onClick={() => setSearchOpen((v) => !v)}
+      aria-expanded={searchOpen}
+      aria-label="Abrir busca"
+      title="Buscar"
+      className="flex items-center justify-center p-2.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
     >
       <Search className="w-5 h-5" aria-hidden="true" />
     </button>
@@ -599,28 +644,33 @@ export const Header = ({ logoUrl }: HeaderProps) => {
     <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold/70 to-transparent" />
   );
   const institutionalCompact = !isHomePage;
+  const showCompactBar = template === "institucional";
 
   /* ===========================================================================
    * MODELO: CLÁSSICO / GOVERNAMENTAL
-   * Menu governamental compacto: logo + navegação em uma barra sólida.
+   * Faixa clara de identidade + barra navy de navegação (estilo gov.br).
    * ========================================================================= */
   if (template === "classico") {
     return (
-      <header className="relative z-50 bg-navy text-primary-foreground shadow-sm">
+      <header className="relative z-50 bg-card border-b border-border shadow-sm">
         {widgets}
-        {compactBar}
+        {showCompactBar && compactBar}
 
-        {/* Linha 1 — identidade + busca (a logo já carrega o nome da Câmara) */}
-        <div className="container flex items-center justify-between gap-4 py-3">
-          <Link href="/" className="flex items-center no-underline shrink-0">
-            {logoOrInitial("h-12 md:h-14 w-auto object-contain")}
+        <div className="container flex items-center gap-4 py-2.5 lg:py-3">
+          <Link href="/" className="flex items-center gap-3 no-underline shrink-0 min-w-0">
+            {logoOrInitial("h-10 md:h-12 w-auto object-contain shrink-0")}
+            <span className="hidden min-w-0 sm:block">
+              <span className="block text-[10px] font-bold uppercase tracking-widest text-muted-foreground truncate">
+                {headerSubtitle}
+              </span>
+              <span className="block text-sm font-bold text-foreground truncate">{headerTitle}</span>
+            </span>
           </Link>
-          <div className="hidden lg:block">{searchButtonDark}</div>
-          <div className="lg:hidden shrink-0">{mobileButton("dark")}</div>
+          <div className="ml-auto hidden lg:block">{searchButtonLight}</div>
+          <div className="lg:hidden shrink-0">{mobileButton("light")}</div>
         </div>
 
-        {/* Linha 2 — barra de navegação (gov.br): alinhada ao conteúdo, sem vão solto */}
-        <nav className="hidden border-t border-primary-foreground/10 bg-navy-dark lg:block">
+        <nav className="hidden border-t border-primary-foreground/10 bg-navy text-primary-foreground lg:block">
           <div className="container">
             <ul className="flex items-center gap-0.5">{renderClassicoNavLinks()}</ul>
           </div>
@@ -634,62 +684,58 @@ export const Header = ({ logoUrl }: HeaderProps) => {
 
   /* ===========================================================================
    * MODELO: MODERNO / DESTAQUE
-   * Cabeçalho enxuto em gradiente: logo à esquerda, navegação + busca à direita.
-   * (O hero amplo da home é renderizado por HomeHero.)
+   * Cabeçalho claro sticky; hero editorial na home (HomeHero).
    * ========================================================================= */
   if (template === "moderno") {
     return (
-      <header className="relative z-50 bg-navy-dark text-primary-foreground border-b border-primary-foreground/10 shadow-sm">
+      <header className="sticky top-0 z-50 border-b border-border bg-card/95 text-foreground shadow-sm backdrop-blur supports-[backdrop-filter]:bg-card/90">
         {widgets}
-        {compactBar}
 
-        <div className="relative container flex items-center justify-between gap-4 py-3.5 lg:py-4">
-          <Link href="/" className="flex items-center gap-3 md:gap-4 no-underline min-w-0 group">
-            {logoOrInitial("h-12 lg:h-14 w-auto max-w-[calc(100vw-8rem)] sm:max-w-[16rem] object-contain shrink-0")}
+        <div className="container flex items-center justify-between gap-4 h-14 lg:h-16">
+          <Link href="/" className="flex items-center no-underline shrink-0 min-w-0">
+            {logoOrInitial("h-10 lg:h-12 w-auto max-w-[calc(100vw-8rem)] sm:max-w-[14rem] object-contain")}
           </Link>
 
-          <nav className="hidden lg:block min-w-0">
+          <nav className="hidden lg:block min-w-0 ml-auto">
             <ul className="flex items-center gap-0.5 min-w-0">
-              {renderNavLinks("right")}
-              <li className="ml-1 border-l border-primary-foreground/15 pl-1">{searchButtonDark}</li>
+              {renderNavLinksLight("right")}
+              <li className="ml-1 border-l border-border pl-1">{searchButtonLight}</li>
             </ul>
           </nav>
 
-          <div className="lg:hidden shrink-0">{mobileButton("dark")}</div>
+          <div className="lg:hidden shrink-0">{mobileButton("light")}</div>
         </div>
 
         {searchStripNeutral}
         {mobileNavNeutral}
-        <div className="relative h-0.5 bg-gold/80" aria-hidden="true" />
       </header>
     );
   }
 
   /* ===========================================================================
    * MODELO: COMPACTO / NOTÍCIAS
-   * Barra slim sticky em navy: logo + título, menu e busca em uma única linha.
+   * Barra slim sticky em navy — denso, sem ornamentos extras.
    * ========================================================================= */
   if (template === "compacto") {
     return (
-      <header className="sticky top-0 z-50 bg-navy text-primary-foreground shadow-md">
+      <header className="sticky top-0 z-50 bg-navy text-primary-foreground border-b border-primary-foreground/10 shadow-sm">
         {widgets}
 
-        <div className="container flex items-center justify-between gap-3 h-[4.75rem] sm:h-20">
-          <Link href="/" className="flex items-center gap-2.5 no-underline min-w-0">
-            {logoOrInitial("h-14 sm:h-16 lg:h-[4.25rem] w-auto max-w-[calc(100vw-8rem)] sm:max-w-[230px] object-contain")}
+        <div className="container flex items-center justify-between gap-3 h-14">
+          <Link href="/" className="flex items-center no-underline min-w-0 shrink-0">
+            {logoOrInitial("h-10 sm:h-11 w-auto max-w-[calc(100vw-8rem)] sm:max-w-[12rem] object-contain")}
           </Link>
 
-          <nav className="hidden lg:block ml-auto">
+          <nav className="hidden lg:block ml-auto min-w-0">
             <ul className="flex items-center gap-0.5 min-w-0">{renderNavLinks("right")}</ul>
           </nav>
 
-          <div className="hidden lg:block">{searchButtonDark}</div>
-          <div className="lg:hidden">{mobileButton("dark")}</div>
+          <div className="hidden lg:block shrink-0">{searchButtonDark}</div>
+          <div className="lg:hidden shrink-0">{mobileButton("dark")}</div>
         </div>
 
         {searchStripNeutral}
         {mobileNavNeutral}
-        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gold/70" />
       </header>
     );
   }

@@ -472,13 +472,6 @@ html.js-anim [data-reveal].no-transition {
     background: var(--gradient-gold);
   }
 
-  /* Grade discreta do hero moderno (única decoração de template em uso) */
-  .template-modern-grid {
-    background-image:
-      linear-gradient(hsl(var(--primary-foreground) / 0.045) 1px, transparent 1px),
-      linear-gradient(90deg, hsl(var(--primary-foreground) / 0.045) 1px, transparent 1px);
-    background-size: 28px 28px;
-  }
 
   /* Fundo suave de seções (home E-SIC, transparência, etc.) */
   .section-gradient {
