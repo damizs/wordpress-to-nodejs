@@ -19,6 +19,7 @@ import SystemCategory from '#models/system_category'
 import LegislativeActivity from '#models/legislative_activity'
 import PlenarySession from '#models/plenary_session'
 import RuntimeCache from '#services/runtime_cache'
+import { fixGetpublicUrl } from '#helpers/document_file_url'
 
 export default class HomeController {
   async index({ inertia }: HttpContext) {
@@ -339,7 +340,7 @@ export default class HomeController {
             editionNumber: latestGazette.editionNumber,
             publicationDate: toIsoDate(latestGazette.publicationDate),
             description: latestGazette.description,
-            fileUrl: latestGazette.fileUrl,
+            fileUrl: fixGetpublicUrl(latestGazette.fileUrl),
           }
         : null,
       // Lista para o módulo "Últimas Publicações" da home (preview com busca/
@@ -349,12 +350,12 @@ export default class HomeController {
         editionNumber: g.editionNumber,
         publicationDate: toIsoDate(g.publicationDate),
         description: g.description,
-        fileUrl: g.fileUrl,
+        fileUrl: fixGetpublicUrl(g.fileUrl),
       })),
       gazetteDates: gazetteRecent.map((g) => ({
         date: toIsoDate(g.publicationDate),
         editionNumber: g.editionNumber,
-        fileUrl: g.fileUrl,
+        fileUrl: fixGetpublicUrl(g.fileUrl),
       })),
       siteSettings,
       infoCategories: infoCategories.map((c) => ({ id: c.id, name: c.name, slug: c.slug })),

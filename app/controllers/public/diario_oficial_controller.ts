@@ -2,6 +2,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import db from '@adonisjs/lucid/services/db'
 import OfficialGazetteEntry from '#models/official_gazette_entry'
 import SiteSetting from '#models/site_setting'
+import { fixGetpublicUrl } from '#helpers/document_file_url'
 
 export default class DiarioOficialController {
   async index({ inertia, request }: HttpContext) {
@@ -32,7 +33,7 @@ export default class DiarioOficialController {
         edition_number: e.editionNumber,
         date: e.publicationDate,
         description: e.description,
-        file_url: e.fileUrl,
+        file_url: fixGetpublicUrl(e.fileUrl),
       })),
       pagination: {
         currentPage: entries.currentPage,
@@ -47,7 +48,7 @@ export default class DiarioOficialController {
             edition_number: latestEntry.editionNumber,
             date: latestEntry.publicationDate,
             description: latestEntry.description,
-            file_url: latestEntry.fileUrl,
+            file_url: fixGetpublicUrl(latestEntry.fileUrl),
           }
         : null,
       siteSettings,
