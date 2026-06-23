@@ -153,8 +153,6 @@ export default function Home({
   );
   const newsLayout = siteSettings?.news_layout || customConfig.newsLayout || "mosaico";
   const newsForHome = news.slice(0, newsLimit);
-  /** Modelo Moderno: notícias ficam no hero unificado — não repetir seção abaixo. */
-  const modernNewsSection = template.key === "moderno" && template.homeHero;
 
   const hasGazetteContent = Boolean(latestGazette || gazetteEntries.length || gazetteDates.length);
 
@@ -203,18 +201,15 @@ export default function Home({
             );
 
             const node = {
-              // No modelo Moderno o hero já é a vitrine de notícias — não repetir a seção.
-              news: modernNewsSection
-                ? null
-                : shell(
-                    <NewsSection
-                      news={newsForHome}
-                      backgroundImage={template.homeHero ? null : newsBackgroundImage}
-                      bannerImage={null}
-                      layout={newsLayout}
-                      limit={newsLimit}
-                    />
-                  ),
+              news: shell(
+                <NewsSection
+                  news={newsForHome}
+                  backgroundImage={template.homeHero ? null : newsBackgroundImage}
+                  bannerImage={null}
+                  layout={newsLayout}
+                  limit={newsLimit}
+                />
+              ),
               quickaccess: shell(
                 <QuickAccessSection
                   quickLinks={quickLinks}

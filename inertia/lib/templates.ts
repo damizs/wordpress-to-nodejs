@@ -102,9 +102,10 @@ export const SITE_TEMPLATES: SiteTemplate[] = [
     description:
       'Cabeçalho enxuto com logo à esquerda, navegação e busca à direita. Home abre com hero de destaque e prioriza notícias e pessoas.',
     homeHero: true,
-    // O hero do Moderno já é a VITRINE de notícias (destaque + recentes); por isso
-    // 'news' sai da ordem (evita repetir a grade). Segue com pessoas/legislativo.
+    // Hero imersivo (foto + serviços em destaque); notícias em grade logo abaixo,
+    // depois pessoas/legislativo (foco editorial/visual).
     homeOrder: [
+      'news',
       'vereadores',
       'legislativo',
       'transparency',
@@ -122,9 +123,9 @@ export const SITE_TEMPLATES: SiteTemplate[] = [
     key: 'compacto',
     label: 'Compacto / Notícias',
     description:
-      'Cabeçalho slim em uma linha (logo + menu + busca), sem hero — a home abre direto nas notícias. Denso e orientado a atualidade.',
-    homeHero: false,
-    // Foco em densidade/atualidade: notícias, atalhos, legislativo e diário no topo.
+      'Cabeçalho slim + abertura MODULAR (grade de serviços em blocos coloridos), depois a home densa orientada a notícias.',
+    homeHero: true,
+    // Hero modular (bento de serviços coloridos); notícias e atalhos logo abaixo.
     homeOrder: [
       'news',
       'quickaccess',
