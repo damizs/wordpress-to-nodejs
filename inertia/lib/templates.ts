@@ -31,6 +31,7 @@ export type HomeSectionKey =
   | 'esic'
   | 'transparency'
   | 'vereadores'
+  | 'mesa'
   | 'legislativo'
   | 'diario'
   | 'instagram'
@@ -88,6 +89,7 @@ export const SITE_TEMPLATES: SiteTemplate[] = [
       'news',
       'legislativo',
       'vereadores',
+      'mesa',
       'diario',
       'seals',
       'conheca',
@@ -107,6 +109,7 @@ export const SITE_TEMPLATES: SiteTemplate[] = [
     homeOrder: [
       'news',
       'vereadores',
+      'mesa',
       'legislativo',
       'transparency',
       'quickaccess',
@@ -134,6 +137,7 @@ export const SITE_TEMPLATES: SiteTemplate[] = [
       'transparency',
       'esic',
       'vereadores',
+      'mesa',
       'instagram',
       'reels',
       'conheca',

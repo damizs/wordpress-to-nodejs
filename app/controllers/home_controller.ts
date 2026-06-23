@@ -2,6 +2,8 @@ import type { HttpContext } from '@adonisjs/core/http'
 import { DateTime } from 'luxon'
 import News from '#models/news'
 import Councilor from '#models/councilor'
+import Biennium from '#models/biennium'
+import CouncilorPosition from '#models/councilor_position'
 import QuickLink from '#models/quick_link'
 import TransparencySection from '#models/transparency_section'
 import TransparencyLink from '#models/transparency_link'
@@ -115,6 +117,31 @@ export default class HomeController {
     const gazetteRecent = await RuntimeCache.getOrSet('home:gazette-recent:v1', 120_000, () =>
       OfficialGazetteEntry.query().orderBy('publication_date', 'desc').limit(400)
     )
+
+    // Mesa Diretora (composição do biênio atual) — seção institucional da home
+    const mesaDiretora = await RuntimeCache.getOrSet('home:mesa-diretora:v1', 120_000, async () => {
+      const biennium = await Biennium.query().where('is_current', true).first()
+      if (!biennium) return { members: [], biennium: null as string | null }
+      const positions = await CouncilorPosition.query()
+        .where('biennium_id', biennium.id)
+        .preload('councilor')
+        .orderByRaw(
+          "CASE position WHEN 'Presidente' THEN 1 WHEN 'Vice-Presidente' THEN 2 WHEN '1º Secretário' THEN 3 WHEN '2º Secretário' THEN 4 ELSE 5 END"
+        )
+      const yStart = biennium.startDate ? String(biennium.startDate).substring(0, 4) : ''
+      const yEnd = biennium.endDate ? String(biennium.endDate).substring(0, 4) : ''
+      return {
+        members: positions.map((p) => ({
+          id: p.id,
+          name: p.councilor?.parliamentaryName || p.councilor?.name || '',
+          slug: p.councilor?.slug || '',
+          photo: p.councilor?.photoUrl || null,
+          party: p.councilor?.party || '',
+          role: p.position,
+        })),
+        biennium: yStart && yEnd ? `${yStart}-${yEnd}` : yStart || null,
+      }
+    })
 
     // Fetch transparency links for each section
     const sectionIds = transparencySections.map((s) => s.id)
@@ -297,6 +324,7 @@ export default class HomeController {
       news: mappedNews,
       vereadores,
       legislativo,
+      mesaDiretora,
       publicacoes,
       instagramPosts,
       instagramReels,

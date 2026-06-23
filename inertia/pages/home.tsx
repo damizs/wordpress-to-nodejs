@@ -10,6 +10,7 @@ import { QuickAccessSection } from "~/components/QuickAccessSection";
 import { ESicSection } from "~/components/ESicSection";
 import { TransparencySection } from "~/components/TransparencySection";
 import { VereadoresSection } from "~/components/VereadoresSection";
+import { MesaDiretoraSection, type MesaMember } from "~/components/MesaDiretoraSection";
 import { LegislativoSection } from "~/components/LegislativoSection";
 import { DiarioOficialSection } from "~/components/DiarioOficialSection";
 import { InstagramFeedSection } from "~/components/InstagramFeedSection";
@@ -108,6 +109,7 @@ interface HomeProps {
   news?: NewsItem[];
   vereadores?: Vereador[];
   legislativo?: LegislativoData | null;
+  mesaDiretora?: { members: MesaMember[]; biennium: string | null };
   publicacoes?: Publicacao[];
   instagramPosts?: InstagramPost[];
   instagramReels?: ReelItem[];
@@ -125,9 +127,10 @@ interface HomeProps {
 }
 
 export default function Home({ 
-  news = [], 
-  vereadores = [], 
+  news = [],
+  vereadores = [],
   legislativo = null,
+  mesaDiretora = { members: [], biennium: null },
   instagramPosts = [],
   instagramReels = [],
   instagramProfileUrl = null,
@@ -237,6 +240,14 @@ export default function Home({
                   legislatura={legislatura}
                   title={setting('homepage_vereadores_title')}
                   subtitle={setting('homepage_vereadores_subtitle')}
+                />
+              ),
+              mesa: shell(
+                <MesaDiretoraSection
+                  members={mesaDiretora.members}
+                  biennium={mesaDiretora.biennium}
+                  title={setting('homepage_mesa_title')}
+                  subtitle={setting('homepage_mesa_subtitle')}
                 />
               ),
               legislativo: shell(
