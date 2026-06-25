@@ -33,6 +33,7 @@ interface SubdimensionView {
 type Source = 'auto' | 'manual' | 'padrao'
 type Classification = 'essencial' | 'obrigatoria' | 'recomendada'
 type Freshness = 'em_dia' | 'desatualizado' | 'vazio'
+type TabKey = 'visao' | 'falta' | 'matriz' | 'auditoria' | 'ia'
 
 interface Criterion {
   code: string
@@ -57,12 +58,17 @@ interface Criterion {
   auto: { status: AutoVerdict; detail: string; checkedAt: string } | null
   autoLinks: Array<{ title: string; url: string }>
   actionHref: string | null
+  /** Crédito (0..1) do critério no índice; null = excluído (não se aplica). */
+  credit: number | null
+  /** Ganho real em pontos do índice ao concluir o critério. */
+  indexGain: number
 }
 
 interface DimensionScore {
   key: string
   label: string
   weight: number
+  totalWeight?: number
   total: number
   met: number
   partial: number
@@ -273,7 +279,12 @@ function Gauge({ value, level }: { value: number; level: string }) {
   const filled = (Math.min(value, 100) / 100) * circ
   return (
     <div className="relative w-40 h-40">
-      <svg viewBox="0 0 140 140" className="w-full h-full -rotate-90">
+      <svg
+        viewBox="0 0 140 140"
+        className="w-full h-full -rotate-90"
+        role="img"
+        aria-label={`Índice estimado de transparência: ${value}% — selo ${level}`}
+      >
         <circle cx="70" cy="70" r={r} fill="none" className="stroke-muted" strokeWidth="14" />
         <circle
           cx="70" cy="70" r={r} fill="none" stroke={meta.ring} strokeWidth="14"
@@ -672,7 +683,11 @@ function CriterionRow({ criterion }: { criterion: Criterion }) {
         onClick={() => setOpen(!open)}
         className="w-full flex items-start gap-3 px-4 py-3 text-left hover:bg-muted/40 transition-colors"
       >
-        <span className={`mt-1.5 w-2.5 h-2.5 rounded-full shrink-0 ${meta.dot}`} />
+        <span
+          className={`mt-1.5 w-2.5 h-2.5 rounded-full shrink-0 ${meta.dot}`}
+          role="img"
+          aria-label={`Situação: ${meta.label}`}
+        />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-xs font-bold text-muted-foreground">{criterion.code}</span>
@@ -730,6 +745,8 @@ function CriterionRow({ criterion }: { criterion: Criterion }) {
                   <span
                     key={i}
                     title={meta.title}
+                    role="img"
+                    aria-label={`${s.label}: ${meta.title}`}
                     className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${meta.tone}`}
                   >
                     {s.label}
@@ -885,15 +902,18 @@ export default function AtriconIndex({
     [contentMap]
   )
 
-  // "O que falta": pendentes/parciais priorizados por classificação
+  // "O que falta": pendentes/parciais priorizados pelo GANHO real em pontos do índice
   const todo = useMemo(
     () =>
       matrix
         .filter((c) => c.status === 'pendente' || c.status === 'parcial')
         .sort((a, b) => {
+          // 1) maior impacto no índice primeiro
+          if (b.indexGain !== a.indexGain) return b.indexGain - a.indexGain
+          // 2) classificação (essencial → obrigatória → recomendada)
           const byClass = CLASS_ORDER[a.classification] - CLASS_ORDER[b.classification]
           if (byClass !== 0) return byClass
-          // pendente antes de parcial
+          // 3) pendente antes de parcial
           if (a.status !== b.status) return a.status === 'pendente' ? -1 : 1
           return 0
         }),
@@ -956,6 +976,41 @@ export default function AtriconIndex({
     }
   }, [matrix, contentMap])
 
+  const [tab, setTab] = useState<TabKey>('visao')
+
+  // Alerta proativo de frescor: atas/pautas/votações que venceram a meta quinzenal.
+  const overdueBiweekly = useMemo(
+    () =>
+      contentMap.filter(
+        (m) => ['atas', 'pautas', 'votacoes'].includes(m.key) && m.freshness !== 'em_dia'
+      ),
+    [contentMap]
+  )
+
+  // Divergências auto×manual para destacar no topo.
+  const divergentList = useMemo(
+    () => matrix.filter((c) => c.divergent && c.autoStatus),
+    [matrix]
+  )
+
+  // Ao filtrar uma dimensão pela barra, leva o usuário para a aba da matriz.
+  const goToDimension = (key: string) => {
+    setDimensionFilter(dimensionFilter === key ? '' : key)
+    setTab('matriz')
+  }
+
+  const revertToAuto = (code: string) => {
+    router.put(`/painel/atricon/${code}`, { status: 'auto' }, { preserveScroll: true })
+  }
+
+  const TABS: Array<{ key: TabKey; label: string; icon: LucideIcon; badge?: number }> = [
+    { key: 'visao', label: 'Visão geral', icon: PieChart },
+    { key: 'falta', label: 'O que falta', icon: ListChecks, badge: todo.length },
+    { key: 'matriz', label: 'Matriz', icon: Filter },
+    { key: 'auditoria', label: 'Auditoria de links', icon: Link2, badge: linkAudit.contentGaps.length },
+    { key: 'ia', label: 'Evidências / IA', icon: Bot },
+  ]
+
   return (
     <AdminLayout title="Radar ATRICON">
       <Head title="Radar ATRICON - Painel" />
@@ -983,8 +1038,91 @@ export default function AtriconIndex({
       <p className="-mt-2 mb-5 text-xs text-muted-foreground flex items-center gap-1.5">
         <Clock className="w-3.5 h-3.5 text-emerald-600" />
         Verificado em tempo real às <strong className="text-foreground">{fmtTime(checkedAt)}</strong> de hoje —
-        os dados do portal são lidos a cada acesso a esta página.
+        conteúdo e checks lidos a cada acesso; a auditoria HTTP de links externos é cacheada por até 30 min.
       </p>
+
+      {/* Alerta proativo de frescor — atas/pautas/votações vencidas */}
+      {overdueBiweekly.length > 0 && (
+        <div
+          role="alert"
+          className="mb-4 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4"
+        >
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" aria-hidden="true" />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-foreground">
+                {overdueBiweekly.length} módulo{overdueBiweekly.length === 1 ? '' : 's'} venceu a meta
+                quinzenal de atualização
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Atas, pautas e votações devem ser publicadas em até 15 dias após cada sessão. Atualize
+                para não perder pontos de atualidade (A).
+              </p>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {overdueBiweekly.map((m) => (
+                  <a
+                    key={m.key}
+                    href={m.adminHref}
+                    className="inline-flex items-center gap-1 rounded-full border border-amber-500/40 bg-card px-2.5 py-1 text-[11px] font-medium text-foreground hover:bg-amber-500/10 no-underline"
+                  >
+                    {m.label}
+                    <span className="text-muted-foreground">· {FRESHNESS_META[m.freshness].label}</span>
+                    <ArrowUpRight className="w-3 h-3" aria-hidden="true" />
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Divergências auto×manual destacadas no topo */}
+      {divergentList.length > 0 && (
+        <div
+          role="alert"
+          className="mb-4 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4"
+        >
+          <div className="flex items-start gap-3">
+            <ShieldAlert className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" aria-hidden="true" />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-semibold text-foreground">
+                {divergentList.length} critério{divergentList.length === 1 ? '' : 's'} com divergência
+                entre verificação automática e override manual
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Revise: o status manual contradiz o que o portal indica. Reverter ao automático mantém o
+                índice fiel à realidade publicada.
+              </p>
+              <div className="mt-2 space-y-1.5">
+                {divergentList.slice(0, 6).map((c) => (
+                  <div key={c.code} className="flex flex-wrap items-center gap-2 text-xs">
+                    <span className="font-bold text-muted-foreground w-10 shrink-0">{c.code}</span>
+                    <span className="text-foreground truncate max-w-[22rem]" title={c.title}>
+                      {c.title}
+                    </span>
+                    <span className="text-muted-foreground">
+                      manual <strong className="text-foreground">{STATUS_META[c.status].label}</strong> ×
+                      auto <strong className="text-foreground">{STATUS_META[c.autoStatus!].label}</strong>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => revertToAuto(c.code)}
+                      className="inline-flex items-center gap-1 text-navy hover:underline"
+                    >
+                      <RotateCcw className="w-3 h-3" aria-hidden="true" /> Reverter ao automático
+                    </button>
+                  </div>
+                ))}
+                {divergentList.length > 6 && (
+                  <p className="text-[11px] text-muted-foreground">
+                    + {divergentList.length - 6} outra(s) divergência(s) na matriz.
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* KPIs */}
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-3 mb-4">
@@ -1026,6 +1164,43 @@ export default function AtriconIndex({
         />
       </div>
 
+      {/* Navegação por seções — quebra o scroll único da página */}
+      <div className="sticky top-0 z-10 -mx-1 mb-5 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b border-border">
+        <div role="tablist" aria-label="Seções do Radar ATRICON" className="flex flex-wrap gap-1 py-2">
+          {TABS.map((tb) => {
+            const active = tab === tb.key
+            return (
+              <button
+                key={tb.key}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                onClick={() => setTab(tb.key)}
+                className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                  active
+                    ? 'bg-navy text-white'
+                    : 'text-muted-foreground hover:bg-muted hover:text-foreground'
+                }`}
+              >
+                <tb.icon className="w-4 h-4" aria-hidden="true" />
+                {tb.label}
+                {tb.badge !== undefined && tb.badge > 0 && (
+                  <span
+                    className={`ml-0.5 inline-flex items-center justify-center rounded-full px-1.5 text-[11px] font-bold tabular-nums ${
+                      active ? 'bg-white/20 text-white' : 'bg-muted-foreground/15 text-foreground'
+                    }`}
+                  >
+                    {tb.badge}
+                  </span>
+                )}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* ===================== Aba: Evidências / IA ===================== */}
+      <div role="tabpanel" hidden={tab !== 'ia'}>
       <Card className="mb-6 border-navy/15">
         <CardHeader
           title="Rotina de verificação periódica com IA"
@@ -1103,7 +1278,10 @@ export default function AtriconIndex({
           </ButtonLink>
         </div>
       </Card>
+      </div>
 
+      {/* ===================== Aba: Visão geral ===================== */}
+      <div role="tabpanel" hidden={tab !== 'visao'}>
       {/* Painel de gráficos: índice + distribuição + radar */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
         {/* Índice / selo */}
@@ -1170,7 +1348,7 @@ export default function AtriconIndex({
             <button
               type="button"
               key={d.key}
-              onClick={() => setDimensionFilter(dimensionFilter === d.key ? '' : d.key)}
+              onClick={() => goToDimension(d.key)}
               className={`text-left group ${dimensionFilter === d.key ? 'opacity-100' : dimensionFilter ? 'opacity-50' : ''}`}
             >
               <div className="flex items-center justify-between text-xs mb-1">
@@ -1254,7 +1432,10 @@ export default function AtriconIndex({
           <EvolutionChart snapshots={snapshots} />
         </Card>
       </div>
+      </div>
 
+      {/* ===================== Aba: Auditoria de links ===================== */}
+      <div role="tabpanel" hidden={tab !== 'auditoria'}>
       {/* Auditoria inteligente — Links da Transparência */}
       <Card className="mb-6">
         <CardHeader
@@ -1328,12 +1509,15 @@ export default function AtriconIndex({
           </div>
         )}
       </Card>
+      </div>
 
+      {/* ===================== Aba: O que falta ===================== */}
+      <div role="tabpanel" hidden={tab !== 'falta'}>
       {/* O que falta */}
       <Card className="mb-6">
         <CardHeader
           title="O que falta"
-          description="Critérios pendentes e parciais priorizados — essenciais primeiro."
+          description="Critérios pendentes e parciais priorizados pelo ganho real em pontos do índice."
           icon={ListChecks}
         />
         {todo.length === 0 ? (
@@ -1358,6 +1542,15 @@ export default function AtriconIndex({
                           {CLASS_LABEL[c.classification]}
                         </Badge>
                         <Badge tone={sm.tone} className="text-[11px] px-2 py-0.5">{sm.label}</Badge>
+                        {c.indexGain > 0 && (
+                          <span
+                            className="inline-flex items-center gap-0.5 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-bold text-emerald-600 tabular-nums"
+                            title="Ganho estimado no índice ao concluir este critério"
+                          >
+                            <TrendingUp className="w-3 h-3" aria-hidden="true" />
+                            +{c.indexGain.toFixed(2)} pts
+                          </span>
+                        )}
                       </div>
                       <p className="text-sm font-medium text-foreground mt-1">{c.title}</p>
                       {c.auto && (
@@ -1383,7 +1576,10 @@ export default function AtriconIndex({
           </>
         )}
       </Card>
+      </div>
 
+      {/* ===================== Aba: Matriz ===================== */}
+      <div role="tabpanel" hidden={tab !== 'matriz'}>
       {/* Filtros */}
       <div className="flex flex-wrap items-center gap-2 mb-4">
         <Filter className="w-4 h-4 text-muted-foreground" />
@@ -1441,6 +1637,7 @@ export default function AtriconIndex({
           e entram no radar como “Sistema externo” (contam como atendidos no índice). Mantenha os links de
           acesso visíveis no portal — isso é o que o avaliador confere.
         </p>
+      </div>
       </div>
     </AdminLayout>
   )

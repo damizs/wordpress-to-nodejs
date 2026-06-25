@@ -185,6 +185,19 @@ const INTERNAL_ROUTES: Array<{ prefix: string; probe: ModuleProbe }> = [
 
 const moduleCache = new Map<string, ModuleSnapshot>()
 
+/**
+ * Cache em memória do relatório de auditoria (TTL curto). Evita rodar dezenas de
+ * verificações HTTP externas a cada GET do Radar. Chaveado por `checkExternal`,
+ * já que a verificação externa muda o resultado.
+ */
+const AUDIT_TTL_MS = 30 * 60 * 1000
+const auditCache = new Map<string, { at: number; report: TransparencyAuditReport }>()
+
+/** Invalida o cache da auditoria (use após editar links/seções da transparência). */
+export function clearTransparencyAuditCache(): void {
+  auditCache.clear()
+}
+
 function toDateTime(value: unknown): DateTime | null {
   if (!value) return null
   const iso = DateTime.fromISO(String(value))
@@ -337,8 +350,16 @@ async function checkExternalUrl(url: string): Promise<{ health: LinkHealth; stat
 /** Audita links da transparência: URL válida, conteúdo interno preenchido/atualizado, URLs externas acessíveis. */
 export default class TransparencyAuditService {
   static async audit(options: { checkExternal?: boolean } = {}): Promise<TransparencyAuditReport> {
-    moduleCache.clear()
     const checkExternal = options.checkExternal !== false
+
+    // Servimos do cache quando ainda fresco (evita verificações HTTP sequenciais a cada GET).
+    const cacheKey = checkExternal ? 'ext' : 'noext'
+    const cached = auditCache.get(cacheKey)
+    if (cached && Date.now() - cached.at < AUDIT_TTL_MS) {
+      return cached.report
+    }
+
+    moduleCache.clear()
 
     const [sections, links] = await Promise.all([
       TransparencySection.query().where('is_active', true).orderBy('display_order'),
@@ -346,88 +367,84 @@ export default class TransparencyAuditService {
     ])
     const sectionById = new Map(sections.map((s) => [s.id, s.title]))
 
-    const items: LinkAuditItem[] = []
-
-    for (const link of links) {
-      const sectionTitle = sectionById.get(link.sectionId) ?? 'Sem seção'
-      const base: Omit<LinkAuditItem, 'health' | 'detail'> = {
-        id: link.id,
-        title: link.title,
-        url: link.url,
-        sectionTitle,
-        isExternal: link.isExternal,
-        openMode: link.openMode,
-        matchedModule: null,
-        contentTotal: null,
-        contentLatest: null,
-        httpStatus: null,
-        adminHref: '/painel/transparencia',
-      }
-
-      const path = normalizePath(link.url)
-      if (!path) {
-        items.push({
-          ...base,
-          health: 'invalido',
-          detail: 'URL vazia, inválida ou placeholder — configure o destino do link',
-        })
-        continue
-      }
-
-      const probe = resolveProbe(path)
-      if (probe && (!isExternalUrl(link.url) || link.url.includes('camaradesume') || link.url.includes('localhost'))) {
-        const snap = await probeModule(probe)
-        const { health, detail } = evaluateModuleHealth(probe, snap)
-        items.push({
-          ...base,
-          health,
-          detail,
-          matchedModule: probe.label,
-          contentTotal: snap.total,
-          contentLatest: snap.latest?.toISODate() ?? null,
-          adminHref: probe.adminHref,
-        })
-        continue
-      }
-
-      if (link.isExternal || isExternalUrl(link.url)) {
-        if (!checkExternal) {
-          items.push({
-            ...base,
-            health: 'externo_ok',
-            detail: 'Link externo (verificação HTTP desativada nesta execução)',
-          })
-          continue
+    // Verificações em paralelo (Promise.all preserva a ordem dos links).
+    const items: LinkAuditItem[] = await Promise.all(
+      links.map(async (link): Promise<LinkAuditItem> => {
+        const sectionTitle = sectionById.get(link.sectionId) ?? 'Sem seção'
+        const base: Omit<LinkAuditItem, 'health' | 'detail'> = {
+          id: link.id,
+          title: link.title,
+          url: link.url,
+          sectionTitle,
+          isExternal: link.isExternal,
+          openMode: link.openMode,
+          matchedModule: null,
+          contentTotal: null,
+          contentLatest: null,
+          httpStatus: null,
+          adminHref: '/painel/transparencia',
         }
-        const ext = await checkExternalUrl(link.url)
-        items.push({
-          ...base,
-          health: ext.health,
-          detail: ext.detail,
-          httpStatus: ext.status,
-          matchedModule: 'Sistema externo',
-        })
-        continue
-      }
 
-      // Rota interna sem mapeamento direto (página estática, transparência modal etc.)
-      if (path.startsWith('/transparencia')) {
-        items.push({
-          ...base,
-          health: 'ok',
-          detail: 'Deep-link de transparência — conteúdo definido no modal do link',
-          matchedModule: 'Transparência',
-        })
-        continue
-      }
+        const path = normalizePath(link.url)
+        if (!path) {
+          return {
+            ...base,
+            health: 'invalido',
+            detail: 'URL vazia, inválida ou placeholder — configure o destino do link',
+          }
+        }
 
-      items.push({
-        ...base,
-        health: 'parcial',
-        detail: `Rota interna (${path}) sem verificação automática de conteúdo — confira manualmente`,
-        matchedModule: path,
+        const probe = resolveProbe(path)
+        if (probe && (!isExternalUrl(link.url) || link.url.includes('camaradesume') || link.url.includes('localhost'))) {
+          const snap = await probeModule(probe)
+          const { health, detail } = evaluateModuleHealth(probe, snap)
+          return {
+            ...base,
+            health,
+            detail,
+            matchedModule: probe.label,
+            contentTotal: snap.total,
+            contentLatest: snap.latest?.toISODate() ?? null,
+            adminHref: probe.adminHref,
+          }
+        }
+
+        if (link.isExternal || isExternalUrl(link.url)) {
+          if (!checkExternal) {
+            return {
+              ...base,
+              health: 'externo_ok',
+              detail: 'Link externo (verificação HTTP desativada nesta execução)',
+            }
+          }
+          const ext = await checkExternalUrl(link.url)
+          return {
+            ...base,
+            health: ext.health,
+            detail: ext.detail,
+            httpStatus: ext.status,
+            matchedModule: 'Sistema externo',
+          }
+        }
+
+        // Rota interna sem mapeamento direto (página estática, transparência modal etc.)
+        if (path.startsWith('/transparencia')) {
+          return {
+            ...base,
+            health: 'ok',
+            detail: 'Deep-link de transparência — conteúdo definido no modal do link',
+            matchedModule: 'Transparência',
+          }
+        }
+
+        return {
+          ...base,
+          health: 'parcial',
+          detail: `Rota interna (${path}) sem verificação automática de conteúdo — confira manualmente`,
+          matchedModule: path,
+        }
       })
-    }
+    )
 
     const summary = {
       total: items.length,
@@ -441,11 +458,13 @@ export default class TransparencyAuditService {
       (i) => i.health === 'falha' || i.health === 'parcial' || i.health === 'externo_falha' || i.health === 'invalido'
     )
 
-    return {
+    const report: TransparencyAuditReport = {
       links: items,
       summary,
       contentGaps,
       checkedAt: DateTime.now().toISO(),
     }
+    auditCache.set(cacheKey, { at: Date.now(), report })
+    return report
   }
 }

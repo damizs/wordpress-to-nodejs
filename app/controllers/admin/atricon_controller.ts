@@ -12,6 +12,7 @@ import {
   STATUS_CREDIT,
   MET_STATUSES,
   SUBDIM_LABEL,
+  SUBDIM_WEIGHT,
   criterionActionHref,
   requiredSubdims,
   transparencyLevel,
@@ -280,7 +281,11 @@ async function runAutoChecks(): Promise<Record<string, AutoCheckResult>> {
     loadInfoCategories(),
   ])
   const linkTitles = links.map((l) => `${l.title}`.toLowerCase())
-  const radarLink = linkTitles.some((t) => t.includes('radar'))
+  // Verifica o DESTINO do botão Radar (URL oficial), não apenas o título do link.
+  const radarByUrl = links.some((l) =>
+    `${l.url}`.toLowerCase().includes('radardatransparencia.atricon.org.br')
+  )
+  const radarLink = radarByUrl || linkTitles.some((t) => t.includes('radar'))
 
   const [
     councilors,
@@ -442,8 +447,12 @@ async function runAutoChecks(): Promise<Record<string, AutoCheckResult>> {
       : falha('Configure ao menos uma rede social em Aparência'),
 
     radarLink: radarLink
-      ? ok('Link do Radar da Transparência cadastrado na transparência')
-      : falha('Cadastre o link do Radar da Transparência na transparência/capa'),
+      ? ok(
+          radarByUrl
+            ? 'Botão do Radar da Transparência aponta para radardatransparencia.atricon.org.br'
+            : 'Link do Radar da Transparência cadastrado na transparência'
+        )
+      : falha('Cadastre o botão do Radar da Transparência (radardatransparencia.atricon.org.br) na transparência/capa'),
 
     duodecimos:
       duodecimosTotal === 0
@@ -632,6 +641,37 @@ const VERDICT_TO_STATUS: Record<AutoVerdict, AtriconStatusValue> = {
   falha: 'pendente',
 }
 
+/** Crédito de cada subdimensão auto-verificável (D/A/H) no índice. */
+const VERDICT_CREDIT: Record<AutoVerdict, number> = { ok: 1, parcial: 0.5, falha: 0 }
+
+/**
+ * Crédito do critério no índice (0..1) ou null quando excluído (nao_se_aplica).
+ * Para critérios que seguem a verificação automática e têm subdimensões mensuráveis
+ * (D/A/H), pondera o crédito pelos pesos PNTP (D30/A30/H20) em vez do crédito binário
+ * do status — ex.: atualidade parcial deixa de "zerar" ou "encher" o critério inteiro.
+ * Gravação (G) e Filtro (F) ficam para conferência manual e não entram nesta média.
+ */
+function creditOf(
+  status: AtriconStatusValue,
+  source: 'auto' | 'manual' | 'padrao',
+  subdimensions: Array<{ key: AtriconSubdim; status: AutoVerdict | 'manual' }> | null
+): number | null {
+  const base = STATUS_CREDIT[status]
+  if (base === null) return null
+  if (source === 'auto' && subdimensions) {
+    const measurable = subdimensions.filter((s) => s.status !== 'manual')
+    if (measurable.length > 0) {
+      const wsum = measurable.reduce((s, sd) => s + SUBDIM_WEIGHT[sd.key], 0)
+      const earned = measurable.reduce(
+        (s, sd) => s + SUBDIM_WEIGHT[sd.key] * VERDICT_CREDIT[sd.status as AutoVerdict],
+        0
+      )
+      if (wsum > 0) return Math.round((earned / wsum) * 1000) / 1000
+    }
+  }
+  return base
+}
+
 /**
  * Monta a matriz. Precedência do status efetivo:
  * 1. Critério com autoCheck e SEM registro manual → status da verificação em tempo real.
@@ -694,6 +734,9 @@ async function buildMatrix() {
       status: (autoSubs?.[sd] ?? 'manual') as AutoVerdict | 'manual',
     }))
 
+    // Crédito ponderado por subdimensão (D30/A30/H20) para auto-verificados.
+    const credit = creditOf(status, source, subdimensions)
+
     return {
       ...c,
       status,
@@ -701,6 +744,9 @@ async function buildMatrix() {
       autoStatus,
       divergent,
       subdimensions,
+      credit,
+      // Ganho real em pontos do índice ao concluir o critério (preenchido em attachIndexGain).
+      indexGain: 0,
       evidenceUrl: record?.evidenceUrl ?? null,
       notes: record?.notes ?? null,
       lastUpdate: record?.updatedAt?.toISO() ?? null,
@@ -752,9 +798,13 @@ function buildEvidencePack({
       actionHref: c.actionHref,
       autoDetail: c.auto?.detail ?? null,
       divergent: c.divergent,
+      // Ganho real em pontos do índice ao concluir o critério — base da priorização.
+      indexGain: c.indexGain,
       hint: c.hint,
       notes: c.notes,
     }))
+    // Maior impacto no índice primeiro (depois divergências, depois código).
+    .sort((a, b) => b.indexGain - a.indexGain || Number(b.divergent) - Number(a.divergent))
 
   const contentGaps = contentMap
     .filter((m) => m.freshness !== 'em_dia')
@@ -859,21 +909,19 @@ function buildEvidencePack({
 function computeScores(matrix: MatrixItem[]) {
   const dimensions = ATRICON_DIMENSIONS.map((dim) => {
     const items = matrix.filter((c) => c.dimension === dim.key)
-    const considered = items.filter((c) => STATUS_CREDIT[c.status as AtriconStatusValue] !== null)
+    const considered = items.filter((c) => c.credit !== null)
     const totalWeight = considered.reduce(
       (sum, c) => sum + CLASSIFICATION_WEIGHT[c.classification],
       0
     )
     const earnedWeight = considered.reduce(
-      (sum, c) =>
-        sum +
-        CLASSIFICATION_WEIGHT[c.classification] *
-          (STATUS_CREDIT[c.status as AtriconStatusValue] ?? 0),
+      (sum, c) => sum + CLASSIFICATION_WEIGHT[c.classification] * (c.credit ?? 0),
       0
     )
     const pct = totalWeight > 0 ? (earnedWeight / totalWeight) * 100 : 100
     return {
       ...dim,
+      totalWeight,
       total: items.length,
       met: items.filter((c) => MET_STATUSES.includes(c.status as AtriconStatusValue)).length,
       partial: items.filter((c) => c.status === 'parcial').length,
@@ -1176,31 +1224,68 @@ async function buildContentMap(): Promise<ContentModule[]> {
   ]
 }
 
+/* ============================== Índice: ganho real por critério ============================== */
+
+/**
+ * Preenche `indexGain` de cada critério: quantos pontos do índice geral seriam ganhos
+ * ao levar o critério ao crédito pleno (1,0), considerando o peso da classificação,
+ * o peso da dimensão e o crédito atual. Permite priorizar "o que falta" por impacto real.
+ */
+function attachIndexGain(matrix: MatrixItem[], scores: Scores): void {
+  const weightSum = scores.dimensions.reduce((s, d) => s + d.weight, 0)
+  const dimByKey = new Map(scores.dimensions.map((d) => [d.key, d]))
+  for (const c of matrix) {
+    const dim = dimByKey.get(c.dimension)
+    if (!dim || c.credit === null || dim.totalWeight <= 0 || weightSum <= 0) {
+      c.indexGain = 0
+      continue
+    }
+    const deltaEarned = CLASSIFICATION_WEIGHT[c.classification] * (1 - c.credit)
+    const deltaPct = (deltaEarned / dim.totalWeight) * 100
+    c.indexGain = Math.round(((deltaPct * dim.weight) / weightSum) * 100) / 100
+  }
+}
+
 /* ============================== Snapshots (evolução do índice) ============================== */
 
-/** Salva no máximo 1 snapshot por dia e devolve a série para o gráfico de evolução. */
-async function snapshotAndLoad(scores: Scores) {
-  const last = await AtriconSnapshot.query().orderBy('created_at', 'desc').first()
-  const today = DateTime.now().startOf('day')
-  if (!last || last.createdAt < today) {
-    await AtriconSnapshot.create({
-      index: scores.index,
-      level: scores.level,
-      dimensions: scores.dimensions.map((d) => ({ key: d.key, label: d.label, pct: d.pct })),
-      totals: {
-        criteria: scores.totals.criteria,
-        met: scores.totals.met,
-        external: scores.totals.external,
-        partial: scores.totals.partial,
-        pending: scores.totals.pending,
-        notApplicable: scores.totals.notApplicable,
-      },
-    })
-  }
+/** Lê a série de snapshots para o gráfico de evolução (somente leitura — sem efeito colateral). */
+async function loadSnapshotSeries() {
   const rows = await AtriconSnapshot.query().orderBy('created_at', 'desc').limit(60)
   return rows
     .reverse()
     .map((s) => ({ date: s.createdAt.toISODate(), index: s.index, level: s.level }))
+}
+
+/** Grava no máximo 1 snapshot por dia. Idempotente. Devolve true se criou. */
+async function writeDailySnapshot(scores: Scores): Promise<boolean> {
+  const last = await AtriconSnapshot.query().orderBy('created_at', 'desc').first()
+  const today = DateTime.now().startOf('day')
+  if (last && last.createdAt >= today) return false
+  await AtriconSnapshot.create({
+    index: scores.index,
+    level: scores.level,
+    dimensions: scores.dimensions.map((d) => ({ key: d.key, label: d.label, pct: d.pct })),
+    totals: {
+      criteria: scores.totals.criteria,
+      met: scores.totals.met,
+      external: scores.totals.external,
+      partial: scores.totals.partial,
+      pending: scores.totals.pending,
+      notApplicable: scores.totals.notApplicable,
+    },
+  })
+  return true
+}
+
+/**
+ * Calcula a matriz/índice e grava o snapshot diário (idempotente).
+ * Chamado pelo comando `node ace atricon:snapshot` — NÃO durante um GET.
+ */
+export async function recordAtriconSnapshot() {
+  const matrix = await buildMatrix()
+  const scores = computeScores(matrix)
+  const created = await writeDailySnapshot(scores)
+  return { created, index: scores.index, level: scores.level }
 }
 
 /* ============================== Relatório / quinzena ============================== */
@@ -1225,7 +1310,9 @@ export default class AtriconController {
       SiteSetting.getValue('atricon_logo_url'),
     ])
     const scores = computeScores(matrix)
-    const snapshots = await snapshotAndLoad(scores)
+    attachIndexGain(matrix, scores)
+    // Leitura apenas — o snapshot diário é gravado pelo comando `atricon:snapshot`.
+    const snapshots = await loadSnapshotSeries()
     return inertia.render('admin/atricon/index', {
       matrix,
       scores,
@@ -1365,6 +1452,7 @@ export default class AtriconController {
       TransparencyAuditService.audit({ checkExternal: true }),
     ])
     const scores = computeScores(matrix)
+    attachIndexGain(matrix, scores)
     const pack = buildEvidencePack({ matrix, scores, contentMap, linkAudit })
 
     response.header('Content-Type', 'application/json; charset=utf-8')
