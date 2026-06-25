@@ -202,7 +202,12 @@ export default function Home({
         <main id="conteudo" tabIndex={-1} className="outline-none">
           <h1 className="sr-only">Câmara Municipal de Sumé — Portal Oficial</h1>
           {template.homeHero && (
-            <HomeHero template={template.key} quickLinks={quickLinks} />
+            <HomeHero
+              template={template.key}
+              quickLinks={quickLinks}
+              legislativo={legislativo}
+              legislatura={legislatura}
+            />
           )}
           <HolidaysStrip />
           {homeOrder.map((key) => {

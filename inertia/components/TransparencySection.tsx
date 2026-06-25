@@ -1,6 +1,6 @@
 import { Link } from "@inertiajs/react";
 import {
-  Award, ExternalLink, FileText, HardHat, Plane,
+  Award, ExternalLink, FileText, HardHat, Plane, ChevronRight,
   Coins, GraduationCap, Users, ClipboardList, Gavel, BarChart3, BookOpen,
   Briefcase, Building, Scale, FolderOpen,
 } from "lucide-react";
@@ -93,7 +93,7 @@ export const TransparencySection = ({
         {/* Carrossel infinito de categorias (páginas PNTP) */}
         {categories.length > 0 && (
           <div data-reveal>
-            <InfiniteCarousel ariaLabel="Categorias de transparência" gapClass="gap-5" className="pb-1">
+            <InfiniteCarousel ariaLabel="Categorias de transparência" gapClass="gap-3.5 sm:gap-4" className="pb-1">
               {categories.map((cat, index) => {
                 const Icon = categoryIcon(cat.name);
                 const palette = CATEGORY_PALETTE[index % CATEGORY_PALETTE.length];
@@ -101,13 +101,17 @@ export const TransparencySection = ({
                   <Link
                     key={cat.id}
                     href={`/${cat.slug}`}
-                    className="carousel-slide-sm card-modern p-5 sm:p-6 flex flex-col items-center text-center gap-3 sm:gap-4 no-underline hover-lift min-h-[140px] sm:min-h-[150px] justify-center"
+                    className="group/card shrink-0 w-[240px] sm:w-[260px] card-modern p-4 sm:p-5 flex items-center gap-3.5 no-underline hover-lift min-h-[92px]"
                   >
-                    <div className={`w-14 h-14 rounded-full ${palette.circle} flex items-center justify-center`}>
-                      <Icon className={`w-7 h-7 ${palette.icon}`} />
+                    <div className={`w-12 h-12 rounded-full ${palette.circle} flex items-center justify-center shrink-0`}>
+                      <Icon className={`w-6 h-6 ${palette.icon}`} />
                     </div>
-                    <div>
-                      <h3 className="font-bold text-foreground text-sm mb-1">{cat.name}</h3>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-bold text-foreground text-sm leading-snug line-clamp-2">{cat.name}</h3>
+                      <span className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-muted-foreground transition-colors group-hover/card:text-primary">
+                        Acessar
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </span>
                     </div>
                   </Link>
                 );

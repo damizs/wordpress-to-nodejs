@@ -29,6 +29,7 @@ export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
   esic: 'E-SIC',
   transparency: 'Transparência',
   vereadores: 'Vereadores',
+  mesa: 'Mesa Diretora',
   legislativo: 'Legislativo em Números',
   diario: 'Diário Oficial',
   instagram: 'Instagram',
@@ -93,8 +94,8 @@ export function getTemplateCustomConfig(
   return {
     homeOrder,
     sections: saved?.sections ?? {},
-    newsLayout: saved?.newsLayout,
-    newsCount: saved?.newsCount ?? 5,
+    newsLayout: saved?.newsLayout ?? tpl.newsLayout,
+    newsCount: saved?.newsCount ?? tpl.newsCount ?? 5,
   }
 }
 

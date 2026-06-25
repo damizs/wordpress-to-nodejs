@@ -89,6 +89,12 @@ export const InstagramFeedSection = ({
     el.scrollBy({ left: direction * el.clientWidth * 0.9, behavior: "smooth" });
   }, []);
 
+  // Sem posts importados (ex.: RAPIDAPI_KEY ausente): não renderiza a seção
+  // — evita título + grade vazia (ou bloco compacto) deixando um vazio gigante.
+  if (posts.length === 0) {
+    return null;
+  }
+
   return (
     <section className="bg-background py-10 sm:py-12 lg:py-16">
       <div className="container min-w-0">
@@ -98,9 +104,7 @@ export const InstagramFeedSection = ({
           subtitle="Acompanhe as atividades da Câmara Municipal em tempo real."
         />
 
-        {posts.length > 0 ? (
-          <>
-            {/* Profile header */}
+        {/* Profile header */}
             <div className="flex items-center justify-center gap-3 mb-8" data-reveal>
               <ProfileAvatar profileImageUrl={profileImageUrl} />
               <div>
@@ -209,29 +213,6 @@ export const InstagramFeedSection = ({
                 <ExternalLink className="w-4 h-4" />
               </a>
             </div>
-          </>
-        ) : (
-          <div className="flex justify-center">
-            <a
-              href={profileUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group card-modern p-8 flex flex-col items-center gap-4 no-underline max-w-md w-full"
-            >
-              <ProfileAvatar profileImageUrl={profileImageUrl} size="lg" />
-              <div className="text-center">
-                <h3 className="font-bold text-foreground text-xl mb-2">{handle}</h3>
-                <p className="text-muted-foreground text-sm mb-4">
-                  Notícias, sessões e atividades legislativas
-                </p>
-                <span className="inline-flex items-center gap-2 text-primary font-medium group-hover:gap-3 transition-all">
-                  Seguir no Instagram
-                  <ExternalLink className="w-4 h-4" />
-                </span>
-              </div>
-            </a>
-          </div>
-        )}
       </div>
     </section>
   );

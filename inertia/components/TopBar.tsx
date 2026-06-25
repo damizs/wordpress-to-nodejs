@@ -16,7 +16,7 @@ export const TopBar = () => {
 
   const topLinks = [
     { icon: Search, label: "Portal da Transparência", shortLabel: "Transparência", href: "/transparencia", external: false },
-    { icon: FileText, label: "E-Sic", shortLabel: "E-Sic", href: "/#esic", external: false },
+    { icon: FileText, label: "e-SIC", shortLabel: "e-SIC", href: "/#esic", external: false },
     { icon: MessageSquare, label: "Ouvidoria", shortLabel: "Ouvidoria", href: "/ouvidoria", external: false },
     { icon: HelpCircle, label: "Perguntas Frequentes", shortLabel: "FAQ", href: "/perguntas-frequentes", external: false },
     { icon: Shield, label: "Política de Privacidade", shortLabel: "Privacidade", href: "/politica-de-privacidade", external: false },
