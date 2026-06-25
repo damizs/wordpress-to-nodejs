@@ -31,8 +31,8 @@ Portal institucional da **Câmara Municipal de Sumé (PB)**, reescrito do WordPr
   Middleware `middleware.can(['perm'])` exige QUALQUER uma das permissões.
 - **Segurança:** Shield (CSRF), sessões, uploads validados.
 - **Build/deploy:** `node ace build`; Docker + Coolify; `startup.sh` roda
-  `migration:run --force` → `db:seed` → server. Import do WordPress só com
-  `FORCE_WP_MIGRATE=true` (comando `wp:migrate`, idempotente).
+  `migration:run --force` → `db:seed` → **bootstrap idempotente do acervo WP**
+  (`scripts/wp_import.sh`, ~10–15 min na 1ª implantação) → server. Ver §11.
 
 **Pastas:** `app/` (controllers, models, services, helpers), `inertia/`
 (pages, components, layouts, lib, hooks, css), `start/` (routes, kernel,
@@ -297,11 +297,32 @@ em Números, Diário, Instagram, Conheça Sumé, Certificações, Pesquisa) → 
       as páginas, contraste das tags douradas corrigido, filtros com altura uniforme
       e responsivos (empilham < md), gráfico do Legislativo com área 3D/4D + cards
       numéricos com hierarquia.
+- [x] Assistente virtual: dialog a11y + markdown + focus trap; Reels lightbox com
+      focus trap; pesquisa de satisfação com tokens dark-safe + radiogroup.
+- [x] Rate limiting no login e na pesquisa de satisfação; hash de CPF (LGPD);
+      proxy Instagram autenticado no painel.
 - [ ] Passada dedicada de **responsividade/UX** ("site bem preenchido", todas as
-      telas) e de acessibilidade.
-- [ ] Rate limiting no login; bloquear/sanear upload de SVG; cache de
-      `siteSettings`; pipeline de otimização de imagem (sharp) nos uploads.
-- [ ] Primeiros testes automatizados (Japa) dos fluxos críticos.
+      telas) e de acessibilidade (ver §3 Observações de Revisão Visual).
+- [ ] Bloquear/sanear upload de SVG; cache de `siteSettings`; pipeline de
+      otimização de imagem (sharp) nos uploads além do `optimize_images.sh`.
+- [ ] Primeiros testes automatizados (Japa) dos fluxos críticos além dos unitários
+      atuais (`cpf_hash`, rate limiters).
+
+**Produção / conteúdo (pós-deploy jun/2026)**
+- [x] Deploy `ed830c3` no ar (`node.camaradesume.pb.gov.br` healthy).
+- [x] Notícias, vereadores, atas, atividades, diário, PNTP parcial importados.
+- [ ] **`/pautas` vazia** — seed de `pautas` não rodou porque `.wp-migrated-v2` já
+      existia. Corrigir: `cd /app && node ace seed:atas-pautas` **dentro do container**
+      (ou redeploy após commit com passo `[1b/8]` no `wp_import.sh`).
+- [ ] **Contratos** — importar no painel (`POST /painel/contratos/importar`) e
+      preencher fiscal + portaria (PNTP 9.1/9.3).
+- [ ] **Relatórios Fiscais (RGF/RREO)** — upload manual no painel.
+- [ ] **Legacy content** — confirmar marcador `.legacy-content-imported-v1` nos logs;
+      reimportar com `FORCE_LEGACY_CONTENT_IMPORT=true` se necessário.
+- [ ] **PNTP PDFs locais** — confirmar `.pntp-imported-v3`; se só v2/skip-download,
+      rodar `FORCE_PNTP_IMPORT=true node ace wp:pntp` no container.
+- [ ] Menu `/videos` — adicionar em Menus do Site se usar Reels.
+- [ ] **`RAPIDAPI_KEY`** — configurar no Coolify para feed/reels Instagram ao vivo.
 
 ---
 
@@ -359,7 +380,7 @@ Fontes de referência em `.acervo/plugins/`.
  upsert por (slug+título+ano) sem apagar registros manuais e **baixa os PDFs**
  do site antigo para `public/uploads/acesso-informacao/wp/` (fallback p/ link
  remoto se o download falhar). Roda 1× no boot via marcador
- `.pntp-imported-v1` (ou `FORCE_PNTP_IMPORT=true`). ⚠️ As páginas dinâmicas de
+ `.pntp-imported-v3` (ou `FORCE_PNTP_IMPORT=true`). ⚠️ As páginas dinâmicas de
  Acesso à Informação filtram por **slug** (`information_records.category` = slug,
  não o nome) — o import antigo do `wp:migrate` (por nome) foi desativado.
 - **Migração WP — Diário Oficial / GET Public:** o plugin `diario-oficial-sync`
@@ -382,6 +403,95 @@ Fontes de referência em `.acervo/plugins/`.
  `database/wp_quick_links.json`. O `wp:migrate` prefere esse JSON quando ele existe
  e importa apenas `secao_id = 1` como atalhos da home; `secao_id = 2` é Acesso à
  Informação/PNTP e fica nos módulos próprios.
+
+---
+
+## 11. Deploy, Coolify e operação em produção
+
+### Repositório Git
+
+| Item | Valor |
+|------|-------|
+| **URL (HTTPS, sem token)** | `https://github.com/damizs/wordpress-to-nodejs.git` |
+| **Branch de deploy** | `main` |
+| **Autenticação** | PAT do GitHub **ou** integração nativa Coolify↔GitHub (recomendado). **Nunca** commitar token no repositório. Se o remote local tiver `ghp_...` embutido, rotacionar o PAT em GitHub → Settings → Developer settings → Personal access tokens e corrigir: `git remote set-url origin https://github.com/damizs/wordpress-to-nodejs.git` |
+
+### Onde rodar comandos
+
+⚠️ **SSH em `root@srv...` NÃO funciona** para `node ace` — o app roda **dentro do container Docker**.
+
+| Onde | Caminho |
+|------|---------|
+| **Terminal do Coolify** (app → Terminal) | `cd /app` |
+| **SSH no host** | `docker ps` → `docker exec -it <container> sh` → `cd /app` |
+
+Comandos Ace **sempre** a partir de `/app` dentro do container.
+
+### Boot automático (`startup.sh`)
+
+Ordem em cada deploy:
+
+1. `node ace migration:run --force`
+2. `node ace db:seed`
+3. `sh /app/scripts/wp_import.sh` (salvo `SKIP_CONTENT_BOOTSTRAP=true`)
+
+Pipeline `wp_import.sh` (marcadores em `/app/public/uploads/`):
+
+| Passo | Comando | Marcador |
+|-------|---------|----------|
+| 1 | `wp:migrate --force` | `.wp-migrated-v2` |
+| 1b | `seed:atas-pautas` (se passo 1 pulado) | — idempotente |
+| 2 | `wp:activities` | `.activities-imported-v5` |
+| 3 | `wp:pntp` (com download PDF) | `.pntp-imported-v3` |
+| 4 | `wp:diario` | `.diario-imported-v1` |
+| 5 | `wp:quick-links` | `.quick-links-imported-v1` |
+| 6 | `portal:bootstrap` | `.portal-bootstrapped-v1` |
+| 7 | `wp:legacy-content` | `.legacy-content-imported-v1` |
+| 8 | `optimize_images.sh` | `.images-optimized-v3` |
+
+**1ª implantação:** ~10–15 min. **Deploys seguintes:** segundos (marcadores existentes).
+**Healthcheck Docker:** `start-period=900s` (15 min).
+
+### Variáveis de ambiente (Coolify)
+
+| Variável | Uso |
+|----------|-----|
+| `SKIP_CONTENT_BOOTSTRAP=true` | Pular import no boot (staging/dev) |
+| `FORCE_CONTENT_BOOTSTRAP=true` | Apagar marcadores e reimportar tudo |
+| `FORCE_WP_MIGRATE=true` | Só refazer passo 1 |
+| `FORCE_PNTP_IMPORT=true` | Só refazer PNTP + PDFs |
+| `FORCE_LEGACY_CONTENT_IMPORT=true` | Só refazer acervo legado |
+| `RAPIDAPI_KEY` | Feed/reels Instagram |
+| `APP_KEY` | Obrigatório; usado no hash de CPF da pesquisa |
+
+### Comandos úteis (dentro do container, `/app`)
+
+```bash
+# Corrigir /pautas vazia sem remigrar tudo
+node ace seed:atas-pautas
+
+# Reimportação completa
+FORCE_CONTENT_BOOTSTRAP=true sh /app/scripts/wp_import.sh
+
+# Atualizar feed Instagram
+node ace instagram:feed
+
+# Migrations manuais (raro — startup já roda)
+node ace migration:run --force
+```
+
+### Validação pós-deploy
+
+- `GET /health` → 200
+- `/noticias`, `/vereadores`, `/atas`, `/atividades-legislativas` → com listagem
+- `/pautas` → **não** deve estar vazia após `seed:atas-pautas`
+- `/pesquisa-de-satisfacao` → formulário + tokens (`bg-background`)
+- Proxy Instagram exige login: `GET /painel/noticias/instagram/proxy-image` → 302 `/login`
+
+### URLs de produção
+
+- **App Node (Coolify):** `https://node.camaradesume.pb.gov.br`
+- **Site público (proxy/domínio):** `https://camaradesume.pb.gov.br` (se configurado)
 
 ---
 

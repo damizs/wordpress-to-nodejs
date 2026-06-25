@@ -35,6 +35,8 @@ if [ "$FORCE_WP_MIGRATE" = "true" ] || [ ! -f "$WP_MARKER" ]; then
   fi
 else
   echo "=== [1/8] WordPress migration already done ==="
+  echo "=== [1b/8] Atas/Pautas (seed se tabelas vazias) ==="
+  node ace seed:atas-pautas || echo "Atas/pautas seed had errors (non-fatal)"
 fi
 
 # ── 2. Atividades legislativas + autoria (depende dos vereadores) ──
