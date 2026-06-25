@@ -1,6 +1,6 @@
 import { Head, Link, usePage } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { StatusBadge } from '~/components/admin/ui'
+import { StatusBadge, Card, StatCard } from '~/components/admin/ui'
 import {
   Newspaper, FileText, Users, ArrowUpRight, Clock, Gavel, ScrollText,
   ShoppingCart, FolderOpen, MessageSquare, CalendarDays, Radar,
@@ -38,13 +38,13 @@ export default function Dashboard({ stats, recentNews, upcomingSessions, content
   // Cartões de estatística — só aparecem se o backend mandou o número.
   // Paleta restrita: navy (institucional), gold (destaque) e emerald/amber (semântico).
   const statCards = [
-    { key: 'publishedNews', label: 'Notícias publicadas', icon: Newspaper, accent: 'text-emerald-700 bg-emerald-600/10', href: '/painel/noticias?status=published' },
-    { key: 'draftNews', label: 'Rascunhos', icon: FileText, accent: 'text-amber-700 bg-amber-500/10', href: '/painel/noticias?status=draft' },
+    { key: 'publishedNews', label: 'Notícias publicadas', icon: Newspaper, accent: 'text-emerald-700 dark:text-emerald-300 bg-emerald-600/10', href: '/painel/noticias?status=published' },
+    { key: 'draftNews', label: 'Rascunhos', icon: FileText, accent: 'text-amber-700 dark:text-amber-300 bg-amber-500/10', href: '/painel/noticias?status=draft' },
     { key: 'scheduledSessions', label: 'Sessões agendadas', icon: Gavel, accent: 'text-navy bg-navy/10', href: '/painel/sessoes' },
     { key: 'councilors', label: 'Vereadores ativos', icon: Users, accent: 'text-navy bg-navy/10', href: '/painel/vereadores' },
-    { key: 'openLicitacoes', label: 'Licitações abertas', icon: ShoppingCart, accent: 'text-emerald-700 bg-emerald-600/10', href: '/painel/licitacoes' },
+    { key: 'openLicitacoes', label: 'Licitações abertas', icon: ShoppingCart, accent: 'text-emerald-700 dark:text-emerald-300 bg-emerald-600/10', href: '/painel/licitacoes' },
     { key: 'pntpRecords', label: 'Registros PNTP', icon: FolderOpen, accent: 'text-navy bg-navy/10', href: '/painel/acesso-informacao' },
-    { key: 'atriconPending', label: 'Pendências ATRICON', icon: Radar, accent: 'text-amber-700 bg-amber-500/10', href: '/painel/atricon' },
+    { key: 'atriconPending', label: 'Pendências ATRICON', icon: Radar, accent: 'text-amber-700 dark:text-amber-300 bg-amber-500/10', href: '/painel/atricon' },
     { key: 'publications', label: 'Publicações oficiais', icon: ScrollText, accent: 'text-navy bg-navy/10', href: '/painel/publicacoes' },
     { key: 'surveyResponses', label: 'Respostas da pesquisa', icon: MessageSquare, accent: 'text-navy bg-navy/10', href: '/painel/pesquisa-satisfacao' },
   ].filter((c) => stats[c.key] !== undefined)
@@ -74,19 +74,33 @@ export default function Dashboard({ stats, recentNews, upcomingSessions, content
   const complianceScore = pntpTotal + atriconTotal > 0
     ? Math.round((pntpTotal / (pntpTotal + atriconTotal)) * 100)
     : null
-  const donutColors = ['#141b47', '#d9a404', '#0f766e', '#2563eb', '#7c3aed', '#ea580c', '#64748b', '#be123c']
+  // Paleta categórica derivada dos tokens HSL (dark-safe) — nunca hex fixo (§3).
+  const donutColors = [
+    'hsl(var(--navy))',
+    'hsl(var(--gold))',
+    'hsl(var(--sky))',
+    'hsl(var(--navy-light))',
+    'hsl(var(--gold-light))',
+    'hsl(var(--primary))',
+    'hsl(var(--destructive))',
+    'hsl(var(--muted-foreground))',
+  ]
+  const donutLabel = chartCards
+    .slice(0, 7)
+    .map((card) => `${card.label}: ${stats[card.key]}`)
+    .join(', ')
   const healthMeta = {
     em_dia: {
       label: 'Em dia',
       icon: CheckCircle2,
-      badge: 'bg-emerald-600/10 text-emerald-700',
-      iconClass: 'bg-emerald-600/10 text-emerald-700',
+      badge: 'bg-emerald-600/10 text-emerald-700 dark:text-emerald-300',
+      iconClass: 'bg-emerald-600/10 text-emerald-700 dark:text-emerald-300',
     },
     desatualizado: {
       label: 'Desatualizado',
       icon: AlertTriangle,
-      badge: 'bg-amber-500/10 text-amber-700',
-      iconClass: 'bg-amber-500/10 text-amber-700',
+      badge: 'bg-amber-500/10 text-amber-700 dark:text-amber-300',
+      iconClass: 'bg-amber-500/10 text-amber-700 dark:text-amber-300',
     },
     vazio: {
       label: 'Vazio',
@@ -118,14 +132,28 @@ export default function Dashboard({ stats, recentNews, upcomingSessions, content
     return (
       <div className="grid gap-5 md:grid-cols-[220px_1fr] md:items-center">
         <div className="relative mx-auto h-52 w-52">
-          <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90">
-            <circle cx="60" cy="60" r="40" fill="none" stroke="hsl(var(--muted))" strokeWidth="16" />
+          <svg
+            viewBox="0 0 120 120"
+            className="h-full w-full -rotate-90"
+            role="img"
+            aria-label={`Distribuição dos módulos: ${statTotal} registros no total. ${donutLabel}`}
+          >
+            <circle
+              cx="60"
+              cy="60"
+              r="40"
+              fill="none"
+              stroke="hsl(var(--muted))"
+              strokeWidth="16"
+              aria-hidden="true"
+            />
             {chartCards.map((card, index) => {
               const value = Number(stats[card.key] || 0)
               const length = (value / statTotal) * 251.2
               const segment = (
                 <circle
                   key={card.key}
+                  aria-hidden="true"
                   cx="60"
                   cy="60"
                   r="40"
@@ -194,7 +222,7 @@ export default function Dashboard({ stats, recentNews, upcomingSessions, content
 
       {statCards.length > 0 && (
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.75fr)] mb-8">
-          <div className="bg-card rounded-2xl border border-border shadow-sm p-5 lg:p-6">
+          <Card>
             <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between mb-5">
               <div>
                 <div className="inline-flex items-center gap-2 rounded-full bg-navy/10 px-3 py-1 text-xs font-bold uppercase tracking-wide text-navy">
@@ -210,9 +238,9 @@ export default function Dashboard({ stats, recentNews, upcomingSessions, content
               </div>
             </div>
             <StatDonut />
-          </div>
+          </Card>
 
-          <div className="bg-card rounded-2xl border border-border shadow-sm p-5 lg:p-6">
+          <Card>
             <div className="flex items-center gap-2 mb-5">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gold/15 text-gold">
                 <Activity className="h-5 w-5" />
@@ -230,14 +258,28 @@ export default function Dashboard({ stats, recentNews, upcomingSessions, content
             ) : (
               <div className="space-y-5">
                 <div className="relative mx-auto h-40 w-40">
-                  <svg viewBox="0 0 120 120" className="h-full w-full -rotate-90">
-                    <circle cx="60" cy="60" r="42" fill="none" stroke="hsl(var(--muted))" strokeWidth="14" />
+                  <svg
+                    viewBox="0 0 120 120"
+                    className="h-full w-full -rotate-90"
+                    role="img"
+                    aria-label={`Conformidade estimada: ${complianceScore}%. ${pntpTotal} registros PNTP, ${atriconTotal} pendências ATRICON`}
+                  >
                     <circle
                       cx="60"
                       cy="60"
                       r="42"
                       fill="none"
-                      stroke="#d9a404"
+                      stroke="hsl(var(--muted))"
+                      strokeWidth="14"
+                      aria-hidden="true"
+                    />
+                    <circle
+                      aria-hidden="true"
+                      cx="60"
+                      cy="60"
+                      r="42"
+                      fill="none"
+                      stroke="hsl(var(--gold))"
                       strokeWidth="14"
                       strokeLinecap="round"
                       strokeDasharray={`${(complianceScore / 100) * 263.89} 263.89`}
@@ -269,12 +311,12 @@ export default function Dashboard({ stats, recentNews, upcomingSessions, content
                 </div>
               </div>
             )}
-          </div>
+          </Card>
         </div>
       )}
 
       {statCards.length > 0 && (
-        <div className="bg-card rounded-2xl border border-border shadow-sm p-5 lg:p-6 mb-8">
+        <Card className="mb-8">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-5">
             <div>
               <div className="inline-flex items-center gap-2 rounded-full bg-muted px-3 py-1 text-xs font-bold uppercase tracking-wide text-muted-foreground">
@@ -312,13 +354,13 @@ export default function Dashboard({ stats, recentNews, upcomingSessions, content
               )
             })}
           </div>
-        </div>
+        </Card>
       )}
 
       {/* Stats — só dos módulos que o usuário acessa */}
       {contentHealth.length > 0 && (
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)] mb-8">
-          <div className="bg-card rounded-2xl border border-border shadow-sm p-5 lg:p-6">
+          <Card>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between mb-5">
               <div>
                 <div className="inline-flex items-center gap-2 rounded-full bg-navy/10 px-3 py-1 text-xs font-bold uppercase tracking-wide text-navy">
@@ -339,7 +381,7 @@ export default function Dashboard({ stats, recentNews, upcomingSessions, content
             </div>
 
             {needsAttention.length === 0 ? (
-              <div className="rounded-xl border border-emerald-600/20 bg-emerald-600/5 p-5 text-sm font-medium text-emerald-700">
+              <div className="rounded-xl border border-emerald-600/20 bg-emerald-600/5 p-5 text-sm font-medium text-emerald-700 dark:text-emerald-300">
                 Tudo em dia nos módulos que você gerencia.
               </div>
             ) : (
@@ -376,9 +418,9 @@ export default function Dashboard({ stats, recentNews, upcomingSessions, content
                 })}
               </div>
             )}
-          </div>
+          </Card>
 
-          <div className="bg-card rounded-2xl border border-border shadow-sm p-5 lg:p-6">
+          <Card>
             <div className="flex items-center gap-3 mb-5">
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gold/15 text-gold">
                 <ListChecks className="h-5 w-5" />
@@ -403,27 +445,20 @@ export default function Dashboard({ stats, recentNews, upcomingSessions, content
                 </div>
               ))}
             </div>
-          </div>
+          </Card>
         </div>
       )}
 
       {statCards.length > 0 && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {statCards.map((card) => (
-            <Link
+            <StatCard
               key={card.key}
+              label={card.label}
+              value={stats[card.key]}
+              icon={card.icon}
               href={card.href}
-              className="group bg-card rounded-xl p-5 border border-border shadow-sm hover:shadow-md hover:border-navy/25 hover:-translate-y-0.5 transition-all no-underline"
-            >
-              <div className="flex items-start justify-between mb-4">
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${card.accent}`}>
-                  <card.icon className="w-5 h-5" />
-                </div>
-                <ArrowUpRight className="w-4 h-4 text-border group-hover:text-navy transition-colors" />
-              </div>
-              <p className="text-3xl font-bold text-foreground leading-none mb-1.5">{stats[card.key]}</p>
-              <p className="text-[12.5px] text-muted-foreground font-medium">{card.label}</p>
-            </Link>
+            />
           ))}
         </div>
       )}

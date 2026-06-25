@@ -196,7 +196,11 @@ export default function Appearance({ settings }: Props) {
 
         <div className="space-y-6">
           {tab === 'tema' && (
-            <Section icon={Sparkles} title="Tema & Campanhas">
+            <Section
+              icon={Sparkles}
+              title="Tema & Campanhas"
+              description="Escolha a paleta institucional e ative campanhas sazonais. A campanha recolore apenas cabeçalho, rodapé e botões — o restante mantém a identidade da Câmara."
+            >
               <ThemeAndCampaigns
                 themePreset={data.theme_preset}
                 campaignMode={data.campaign_mode}
@@ -970,10 +974,20 @@ function NewsLayoutPicker({ value, onChange }: { value: string; onChange: (v: st
   )
 }
 
-function Section({ icon, title, children }: { icon: LucideIcon; title: string; children: React.ReactNode }) {
+function Section({
+  icon,
+  title,
+  description,
+  children,
+}: {
+  icon: LucideIcon
+  title: string
+  description?: string
+  children: React.ReactNode
+}) {
   return (
     <Card>
-      <CardHeader icon={icon} title={title} />
+      <CardHeader icon={icon} title={title} description={description} />
       {children}
     </Card>
   )
