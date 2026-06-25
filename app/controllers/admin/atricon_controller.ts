@@ -16,6 +16,7 @@ import {
   criterionActionHref,
   requiredSubdims,
   transparencyLevel,
+  type AtriconCriterion,
   type AtriconStatusValue,
   type AtriconSubdim,
 } from '#helpers/atricon_matrix'
@@ -672,6 +673,116 @@ function creditOf(
   return base
 }
 
+/* ============================== Onde resolver / lacuna (o que falta) ============================== */
+
+type CriterionPlace =
+  | 'sistema_externo'
+  | 'pagina_acesso_informacao'
+  | 'transparencia_ou_link_externo'
+  | 'modulo_nativo'
+  | 'pagina_publica'
+  | 'avaliacao_manual'
+
+/** Onde a informação do critério vive (ou deve viver) — base da orientação de correção. */
+function placeOf(
+  c: Pick<AtriconCriterion, 'external' | 'autoCheck' | 'route' | 'keywords'>,
+  status: AtriconStatusValue,
+  actionHref: string | null
+): CriterionPlace {
+  if (c.external || status === 'externo') return 'sistema_externo'
+  if (c.autoCheck?.startsWith('info:')) return 'pagina_acesso_informacao'
+  if (c.route?.startsWith('/transparencia') || (!c.autoCheck && c.keywords?.length)) {
+    return 'transparencia_ou_link_externo'
+  }
+  if (actionHref?.startsWith('/painel/')) return 'modulo_nativo'
+  if (c.route) return 'pagina_publica'
+  return 'avaliacao_manual'
+}
+
+/** Ação concreta por local de resolução (o quê fazer e onde). */
+const PLACE_ACTION: Record<CriterionPlace, string> = {
+  modulo_nativo:
+    'Preencha o módulo nativo do painel indicado abaixo — os dados publicados alimentam a página pública e a verificação automática.',
+  pagina_acesso_informacao:
+    'Cadastre o documento/registro na categoria correspondente do módulo Acesso à Informação (mantenha o exercício mais recente publicado).',
+  transparencia_ou_link_externo:
+    'Em Links da Transparência, configure ou atualize o link que aponta para o conteúdo (módulo nativo) ou para o sistema oficial/contábil externo.',
+  sistema_externo:
+    'Garanta que o link do sistema externo (e-SIC/Ouvidoria/portal contratado) esteja visível, válido e atualizado no portal — é o que o avaliador confere.',
+  pagina_publica: 'Publique ou ajuste a página pública correspondente no portal.',
+  avaliacao_manual:
+    'Confira manualmente o conteúdo publicado e registre a evidência/observação neste critério.',
+}
+
+/** Rótulo do botão de atalho conforme o local de resolução. */
+function moduleLinkLabel(place: CriterionPlace): string {
+  switch (place) {
+    case 'modulo_nativo':
+      return 'Abrir módulo no painel'
+    case 'pagina_acesso_informacao':
+      return 'Abrir Acesso à Informação'
+    case 'transparencia_ou_link_externo':
+      return 'Abrir Links da Transparência'
+    case 'sistema_externo':
+      return 'Configurar link do sistema externo'
+    case 'pagina_publica':
+      return 'Abrir página pública'
+    default:
+      return 'Abrir atalho'
+  }
+}
+
+export interface CriterionGap {
+  /** O que a ATRICON exige (texto da matriz). */
+  exigencia: string
+  /** O que foi detectado / por que está pendente. */
+  motivo: string
+  /** Ação concreta derivada do local de resolução (dimensão/critério). */
+  acao: string
+  /** Orientação de como atender (hint da matriz). */
+  comoResolver: string
+  /** Deep-link do módulo/atalho que resolve, com rótulo. */
+  moduloLink: { href: string; label: string } | null
+  /** Categoria do local de resolução. */
+  place: CriterionPlace
+}
+
+/**
+ * Enriquece cada critério com a explicação do que falta: exigência (matriz),
+ * motivo (evidência do auto-check / verificação manual pendente / sistema externo),
+ * ação concreta e link do módulo que resolve.
+ */
+function buildGap(
+  c: AtriconCriterion,
+  opts: {
+    status: AtriconStatusValue
+    auto: AutoCheckResult | null
+    place: CriterionPlace
+    actionHref: string | null
+  }
+): CriterionGap {
+  const { status, auto, place, actionHref } = opts
+  let motivo: string
+  if (auto) {
+    // Evidência verídica do auto-check (contagens/datas) ou de links relacionados.
+    motivo = auto.detail
+  } else if (place === 'sistema_externo' || status === 'externo') {
+    motivo =
+      'Depende de sistema externo contratado — confirme que o link de acesso está visível, válido e atualizado no portal.'
+  } else {
+    motivo =
+      'Verificação manual pendente — este critério não tem detecção automática; confira o conteúdo publicado e registre a evidência.'
+  }
+  return {
+    exigencia: c.title,
+    motivo,
+    acao: PLACE_ACTION[place],
+    comoResolver: c.hint,
+    moduloLink: actionHref ? { href: actionHref, label: moduleLinkLabel(place) } : null,
+    place,
+  }
+}
+
 /**
  * Monta a matriz. Precedência do status efetivo:
  * 1. Critério com autoCheck e SEM registro manual → status da verificação em tempo real.
@@ -737,6 +848,11 @@ async function buildMatrix() {
     // Crédito ponderado por subdimensão (D30/A30/H20) para auto-verificados.
     const credit = creditOf(status, source, subdimensions)
 
+    // Onde resolver + explicação "o que falta" (exigência/motivo/como resolver/link).
+    const actionHref = criterionActionHref(c)
+    const place = placeOf(c, status, actionHref)
+    const gap = buildGap(c, { status, auto: autoResult, place, actionHref })
+
     return {
       ...c,
       status,
@@ -754,7 +870,8 @@ async function buildMatrix() {
         ? { status: autoResult.status, detail: autoResult.detail, checkedAt }
         : null,
       autoLinks: matchedLinks,
-      actionHref: criterionActionHref(c),
+      actionHref,
+      gap,
     }
   })
 }
@@ -762,15 +879,8 @@ async function buildMatrix() {
 type MatrixItem = Awaited<ReturnType<typeof buildMatrix>>[number]
 type Scores = ReturnType<typeof computeScores>
 
-function criterionPlace(c: MatrixItem) {
-  if (c.external || c.status === 'externo') return 'sistema_externo'
-  if (c.autoCheck?.startsWith('info:')) return 'pagina_acesso_informacao'
-  if (c.route?.startsWith('/transparencia') || (!c.autoCheck && c.keywords?.length)) {
-    return 'transparencia_ou_link_externo'
-  }
-  if (c.actionHref?.startsWith('/painel/')) return 'modulo_nativo'
-  if (c.route) return 'pagina_publica'
-  return 'avaliacao_manual'
+function criterionPlace(c: MatrixItem): CriterionPlace {
+  return placeOf(c, c.status, c.actionHref)
 }
 
 function buildEvidencePack({
