@@ -160,7 +160,9 @@ router
   )
 
 // ========= API =========
-router.get('/api/categorias/:type', [AdminCategoriesController, 'byType'])
+// Leitura de categorias por tipo usada pelos formulários do painel.
+// Exige autenticação (mesma URL para não quebrar os formulários que a consomem).
+router.get('/api/categorias/:type', [AdminCategoriesController, 'byType']).use(middleware.auth())
 
 // ========= ADMIN PANEL =========
 router
@@ -325,7 +327,7 @@ router
         router.put('/atas/:id', [AdminAtasController, 'update'])
         router.delete('/atas/:id', [AdminAtasController, 'destroy'])
       })
-      .use(middleware.can(['sessao.gerenciar']))
+      .use(middleware.can(['ata.gerenciar']))
 
     // Pautas (módulo independente)
     router
@@ -337,7 +339,7 @@ router
         router.put('/pautas/:id', [AdminPautasController, 'update'])
         router.delete('/pautas/:id', [AdminPautasController, 'destroy'])
       })
-      .use(middleware.can(['sessao.gerenciar']))
+      .use(middleware.can(['pauta.gerenciar']))
 
     // Votações Nominais
     router
@@ -462,7 +464,7 @@ router
         router.put('/contratos/:id', [AdminContractsController, 'update'])
         router.delete('/contratos/:id', [AdminContractsController, 'destroy'])
       })
-      .use(middleware.can(['licitacao.gerenciar']))
+      .use(middleware.can(['contrato.gerenciar']))
 
     // Pesquisa de Satisfação
     router

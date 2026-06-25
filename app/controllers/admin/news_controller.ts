@@ -52,6 +52,13 @@ export default class NewsController {
   async store({ request, response, auth, session }: HttpContext) {
     const data = await request.validateUsing(newsValidator)
 
+    // Publicar exige a permissão 'noticia.publicar' (super_admin/admin têm '*').
+    // Sem ela, a notícia é salva como rascunho mesmo se 'published' for enviado.
+    let status = data.status || 'draft'
+    if (status === 'published' && !(await auth.user!.canAny(['noticia.publicar']))) {
+      status = 'draft'
+    }
+
     // Generate slug
     let slug = string.slug(data.title, { lower: true })
     const existing = await News.findBy('slug', slug)
@@ -61,7 +68,7 @@ export default class NewsController {
     let publishedAt = null
     if (data.published_at) {
       publishedAt = new Date(data.published_at) as any
-    } else if (data.status === 'published') {
+    } else if (status === 'published') {
       publishedAt = new Date() as any
     }
 
@@ -70,7 +77,7 @@ export default class NewsController {
       slug,
       excerpt: data.excerpt || null,
       content: sanitizeRichHtml(data.content),
-      status: data.status || 'draft',
+      status,
       categoryId: data.category_id || null,
       authorId: auth.user!.id,
       publishedAt,
@@ -111,20 +118,31 @@ export default class NewsController {
   }
 
   /** Update existing news */
-  async update({ request, response, params, session }: HttpContext) {
+  async update({ request, response, params, session, auth }: HttpContext) {
     const news = await News.findOrFail(params.id)
     const data = await request.validateUsing(newsValidator)
+
+    // Publicar exige a permissão 'noticia.publicar' (super_admin/admin têm '*').
+    // Sem ela, mantém o status atual em vez de promover para 'published'.
+    let status: 'draft' | 'published' | 'archived' = data.status || 'draft'
+    if (
+      status === 'published' &&
+      news.status !== 'published' &&
+      !(await auth.user!.canAny(['noticia.publicar']))
+    ) {
+      status = news.status
+    }
 
     news.title = data.title
     news.excerpt = data.excerpt || null
     news.content = sanitizeRichHtml(data.content)
-    news.status = data.status || 'draft'
+    news.status = status
     news.categoryId = data.category_id || null
 
     // Handle published_at
     if (data.published_at) {
       news.publishedAt = new Date(data.published_at) as any
-    } else if (data.status === 'published' && !news.publishedAt) {
+    } else if (status === 'published' && !news.publishedAt) {
       news.publishedAt = new Date() as any
     }
 
