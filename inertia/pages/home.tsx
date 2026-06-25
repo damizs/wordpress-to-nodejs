@@ -20,7 +20,7 @@ import { ConhecaSumeSection } from "~/components/ConhecaSumeSection";
 import { CertificationsSection } from "~/components/CertificationsSection";
 import { SatisfactionSurvey } from "~/components/SatisfactionSurvey";
 import { AssistenteVirtual } from "~/components/AssistenteVirtual";
-import { HomeHero, MODERNO_HERO_NEWS_COUNT } from "~/components/HomeHero";
+import { HomeHero } from "~/components/HomeHero";
 import { HomeSectionShell } from "~/components/HomeSectionShell";
 import { getSiteTemplate } from "~/lib/templates";
 import {
@@ -156,9 +156,6 @@ export default function Home({
   );
   const newsLayout = siteSettings?.news_layout || customConfig.newsLayout || "mosaico";
   const newsForHome = news.slice(0, newsLimit);
-  const usePlainNews = template.key === "classico" || template.key === "moderno";
-  const newsForSection =
-    template.key === "moderno" ? newsForHome.slice(MODERNO_HERO_NEWS_COUNT) : newsForHome;
 
   const hasGazetteContent = Boolean(latestGazette || gazetteEntries.length || gazetteDates.length);
 
@@ -189,12 +186,7 @@ export default function Home({
         <main id="conteudo" tabIndex={-1} className="outline-none">
           <h1 className="sr-only">Câmara Municipal de Sumé — Portal Oficial</h1>
           {template.homeHero && (
-            <HomeHero
-              template={template.key}
-              backgroundImage={newsBackgroundImage}
-              news={newsForHome}
-              newsLimit={MODERNO_HERO_NEWS_COUNT}
-            />
+            <HomeHero template={template.key} quickLinks={quickLinks} />
           )}
           <HolidaysStrip />
           {homeOrder.map((key) => {
@@ -209,12 +201,11 @@ export default function Home({
             const node = {
               news: shell(
                 <NewsSection
-                  news={newsForSection}
+                  news={newsForHome}
                   backgroundImage={template.homeHero ? null : newsBackgroundImage}
                   bannerImage={null}
                   layout={newsLayout}
                   limit={newsLimit}
-                  plain={usePlainNews}
                 />
               ),
               quickaccess: shell(

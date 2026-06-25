@@ -377,41 +377,7 @@ export const Header = ({ logoUrl }: HeaderProps) => {
     </div>
   );
 
-  /** Navegação estilo institucional (glass + filete dourado no hover). */
-  const renderNavLinksInstitutional = (dropdownAlign: "left" | "right" = "left") =>
-    desktopNavItems.map((item, index) => (
-      <li key={index} className="relative group">
-        <Link
-          href={item.href}
-          className="relative flex items-center gap-1 px-3 lg:px-4 py-2.5 text-sm font-medium tracking-wide rounded-xl text-primary-foreground no-underline transition-all duration-300 hover:bg-primary-foreground/10"
-        >
-          {item.label}
-          {item.hasDropdown && (
-            <ChevronDown className="h-4 w-4 opacity-60 transition-all duration-300 group-hover:rotate-180 group-hover:opacity-100" />
-          )}
-          <span className="absolute bottom-1 left-4 right-4 h-0.5 origin-left scale-x-0 rounded-full bg-gold transition-transform duration-300 group-hover:scale-x-100" />
-        </Link>
-        {item.hasDropdown && item.subItems && (
-          <div
-            className={`invisible absolute top-full z-[9999] mt-1 min-w-[220px] rounded-xl border border-border bg-background py-2 text-foreground opacity-0 shadow-xl transition-all duration-200 group-focus-within:visible group-hover:visible group-focus-within:opacity-100 group-hover:opacity-100 ${
-              dropdownAlign === "right" ? "right-0" : "left-0"
-            }`}
-          >
-            {item.subItems.map((sub, subIndex) => (
-              <Link
-                key={subIndex}
-                href={sub.href}
-                className="block w-full px-4 py-2.5 text-left text-sm no-underline transition-colors duration-200 hover:bg-accent hover:text-accent-foreground"
-              >
-                {sub.label}
-              </Link>
-            ))}
-          </div>
-        )}
-      </li>
-    ));
-
-  /** Itens de navegação (desktop) sobre superfície escura (navy). */
+  /** Navegação desktop sobre fundo escuro (navy / gradiente). */
   const renderNavLinks = (dropdownAlign: "left" | "right" = "left") =>
     desktopNavItems.map((item, index) => (
       <li key={index} className="relative group">
@@ -452,6 +418,19 @@ export const Header = ({ logoUrl }: HeaderProps) => {
       aria-label="Abrir busca"
       title="Buscar"
       className="flex items-center justify-center p-2.5 rounded-lg text-primary-foreground/85 hover:text-primary-foreground hover:bg-primary-foreground/10 transition-colors"
+    >
+      <Search className="w-5 h-5" aria-hidden="true" />
+    </button>
+  );
+
+  const searchButtonLight = (
+    <button
+      type="button"
+      onClick={() => setSearchOpen((v) => !v)}
+      aria-expanded={searchOpen}
+      aria-label="Abrir busca"
+      title="Buscar"
+      className="flex items-center justify-center p-2.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
     >
       <Search className="w-5 h-5" aria-hidden="true" />
     </button>
@@ -602,39 +581,32 @@ export const Header = ({ logoUrl }: HeaderProps) => {
   const goldBottomLine = (
     <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold/70 to-transparent" />
   );
-  const institutionalCompact = !isHomePage;
+  const institutionalCompact = !isHomePage || template === "moderno";
   const showCompactBar = template === "institucional";
 
   /* ===========================================================================
-   * MODELO: CLÁSSICO / GOVERNAMENTAL
-   * Gradiente institucional + logo à esquerda + menu glass (mesmo vocabulário visual).
+   * MODELO: CLÁSSICO / GOVERNAMENTAL — identidade clara + menu navy (sem hero extra).
    * ========================================================================= */
   if (template === "classico") {
     return (
-      <header className="relative z-50 overflow-visible bg-gradient-hero text-primary-foreground">
+      <header className="relative z-50 shadow-sm">
         {widgets}
-        {showCompactBar && compactBar}
 
-        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-          <div className="absolute -top-1/2 -right-1/4 h-96 w-96 rounded-full bg-gold/[0.04] blur-3xl" />
-          <div className="absolute -bottom-1/2 -left-1/4 h-96 w-96 rounded-full bg-sky/[0.04] blur-3xl" />
-        </div>
-
-        <div className="relative container py-3 sm:py-4">
-          <div className="flex items-center justify-between gap-4">
-            <Link href="/" className="flex items-center no-underline shrink-0 min-w-0">
-              {logoOrInitial("h-11 md:h-14 w-auto max-w-[min(100%,16rem)] object-contain")}
+        <div className="border-b border-border bg-card">
+          <div className="container flex items-center justify-between gap-4 py-2.5 lg:py-3">
+            <Link href="/" className="shrink-0 no-underline">
+              {logoOrInitial("h-10 md:h-12 w-auto max-w-[min(100%,16rem)] object-contain")}
             </Link>
-            <div className="hidden lg:block">{searchButtonDark}</div>
-            <div className="lg:hidden shrink-0">{mobileButton("dark")}</div>
+            <div className="hidden lg:block">{searchButtonLight}</div>
+            <div className="lg:hidden shrink-0">{mobileButton("light")}</div>
           </div>
-
-          <nav className="relative z-40 mt-3 hidden lg:block">
-            <div className="glass relative w-full rounded-2xl px-3 py-2.5 lg:px-5">
-              <ul className="flex flex-wrap items-center gap-1">{renderNavLinksInstitutional()}</ul>
-            </div>
-          </nav>
         </div>
+
+        <nav className="hidden bg-navy text-primary-foreground lg:block">
+          <div className="container">
+            <ul className="flex flex-wrap items-center gap-0.5">{renderNavLinks()}</ul>
+          </div>
+        </nav>
 
         {searchStripNeutral}
         {mobileNavNeutral}
@@ -643,47 +615,7 @@ export const Header = ({ logoUrl }: HeaderProps) => {
   }
 
   /* ===========================================================================
-   * MODELO: MODERNO / DESTAQUE
-   * Header sticky no gradiente institucional + nav glass (compacto).
-   * ========================================================================= */
-  if (template === "moderno") {
-    return (
-      <header className="sticky top-0 z-50 overflow-visible border-b border-primary-foreground/10 bg-gradient-hero text-primary-foreground shadow-sm backdrop-blur supports-[backdrop-filter]:bg-gradient-hero/95">
-        {widgets}
-
-        <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-          <div className="absolute -right-20 top-0 h-48 w-48 rounded-full bg-gold/[0.05] blur-3xl" />
-          <div className="absolute -left-20 bottom-0 h-40 w-40 rounded-full bg-sky/[0.05] blur-3xl" />
-        </div>
-
-        <div className="relative container flex flex-wrap items-center gap-3 py-3 lg:gap-4">
-          <Link href="/" className="order-1 shrink-0 no-underline">
-            {logoOrInitial("h-10 lg:h-12 w-auto max-w-[12rem] object-contain")}
-          </Link>
-
-          <nav className="order-3 hidden min-w-0 w-full lg:order-2 lg:block lg:w-auto lg:flex-1">
-            <div className="glass rounded-2xl px-2 py-2 lg:px-3">
-              <ul className="flex items-center justify-end gap-0.5 min-w-0">
-                {renderNavLinksInstitutional("right")}
-                <li className="relative ml-1 border-l border-primary-foreground/15 pl-1">
-                  {searchButtonDark}
-                </li>
-              </ul>
-            </div>
-          </nav>
-
-          <div className="order-2 ml-auto lg:hidden">{mobileButton("dark")}</div>
-        </div>
-
-        {searchStripNeutral}
-        {mobileNavNeutral}
-      </header>
-    );
-  }
-
-  /* ===========================================================================
-   * MODELO: COMPACTO / NOTÍCIAS
-   * Barra slim sticky em navy — denso, sem ornamentos extras.
+   * MODELO: COMPACTO / NOTÍCIAS — barra slim sticky.
    * ========================================================================= */
   if (template === "compacto") {
     return (
@@ -713,7 +645,11 @@ export const Header = ({ logoUrl }: HeaderProps) => {
    * MODELO: INSTITUCIONAL (padrão) — markup original preservado.
    * ========================================================================= */
   return (
-    <header className="relative z-50 bg-gradient-hero text-primary-foreground overflow-visible">
+    <header
+      className={`relative z-50 bg-gradient-hero text-primary-foreground overflow-visible ${
+        template === "moderno" ? "sticky top-0 z-50 shadow-sm" : ""
+      }`}
+    >
       {widgets}
       {compactBar}
       {/* Background decoration */}

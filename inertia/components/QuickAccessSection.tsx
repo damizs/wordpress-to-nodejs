@@ -55,6 +55,11 @@ interface QuickAccessSectionProps {
   badge?: string;
   title?: string;
   subtitle?: string;
+  /** `compact` = abertura do modelo Compacto (6 cols, busca, sem CTA extra). */
+  variant?: "default" | "compact";
+  showSearch?: boolean;
+  itemLimit?: number;
+  showTransparenciaCta?: boolean;
 }
 
 const iconMap: Record<string, LucideIcon> = {
@@ -168,20 +173,61 @@ export const QuickAccessSection = ({
   badge = "Navegação Rápida",
   title = "Acesso Rápido",
   subtitle,
+  variant = "default",
+  showSearch = false,
+  itemLimit,
+  showTransparenciaCta = true,
 }: QuickAccessSectionProps) => {
-  const items = quickLinks.length > 0 ? quickLinks : defaultItems;
+  const isCompact = variant === "compact";
+  const allItems = quickLinks.length > 0 ? quickLinks : defaultItems;
+  const items = itemLimit ? allItems.slice(0, itemLimit) : allItems;
   const [modalLink, setModalLink] = useState<LinkModalLink | null>(null);
 
+  const defaultSubtitle = isCompact
+    ? "Principais serviços e informações ao cidadão."
+    : "Acompanhe as funções legislativa, fiscalizadora e deliberativa da Casa do Povo.";
+
+  const gridClass = isCompact
+    ? "grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-5 lg:grid-cols-6"
+    : "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-5";
+
   return (
-    <section className="section-block bg-background">
+    <section className={`section-block bg-background ${isCompact ? "border-b border-border" : ""}`}>
       <div className="container">
         <SectionHeading
           badge={badge}
           title={title}
-          subtitle={subtitle || "Acompanhe as funções legislativa, fiscalizadora e deliberativa da Casa do Povo."}
+          subtitle={subtitle || defaultSubtitle}
         />
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-5">
+        {showSearch && (
+          <form
+            action="/busca"
+            method="get"
+            role="search"
+            className="mx-auto mb-8 flex max-w-xl items-stretch overflow-hidden rounded-lg border border-border bg-card shadow-sm focus-within:border-navy focus-within:ring-1 focus-within:ring-navy/20"
+          >
+            <label htmlFor="quickaccess-search" className="sr-only">
+              Buscar no portal
+            </label>
+            <input
+              id="quickaccess-search"
+              name="q"
+              type="search"
+              className="min-w-0 flex-1 bg-transparent px-4 py-2.5 text-sm text-foreground outline-none placeholder:text-muted-foreground"
+              placeholder="O que você procura no portal?"
+            />
+            <button
+              type="submit"
+              className="flex items-center gap-2 bg-navy px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-navy-dark"
+            >
+              <Search className="h-4 w-4" aria-hidden="true" />
+              <span className="hidden sm:inline">Buscar</span>
+            </button>
+          </form>
+        )}
+
+        <div className={gridClass}>
           {items.map((item, index) => {
             const IconComponent = iconMap[item.icon || ""] || FileText;
             const color = colorMap[item.color || ""] || fallbackColors[index % fallbackColors.length];
@@ -197,7 +243,7 @@ export const QuickAccessSection = ({
                 <h3 className="font-bold text-foreground text-[13px] sm:text-sm leading-snug group-hover:text-primary transition-colors duration-300">
                   {item.title}
                 </h3>
-                {description && (
+                {description && !isCompact && (
                   <p className="hidden sm:block text-xs text-muted-foreground mt-2 leading-snug">{description}</p>
                 )}
               </>
@@ -242,15 +288,17 @@ export const QuickAccessSection = ({
           })}
         </div>
 
-        <div className="text-center mt-10 sm:mt-12">
-          <Link
-            href="/transparencia"
-            className="btn-modern inline-flex items-center justify-center gap-3 w-full sm:w-auto bg-gradient-to-r from-primary to-navy-light text-primary-foreground shadow-lg hover:shadow-xl hover:gap-4 no-underline"
-          >
-            Acessar portal transparência
-            <ArrowRight className="w-5 h-5" />
-          </Link>
-        </div>
+        {showTransparenciaCta && (
+          <div className="text-center mt-10 sm:mt-12">
+            <Link
+              href="/transparencia"
+              className="btn-modern inline-flex items-center justify-center gap-3 w-full sm:w-auto bg-gradient-to-r from-primary to-navy-light text-primary-foreground shadow-lg hover:shadow-xl hover:gap-4 no-underline"
+            >
+              Acessar portal transparência
+              <ArrowRight className="w-5 h-5" />
+            </Link>
+          </div>
+        )}
       </div>
 
       <LinkModal link={modalLink} onClose={() => setModalLink(null)} />
