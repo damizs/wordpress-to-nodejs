@@ -40,7 +40,7 @@ RUN chmod +x /app/startup.sh /app/scripts/*.sh
 
 EXPOSE 3333
 
-HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=5 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=900s --retries=5 \
   CMD node -e "fetch('http://localhost:3333/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"
 
 CMD ["/app/startup.sh"]

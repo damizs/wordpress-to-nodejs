@@ -2,6 +2,11 @@ import type { HttpContext } from '@adonisjs/core/http'
 import SatisfactionSurvey from '#models/satisfaction_survey'
 import SiteSetting from '#models/site_setting'
 import { isValidCpf, normalizeCpf } from '#helpers/cpf'
+import { hashCpf } from '#helpers/cpf_hash'
+import {
+  isSurveyRateLimited,
+  recordSurveySubmission,
+} from '#services/satisfaction_rate_limiter'
 import db from '@adonisjs/lucid/services/db'
 
 export default class SatisfactionSurveyController {
@@ -75,6 +80,15 @@ export default class SatisfactionSurveyController {
   }
 
   async store({ request, response, session }: HttpContext) {
+    const ip = request.ip()
+    if (isSurveyRateLimited(ip)) {
+      session.flash(
+        'error',
+        'Muitas respostas enviadas a partir desta conexão. Aguarde uma hora e tente novamente.'
+      )
+      return response.redirect().toPath('/pesquisa-de-satisfacao')
+    }
+
     const data = request.only(['cpf', 'answers', 'suggestion'])
     const cpf = normalizeCpf(data.cpf)
 
@@ -83,23 +97,22 @@ export default class SatisfactionSurveyController {
       return response.redirect().toPath('/pesquisa-de-satisfacao')
     }
 
-    // Check if CPF already voted this month
-    if (cpf) {
-      const now = new Date()
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-      try {
-        const existing = await SatisfactionSurvey.query()
-          .where('cpf', cpf)
-          .where('created_at', '>=', startOfMonth.toISOString())
-          .first()
+    const cpfHash = hashCpf(cpf)
 
-        if (existing) {
-          session.flash('error', 'Você já participou da pesquisa neste mês. Volte no próximo mês!')
-          return response.redirect().toPath('/pesquisa-de-satisfacao')
-        }
-      } catch (e) {
-        // Continue if table doesn't exist
+    const now = new Date()
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+    try {
+      const existing = await SatisfactionSurvey.query()
+        .where('cpf_hash', cpfHash)
+        .where('created_at', '>=', startOfMonth.toISOString())
+        .first()
+
+      if (existing) {
+        session.flash('error', 'Você já participou da pesquisa neste mês. Volte no próximo mês!')
+        return response.redirect().toPath('/pesquisa-de-satisfacao')
       }
+    } catch (e) {
+      // Continue if table doesn't exist
     }
 
     // Calculate average from answers
@@ -112,16 +125,17 @@ export default class SatisfactionSurveyController {
 
     try {
       await SatisfactionSurvey.create({
-        cpf,
+        cpfHash,
         ratingAtendimento: answers[5] ? Number.parseInt(answers[5]) : null,
         ratingTransparencia: answers[2] ? Number.parseInt(answers[2]) : null,
         ratingLegislativo: answers[3] ? Number.parseInt(answers[3]) : null,
         ratingInfraestrutura: answers[4] ? Number.parseInt(answers[4]) : null,
         ratingGeral: avgRating,
         suggestions: data.suggestion || null,
-        ipAddress: request.ip(),
+        ipAddress: ip,
         isRead: false,
       })
+      recordSurveySubmission(ip)
     } catch (e) {
       console.log('Error saving survey:', e)
     }

@@ -1,5 +1,6 @@
 import { Play, X, Eye, ExternalLink } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { useFocusTrap } from "~/hooks/useFocusTrap";
 
 export interface ReelItem {
   id: string;
@@ -43,23 +44,14 @@ export function ReelsGallery({ reels, variant = "default" }: ReelsGalleryProps) 
   const [active, setActive] = useState<ReelItem | null>(null);
 
   const close = useCallback(() => setActive(null), []);
+  const panelRef = useFocusTrap(Boolean(active), close);
 
   useEffect(() => {
     if (!active) return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") close();
-    };
-    document.addEventListener("keydown", onKey);
-    document.body.style.overflow = "hidden";
-    // Processa o embed do Instagram após o blockquote entrar no DOM.
     ensureEmbedScript().then(() => {
       requestAnimationFrame(() => (window as any).instgrm?.Embeds?.process());
     });
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.body.style.overflow = "";
-    };
-  }, [active, close]);
+  }, [active]);
 
   if (!reels || reels.length === 0) return null;
 
@@ -139,12 +131,13 @@ export function ReelsGallery({ reels, variant = "default" }: ReelsGalleryProps) 
       {active && (
         <div
           className="fixed inset-0 z-[100] flex items-center justify-center bg-navy-dark/80 p-4 backdrop-blur-sm"
-          role="dialog"
-          aria-modal="true"
-          aria-label={`Reel: ${active.title}`}
           onClick={close}
         >
           <div
+            ref={panelRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Reel: ${active.title}`}
             className="relative w-full max-w-[420px]"
             onClick={(e) => e.stopPropagation()}
           >

@@ -26,6 +26,7 @@ import InformationRecord from '#models/information_record'
 import Licitacao from '#models/licitacao'
 import SurveyQuestion from '#models/survey_question'
 import { importActivitiesWithAuthors } from '#services/wp_activities_importer'
+import { seedAtasPautasFromSessions } from '#services/seed_atas_pautas_service'
 
 export default class WpMigrate extends BaseCommand {
   static commandName = 'wp:migrate'
@@ -104,6 +105,12 @@ export default class WpMigrate extends BaseCommand {
       this.importPublicacoes(extra.publicacoes, extra.pub_attachments)
     )
     await this.runSection('Atas/Sessões', () => this.importAtas(extra.atas, extra.ata_attachments))
+    await this.runSection('Atas/Pautas (tabelas)', async () => {
+      const { atas, pautas } = await seedAtasPautasFromSessions()
+      if (atas || pautas) {
+        this.logger.success(`  Atas: ${atas}, Pautas: ${pautas}`)
+      }
+    })
     await this.runSection('Transparência', () => this.importTransparencia(extra.transparencia))
     // Registros PNTP (Acesso à Informação): a fonte autoritativa agora é o
     // comando `wp:pntp` (lê database/wp_pntp.json — 98 registros, dados atuais,

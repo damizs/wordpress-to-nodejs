@@ -168,36 +168,35 @@ export default function PesquisaSatisfacao({
       />
       <Head title="Pesquisa de Satisfação" />
       
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-background">
         <TopBar />
         <Header logoUrl={logoUrl} />
 
-        {/* Breadcrumb */}
-        <div className="bg-white border-b">
-          <div className="container mx-auto px-4 py-3">
-            <div className="flex items-center gap-2 text-sm text-gray-600">
+        <div className="bg-card border-b border-border">
+          <div className="container py-3">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <a href="/" className="hover:text-primary">Início</a>
-              <ChevronRight className="w-4 h-4" />
-              <span className="text-gray-900">Pesquisa de Satisfação</span>
+              <ChevronRight className="w-4 h-4" aria-hidden="true" />
+              <span className="text-foreground">Pesquisa de Satisfação</span>
             </div>
           </div>
         </div>
         
-        <main className="py-10 px-4">
-          <div className="container mx-auto max-w-6xl">
+        <main id="conteudo" tabIndex={-1} className="py-10 px-4 outline-none">
+          <div className="container max-w-6xl">
             
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
               
               {/* Formulário - 2 colunas */}
               <div className="lg:col-span-2">
-                <div className="bg-white rounded-2xl shadow-sm border p-8">
+                <div className="bg-card rounded-2xl shadow-sm border border-border p-8">
                   
                   {/* Header */}
                   <div className="text-center mb-8">
                     <h1 className="text-2xl md:text-3xl font-bold text-navy mb-2">
                       Avaliação Contínua - Câmara Municipal
                     </h1>
-                    <p className="text-gray-600">
+                    <p className="text-muted-foreground">
                       Prezado cidadão, para melhor atender a sua demanda e aprimorar os serviços prestados, 
                       gostaríamos que respondesse algumas perguntas para medir sua satisfação.
                     </p>
@@ -206,7 +205,9 @@ export default function PesquisaSatisfacao({
                   {/* Message */}
                   {message && (
                     <div className={`p-4 rounded-lg mb-6 ${
-                      message.type === 'success' ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'
+                      message.type === 'success'
+                        ? 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-200 border border-emerald-500/25'
+                        : 'bg-destructive/10 text-destructive border border-destructive/25'
                     }`}>
                       {message.text}
                     </div>
@@ -215,13 +216,15 @@ export default function PesquisaSatisfacao({
                   <form onSubmit={handleSubmit}>
                     
                     {/* CPF Section */}
-                    <div className="bg-gray-50 rounded-xl p-6 mb-6">
+                    <div className="bg-muted rounded-xl p-6 mb-6">
                       <div className="flex flex-col md:flex-row gap-6">
                         <div className="md:w-1/3">
-                          <label className="block text-sm font-semibold text-navy mb-2">
+                          <label htmlFor="survey-cpf" className="block text-sm font-semibold text-navy mb-2">
                             Informe seu CPF:
                           </label>
                           <input
+                            id="survey-cpf"
+                            name="cpf"
                             type="text"
                             value={cpf}
                             onChange={handleCpfChange}
@@ -231,27 +234,28 @@ export default function PesquisaSatisfacao({
                             autoComplete="off"
                             pattern="\d{3}\.\d{3}\.\d{3}-\d{2}"
                             required
-                            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg text-lg font-mono focus:border-navy focus:outline-none"
+                            aria-describedby="survey-cpf-help"
+                            className="w-full px-4 py-3 border-2 border-border rounded-lg text-lg font-mono focus:border-navy focus:outline-none focus-visible:ring-2 focus-visible:ring-navy/30 bg-background text-foreground"
                           />
                         </div>
-                        <div className="md:w-2/3 text-sm text-gray-600">
-                          <p className="font-semibold text-gray-800 mb-1">
+                        <div id="survey-cpf-help" className="md:w-2/3 text-sm text-muted-foreground">
+                          <p className="font-semibold text-foreground mb-1">
                             O CPF é necessário para limitar a votação mensal por pessoa.
                           </p>
                           <p>
-                            Os dados informados nesta pesquisa estarão seguros de acordo com a Lei Geral de Proteção de Dados - LGPD. 
-                            O cidadão poderá votar, se desejar, todos os meses, caso haja mudança na qualidade do serviço prestado/oferecido.
+                            O número é pseudonimizado (hash) após o envio — não armazenamos o CPF em texto claro.
+                            Os dados estarão protegidos conforme a LGPD (Lei 13.709/2018).
                           </p>
                         </div>
                       </div>
                     </div>
 
                     {/* Legend */}
-                    <div className="flex flex-wrap justify-center gap-4 md:gap-6 p-4 bg-white border rounded-xl mb-6">
+                    <div className="flex flex-wrap justify-center gap-4 md:gap-6 p-4 bg-muted/40 border border-border rounded-xl mb-6">
                       {ratingIcons.map((item, index) => {
                         const Icon = item.icon
                         return (
-                          <div key={index} className="flex items-center gap-2 text-xs md:text-sm text-gray-600">
+                          <div key={index} className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground">
                             <Icon className="w-5 h-5 md:w-6 md:h-6" style={{ color: item.color }} />
                             <span>{item.label}</span>
                           </div>
@@ -260,18 +264,22 @@ export default function PesquisaSatisfacao({
                     </div>
 
                     {/* Questions */}
-                    <div className="border rounded-xl overflow-hidden mb-6">
+                    <div className="border border-border rounded-xl overflow-hidden mb-6">
                       {displayQuestions.map((question, qIndex) => (
-                        <div 
-                          key={question.id} 
-                          className={`flex flex-col md:flex-row md:items-center p-5 ${
-                            qIndex % 2 === 0 ? 'bg-white' : 'bg-gray-50'
-                          } ${qIndex < displayQuestions.length - 1 ? 'border-b' : ''}`}
+                        <fieldset
+                          key={question.id}
+                          className={`flex flex-col md:flex-row md:items-center p-5 border-0 m-0 min-w-0 ${
+                            qIndex % 2 === 0 ? 'bg-card' : 'bg-muted/50'
+                          } ${qIndex < displayQuestions.length - 1 ? 'border-b border-border' : ''}`}
                         >
-                          <div className="flex-1 mb-4 md:mb-0 md:pr-6 text-gray-800">
+                          <legend className="flex-1 mb-4 md:mb-0 md:pr-6 text-foreground text-sm md:text-base block w-full">
                             {question.texto}
-                          </div>
-                          <div className="flex gap-2 justify-between md:justify-end">
+                          </legend>
+                          <div
+                            role="radiogroup"
+                            aria-label={question.texto}
+                            className="flex gap-2 justify-between md:justify-end"
+                          >
                             {ratingIcons.map((item, rIndex) => {
                               const Icon = item.icon
                               const rating = rIndex + 1
@@ -280,45 +288,52 @@ export default function PesquisaSatisfacao({
                                 <button
                                   key={rating}
                                   type="button"
+                                  role="radio"
+                                  aria-checked={isSelected}
+                                  aria-label={item.label}
                                   onClick={() => handleRating(question.id, rating)}
-                                  className={`w-11 h-11 md:w-12 md:h-12 rounded-full border-3 flex items-center justify-center transition-all ${
-                                    isSelected 
-                                      ? 'text-white scale-110 shadow-lg' 
-                                      : 'text-gray-300 border-gray-200 bg-white hover:scale-105'
+                                  className={`w-11 h-11 md:w-12 md:h-12 rounded-full border-2 flex items-center justify-center transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2 ${
+                                    isSelected
+                                      ? 'text-primary-foreground scale-110 shadow-lg'
+                                      : 'text-muted-foreground border-border bg-card hover:scale-105'
                                   }`}
-                                  style={isSelected ? { 
-                                    backgroundColor: item.bgSelected, 
-                                    borderColor: item.bgSelected 
-                                  } : {
-                                    borderColor: '#e5e7eb'
-                                  }}
+                                  style={
+                                    isSelected
+                                      ? {
+                                          backgroundColor: item.bgSelected,
+                                          borderColor: item.bgSelected,
+                                        }
+                                      : undefined
+                                  }
                                 >
-                                  <Icon className="w-5 h-5 md:w-6 md:h-6" />
+                                  <Icon className="w-5 h-5 md:w-6 md:h-6" aria-hidden="true" />
                                 </button>
                               )
                             })}
                           </div>
-                        </div>
+                        </fieldset>
                       ))}
                     </div>
 
                     {/* Suggestion */}
                     <div className="mb-6">
-                      <label className="block font-semibold text-gray-800 mb-2">
+                      <label htmlFor="survey-suggestion" className="block font-semibold text-foreground mb-2">
                         Você daria sugestões para melhorar o atendimento aos usuários dos serviços? Se sim, quais?
                       </label>
                       <textarea
+                        id="survey-suggestion"
+                        name="suggestion"
                         value={suggestion}
                         onChange={(e) => setSuggestion(e.target.value)}
                         rows={4}
                         placeholder="Digite sua sugestão (opcional)"
-                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-navy focus:outline-none resize-y"
+                        className="w-full px-4 py-3 border-2 border-border rounded-lg focus:border-navy focus:outline-none focus-visible:ring-2 focus-visible:ring-navy/30 resize-y bg-background text-foreground"
                       />
                     </div>
 
                     {/* LGPD Notice */}
-                    <div className="bg-gray-50 rounded-lg p-4 mb-6 border-l-4 border-navy">
-                      <p className="text-sm text-gray-600 flex items-start gap-3">
+                    <div className="bg-muted/50 rounded-lg p-4 mb-6 border-l-4 border-navy">
+                      <p className="text-sm text-muted-foreground flex items-start gap-3">
                         <Shield className="w-5 h-5 text-navy flex-shrink-0 mt-0.5" />
                         <span>
                           Prezado(a), esta avaliação não será analisada como manifestação de Ouvidoria. 
@@ -334,7 +349,7 @@ export default function PesquisaSatisfacao({
                       <button
                         type="submit"
                         disabled={loading}
-                        className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-white rounded-lg font-semibold text-lg hover:bg-primary/90 transition-all disabled:opacity-60"
+                        className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-primary-foreground rounded-lg font-semibold text-lg hover:bg-primary/90 transition-all disabled:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy focus-visible:ring-offset-2"
                       >
                         {loading ? (
                           <>
@@ -358,7 +373,7 @@ export default function PesquisaSatisfacao({
               <div className="lg:col-span-1">
                 
                 {/* Relatórios */}
-                <div className="bg-white rounded-2xl shadow-sm border p-6 mb-6">
+                <div className="bg-card rounded-2xl shadow-sm border border-border p-6 mb-6">
                   <h3 className="flex items-center gap-2 text-lg font-bold text-navy mb-4">
                     <BarChart3 className="w-5 h-5" />
                     Relatórios
@@ -371,8 +386,8 @@ export default function PesquisaSatisfacao({
                     aria-pressed={selectedYear === currentYear}
                     className={`w-full px-4 py-3 rounded-lg font-medium mb-4 transition-colors flex items-center justify-center gap-2 ${
                       selectedYear === currentYear
-                        ? 'bg-primary text-white hover:bg-primary/90'
-                        : 'border-2 border-primary text-primary hover:bg-primary hover:text-white'
+                        ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+                        : 'border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground'
                     }`}
                   >
                     <FileText className="w-4 h-4" />
@@ -382,7 +397,7 @@ export default function PesquisaSatisfacao({
                   {/* Anos anteriores */}
                   {years.slice(1).length > 0 && (
                     <>
-                      <p className="text-sm text-gray-500 text-center mb-3">Relatórios anteriores</p>
+                      <p className="text-sm text-muted-foreground text-center mb-3">Relatórios anteriores</p>
                       <div className="space-y-2">
                         {years.slice(1).map(year => (
                           <button 
@@ -392,8 +407,8 @@ export default function PesquisaSatisfacao({
                             aria-pressed={selectedYear === year}
                             className={`w-full px-4 py-2.5 rounded-lg font-medium transition-colors flex items-center justify-center gap-2 ${
                               selectedYear === year
-                                ? 'bg-primary text-white'
-                                : 'border-2 border-primary text-primary hover:bg-primary hover:text-white'
+                                ? 'bg-primary text-primary-foreground'
+                                : 'border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground'
                             }`}
                           >
                             <BarChart3 className="w-4 h-4" />
@@ -406,21 +421,21 @@ export default function PesquisaSatisfacao({
                 </div>
 
                 {/* Gráfico de evolução (respostas por mês) */}
-                <div className="bg-white rounded-2xl shadow-sm border p-6 mb-6">
-                  <h4 className="text-center font-semibold text-gray-800 mb-1">
+                <div className="bg-card rounded-2xl shadow-sm border border-border p-6 mb-6">
+                  <h4 className="text-center font-semibold text-foreground mb-1">
                     Evolução das Avaliações - {selectedYear}
                   </h4>
-                  <p className="text-center text-sm text-gray-500 mb-4">
+                  <p className="text-center text-sm text-muted-foreground mb-4">
                     {totals.total} {totals.total === 1 ? 'resposta' : 'respostas'}
                     {totals.average > 0 && ` · média geral ${totals.average.toFixed(1)}/5`}
                   </p>
 
                   {reportLoading ? (
-                    <div className="h-48 flex items-center justify-center text-gray-400">
-                      <Loader2 className="w-6 h-6 animate-spin" />
+                    <div className="h-48 flex items-center justify-center text-muted-foreground">
+                      <Loader2 className="w-6 h-6 animate-spin" aria-hidden="true" />
                     </div>
                   ) : totals.total === 0 ? (
-                    <div className="h-48 bg-gray-50 rounded-lg flex items-center justify-center text-gray-400 text-sm">
+                    <div className="h-48 bg-muted rounded-lg flex items-center justify-center text-muted-foreground text-sm">
                       <div className="text-center">
                         <BarChart3 className="w-12 h-12 mx-auto mb-2 opacity-30" />
                         Sem respostas em {selectedYear}
@@ -430,7 +445,7 @@ export default function PesquisaSatisfacao({
                     <div className="flex items-end justify-between gap-1 h-48 px-1" role="img" aria-label={`Respostas por mês em ${selectedYear}`}>
                       {stats.map((m) => (
                         <div key={m.month} className="flex-1 flex flex-col items-center justify-end h-full gap-1.5">
-                          <span className="text-[10px] font-semibold text-gray-600 leading-none">
+                          <span className="text-[10px] font-semibold text-muted-foreground leading-none">
                             {m.responses > 0 ? m.responses : ''}
                           </span>
                           <div
@@ -438,7 +453,7 @@ export default function PesquisaSatisfacao({
                             style={{ height: `${(m.responses / maxResponses) * 100}%` }}
                             title={`${m.name}: ${m.responses} resposta(s)${m.average ? ` · média ${m.average}` : ''}`}
                           />
-                          <span className="text-[9px] text-gray-400 leading-none">{m.name}</span>
+                          <span className="text-[9px] text-muted-foreground/80 leading-none">{m.name}</span>
                         </div>
                       ))}
                     </div>
@@ -446,12 +461,12 @@ export default function PesquisaSatisfacao({
                 </div>
 
                 {/* Info box */}
-                <div className="bg-primary rounded-2xl p-6 text-white">
+                <div className="bg-primary rounded-2xl p-6 text-primary-foreground">
                   <p className="font-semibold mb-2">
                     Sua opinião é fundamental para melhorarmos nossos serviços.
                   </p>
-                  <p className="text-sm text-white/80">
-                    Você pode participar da pesquisa <strong className="text-white">uma vez por mês</strong>.
+                  <p className="text-sm text-primary-foreground/80">
+                    Você pode participar da pesquisa <strong className="text-primary-foreground">uma vez por mês</strong>.
                   </p>
                 </div>
 

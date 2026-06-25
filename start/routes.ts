@@ -162,9 +162,6 @@ router
 // ========= API =========
 router.get('/api/categorias/:type', [AdminCategoriesController, 'byType'])
 
-// ========= INSTAGRAM IMAGE PROXY (no auth required) =========
-router.get('/painel/noticias/instagram/proxy-image', [InstagramProxyController, 'image'])
-
 // ========= ADMIN PANEL =========
 router
   .group(() => {
@@ -257,6 +254,7 @@ router
         router.post('/noticias/instagram/publish', [AdminInstagramController, 'publishPost'])
         router.post('/noticias/instagram/auto-import', [AdminInstagramController, 'runAutoImport'])
         router.post('/noticias/instagram/refresh-feed', [AdminInstagramController, 'refreshFeed'])
+        router.get('/noticias/instagram/proxy-image', [InstagramProxyController, 'image'])
       })
       .use(middleware.can(['instagram.gerenciar']))
 

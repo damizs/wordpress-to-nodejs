@@ -105,11 +105,7 @@ export default class InstagramFeedService {
     try {
       await this.downloadImage(info.profilePicUrl, destPath)
     } catch {
-      // Fallback: proxy se o CDN bloquear download direto
-      const proxied = `/painel/noticias/instagram/proxy-image?url=${encodeURIComponent(info.profilePicUrl)}`
-      await InstagramSetting.set(PROFILE_PIC_KEY, proxied)
-      await InstagramSetting.set(PROFILE_PIC_AT_KEY, DateTime.now().toISO())
-      return proxied
+      return null
     }
 
     const localUrl = `/${FEED_DIR_REL}/${PROFILE_FILE}`
@@ -174,9 +170,7 @@ export default class InstagramFeedService {
         image = `/${FEED_DIR_REL}/${fileName}`
         keepFiles.add(fileName)
       } catch {
-        // Fallback: proxy server-side (contorna CORS/expiração parcialmente)
-        const src = post.displayUrl || post.thumbnailSrc
-        image = `/painel/noticias/instagram/proxy-image?url=${encodeURIComponent(src)}`
+        continue
       }
 
       const caption = (post.caption || '').trim()
@@ -263,8 +257,7 @@ export default class InstagramFeedService {
         image = `/${REELS_DIR_REL}/${fileName}`
         keepFiles.add(fileName)
       } catch {
-        const src = reel.displayUrl || reel.thumbnailSrc
-        image = `/painel/noticias/instagram/proxy-image?url=${encodeURIComponent(src)}`
+        continue
       }
 
       const caption = (reel.caption || '').trim()

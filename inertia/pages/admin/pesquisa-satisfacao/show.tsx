@@ -29,7 +29,7 @@ function maskCpf(cpf: string | null | undefined) {
 }
 
 export default function PesquisaSatisfacaoShow({ survey }: Props) {
-  const cpf = maskCpf(survey.cpf)
+  const cpfVerified = Boolean(survey.cpf_hash) || Boolean(maskCpf(survey.cpf))
 
   return (
     <AdminLayout title="Detalhes da Resposta">
@@ -59,10 +59,12 @@ export default function PesquisaSatisfacaoShow({ survey }: Props) {
                 <span className="text-sm text-foreground">{survey.phone}</span>
               </div>
             )}
-            {cpf && (
+            {cpfVerified && (
               <div className="flex items-center gap-3">
                 <BadgeCheck className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm text-foreground">{cpf}</span>
+                <span className="text-sm text-foreground">
+                  CPF verificado (dado pseudonimizado — não armazenado em texto claro)
+                </span>
               </div>
             )}
             <p className="text-xs text-muted-foreground">Enviado em {new Date(survey.created_at).toLocaleString('pt-BR')}</p>

@@ -1,32 +1,123 @@
 #!/bin/sh
-# Importacao one-off do acervo WordPress + otimizacao de imagens.
-# Rodar manualmente (terminal do Coolify) na primeira implantacao da camara:
-#   sh /app/scripts/wp_import.sh
-set -e
+# Bootstrap idempotente do acervo WordPress + config do portal.
+# Roda automaticamente no deploy via startup.sh (1ª implantação ~10–15 min).
+# Marcadores persistentes em /app/public/uploads/.
+#
+# Reimportar tudo: FORCE_CONTENT_BOOTSTRAP=true no Coolify (one-off).
+# Reimportar só uma etapa: FORCE_WP_MIGRATE, FORCE_ACTIVITIES_IMPORT,
+# FORCE_PNTP_IMPORT, FORCE_DIARIO_IMPORT, FORCE_QUICK_LINKS_IMPORT,
+# FORCE_PORTAL_BOOTSTRAP, FORCE_LEGACY_CONTENT_IMPORT, FORCE_IMAGE_OPTIMIZE.
 
-MARKER="/app/public/uploads/.wp-migrated-v2"
-if [ "$FORCE_WP_MIGRATE" = "true" ] || [ ! -f "$MARKER" ]; then
-  echo "=== Running WordPress data migration ==="
-  node ace wp:migrate --force && touch "$MARKER"
-else
-  echo "=== WordPress migration already done (marker found, use FORCE_WP_MIGRATE=true to redo) ==="
+UPLOADS="/app/public/uploads"
+mkdir -p "$UPLOADS"
+
+if [ "$FORCE_CONTENT_BOOTSTRAP" = "true" ]; then
+  rm -f \
+    "$UPLOADS/.wp-migrated-v2" \
+    "$UPLOADS/.activities-imported-v5" \
+    "$UPLOADS/.pntp-imported-v3" \
+    "$UPLOADS/.diario-imported-v1" \
+    "$UPLOADS/.quick-links-imported-v1" \
+    "$UPLOADS/.portal-bootstrapped-v1" \
+    "$UPLOADS/.legacy-content-imported-v1" \
+    "$UPLOADS/.images-optimized-v3" \
+    "$UPLOADS/.content-bootstrap-complete-v1"
 fi
 
-# Registros PNTP (Acesso a Informacao) + DOWNLOAD dos PDFs do site antigo para
-# o portal (localiza os arquivos; idempotente, baixa so o que falta).
-echo "=== Importing PNTP records + downloading files ==="
-node ace wp:pntp || echo "PNTP import had errors (non-fatal)"
+# ── 1. Migração principal (notícias, vereadores, licitações, sessões…) ──
+WP_MARKER="$UPLOADS/.wp-migrated-v2"
+if [ "$FORCE_WP_MIGRATE" = "true" ] || [ ! -f "$WP_MARKER" ]; then
+  echo "=== [1/8] WordPress data migration (wp:migrate) ==="
+  if node ace wp:migrate --force; then
+    touch "$WP_MARKER"
+  else
+    echo "WP migration had errors (non-fatal)"
+  fi
+else
+  echo "=== [1/8] WordPress migration already done ==="
+fi
 
-echo "=== Importing official gazette entries ==="
-node ace wp:diario || echo "Diario import had errors (non-fatal)"
+# ── 2. Atividades legislativas + autoria (depende dos vereadores) ──
+ACT_MARKER="$UPLOADS/.activities-imported-v5"
+if [ "$FORCE_ACTIVITIES_IMPORT" = "true" ] || [ ! -f "$ACT_MARKER" ]; then
+  echo "=== [2/8] Legislative activities + authorship ==="
+  if node ace wp:activities; then
+    touch "$ACT_MARKER"
+  else
+    echo "Activities import had errors (non-fatal)"
+  fi
+else
+  echo "=== [2/8] Activities import already done ==="
+fi
 
-echo "=== Importing WordPress quick links ==="
-node ace wp:quick-links || echo "Quick links import had errors (non-fatal)"
+# ── 3. PNTP + download dos PDFs ──
+PNTP_MARKER="$UPLOADS/.pntp-imported-v3"
+if [ "$FORCE_PNTP_IMPORT" = "true" ] || [ ! -f "$PNTP_MARKER" ]; then
+  echo "=== [3/8] PNTP records + PDF download ==="
+  if node ace wp:pntp; then
+    touch "$PNTP_MARKER"
+  else
+    echo "PNTP import had errors (non-fatal)"
+  fi
+else
+  echo "=== [3/8] PNTP import already done ==="
+fi
 
-echo "=== Portal bootstrap (links externos, E-SIC, menus, ATRICON) ==="
-node ace portal:bootstrap || echo "Portal bootstrap had errors (non-fatal)"
+# ── 4. Diário Oficial ──
+DIARIO_MARKER="$UPLOADS/.diario-imported-v1"
+if [ "$FORCE_DIARIO_IMPORT" = "true" ] || [ ! -f "$DIARIO_MARKER" ]; then
+  echo "=== [4/8] Official gazette entries ==="
+  if node ace wp:diario; then
+    touch "$DIARIO_MARKER"
+  else
+    echo "Diario import had errors (non-fatal)"
+  fi
+else
+  echo "=== [4/8] Diario import already done ==="
+fi
 
-echo "=== Importing full WordPress legacy posts/pages ==="
-node ace wp:legacy-content || echo "Legacy content import had errors (non-fatal)"
+# ── 5. Links rápidos ──
+QUICK_LINKS_MARKER="$UPLOADS/.quick-links-imported-v1"
+if [ "$FORCE_QUICK_LINKS_IMPORT" = "true" ] || [ ! -f "$QUICK_LINKS_MARKER" ]; then
+  echo "=== [5/8] WordPress quick links ==="
+  if node ace wp:quick-links; then
+    touch "$QUICK_LINKS_MARKER"
+  else
+    echo "Quick links import had errors (non-fatal)"
+  fi
+else
+  echo "=== [5/8] Quick links import already done ==="
+fi
 
-sh "$(dirname "$0")/optimize_images.sh"
+# ── 6. Bootstrap portal (E-SIC, transparência externa, menus, ATRICON) ──
+BOOT_MARKER="$UPLOADS/.portal-bootstrapped-v1"
+if [ "$FORCE_PORTAL_BOOTSTRAP" = "true" ] || [ ! -f "$BOOT_MARKER" ]; then
+  echo "=== [6/8] Portal bootstrap (external links + config) ==="
+  if node ace portal:bootstrap; then
+    touch "$BOOT_MARKER"
+  else
+    echo "Portal bootstrap had errors (non-fatal)"
+  fi
+else
+  echo "=== [6/8] Portal bootstrap already done ==="
+fi
+
+# ── 7. Acervo completo (posts/páginas legados) ──
+LEGACY_MARKER="$UPLOADS/.legacy-content-imported-v1"
+if [ "$FORCE_LEGACY_CONTENT_IMPORT" = "true" ] || [ ! -f "$LEGACY_MARKER" ]; then
+  echo "=== [7/8] WordPress legacy posts/pages ==="
+  if node ace wp:legacy-content; then
+    touch "$LEGACY_MARKER"
+  else
+    echo "Legacy content import had errors (non-fatal)"
+  fi
+else
+  echo "=== [7/8] Legacy content import already done ==="
+fi
+
+# ── 8. Otimização de imagens ──
+echo "=== [8/8] Image optimization ==="
+sh "$(dirname "$0")/optimize_images.sh" || echo "Image optimization had errors (non-fatal)"
+
+touch "$UPLOADS/.content-bootstrap-complete-v1"
+echo "=== Content bootstrap finished ==="

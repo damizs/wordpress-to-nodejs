@@ -1,5 +1,7 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Headset, Send, UserRound, X } from "lucide-react";
+import { RichText } from "~/lib/rich_text";
+import { useFocusTrap } from "~/hooks/useFocusTrap";
 
 interface Message {
   id: number;
@@ -196,6 +198,8 @@ export const AssistenteVirtual = () => {
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const closeAssistant = useCallback(() => setIsOpen(false), []);
+  const dialogRef = useFocusTrap(isOpen, closeAssistant);
 
   useEffect(() => {
     if (isOpen && messages.length === 0) {
@@ -296,7 +300,13 @@ export const AssistenteVirtual = () => {
 
       {/* Chat Window */}
       {isOpen && (
-        <div className="fixed inset-x-3 bottom-[calc(env(safe-area-inset-bottom)+1rem)] z-50 flex h-[min(78dvh,520px)] flex-col overflow-hidden rounded-2xl border border-border bg-card text-foreground shadow-2xl animate-fade-in sm:inset-x-auto sm:right-6 sm:bottom-6 sm:h-[500px] sm:max-h-[calc(100vh-120px)] sm:w-[380px] sm:max-w-[calc(100vw-48px)]">
+        <div
+          ref={dialogRef}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="assistant-title"
+          className="fixed inset-x-3 bottom-[calc(env(safe-area-inset-bottom)+1rem)] z-50 flex h-[min(78dvh,520px)] flex-col overflow-hidden rounded-2xl border border-border bg-card text-foreground shadow-2xl animate-fade-in sm:inset-x-auto sm:right-6 sm:bottom-6 sm:h-[500px] sm:max-h-[calc(100vh-120px)] sm:w-[380px] sm:max-w-[calc(100vw-48px)]"
+        >
           {/* Header */}
           <div className="bg-gradient-to-r from-gold/20 via-card to-sky/10 border-b border-border p-4 flex items-center gap-3">
             <div className="relative w-12 h-12 rounded-full bg-gold/20 text-navy-dark flex items-center justify-center ring-1 ring-gold/30">
@@ -306,15 +316,16 @@ export const AssistenteVirtual = () => {
               </span>
             </div>
             <div className="flex-1">
-              <h3 className="font-bold text-foreground">Assistente Virtual</h3>
+              <h3 id="assistant-title" className="font-bold text-foreground">Assistente Virtual</h3>
               <p className="text-xs text-muted-foreground flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                 Online 24h
               </p>
             </div>
             <button
-              onClick={() => setIsOpen(false)}
-              className="w-8 h-8 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground flex items-center justify-center transition-colors"
+              type="button"
+              onClick={closeAssistant}
+              className="w-8 h-8 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
               aria-label="Fechar assistente virtual"
             >
               <X className="w-5 h-5" />
@@ -333,7 +344,14 @@ export const AssistenteVirtual = () => {
                         : "bg-navy text-primary-foreground rounded-tr-none shadow-sm"
                     }`}
                   >
-                    <p className="text-sm whitespace-pre-line">{msg.text}</p>
+                    {msg.isBot ? (
+                      <RichText
+                        text={msg.text}
+                        className="[&_p]:my-0.5 [&_p]:leading-snug [&_p:first-child]:mt-0 [&_p:last-child]:mb-0 [&_strong]:font-semibold"
+                      />
+                    ) : (
+                      <p className="text-sm whitespace-pre-line">{msg.text}</p>
+                    )}
                   </div>
                   <p className={`text-xs text-muted-foreground mt-1 ${msg.isBot ? "" : "text-right"}`}>
                     {msg.time}
@@ -377,8 +395,9 @@ export const AssistenteVirtual = () => {
             {quickOptions.map((option, idx) => (
               <button
                 key={idx}
+                type="button"
                 onClick={() => handleOptionClick(option.action)}
-                className="px-3 py-1.5 bg-muted hover:bg-muted/70 text-foreground text-xs rounded-full border border-border transition-colors"
+                className="px-3 py-1.5 bg-muted hover:bg-muted/70 text-foreground text-xs rounded-full border border-border transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold"
               >
                 {option.label}
               </button>
@@ -394,12 +413,14 @@ export const AssistenteVirtual = () => {
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleSend()}
                 placeholder="Digite sua dúvida..."
-                className="flex-1 bg-muted text-foreground placeholder:text-muted-foreground rounded-full px-4 py-2 text-sm border border-border focus:outline-none focus:ring-2 focus:ring-gold/50"
+                aria-label="Digite sua dúvida"
+                className="flex-1 bg-muted text-foreground placeholder:text-muted-foreground rounded-full px-4 py-2 text-sm border border-border focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/50"
               />
               <button
+                type="button"
                 onClick={() => handleSend()}
                 disabled={!input.trim()}
-                className="w-10 h-10 rounded-full bg-gold hover:bg-gold-light disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center transition-colors"
+                className="w-10 h-10 rounded-full bg-gold hover:bg-gold-light disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy"
                 aria-label="Enviar mensagem"
               >
                 <Send className="w-5 h-5 text-navy-dark" />
