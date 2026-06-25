@@ -5,7 +5,7 @@ import { Header } from "~/components/Header";
 import { Breadcrumb } from "~/components/Breadcrumb";
 import { PageHero } from "~/components/PageHero";
 import { Footer } from "~/components/Footer";
-import { Coins, Download, Info, Calendar, TrendingUp, Database, Code2 } from "lucide-react";
+import { Coins, Download, Info, Calendar, TrendingUp, Database, Code2, ArrowLeftRight } from "lucide-react";
 
 interface Row {
   month: number;
@@ -374,8 +374,12 @@ export default function DuodecimosIndex({
                       </div>
                     </div>
 
+                    <p className="sm:hidden flex items-center gap-1.5 px-4 pt-3 text-[11px] text-muted-foreground">
+                      <ArrowLeftRight className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+                      Deslize a tabela para ver todas as colunas
+                    </p>
                     <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
+                      <table className="w-full min-w-[680px] text-sm">
                         <thead>
                           <tr className="bg-navy text-white text-left">
                             <th className="px-4 py-3 font-semibold whitespace-nowrap">Mês</th>

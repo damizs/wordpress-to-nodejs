@@ -176,8 +176,13 @@ export default function NewsIndex({ news, categories = [], filters = {} }: Props
                               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                             />
                           ) : (
-                            <div className="w-full h-full bg-gradient-to-br from-primary/10 to-gold/10 flex items-center justify-center">
-                              <Newspaper className="w-10 h-10 text-muted-foreground/40" />
+                            <div className="w-full h-full bg-gradient-to-br from-primary/15 via-primary/5 to-gold/15 flex flex-col items-center justify-center gap-2">
+                              <div className="w-12 h-12 rounded-full bg-card/70 backdrop-blur-sm ring-1 ring-gold/30 flex items-center justify-center">
+                                <Newspaper className="w-6 h-6 text-primary/60" aria-hidden="true" />
+                              </div>
+                              <span className="text-[11px] font-semibold uppercase tracking-wider text-primary/50">
+                                Câmara de Sumé
+                              </span>
                             </div>
                           )}
                           {item.category && (

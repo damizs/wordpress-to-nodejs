@@ -208,7 +208,7 @@ export default function CommitteesIndex({ committees = [] }: Props) {
                                     </div>
                                   )}
                                   <div className="min-w-0 flex-1">
-                                    <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors truncate">
+                                    <p className="text-sm font-medium text-foreground group-hover:text-primary transition-colors leading-snug line-clamp-2 break-words">
                                       {member.name}
                                     </p>
                                     {member.party && <p className="text-xs text-muted-foreground">{member.party}</p>}
