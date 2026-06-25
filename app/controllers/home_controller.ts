@@ -22,7 +22,7 @@ import RuntimeCache from '#services/runtime_cache'
 import { fixGetpublicUrl } from '#helpers/document_file_url'
 
 export default class HomeController {
-  async index({ inertia }: HttpContext) {
+  async index({ inertia, request }: HttpContext) {
     // Try to fetch seals, return empty array if table doesn't exist
     let seals: Seal[] = []
     try {
@@ -355,6 +355,15 @@ export default class HomeController {
     const endYear = yearOf(currentLegislature?.endDate)
     const legislatura = startYear && endYear ? `${startYear}-${endYear}` : undefined
 
+    // Pré-visualização de modelo de site sem alterar a configuração salva
+    // (ex.: /?preview_template=classico). Clona siteSettings p/ não mutar o cache.
+    const previewTemplate = request.input('preview_template')
+    const VALID_TEMPLATES = ['institucional', 'classico', 'moderno', 'compacto']
+    const siteSettingsView =
+      typeof previewTemplate === 'string' && VALID_TEMPLATES.includes(previewTemplate)
+        ? { ...siteSettings, site_template: previewTemplate }
+        : siteSettings
+
     return inertia.render('home', {
       news: mappedNews,
       vereadores,
@@ -391,9 +400,9 @@ export default class HomeController {
         editionNumber: g.editionNumber,
         fileUrl: fixGetpublicUrl(g.fileUrl),
       })),
-      siteSettings,
+      siteSettings: siteSettingsView,
       infoCategories: infoCategories.map((c) => ({ id: c.id, name: c.name, slug: c.slug })),
-      newsBackgroundImage: siteSettings.news_background_image || null,
+      newsBackgroundImage: siteSettingsView.news_background_image || null,
       seals: seals.map((s) => ({
         id: s.id,
         title: s.title,
