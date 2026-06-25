@@ -149,7 +149,23 @@ export default function Home({
   const template = getSiteTemplate(siteSettings?.site_template);
   const templateConfig = parseTemplateConfig(siteSettings?.template_config);
   const customConfig = getTemplateCustomConfig(templateConfig, template.key);
-  const homeOrder = customConfig.homeOrder;
+  // Ordem das seções: o modelo de site define a ordem base; o painel
+  // (Homepage > Reordenar seções) pode sobrescrever via `section_order` (JSON).
+  // Mantém só chaves válidas do modelo atual e anexa as não listadas ao fim.
+  const homeOrder = (() => {
+    const base = customConfig.homeOrder;
+    let saved: string[] | null = null;
+    try {
+      const parsed = JSON.parse(siteSettings?.section_order || "null");
+      if (Array.isArray(parsed)) saved = parsed;
+    } catch {
+      saved = null;
+    }
+    if (!saved) return base;
+    const ordered = saved.filter((k) => (base as readonly string[]).includes(k));
+    const rest = base.filter((k) => !ordered.includes(k));
+    return [...ordered, ...rest] as typeof base;
+  })();
   const newsLimit = Math.min(
     12,
     Math.max(3, Number(siteSettings?.news_count || customConfig.newsCount || 5))

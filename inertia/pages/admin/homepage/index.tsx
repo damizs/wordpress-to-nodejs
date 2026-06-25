@@ -1,7 +1,24 @@
 import { Head, useForm } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Save, Monitor, Shield, Users, FileText, Globe, Award, Eye, type LucideIcon } from 'lucide-react'
+import { Save, Monitor, Shield, Users, FileText, Globe, Award, Eye, GripVertical, type LucideIcon } from 'lucide-react'
 import { Button, Card, CardHeader, Field, Input, Textarea } from '~/components/admin/ui'
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  useSortable,
+  sortableKeyboardCoordinates,
+  arrayMove,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 
 interface Props {
   settings: Record<string, Record<string, string | null>>
@@ -9,6 +26,65 @@ interface Props {
 
 function get(settings: Props['settings'], group: string, key: string): string {
   return settings?.[group]?.[key] ?? ''
+}
+
+// Seções da home (chave curta usada em section_order + visibilidade section_<key>_visible)
+const SECTIONS: { key: string; label: string }[] = [
+  { key: 'news', label: 'Notícias' },
+  { key: 'quickaccess', label: 'Acesso Rápido' },
+  { key: 'esic', label: 'E-SIC' },
+  { key: 'transparency', label: 'Transparência' },
+  { key: 'vereadores', label: 'Vereadores' },
+  { key: 'legislativo', label: 'Legislativo em Números' },
+  { key: 'diario', label: 'Diário Oficial' },
+  { key: 'instagram', label: 'Instagram Feed' },
+  { key: 'conheca', label: 'Conheça Sumé' },
+  { key: 'seals', label: 'Selos' },
+  { key: 'survey', label: 'Pesquisa de Satisfação' },
+]
+const SECTION_LABEL: Record<string, string> = Object.fromEntries(SECTIONS.map((s) => [s.key, s.label]))
+
+function SortableSectionRow({
+  id,
+  label,
+  visible,
+  onToggle,
+}: {
+  id: string
+  label: string
+  visible: boolean
+  onToggle: (v: boolean) => void
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
+  const style = { transform: CSS.Transform.toString(transform), transition, opacity: isDragging ? 0.5 : 1 }
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={`flex items-center gap-3 p-3 rounded-lg border transition-colors ${
+        visible ? 'border-navy/40 bg-navy/5' : 'border-border bg-muted'
+      }`}
+    >
+      <button
+        type="button"
+        {...attributes}
+        {...listeners}
+        aria-label={`Reordenar ${label}`}
+        className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground touch-none"
+      >
+        <GripVertical className="w-4 h-4" />
+      </button>
+      <label className="flex items-center gap-2 cursor-pointer flex-1">
+        <input
+          type="checkbox"
+          checked={visible}
+          onChange={(e) => onToggle(e.target.checked)}
+          className="w-4 h-4 rounded border-border accent-navy"
+        />
+        <span className="text-sm text-foreground">{label}</span>
+      </label>
+    </div>
+  )
 }
 
 export default function HomepageEditor({ settings }: Props) {
@@ -55,6 +131,16 @@ export default function HomepageEditor({ settings }: Props) {
     section_conheca_visible: get(settings, 'homepage_sections', 'section_conheca_visible'),
     section_seals_visible: get(settings, 'homepage_sections', 'section_seals_visible'),
     section_survey_visible: get(settings, 'homepage_sections', 'section_survey_visible'),
+    // Ordem das seções (drag-and-drop). Default = ordem do catálogo SECTIONS.
+    section_order: (() => {
+      try {
+        const a = JSON.parse(get(settings, 'homepage_sections', 'section_order') || 'null')
+        if (Array.isArray(a) && a.length) return a as string[]
+      } catch {
+        /* ignora */
+      }
+      return SECTIONS.map((s) => s.key)
+    })(),
   })
 
   function handleSubmit(e: React.FormEvent) {
@@ -62,39 +148,52 @@ export default function HomepageEditor({ settings }: Props) {
     post('/painel/homepage')
   }
 
-  const visibilityItems = [
-    { key: 'section_news_visible', label: 'Notícias' },
-    { key: 'section_quickaccess_visible', label: 'Acesso Rápido' },
-    { key: 'section_esic_visible', label: 'E-SIC' },
-    { key: 'section_transparency_visible', label: 'Transparência' },
-    { key: 'section_vereadores_visible', label: 'Vereadores' },
-    { key: 'section_legislativo_visible', label: 'Legislativo em Números' },
-    { key: 'section_diario_visible', label: 'Diário Oficial' },
-    { key: 'section_instagram_visible', label: 'Instagram Feed' },
-    { key: 'section_conheca_visible', label: 'Conheça Sumé' },
-    { key: 'section_seals_visible', label: 'Selos' },
-    { key: 'section_survey_visible', label: 'Pesquisa de Satisfação' },
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  )
+
+  // Ordem exibida: chaves salvas válidas + quaisquer seções faltantes ao fim.
+  const displayOrder: string[] = [
+    ...(data.section_order as string[]).filter((k) => k in SECTION_LABEL),
+    ...SECTIONS.map((s) => s.key).filter((k) => !(data.section_order as string[]).includes(k)),
   ]
+
+  function handleDragEnd(e: DragEndEvent) {
+    const { active, over } = e
+    if (over && active.id !== over.id) {
+      const oldI = displayOrder.indexOf(String(active.id))
+      const newI = displayOrder.indexOf(String(over.id))
+      if (oldI !== -1 && newI !== -1) setData('section_order', arrayMove(displayOrder, oldI, newI))
+    }
+  }
 
   return (
     <AdminLayout title="Editor da Homepage">
       <Head title="Homepage - Painel" />
 
       <form onSubmit={handleSubmit} className="w-full min-w-0 space-y-6">
-        {/* Section Visibility */}
-        <Section icon={Eye} title="Visibilidade das Seções" description="Ative/desative seções na homepage">
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-            {visibilityItems.map((item) => (
-              <label key={item.key} className={`flex items-center gap-2 p-3 rounded-lg border cursor-pointer transition-colors ${
-                data[item.key] === 'true' ? 'border-navy/40 bg-navy/5' : 'border-border bg-muted'
-              }`}>
-                <input type="checkbox" checked={data[item.key] === 'true'}
-                  onChange={(e) => setData(item.key, e.target.checked ? 'true' : 'false')}
-                  className="w-4 h-4 rounded border-border accent-navy" />
-                <span className="text-sm text-foreground">{item.label}</span>
-              </label>
-            ))}
-          </div>
+        {/* Seções da home: arraste para reordenar + ligue/desligue */}
+        <Section
+          icon={Eye}
+          title="Seções da Homepage"
+          description="Arraste pela alça para reordenar e use a caixa para mostrar/ocultar cada seção"
+        >
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <SortableContext items={displayOrder} strategy={verticalListSortingStrategy}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {displayOrder.map((key) => (
+                  <SortableSectionRow
+                    key={key}
+                    id={key}
+                    label={SECTION_LABEL[key]}
+                    visible={data[`section_${key}_visible`] === 'true'}
+                    onToggle={(v) => setData(`section_${key}_visible`, v ? 'true' : 'false')}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
         </Section>
 
         {/* Hero */}
