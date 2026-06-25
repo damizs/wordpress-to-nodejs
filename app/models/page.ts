@@ -14,6 +14,7 @@ export type PageBlock =
   | { type: 'callout'; tone: 'info' | 'warning' | 'success'; text: string }
   | { type: 'buttons'; items: { label: string; url: string; variant: 'primary' | 'secondary' }[] }
   | { type: 'video'; url: string }
+  | { type: 'columns'; layout: string; columns: PageBlock[][] }
 
 export default class Page extends BaseModel {
   static table = 'pages'

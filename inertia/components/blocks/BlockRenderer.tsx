@@ -15,6 +15,7 @@ export type PageBlock =
   | { type: 'callout'; tone: 'info' | 'warning' | 'success'; text: string }
   | { type: 'buttons'; items: { label: string; url: string; variant: 'primary' | 'secondary' }[] }
   | { type: 'video'; url: string }
+  | { type: 'columns'; layout: string; columns: PageBlock[][] }
 
 /** Extrai o ID de vídeo do YouTube das formas comuns de URL (watch, youtu.be, embed, shorts, live). */
 export function extractYouTubeId(url: string): string | null {
@@ -180,10 +181,35 @@ function VideoBlock({ url }: { url: string }) {
   )
 }
 
+function ColumnsBlock({ layout, columns }: { layout: string; columns: PageBlock[][] }) {
+  const cols = Array.isArray(columns) ? columns : []
+  const gridCls =
+    layout === '1-1-1' || layout === '1-2' || layout === '2-1' ? 'md:grid-cols-3' : 'md:grid-cols-2'
+  const spanFor = (i: number) => {
+    if (layout === '1-2') return i === 1 ? 'md:col-span-2' : ''
+    if (layout === '2-1') return i === 0 ? 'md:col-span-2' : ''
+    return ''
+  }
+  if (cols.length === 0) return null
+  return (
+    <div className={`my-6 grid grid-cols-1 ${gridCls} gap-6`}>
+      {cols.map((colBlocks, i) => (
+        <div key={i} className={`min-w-0 ${spanFor(i)}`}>
+          {(Array.isArray(colBlocks) ? colBlocks : []).map((b, j) => (
+            <Block key={j} block={b} />
+          ))}
+        </div>
+      ))}
+    </div>
+  )
+}
+
 function Block({ block }: { block: PageBlock }) {
   switch (block.type) {
     case 'heading':
       return <HeadingBlock text={block.text} />
+    case 'columns':
+      return <ColumnsBlock layout={block.layout} columns={block.columns} />
     case 'text':
       return <RichText text={block.text || ''} className="text-foreground/90" />
     case 'image':
