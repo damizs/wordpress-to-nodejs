@@ -3,6 +3,14 @@ import Biennium from '#models/biennium'
 import CouncilorPosition from '#models/councilor_position'
 import SiteSetting from '#models/site_setting'
 
+// A coluna date do Postgres chega como Date no runtime; String(Date) vira
+// "Wed Jan 01 2025..." e substring(0,4) virava "Wed ". Extrai o ano robustamente.
+function yearOf(value: unknown): string {
+  if (!value) return ''
+  const d = new Date(value as string)
+  return Number.isNaN(d.getTime()) ? String(value).substring(0, 4) : String(d.getFullYear())
+}
+
 export default class MesaDiretoraController {
   async index({ inertia }: HttpContext) {
     const currentBiennium = await Biennium.query()
@@ -34,12 +42,8 @@ export default class MesaDiretoraController {
       biennium: currentBiennium
         ? {
             name: currentBiennium.name,
-            year_start: currentBiennium.startDate
-              ? String(currentBiennium.startDate).substring(0, 4)
-              : '',
-            year_end: currentBiennium.endDate
-              ? String(currentBiennium.endDate).substring(0, 4)
-              : '',
+            year_start: yearOf(currentBiennium.startDate),
+            year_end: yearOf(currentBiennium.endDate),
           }
         : null,
       legislature_name: currentBiennium?.legislature?.name || '',

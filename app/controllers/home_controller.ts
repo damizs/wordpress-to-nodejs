@@ -157,8 +157,14 @@ export default class HomeController {
         .orderByRaw(
           "CASE position WHEN 'Presidente' THEN 1 WHEN 'Vice-Presidente' THEN 2 WHEN '1º Secretário' THEN 3 WHEN '2º Secretário' THEN 4 ELSE 5 END"
         )
-      const yStart = biennium.startDate ? String(biennium.startDate).substring(0, 4) : ''
-      const yEnd = biennium.endDate ? String(biennium.endDate).substring(0, 4) : ''
+      // Coluna date chega como Date; extrai o ano robustamente (evita "Wed").
+      const yearOf = (v: unknown): string => {
+        if (!v) return ''
+        const d = new Date(v as string)
+        return Number.isNaN(d.getTime()) ? String(v).substring(0, 4) : String(d.getFullYear())
+      }
+      const yStart = yearOf(biennium.startDate)
+      const yEnd = yearOf(biennium.endDate)
       return {
         members: positions.map((p) => ({
           id: p.id,
