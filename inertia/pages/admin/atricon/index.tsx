@@ -31,6 +31,26 @@ interface SubdimensionView {
   status: SubdimStatus
 }
 type Source = 'auto' | 'manual' | 'padrao'
+type CriterionPlace =
+  | 'sistema_externo'
+  | 'pagina_acesso_informacao'
+  | 'transparencia_ou_link_externo'
+  | 'modulo_nativo'
+  | 'pagina_publica'
+  | 'avaliacao_manual'
+interface CriterionGap {
+  /** O que a ATRICON exige (texto da matriz). */
+  exigencia: string
+  /** O que foi detectado / por que está pendente. */
+  motivo: string
+  /** Ação concreta derivada do local de resolução. */
+  acao: string
+  /** Orientação de como atender (hint da matriz). */
+  comoResolver: string
+  /** Deep-link do módulo/atalho que resolve, com rótulo. */
+  moduloLink: { href: string; label: string } | null
+  place: CriterionPlace
+}
 type Classification = 'essencial' | 'obrigatoria' | 'recomendada'
 type Freshness = 'em_dia' | 'desatualizado' | 'vazio'
 type TabKey = 'visao' | 'falta' | 'matriz' | 'auditoria' | 'ia'
@@ -62,6 +82,8 @@ interface Criterion {
   credit: number | null
   /** Ganho real em pontos do índice ao concluir o critério. */
   indexGain: number
+  /** Explicação "o que falta": exigência, motivo, como resolver e link do módulo. */
+  gap: CriterionGap
 }
 
 interface DimensionScore {
@@ -851,6 +873,155 @@ function CriterionRow({ criterion }: { criterion: Criterion }) {
   )
 }
 
+/* ============================== Item de "O que falta" (expansível) ============================== */
+
+function GapItem({ criterion }: { criterion: Criterion }) {
+  const [open, setOpen] = useState(false)
+  const sm = STATUS_META[criterion.status]
+  const gap = criterion.gap
+  // Itens de verificação (D/A/H/G/F) ainda não atendidos (falha/parcial) ou para conferência (manual).
+  const missingSubs = (criterion.subdimensions ?? []).filter((s) => s.status !== 'ok')
+
+  return (
+    <div className="rounded-lg border border-border bg-card overflow-hidden">
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        aria-expanded={open}
+        className="w-full flex items-start gap-3 p-3 text-left hover:bg-muted/40 transition-colors"
+      >
+        <span className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${sm.dot}`} aria-hidden="true" />
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[11px] font-bold text-muted-foreground">{criterion.code}</span>
+            <Badge tone={CLASS_TONE[criterion.classification]} className="text-[11px] px-2 py-0.5">
+              {CLASS_LABEL[criterion.classification]}
+            </Badge>
+            <Badge tone={sm.tone} className="text-[11px] px-2 py-0.5">{sm.label}</Badge>
+            {criterion.indexGain > 0 && (
+              <span
+                className="inline-flex items-center gap-0.5 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-bold text-emerald-600 tabular-nums"
+                title="Ganho estimado no índice ao concluir este critério"
+              >
+                <TrendingUp className="w-3 h-3" aria-hidden="true" />+{criterion.indexGain.toFixed(2)} pts
+              </span>
+            )}
+          </div>
+          <p className="text-sm font-medium text-foreground mt-1">{gap.exigencia}</p>
+          {!open && (
+            <p className="text-[11px] text-muted-foreground mt-0.5 truncate">{gap.motivo}</p>
+          )}
+        </div>
+        {open ? (
+          <ChevronUp className="w-4 h-4 text-muted-foreground mt-1 shrink-0" aria-hidden="true" />
+        ) : (
+          <ChevronDown className="w-4 h-4 text-muted-foreground mt-1 shrink-0" aria-hidden="true" />
+        )}
+      </button>
+
+      {open && (
+        <div className="px-3 pb-3 pt-1 border-t border-border/60 space-y-3">
+          {/* Exigência */}
+          <div className="flex items-start gap-2">
+            <ClipboardCheck className="w-4 h-4 text-navy shrink-0 mt-0.5" aria-hidden="true" />
+            <div className="min-w-0">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                O que a ATRICON exige
+              </p>
+              <p className="text-sm text-foreground">{gap.exigencia}</p>
+            </div>
+          </div>
+
+          {/* Motivo / o que foi detectado */}
+          <div className="flex items-start gap-2">
+            <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" aria-hidden="true" />
+            <div className="min-w-0">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                Por que está pendente
+              </p>
+              <p className="text-sm text-foreground">{gap.motivo}</p>
+              {missingSubs.length > 0 && (
+                <div className="mt-1.5">
+                  <p className="text-[11px] text-muted-foreground mb-1">
+                    Itens de verificação (PNTP 2026) a resolver:
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {missingSubs.map((s, i) => {
+                      const m = SUBDIM_META[s.status]
+                      return (
+                        <span
+                          key={i}
+                          title={m.title}
+                          aria-label={`${s.label}: ${m.title}`}
+                          className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${m.tone}`}
+                        >
+                          {s.label}
+                        </span>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Como resolver */}
+          <div className="flex items-start gap-2">
+            <Sparkles className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" aria-hidden="true" />
+            <div className="min-w-0">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                Como resolver
+              </p>
+              <p className="text-sm text-foreground">{gap.acao}</p>
+              <p className="text-sm text-muted-foreground mt-1">{gap.comoResolver}</p>
+            </div>
+          </div>
+
+          {/* Links da transparência já relacionados */}
+          {criterion.autoLinks.length > 0 && (
+            <div className="flex items-start gap-2 text-xs text-muted-foreground">
+              <Link2 className="w-4 h-4 shrink-0 mt-0.5" aria-hidden="true" />
+              <div className="min-w-0">
+                <span className="font-semibold">Links já relacionados: </span>
+                {criterion.autoLinks.map((l, i) => (
+                  <a
+                    key={i}
+                    href={l.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-navy hover:underline inline-flex items-center gap-0.5 mr-2"
+                  >
+                    {l.title} <ExternalLink className="w-3 h-3" />
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Ações */}
+          <div className="flex flex-wrap items-center gap-3 pt-1">
+            {gap.moduloLink && (
+              <ButtonLink href={gap.moduloLink.href} variant="secondary" size="sm">
+                <ArrowUpRight className="w-3.5 h-3.5" /> {gap.moduloLink.label}
+              </ButtonLink>
+            )}
+            {criterion.route && (
+              <a
+                href={criterion.route}
+                target="_blank"
+                rel="noreferrer"
+                className="text-[11px] text-navy hover:underline inline-flex items-center gap-0.5"
+              >
+                Ver no portal <ExternalLink className="w-3 h-3" />
+              </a>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 /* ============================== Página ============================== */
 
 export default function AtriconIndex({
@@ -1517,7 +1688,7 @@ export default function AtriconIndex({
       <Card className="mb-6">
         <CardHeader
           title="O que falta"
-          description="Critérios pendentes e parciais priorizados pelo ganho real em pontos do índice."
+          description="Cada pendência explicada: o que a ATRICON exige, por que está pendente e como resolver. Priorizado pelo ganho real em pontos do índice — clique para expandir."
           icon={ListChecks}
         />
         {todo.length === 0 ? (
@@ -1527,44 +1698,9 @@ export default function AtriconIndex({
         ) : (
           <>
             <div className="space-y-2">
-              {todoShown.map((c) => {
-                const sm = STATUS_META[c.status]
-                return (
-                  <div
-                    key={c.code}
-                    className="flex items-start gap-3 rounded-lg border border-border p-3"
-                  >
-                    <span className={`mt-1.5 w-2 h-2 rounded-full shrink-0 ${sm.dot}`} />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-[11px] font-bold text-muted-foreground">{c.code}</span>
-                        <Badge tone={CLASS_TONE[c.classification]} className="text-[11px] px-2 py-0.5">
-                          {CLASS_LABEL[c.classification]}
-                        </Badge>
-                        <Badge tone={sm.tone} className="text-[11px] px-2 py-0.5">{sm.label}</Badge>
-                        {c.indexGain > 0 && (
-                          <span
-                            className="inline-flex items-center gap-0.5 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[11px] font-bold text-emerald-600 tabular-nums"
-                            title="Ganho estimado no índice ao concluir este critério"
-                          >
-                            <TrendingUp className="w-3 h-3" aria-hidden="true" />
-                            +{c.indexGain.toFixed(2)} pts
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-sm font-medium text-foreground mt-1">{c.title}</p>
-                      {c.auto && (
-                        <p className="text-[11px] text-muted-foreground mt-0.5">{c.auto.detail}</p>
-                      )}
-                    </div>
-                    {c.actionHref && (
-                      <ButtonLink href={c.actionHref} variant="secondary" size="sm" className="shrink-0">
-                        Resolver <ArrowUpRight className="w-3.5 h-3.5" />
-                      </ButtonLink>
-                    )}
-                  </div>
-                )
-              })}
+              {todoShown.map((c) => (
+                <GapItem key={c.code} criterion={c} />
+              ))}
             </div>
             {todoRest > 0 && (
               <p className="text-xs text-muted-foreground mt-3 text-center">
