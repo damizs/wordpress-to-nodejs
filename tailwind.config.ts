@@ -17,6 +17,8 @@ export default {
         lg: '2rem',
         xl: '2.5rem',
         '2xl': '3rem',
+        '3xl': '3.5rem',
+        '4xl': '4rem',
       },
       screens: {
         sm: '640px',
@@ -24,9 +26,17 @@ export default {
         lg: '1024px',
         xl: '1280px',
         '2xl': '1480px',
+        // Telas grandes (monitores 27"–34"): a largura cresce progressivamente
+        // mantendo margem de segurança e legibilidade (cap ~2040px).
+        '3xl': '1720px',
+        '4xl': '2040px',
       },
     },
     extend: {
+      screens: {
+        '3xl': '1920px',
+        '4xl': '2560px',
+      },
       fontFamily: {
         sans: ['Inter Variable', 'Inter', 'Verdana', 'Geneva', 'sans-serif'],
         serif: ['Inter Variable', 'Inter', 'Verdana', 'Geneva', 'sans-serif'],

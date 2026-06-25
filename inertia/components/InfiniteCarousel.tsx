@@ -5,7 +5,7 @@ interface InfiniteCarouselProps {
   children: ReactNode;
   /** Classe de gap aplicada no trilho flex. Default: 'gap-6' */
   gapClass?: string;
-  /** Velocidade do auto-scroll em px por frame (~60fps). Default: 0.3 (suave) */
+  /** Velocidade do auto-scroll em px por frame (~60fps). Default: 0.18 (suave) */
   speed?: number;
   /** Mostra os botões prev/next (passador). Default: true */
   showArrows?: boolean;
@@ -31,7 +31,7 @@ interface InfiniteCarouselProps {
 export const InfiniteCarousel = ({
   children,
   gapClass = "gap-6",
-  speed = 0.3,
+  speed = 0.18,
   showArrows = true,
   ariaLabel,
   className = "",

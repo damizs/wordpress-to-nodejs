@@ -29,9 +29,11 @@ export default class DynamicInfoController {
       if (news) {
         return response.redirect().status(301).toPath(`/noticias/${news.slug}`)
       }
-      // No WP os posts viviam na raiz: slug desconhecido aqui é quase sempre
-      // notícia antiga não migrada. 301 para a listagem preserva o link.
-      return response.redirect().status(301).toPath('/noticias')
+      // Slug realmente inexistente: mostra a página 404 em vez de redirecionar
+      // para /noticias (que escondia links quebrados e impedia uma tela de erro).
+      // Links de notícias antigas continuam preservados pelo 301 acima.
+      response.status(404)
+      return inertia.render('errors/not_found')
     }
 
     const page = request.input('page', 1)
