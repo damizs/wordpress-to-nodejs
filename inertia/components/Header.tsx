@@ -383,7 +383,7 @@ export const Header = ({ logoUrl }: HeaderProps) => {
       <li key={index} className="relative group">
         <Link
           href={item.href}
-          className="flex items-center gap-1 px-3.5 py-2.5 text-sm font-medium rounded-lg text-primary-foreground/85 hover:text-primary-foreground hover:bg-primary-foreground/10 transition-colors no-underline"
+          className="flex min-h-[2.75rem] items-center gap-1 rounded-lg px-3.5 py-2.5 text-sm font-medium text-primary-foreground/85 no-underline transition-colors duration-200 hover:bg-primary-foreground/10 hover:text-primary-foreground"
         >
           {item.label}
           {item.hasDropdown && (
@@ -581,7 +581,7 @@ export const Header = ({ logoUrl }: HeaderProps) => {
   const goldBottomLine = (
     <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold/70 to-transparent" />
   );
-  const institutionalCompact = !isHomePage || template === "moderno";
+  const institutionalCompact = !isHomePage;
   const showCompactBar = template === "institucional";
 
   /* ===========================================================================
@@ -601,6 +601,8 @@ export const Header = ({ logoUrl }: HeaderProps) => {
             <div className="lg:hidden shrink-0">{mobileButton("light")}</div>
           </div>
         </div>
+
+        <div className="h-0.5 bg-gold" aria-hidden="true" />
 
         <nav className="hidden bg-navy text-primary-foreground lg:block">
           <div className="container">
@@ -642,14 +644,69 @@ export const Header = ({ logoUrl }: HeaderProps) => {
   }
 
   /* ===========================================================================
+   * MODELO: MODERNO / DESTAQUE — sticky, logo à esquerda, menu glass inline.
+   * ========================================================================= */
+  if (template === "moderno") {
+    return (
+      <header className="sticky top-0 z-50 border-b border-primary-foreground/10 bg-gradient-hero text-primary-foreground shadow-sm">
+        {widgets}
+
+        <div className="container flex h-14 items-center gap-3 lg:h-16 lg:gap-4">
+          <Link href="/" className="shrink-0 no-underline">
+            {logoOrInitial("h-10 w-auto max-w-[10rem] object-contain lg:h-11 lg:max-w-[12rem]")}
+          </Link>
+
+          <nav className="hidden min-w-0 flex-1 lg:block">
+            <div className="glass ml-auto w-fit max-w-full rounded-2xl px-2 py-1.5 lg:px-3">
+              <ul className="flex items-center gap-0.5">
+                {desktopNavItems.map((item, index) => (
+                  <li key={index} className="group relative">
+                    <Link
+                      href={item.href}
+                      className="relative flex min-h-[2.75rem] items-center gap-1 rounded-xl px-3 py-2 text-sm font-medium tracking-wide text-primary-foreground no-underline transition-colors duration-200 hover:bg-primary-foreground/10 lg:px-3.5"
+                    >
+                      {item.label}
+                      {item.hasDropdown && (
+                        <ChevronDown className="h-4 w-4 opacity-60 transition-all duration-200 group-hover:rotate-180" />
+                      )}
+                      <span className="absolute bottom-1 left-3 right-3 h-0.5 origin-left scale-x-0 rounded-full bg-gold transition-transform duration-200 group-hover:scale-x-100 lg:left-3.5 lg:right-3.5" />
+                    </Link>
+                    {item.hasDropdown && item.subItems && (
+                      <div className="invisible absolute right-0 top-full z-[9999] mt-1 min-w-[220px] rounded-xl border border-border bg-background py-2 text-foreground opacity-0 shadow-xl transition-all duration-200 group-focus-within:visible group-hover:visible group-focus-within:opacity-100 group-hover:opacity-100">
+                        {item.subItems.map((sub, subIndex) => (
+                          <Link
+                            key={subIndex}
+                            href={sub.href}
+                            className="block w-full px-4 py-2.5 text-left text-sm no-underline transition-colors hover:bg-accent hover:text-accent-foreground"
+                          >
+                            {sub.label}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </li>
+                ))}
+                <li className="relative ml-1 border-l border-primary-foreground/15 pl-1">
+                  {searchButtonDark}
+                </li>
+              </ul>
+            </div>
+          </nav>
+
+          <div className="ml-auto shrink-0 lg:hidden">{mobileButton("dark")}</div>
+        </div>
+
+        {searchStripNeutral}
+        {mobileNavNeutral}
+      </header>
+    );
+  }
+
+  /* ===========================================================================
    * MODELO: INSTITUCIONAL (padrão) — markup original preservado.
    * ========================================================================= */
   return (
-    <header
-      className={`relative z-50 bg-gradient-hero text-primary-foreground overflow-visible ${
-        template === "moderno" ? "sticky top-0 z-50 shadow-sm" : ""
-      }`}
-    >
+    <header className="relative z-50 overflow-visible bg-gradient-hero text-primary-foreground">
       {widgets}
       {compactBar}
       {/* Background decoration */}

@@ -191,40 +191,54 @@ export const QuickAccessSection = ({
     ? "grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-5 lg:grid-cols-6"
     : "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-5";
 
+  const searchForm = (
+    <form
+      action="/busca"
+      method="get"
+      role="search"
+      className="flex w-full items-stretch overflow-hidden rounded-lg border border-border bg-card shadow-sm transition-colors duration-200 focus-within:border-navy focus-within:ring-1 focus-within:ring-navy/20"
+    >
+      <label htmlFor="quickaccess-search" className="sr-only">
+        Buscar no portal
+      </label>
+      <input
+        id="quickaccess-search"
+        name="q"
+        type="search"
+        className="min-w-0 flex-1 bg-transparent px-4 py-2.5 text-base text-foreground outline-none placeholder:text-muted-foreground sm:text-sm"
+        placeholder="O que você procura no portal?"
+      />
+      <button
+        type="submit"
+        className="flex min-h-[2.75rem] cursor-pointer items-center gap-2 bg-navy px-4 text-sm font-semibold text-primary-foreground transition-colors duration-200 hover:bg-navy-dark"
+      >
+        <Search className="h-4 w-4" aria-hidden="true" />
+        <span className="hidden sm:inline">Buscar</span>
+      </button>
+    </form>
+  );
+
   return (
     <section className={`section-block bg-background ${isCompact ? "border-b border-border" : ""}`}>
       <div className="container">
-        <SectionHeading
-          badge={badge}
-          title={title}
-          subtitle={subtitle || defaultSubtitle}
-        />
-
-        {showSearch && (
-          <form
-            action="/busca"
-            method="get"
-            role="search"
-            className="mx-auto mb-8 flex max-w-xl items-stretch overflow-hidden rounded-lg border border-border bg-card shadow-sm focus-within:border-navy focus-within:ring-1 focus-within:ring-navy/20"
-          >
-            <label htmlFor="quickaccess-search" className="sr-only">
-              Buscar no portal
-            </label>
-            <input
-              id="quickaccess-search"
-              name="q"
-              type="search"
-              className="min-w-0 flex-1 bg-transparent px-4 py-2.5 text-sm text-foreground outline-none placeholder:text-muted-foreground"
-              placeholder="O que você procura no portal?"
+        {isCompact ? (
+          <SectionHeading
+            align="left"
+            badge={badge}
+            title={title}
+            subtitle={subtitle || defaultSubtitle}
+            action={<div className="w-full sm:max-w-sm">{searchForm}</div>}
+            className="!mb-6 sm:!items-end"
+          />
+        ) : (
+          <>
+            <SectionHeading
+              badge={badge}
+              title={title}
+              subtitle={subtitle || defaultSubtitle}
             />
-            <button
-              type="submit"
-              className="flex items-center gap-2 bg-navy px-4 text-sm font-semibold text-primary-foreground transition-colors hover:bg-navy-dark"
-            >
-              <Search className="h-4 w-4" aria-hidden="true" />
-              <span className="hidden sm:inline">Buscar</span>
-            </button>
-          </form>
+            {showSearch && <div className="mx-auto mb-8 max-w-xl">{searchForm}</div>}
+          </>
         )}
 
         <div className={gridClass}>
@@ -233,7 +247,7 @@ export const QuickAccessSection = ({
             const color = colorMap[item.color || ""] || fallbackColors[index % fallbackColors.length];
             const description = descriptionMap[item.title.toLowerCase().trim()];
             const cardClass =
-              "group card-modern p-3 sm:p-6 no-underline flex flex-col items-center text-center min-h-[126px] sm:min-h-0";
+              "group card-modern flex min-h-[126px] cursor-pointer flex-col items-center p-3 text-center no-underline transition-colors duration-200 hover:border-navy/30 sm:min-h-0 sm:p-6";
             const cardStyle = {};
             const inner = (
               <>
