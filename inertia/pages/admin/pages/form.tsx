@@ -8,6 +8,7 @@ import {
   Eye,
   FileText,
   Files,
+  GripVertical,
   Heading2,
   Image as ImageIcon,
   Layers,
@@ -39,6 +40,27 @@ import {
 import { extractYouTubeId } from '~/components/blocks/BlockRenderer'
 import { BlockRenderer } from '~/components/blocks/BlockRenderer'
 import { RichText } from '~/lib/rich_text'
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  useSortable,
+  sortableKeyboardCoordinates,
+  arrayMove,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
+
+let __blockUidSeq = 0
+const nextBlockUid = () => `blk-${__blockUidSeq++}-${Math.round(performance.now())}`
+const withUid = (b: EditorBlock): EditorBlock => (b.__uid ? b : { ...b, __uid: nextBlockUid() })
 
 /* ============================== Tipos ============================== */
 
@@ -548,6 +570,80 @@ function PagePreview({
   )
 }
 
+function SortableBlock({
+  block,
+  index,
+  total,
+  onMoveUp,
+  onMoveDown,
+  onRemove,
+  onChange,
+}: {
+  block: EditorBlock
+  index: number
+  total: number
+  onMoveUp: () => void
+  onMoveDown: () => void
+  onRemove: () => void
+  onChange: (patch: Record<string, any>) => void
+}) {
+  const def = blockDef(block.type)
+  const DefIcon = def?.icon || Type
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: block.__uid as string,
+  })
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.6 : 1,
+  }
+  return (
+    <div ref={setNodeRef} style={style} className="rounded-xl border border-border bg-muted/20">
+      <div className="flex items-center justify-between gap-2 px-4 py-2.5 border-b border-border/70">
+        <span className="inline-flex items-center gap-2 text-[13px] font-semibold text-navy">
+          <button
+            type="button"
+            {...attributes}
+            {...listeners}
+            aria-label="Arrastar para reordenar bloco"
+            className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground touch-none"
+          >
+            <GripVertical className="w-4 h-4" />
+          </button>
+          <DefIcon className="w-4 h-4" />
+          {def?.label || block.type}
+        </span>
+        <div className="flex items-center gap-0.5">
+          <IconButton
+            tone="neutral"
+            title="Mover para cima"
+            disabled={index === 0}
+            className={index === 0 ? 'opacity-30 pointer-events-none' : ''}
+            onClick={onMoveUp}
+          >
+            <ChevronUp className="w-4 h-4" />
+          </IconButton>
+          <IconButton
+            tone="neutral"
+            title="Mover para baixo"
+            disabled={index === total - 1}
+            className={index === total - 1 ? 'opacity-30 pointer-events-none' : ''}
+            onClick={onMoveDown}
+          >
+            <ChevronDown className="w-4 h-4" />
+          </IconButton>
+          <IconButton tone="delete" title="Remover bloco" onClick={onRemove}>
+            <Trash2 className="w-4 h-4" />
+          </IconButton>
+        </div>
+      </div>
+      <div className="p-4">
+        <BlockFields block={block} onChange={onChange} />
+      </div>
+    </div>
+  )
+}
+
 export default function PageForm({ page }: Props) {
   const isEditing = !!page
   const [slugEdited, setSlugEdited] = useState(isEditing)
@@ -560,10 +656,15 @@ export default function PageForm({ page }: Props) {
     meta_description: page?.meta_description || '',
     content: page?.content || '',
     is_published: page?.is_published ?? true,
-    blocks: (page?.blocks || []) as EditorBlock[],
+    blocks: (page?.blocks || []).map(withUid) as EditorBlock[],
   }
 
-  const { data, setData, post, put, processing, errors } = useForm(initialData)
+  const { data, setData, post, put, processing, errors, transform } = useForm(initialData)
+  // Remove o id efêmero de drag-drop (__uid) antes de enviar ao servidor.
+  transform((d) => ({
+    ...d,
+    blocks: (d.blocks as EditorBlock[]).map(({ __uid, ...rest }) => rest),
+  }))
 
   const handleTitleChange = (title: string) => {
     setData((d) => ({ ...d, title, slug: slugEdited ? d.slug : slugify(title) }))
@@ -572,8 +673,21 @@ export default function PageForm({ page }: Props) {
   const setBlocks = (blocks: EditorBlock[]) => setData((d) => ({ ...d, blocks }))
 
   const addBlock = (type: BlockType) => {
-    setBlocks([...data.blocks, blockDef(type).make()])
+    setBlocks([...data.blocks, withUid(blockDef(type).make())])
     setShowAddMenu(false)
+  }
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  )
+  const handleBlockDragEnd = (e: DragEndEvent) => {
+    const { active, over } = e
+    if (over && active.id !== over.id) {
+      const oldI = data.blocks.findIndex((b) => b.__uid === active.id)
+      const newI = data.blocks.findIndex((b) => b.__uid === over.id)
+      if (oldI !== -1 && newI !== -1) setBlocks(arrayMove(data.blocks, oldI, newI))
+    }
   }
 
   const applyTemplate = (template: (typeof PAGE_TEMPLATES)[number]) => {
@@ -583,7 +697,7 @@ export default function PageForm({ page }: Props) {
     ) {
       return
     }
-    setBlocks(template.blocks.map((block) => JSON.parse(JSON.stringify(block))))
+    setBlocks(template.blocks.map((block) => withUid(JSON.parse(JSON.stringify(block)))))
     setShowAddMenu(false)
   }
 
@@ -784,50 +898,27 @@ export default function PageForm({ page }: Props) {
             </div>
           )}
 
-          <div className="space-y-4">
-            {data.blocks.map((block, i) => {
-              const def = blockDef(block.type)
-              const DefIcon = def?.icon || Type
-              return (
-                <div key={i} className="rounded-xl border border-border bg-muted/20">
-                  <div className="flex items-center justify-between gap-2 px-4 py-2.5 border-b border-border/70">
-                    <span className="inline-flex items-center gap-2 text-[13px] font-semibold text-navy">
-                      <DefIcon className="w-4 h-4" />
-                      {def?.label || block.type}
-                    </span>
-                    <div className="flex items-center gap-0.5">
-                      <IconButton
-                        tone="neutral"
-                        title="Mover para cima"
-                        disabled={i === 0}
-                        className={i === 0 ? 'opacity-30 pointer-events-none' : ''}
-                        onClick={() => moveBlock(i, -1)}
-                      >
-                        <ChevronUp className="w-4 h-4" />
-                      </IconButton>
-                      <IconButton
-                        tone="neutral"
-                        title="Mover para baixo"
-                        disabled={i === data.blocks.length - 1}
-                        className={
-                          i === data.blocks.length - 1 ? 'opacity-30 pointer-events-none' : ''
-                        }
-                        onClick={() => moveBlock(i, 1)}
-                      >
-                        <ChevronDown className="w-4 h-4" />
-                      </IconButton>
-                      <IconButton tone="delete" title="Remover bloco" onClick={() => removeBlock(i)}>
-                        <Trash2 className="w-4 h-4" />
-                      </IconButton>
-                    </div>
-                  </div>
-                  <div className="p-4">
-                    <BlockFields block={block} onChange={(patch) => updateBlock(i, patch)} />
-                  </div>
-                </div>
-              )
-            })}
-          </div>
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleBlockDragEnd}>
+            <SortableContext
+              items={data.blocks.map((b) => b.__uid as string)}
+              strategy={verticalListSortingStrategy}
+            >
+              <div className="space-y-4">
+                {data.blocks.map((block, i) => (
+                  <SortableBlock
+                    key={block.__uid}
+                    block={block}
+                    index={i}
+                    total={data.blocks.length}
+                    onMoveUp={() => moveBlock(i, -1)}
+                    onMoveDown={() => moveBlock(i, 1)}
+                    onRemove={() => removeBlock(i)}
+                    onChange={(patch) => updateBlock(i, patch)}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
 
           {/* Menu de adicionar bloco */}
           <div className="mt-4">
