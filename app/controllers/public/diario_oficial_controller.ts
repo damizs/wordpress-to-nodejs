@@ -11,7 +11,12 @@ export default class DiarioOficialController {
     const search = request.input('busca', '')
 
     let query = OfficialGazetteEntry.query().orderBy('publication_date', 'desc')
-    if (year) query = query.whereRaw('EXTRACT(YEAR FROM publication_date::date) = ?', [year])
+    if (year) {
+      const y = Number(year)
+      query = query
+        .where('publication_date', '>=', `${y}-01-01`)
+        .where('publication_date', '<', `${y + 1}-01-01`)
+    }
     if (search) {
       query = query.where((q) => {
         q.whereILike('description', `%${search}%`).orWhereILike('edition_number', `%${search}%`)
@@ -22,10 +27,18 @@ export default class DiarioOficialController {
     const siteSettings = await SiteSetting.allAsObject()
     const latestEntry = await OfficialGazetteEntry.query().orderBy('publication_date', 'desc').first()
 
-    const yearRows: Array<{ year: number }> = await db
+    const range = await db
       .from('official_gazette_entries')
-      .select(db.raw('DISTINCT EXTRACT(YEAR FROM publication_date::date)::int AS year'))
-      .orderBy('year', 'desc')
+      .whereNotNull('publication_date')
+      .min('publication_date as min')
+      .max('publication_date as max')
+      .first()
+    const years: number[] = []
+    if (range?.min && range?.max) {
+      const minY = new Date(range.min).getFullYear()
+      const maxY = new Date(range.max).getFullYear()
+      for (let y = maxY; y >= minY; y--) years.push(y)
+    }
 
     return inertia.render('public/diario-oficial/index', {
       entries: entries.all().map((e) => ({
@@ -40,7 +53,7 @@ export default class DiarioOficialController {
         lastPage: entries.lastPage,
         total: entries.total,
       },
-      years: yearRows.map((r) => r.year).filter(Boolean),
+      years,
       filters: { year, search },
       latestEntry: latestEntry
         ? {

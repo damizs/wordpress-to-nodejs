@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, router, usePage } from "@inertiajs/react";
 import { Menu, X, ChevronDown, Sun, Moon, Search } from "lucide-react";
 import { useSiteSettings } from "~/hooks/use_site_settings";
+import { useFocusTrap } from "~/hooks/useFocusTrap";
 import { DynamicTheme } from "~/components/DynamicTheme";
 import { DynamicFavicon } from "~/components/DynamicFavicon";
 import { ScrollReveal } from "~/components/ScrollReveal";
@@ -203,11 +204,15 @@ export const Header = ({ logoUrl }: HeaderProps) => {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [dark, toggleDark] = useDarkMode();
   const settings = useSiteSettings();
-  const navItems = parseNavItems(settings.header_menu);
+  const navItems = useMemo(() => parseNavItems(settings.header_menu), [settings.header_menu]);
   const template = getSiteTemplate(settings.site_template).key;
-  const desktopNavItems = buildDesktopNavItems(
-    navItems,
-    DESKTOP_NAV_LIMIT_BY_TEMPLATE[template] || DESKTOP_NAV_LIMIT_BY_TEMPLATE.institucional
+  const desktopNavItems = useMemo(
+    () =>
+      buildDesktopNavItems(
+        navItems,
+        DESKTOP_NAV_LIMIT_BY_TEMPLATE[template] || DESKTOP_NAV_LIMIT_BY_TEMPLATE.institucional
+      ),
+    [navItems, template]
   );
   // Modo embed (?embed=1): página renderizada dentro de um modal/iframe — sem cabeçalho
   const { url: currentUrl } = usePage();
@@ -243,6 +248,9 @@ export const Header = ({ logoUrl }: HeaderProps) => {
     setMobileExpandedItem(null);
   };
 
+  // Focus trap + Esc + scroll-lock do body do menu mobile (hook roda só no client)
+  const mobileNavRef = useFocusTrap(mobileMenuOpen, closeMobileMenu);
+
   const handleLinkClick = (href: string) => {
     closeMobileMenu();
     router.visit(href);
@@ -253,16 +261,6 @@ export const Header = ({ logoUrl }: HeaderProps) => {
     closeMobileMenu();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentUrl]);
-
-  // Bloqueia scroll do body com menu aberto
-  useEffect(() => {
-    if (!mobileMenuOpen) return;
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prev;
-    };
-  }, [mobileMenuOpen]);
 
   // Foco automático no campo de busca quando o overlay abre
   useEffect(() => {
@@ -325,7 +323,7 @@ export const Header = ({ logoUrl }: HeaderProps) => {
           <nav className="min-w-0 justify-self-center">
             <ul className="flex items-center justify-center gap-0.5">
               {desktopNavItems.map((item, index) => (
-                <li key={index} className="relative group">
+                <li key={`${item.href}-${index}`} className="relative group">
                   <Link
                     href={item.href}
                     className="flex items-center gap-1 px-3 py-2 text-[13px] font-medium rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors no-underline"
@@ -337,7 +335,7 @@ export const Header = ({ logoUrl }: HeaderProps) => {
                     <div className="invisible group-hover:visible group-focus-within:visible opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 absolute top-full right-0 mt-1 min-w-[220px] rounded-xl shadow-xl z-[9999] transition-all duration-200 py-2 bg-background text-foreground border border-border">
                       {item.subItems.map((sub, subIndex) => (
                         <Link
-                          key={subIndex}
+                          key={`${sub.href}-${subIndex}`}
                           href={sub.href}
                           className="block w-full text-left px-4 py-2.5 text-sm hover:bg-muted hover:text-primary transition-colors duration-200 no-underline"
                         >
@@ -380,7 +378,7 @@ export const Header = ({ logoUrl }: HeaderProps) => {
   /** Navegação desktop sobre fundo escuro (navy / gradiente). */
   const renderNavLinks = (dropdownAlign: "left" | "right" = "left") =>
     desktopNavItems.map((item, index) => (
-      <li key={index} className="relative group">
+      <li key={`${item.href}-${index}`} className="relative group">
         <Link
           href={item.href}
           className="flex min-h-[2.75rem] items-center gap-1 rounded-lg px-3.5 py-2.5 text-sm font-medium text-primary-foreground/85 no-underline transition-colors duration-200 hover:bg-primary-foreground/10 hover:text-primary-foreground"
@@ -398,7 +396,7 @@ export const Header = ({ logoUrl }: HeaderProps) => {
           >
             {item.subItems.map((sub, subIndex) => (
               <Link
-                key={subIndex}
+                key={`${sub.href}-${subIndex}`}
                 href={sub.href}
                 className="block w-full text-left px-4 py-2.5 text-sm hover:bg-muted hover:text-primary transition-colors duration-200 no-underline"
               >
@@ -494,7 +492,11 @@ export const Header = ({ logoUrl }: HeaderProps) => {
         aria-hidden
       />
       <nav
+        ref={mobileNavRef}
         id="menu-mobile"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Menu"
         className="fixed inset-y-0 right-0 z-[56] flex h-[100dvh] w-[min(22rem,calc(100vw-1.5rem))] flex-col overflow-hidden rounded-l-2xl border-l border-border bg-card shadow-2xl animate-slide-in-right lg:hidden"
       >
         <div className="sticky top-0 z-10 flex items-center justify-between px-4 py-3 border-b border-border bg-card/95 backdrop-blur">
@@ -531,7 +533,7 @@ export const Header = ({ logoUrl }: HeaderProps) => {
       </form>
       <ul className="flex flex-col gap-1">
         {navItems.map((item, index) => (
-          <li key={index}>
+          <li key={`${item.href}-${index}`}>
             <button
               onClick={() => {
                 if (item.hasDropdown) {
@@ -550,7 +552,7 @@ export const Header = ({ logoUrl }: HeaderProps) => {
             {item.hasDropdown && item.subItems && mobileExpandedItem === item.label && (
               <ul className="ml-4 border-l border-border pl-4 py-1">
                 {item.subItems.map((sub, subIndex) => (
-                  <li key={subIndex}>
+                  <li key={`${sub.href}-${subIndex}`}>
                     <button
                       onClick={() => handleLinkClick(sub.href)}
                       className="block w-full text-left py-2.5 px-3 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors min-h-[2.75rem]"
@@ -660,7 +662,7 @@ export const Header = ({ logoUrl }: HeaderProps) => {
             <div className="glass ml-auto w-fit max-w-full rounded-2xl px-2 py-1.5 lg:px-3">
               <ul className="flex items-center gap-0.5">
                 {desktopNavItems.map((item, index) => (
-                  <li key={index} className="group relative">
+                  <li key={`${item.href}-${index}`} className="group relative">
                     <Link
                       href={item.href}
                       className="relative flex min-h-[2.75rem] items-center gap-1 rounded-xl px-3 py-2 text-sm font-medium tracking-wide text-primary-foreground no-underline transition-colors duration-200 hover:bg-primary-foreground/10 lg:px-3.5"
@@ -675,7 +677,7 @@ export const Header = ({ logoUrl }: HeaderProps) => {
                       <div className="invisible absolute right-0 top-full z-[9999] mt-1 min-w-[220px] rounded-xl border border-border bg-background py-2 text-foreground opacity-0 shadow-xl transition-all duration-200 group-focus-within:visible group-hover:visible group-focus-within:opacity-100 group-hover:opacity-100">
                         {item.subItems.map((sub, subIndex) => (
                           <Link
-                            key={subIndex}
+                            key={`${sub.href}-${subIndex}`}
                             href={sub.href}
                             className="block w-full px-4 py-2.5 text-left text-sm no-underline transition-colors hover:bg-accent hover:text-accent-foreground"
                           >
@@ -756,7 +758,7 @@ export const Header = ({ logoUrl }: HeaderProps) => {
           <div className="glass relative rounded-2xl px-3 lg:px-5 py-2.5 mx-auto w-fit max-w-full">
             <ul className="flex items-center justify-center gap-1 min-w-0">
               {desktopNavItems.map((item, index) => (
-                <li key={index} className="relative group">
+                <li key={`${item.href}-${index}`} className="relative group">
                   <Link
                     href={item.href}
                     className="relative flex items-center gap-1 px-3 lg:px-4 py-2.5 text-sm font-medium tracking-wide rounded-xl hover:bg-primary-foreground/10 transition-all duration-300 no-underline text-primary-foreground"
@@ -772,7 +774,7 @@ export const Header = ({ logoUrl }: HeaderProps) => {
                     <div className="invisible group-hover:visible group-focus-within:visible opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 absolute top-full left-0 mt-1 min-w-[220px] rounded-xl shadow-xl z-[9999] transition-all duration-200 py-2 bg-background text-foreground border border-border">
                       {item.subItems.map((sub, subIndex) => (
                         <Link
-                          key={subIndex}
+                          key={`${sub.href}-${subIndex}`}
                           href={sub.href}
                           className="block w-full text-left px-4 py-2.5 text-sm hover:bg-accent hover:text-accent-foreground transition-colors duration-200 no-underline"
                         >

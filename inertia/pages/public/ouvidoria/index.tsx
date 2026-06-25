@@ -71,7 +71,7 @@ export default function OuvidoriaIndex() {
           subtitle="Canal de comunicação direta entre o cidadão e a Câmara Municipal"
           centered
         />
-        <main>
+        <main id="conteudo" tabIndex={-1}>
           <section className="py-10 lg:py-14">
             <div className="container">
               <div className="grid grid-cols-1 min-[400px]:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-10 sm:mb-12">

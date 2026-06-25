@@ -32,7 +32,7 @@ export const Breadcrumb = ({ items }: BreadcrumbProps) => {
                   {item.label}
                 </Link>
               ) : (
-                <span className="text-foreground font-semibold">{item.label}</span>
+                <span aria-current="page" className="text-foreground font-semibold">{item.label}</span>
               )}
             </span>
           ))}

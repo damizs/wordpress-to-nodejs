@@ -23,7 +23,11 @@ export function parseAllowedInstagramCdnUrl(raw: string): URL | null {
 export async function fetchInstagramCdnImage(
   url: URL
 ): Promise<{ buffer: Buffer; contentType: string }> {
-  const imageResponse = await fetch(url.toString(), { headers: FETCH_HEADERS })
+  const imageResponse = await fetch(url.toString(), { headers: FETCH_HEADERS, redirect: 'manual' })
+
+  if (imageResponse.status >= 300 && imageResponse.status < 400) {
+    throw new Error('Redirecionamento não permitido')
+  }
 
   if (!imageResponse.ok) {
     throw new Error(`Falha ao carregar imagem (${imageResponse.status})`)

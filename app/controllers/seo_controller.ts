@@ -6,12 +6,13 @@ import Pauta from '#models/pauta'
 import OfficialPublication from '#models/official_publication'
 import LegislativeActivity from '#models/legislative_activity'
 import Licitacao from '#models/licitacao'
+import Contract from '#models/contract'
 
 const BASE_URL = 'https://node.camaradesume.pb.gov.br'
 
 export default class SeoController {
   async sitemap({ response }: HttpContext) {
-    const [news, councilors, atas, pautas, publications, activities, licitacoes] =
+    const [news, councilors, atas, pautas, publications, activities, licitacoes, contracts] =
       await Promise.all([
         News.query()
           .where('status', 'published')
@@ -23,6 +24,7 @@ export default class SeoController {
         OfficialPublication.query().whereNotNull('slug').select('slug', 'updated_at'),
         LegislativeActivity.query().whereNotNull('slug').select('slug', 'updated_at'),
         Licitacao.query().select('slug', 'updated_at'),
+        Contract.query().where('is_active', true).whereNotNull('slug').select('slug', 'updated_at'),
       ])
 
     // Static pages
@@ -37,9 +39,14 @@ export default class SeoController {
       { url: '/votacoes', priority: '0.7', changefreq: 'weekly' },
       { url: '/agenda', priority: '0.7', changefreq: 'weekly' },
       { url: '/pautas', priority: '0.7', changefreq: 'weekly' },
-      { url: '/atividades-legislativa', priority: '0.8', changefreq: 'weekly' },
+      { url: '/atividades-legislativas', priority: '0.8', changefreq: 'weekly' },
       { url: '/publicacoes-oficiais', priority: '0.8', changefreq: 'weekly' },
       { url: '/licitacoes', priority: '0.8', changefreq: 'weekly' },
+      { url: '/contratos', priority: '0.8', changefreq: 'weekly' },
+      { url: '/relatorios-fiscais', priority: '0.8', changefreq: 'weekly' },
+      { url: '/duodecimos', priority: '0.7', changefreq: 'monthly' },
+      { url: '/diario-oficial', priority: '0.8', changefreq: 'daily' },
+      { url: '/dados-abertos', priority: '0.6', changefreq: 'monthly' },
       { url: '/perguntas-frequentes', priority: '0.5', changefreq: 'monthly' },
       { url: '/pesquisa-de-satisfacao', priority: '0.4', changefreq: 'monthly' },
       { url: '/politica-de-privacidade', priority: '0.3', changefreq: 'yearly' },
@@ -112,7 +119,7 @@ export default class SeoController {
     // Activities
     for (const item of activities) {
       xml += `  <url>\n`
-      xml += `    <loc>${BASE_URL}/atividades-legislativa/${item.slug}</loc>\n`
+      xml += `    <loc>${BASE_URL}/atividades-legislativas/${item.slug}</loc>\n`
       xml += `    <lastmod>${item.updatedAt?.toISO()}</lastmod>\n`
       xml += `    <changefreq>monthly</changefreq>\n`
       xml += `    <priority>0.6</priority>\n`
@@ -123,6 +130,16 @@ export default class SeoController {
     for (const item of licitacoes) {
       xml += `  <url>\n`
       xml += `    <loc>${BASE_URL}/licitacoes/${item.slug}</loc>\n`
+      xml += `    <lastmod>${item.updatedAt?.toISO()}</lastmod>\n`
+      xml += `    <changefreq>monthly</changefreq>\n`
+      xml += `    <priority>0.6</priority>\n`
+      xml += `  </url>\n`
+    }
+
+    // Contracts
+    for (const item of contracts) {
+      xml += `  <url>\n`
+      xml += `    <loc>${BASE_URL}/contratos/${item.slug}</loc>\n`
       xml += `    <lastmod>${item.updatedAt?.toISO()}</lastmod>\n`
       xml += `    <changefreq>monthly</changefreq>\n`
       xml += `    <priority>0.6</priority>\n`
@@ -142,6 +159,8 @@ Allow: /
 Disallow: /painel/
 Disallow: /login
 Disallow: /api/
+Disallow: /*?embed=1
+Disallow: /busca
 
 Sitemap: ${BASE_URL}/sitemap.xml
 `

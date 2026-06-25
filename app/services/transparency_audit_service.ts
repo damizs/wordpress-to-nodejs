@@ -2,6 +2,7 @@ import db from '@adonisjs/lucid/services/db'
 import { DateTime } from 'luxon'
 import TransparencyLink from '#models/transparency_link'
 import TransparencySection from '#models/transparency_section'
+import { assertFetchableWebUrl } from '#helpers/safe_url'
 
 /** Metas de atualização por tipo de conteúdo (PNTP / ritmo legislativo). */
 export const FRESHNESS_DAYS = {
@@ -266,27 +267,55 @@ export function evaluateModuleHealth(
   }
 }
 
-async function checkExternalUrl(url: string): Promise<{ health: LinkHealth; status: number | null; detail: string }> {
-  try {
+/**
+ * Segue redirects manualmente (até `maxHops`) revalidando cada destino contra a
+ * allowlist anti-SSRF — assim um redirect 3xx não pode escapar para um host
+ * privado/interno (o `redirect:'manual'` impede o fetch nativo de segui-lo).
+ */
+async function safeFetch(
+  startUrl: string,
+  method: 'HEAD' | 'GET',
+  maxHops = 4
+): Promise<Response> {
+  let current = startUrl
+  for (let hop = 0; hop <= maxHops; hop++) {
+    const safe = assertFetchableWebUrl(current)
+    if (!safe) {
+      throw new Error('URL aponta para destino não permitido (privado/interno ou protocolo inválido)')
+    }
     const controller = new AbortController()
     const timer = setTimeout(() => controller.abort(), 8000)
-    let res = await fetch(url, {
-      method: 'HEAD',
-      signal: controller.signal,
-      redirect: 'follow',
-      headers: { 'User-Agent': 'CamaraPortal-TransparencyAudit/1.0' },
-    })
-    clearTimeout(timer)
-    if (res.status === 405 || res.status === 501) {
-      const c2 = new AbortController()
-      const t2 = setTimeout(() => c2.abort(), 8000)
-      res = await fetch(url, {
-        method: 'GET',
-        signal: c2.signal,
-        redirect: 'follow',
+    let res: Response
+    try {
+      res = await fetch(safe, {
+        method,
+        signal: controller.signal,
+        redirect: 'manual',
         headers: { 'User-Agent': 'CamaraPortal-TransparencyAudit/1.0' },
       })
-      clearTimeout(t2)
+    } finally {
+      clearTimeout(timer)
+    }
+    const isRedirect = res.status >= 300 && res.status < 400 && res.headers.has('location')
+    if (!isRedirect) return res
+    const next = new URL(res.headers.get('location')!, safe).toString()
+    current = next
+  }
+  throw new Error('Muitos redirecionamentos')
+}
+
+async function checkExternalUrl(url: string): Promise<{ health: LinkHealth; status: number | null; detail: string }> {
+  if (!assertFetchableWebUrl(url)) {
+    return {
+      health: 'invalido',
+      status: null,
+      detail: 'URL externa inválida ou apontando para destino interno/privado — não verificada por segurança',
+    }
+  }
+  try {
+    let res = await safeFetch(url, 'HEAD')
+    if (res.status === 405 || res.status === 501) {
+      res = await safeFetch(url, 'GET')
     }
     if (res.ok) {
       return { health: 'externo_ok', status: res.status, detail: `URL externa responde (${res.status})` }

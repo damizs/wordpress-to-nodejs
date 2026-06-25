@@ -29,7 +29,7 @@ export default function PesquisaSatisfacaoIndex() {
         <SeoHead title="Obrigado! - Pesquisa de Satisfação" url="/pesquisa-de-satisfacao" />
         <div className="min-h-screen bg-background overflow-x-clip">
           <TopBar /><Header /><Breadcrumb items={[{ label: "Pesquisa de Satisfação" }]} />
-          <main className="py-20">
+          <main id="conteudo" tabIndex={-1} className="py-20">
             <div className="container text-center">
               <div className="w-20 h-20 mx-auto rounded-full bg-emerald-500/10 flex items-center justify-center mb-6">
                 <CheckCircle className="w-10 h-10 text-emerald-600 dark:text-emerald-400" />
@@ -50,25 +50,48 @@ export default function PesquisaSatisfacaoIndex() {
       <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar /><Header /><Breadcrumb items={[{ label: "Pesquisa de Satisfação" }]} />
         <PageHero badge="Sua Opinião" title="Pesquisa de Satisfação" subtitle="Avaliação contínua dos serviços prestados pela Câmara Municipal" centered />
-        <main>
+        <main id="conteudo" tabIndex={-1}>
           <section className="py-10 lg:py-14">
             <div className="container">
             <div>
               <form onSubmit={handleSubmit} data-reveal="up" className="card-modern p-6 md:p-8 space-y-6">
                 <div>
-                  <label className="block font-semibold text-foreground mb-3">Como você avalia nossos serviços?</label>
-                  <div className="flex gap-2">
+                  <span id="rating-label" className="block font-semibold text-foreground mb-3">Como você avalia nossos serviços?</span>
+                  <div
+                    role="radiogroup"
+                    aria-labelledby="rating-label"
+                    aria-describedby={errors.rating ? "rating-error" : undefined}
+                    className="flex gap-2"
+                    onKeyDown={(e) => {
+                      if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        setData('rating', Math.min(5, (data.rating || 0) + 1));
+                      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        setData('rating', Math.max(1, (data.rating || 1) - 1));
+                      }
+                    }}
+                  >
                     {[1, 2, 3, 4, 5].map((star) => (
-                      <button key={star} type="button" onClick={() => setData('rating', star)} className={`p-2 rounded-xl transition-colors ${data.rating >= star ? 'text-gold' : 'text-muted-foreground/30'}`}>
+                      <button
+                        key={star}
+                        type="button"
+                        role="radio"
+                        aria-checked={data.rating === star}
+                        aria-label={`${star} ${star === 1 ? 'estrela' : 'estrelas'}`}
+                        tabIndex={data.rating === star || (data.rating === 0 && star === 1) ? 0 : -1}
+                        onClick={() => setData('rating', star)}
+                        className={`p-2 rounded-xl transition-colors ${data.rating >= star ? 'text-gold' : 'text-muted-foreground/30'}`}
+                      >
                         <Star className="w-8 h-8 fill-current" />
                       </button>
                     ))}
                   </div>
-                  {errors.rating && <p className="text-sm text-destructive mt-1">{errors.rating}</p>}
+                  {errors.rating && <p id="rating-error" className="text-sm text-destructive mt-1">{errors.rating}</p>}
                 </div>
                 <div>
-                  <label className="block font-semibold text-foreground mb-2">Tipo de serviço utilizado</label>
-                  <select value={data.service_type} onChange={(e) => setData('service_type', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-border bg-card focus:outline-none focus:ring-2 focus:ring-primary/20">
+                  <label htmlFor="service_type" className="block font-semibold text-foreground mb-2">Tipo de serviço utilizado</label>
+                  <select id="service_type" value={data.service_type} onChange={(e) => setData('service_type', e.target.value)} className="w-full px-4 py-3 rounded-xl border border-border bg-card focus:outline-none focus:ring-2 focus:ring-primary/20">
                     <option value="">Selecione...</option>
                     <option value="atendimento">Atendimento Presencial</option>
                     <option value="portal">Portal da Transparência</option>
@@ -78,8 +101,8 @@ export default function PesquisaSatisfacaoIndex() {
                   </select>
                 </div>
                 <div>
-                  <label className="block font-semibold text-foreground mb-2">Comentários (opcional)</label>
-                  <textarea value={data.comments} onChange={(e) => setData('comments', e.target.value)} rows={4} className="w-full px-4 py-3 rounded-xl border border-border bg-card focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none" placeholder="Deixe suas sugestões ou comentários..." />
+                  <label htmlFor="comments" className="block font-semibold text-foreground mb-2">Comentários (opcional)</label>
+                  <textarea id="comments" value={data.comments} onChange={(e) => setData('comments', e.target.value)} rows={4} className="w-full px-4 py-3 rounded-xl border border-border bg-card focus:outline-none focus:ring-2 focus:ring-primary/20 resize-none" placeholder="Deixe suas sugestões ou comentários..." />
                 </div>
                 <button type="submit" disabled={processing || data.rating === 0} className="w-full btn-modern bg-primary text-primary-foreground flex items-center justify-center gap-2 disabled:opacity-50">
                   <Send className="w-5 h-5" />Enviar Avaliação

@@ -5,9 +5,6 @@ export default class SatisfactionSurvey extends BaseModel {
   static table = 'satisfaction_surveys'
 
   @column({ isPrimary: true }) declare id: number
-  @column() declare name: string | null
-  @column() declare email: string | null
-  @column() declare phone: string | null
   @column() declare cpfHash: string | null
   @column() declare ratingAtendimento: number | null
   @column() declare ratingTransparencia: number | null
@@ -15,7 +12,6 @@ export default class SatisfactionSurvey extends BaseModel {
   @column() declare ratingInfraestrutura: number | null
   @column() declare ratingGeral: number
   @column() declare suggestions: string | null
-  @column() declare complaints: string | null
   @column() declare ipAddress: string | null
   @column() declare isRead: boolean
   @column.dateTime({ autoCreate: true }) declare createdAt: DateTime

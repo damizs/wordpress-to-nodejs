@@ -9,6 +9,7 @@ import {
   BookOpen, FolderOpen, Coins, FileSignature, FileBarChart, Search, X, HardDrive,
 } from 'lucide-react'
 import { useState, useEffect, type ReactNode } from 'react'
+import { useFocusTrap } from '~/hooks/useFocusTrap'
 
 interface AdminLayoutProps {
   children: ReactNode
@@ -136,6 +137,7 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
     }
   })
   const currentUrl = usePage().url
+  const commandRef = useFocusTrap(commandOpen, () => setCommandOpen(false))
 
   const userPermissions: string[] = auth?.permissions ?? []
   const visibleGroups = navGroups
@@ -239,9 +241,7 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
         event.preventDefault()
         openCommandPalette()
       }
-      if (event.key === 'Escape') {
-        setCommandOpen(false)
-      }
+      // Esc é tratado pelo useFocusTrap quando o command palette está aberto
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
@@ -280,6 +280,10 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
       {commandOpen && (
         <div className="fixed inset-0 z-[80] bg-black/45 p-4 backdrop-blur-sm" onClick={() => setCommandOpen(false)}>
           <div
+            ref={commandRef}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Buscar no painel"
             className="mx-auto mt-20 w-full max-w-2xl overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
             onClick={(event) => event.stopPropagation()}
           >

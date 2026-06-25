@@ -20,7 +20,10 @@ export default class PublicNewsController {
       query = query.where('category_id', category)
     }
     if (year) {
-      query = query.whereRaw('EXTRACT(YEAR FROM published_at) = ?', [year])
+      const y = Number(year)
+      query = query
+        .where('published_at', '>=', `${y}-01-01`)
+        .where('published_at', '<', `${y + 1}-01-01`)
     }
     if (search) {
       query = query.where((q) => {
@@ -28,7 +31,19 @@ export default class PublicNewsController {
       })
     }
 
-    const news = await query.paginate(page, 12)
+    const news = await query
+      .select(
+        'id',
+        'title',
+        'slug',
+        'excerpt',
+        'cover_image_url',
+        'status',
+        'published_at',
+        'category_id',
+        'views_count'
+      )
+      .paginate(page, 12)
     const categories = await NewsCategory.query().orderBy('name', 'asc')
     const siteSettings = await SiteSetting.allAsObject()
 

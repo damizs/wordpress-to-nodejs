@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { MapPin, Users, Mountain, History, ChevronLeft, ChevronRight, X, ArrowRight } from "lucide-react";
 import { SectionHeading } from "~/components/SectionHeading";
+import { useFocusTrap } from "~/hooks/useFocusTrap";
 
 interface ConhecaSumeSectionProps {
   images?: string[];
@@ -12,6 +13,11 @@ export const ConhecaSumeSection = ({ images, title, subtitle }: ConhecaSumeSecti
   const [currentIndex, setCurrentIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+
+  // Lightbox como diálogo modal acessível: foco inicial, trap de Tab, Escape,
+  // trava de scroll e retorno do foco ao gatilho (mesmo padrão do AssistenteVirtual).
+  const closeLightbox = useCallback(() => setLightboxOpen(false), []);
+  const lightboxRef = useFocusTrap(lightboxOpen, closeLightbox);
 
   const defaultImages = ["/images/sume-cidade.jpg"];
   const carouselImages = images && images.length > 0 ? images : defaultImages;
@@ -39,22 +45,11 @@ export const ConhecaSumeSection = ({ images, title, subtitle }: ConhecaSumeSecti
     setCurrentIndex((prev) => (prev + 1) % carouselImages.length);
   };
 
-  // Trava o scroll do body enquanto o lightbox estiver aberto (com cleanup garantido)
-  useEffect(() => {
-    if (!lightboxOpen) return;
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = previous;
-    };
-  }, [lightboxOpen]);
-
-  // Keyboard navigation
+  // Navegação por setas (scroll lock, Escape e retorno de foco ficam no useFocusTrap)
   useEffect(() => {
     if (!lightboxOpen) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setLightboxOpen(false);
       if (e.key === "ArrowLeft") goToPrevious();
       if (e.key === "ArrowRight") goToNext();
     };
@@ -86,6 +81,8 @@ export const ConhecaSumeSection = ({ images, title, subtitle }: ConhecaSumeSecti
                     key={index}
                     src={src}
                     alt={`Sumé - Imagem ${index + 1}`}
+                    loading="lazy"
+                    decoding="async"
                     className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
                       index === currentIndex ? 'opacity-100' : 'opacity-0'
                     }`}
@@ -228,6 +225,10 @@ export const ConhecaSumeSection = ({ images, title, subtitle }: ConhecaSumeSecti
       {/* Lightbox Modal */}
       {lightboxOpen && (
         <div
+          ref={lightboxRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Galeria de imagens de Sumé"
           className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center"
           onClick={() => setLightboxOpen(false)}
         >
@@ -251,7 +252,13 @@ export const ConhecaSumeSection = ({ images, title, subtitle }: ConhecaSumeSecti
           <div className="relative w-full h-full flex items-center justify-center p-4 md:p-12">
             <img
               src={carouselImages[currentIndex]}
-              alt={`Sumé - Imagem ${currentIndex + 1}`}
+              alt={
+                hasMultipleImages
+                  ? `Foto de Sumé ${currentIndex + 1} de ${carouselImages.length}`
+                  : "Foto de Sumé"
+              }
+              loading="lazy"
+              decoding="async"
               className="max-w-full max-h-full object-contain"
               onClick={(e) => e.stopPropagation()}
             />
@@ -294,7 +301,7 @@ export const ConhecaSumeSection = ({ images, title, subtitle }: ConhecaSumeSecti
                       : 'opacity-50 hover:opacity-75'
                   }`}
                 >
-                  <img src={src} alt="" className="w-full h-full object-cover" />
+                  <img src={src} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>
