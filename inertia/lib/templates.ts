@@ -48,9 +48,16 @@ export interface SiteTemplate {
   key: SiteTemplateKey
   label: string
   description: string
-  /** Faixa extra no topo da home (só Compacto). */
+  /** Abertura nobre no topo da home (Compacto e Moderno têm hero próprio). */
   homeHero: boolean
   homeOrder: HomeSectionKey[]
+  /**
+   * Modelo de card de notícias padrão do template (chave de `news-layouts.ts`).
+   * Só usado quando não há override salvo no painel nem `news_layout` global.
+   */
+  newsLayout?: string
+  /** Quantidade padrão de notícias na home para este template. */
+  newsCount?: number
 }
 
 export const SITE_TEMPLATES: SiteTemplate[] = [
@@ -88,8 +95,8 @@ export const SITE_TEMPLATES: SiteTemplate[] = [
     key: 'moderno',
     label: 'Moderno / Destaque',
     description:
-      'Cabeçalho compacto sticky (logo menor). Mesmas seções do institucional, priorizando notícias e vereadores.',
-    homeHero: false,
+      'Cabeçalho compacto sticky (logo menor). Abertura nobre (atalhos + indicadores do Legislativo); notícias logo abaixo.',
+    homeHero: true,
     homeOrder: [
       'news',
       'vereadores',
@@ -110,18 +117,24 @@ export const SITE_TEMPLATES: SiteTemplate[] = [
     key: 'compacto',
     label: 'Compacto / Notícias',
     description:
-      'Cabeçalho slim + faixa de atalhos no topo. Notícias em seguida; demais seções densas.',
+      'Cabeçalho slim + faixa de atalhos no topo. Cara de portal de notícias: ' +
+      'notícias em lista densa logo no topo, seguidas de Diário, Instagram e Reels; ' +
+      'serviços, vereadores e institucional abaixo.',
     homeHero: true,
+    // Bloco editorial primeiro (notícias + feeds dinâmicos), depois serviços,
+    // pessoas e institucional. Lista densa de manchetes para dar peso de portal.
+    newsLayout: 'lista',
+    newsCount: 6,
     homeOrder: [
       'news',
-      'legislativo',
       'diario',
+      'instagram',
+      'reels',
+      'legislativo',
       'transparency',
       'esic',
       'vereadores',
       'mesa',
-      'instagram',
-      'reels',
       'conheca',
       'seals',
       'survey',

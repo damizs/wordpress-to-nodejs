@@ -62,6 +62,12 @@ interface QuickAccessSectionProps {
   showTransparenciaCta?: boolean;
 }
 
+// Cor institucional ÚNICA dos círculos de ícone do Acesso Rápido.
+// Antes os ícones recebiam cor por item (colorMap/fallback alternado), gerando
+// efeito "arco-íris" com cara de template genérico. Agora todos usam navy fixo —
+// consistente, institucional e com contraste AA (ícone branco sobre navy).
+const ICON_CIRCLE_CLASS = "bg-navy";
+
 const iconMap: Record<string, LucideIcon> = {
   Play,
   Users,
@@ -97,40 +103,6 @@ const iconMap: Record<string, LucideIcon> = {
   Shield,
   Link: LinkIcon,
 };
-
-// Cores vindas do banco (quick_links.color) -> tokens institucionais (navy/gold/sky/emerald)
-const colorMap: Record<string, string> = {
-  navy: "bg-navy",
-  blue: "bg-navy-light",
-  gold: "bg-gold",
-  sky: "bg-sky",
-  emerald: "bg-emerald-600",
-  green: "bg-emerald-600",
-  red: "bg-navy",
-  rose: "bg-gold",
-  purple: "bg-navy-light",
-  indigo: "bg-navy",
-  teal: "bg-emerald-600",
-  orange: "bg-gold",
-  // Aliases para valores legados gravados como gradiente Tailwind pelo form
-  "from-red-500 to-rose-600": "bg-navy",
-  "from-blue-500 to-indigo-600": "bg-navy-light",
-  "from-green-500 to-emerald-600": "bg-emerald-600",
-  "from-amber-500 to-orange-600": "bg-gold",
-  "from-teal-500 to-cyan-600": "bg-emerald-600",
-  "from-purple-500 to-violet-600": "bg-navy-light",
-  "from-pink-500 to-rose-600": "bg-gold",
-  "from-sky-500 to-blue-600": "bg-sky",
-  "from-emerald-500 to-green-600": "bg-emerald-600",
-  "from-indigo-500 to-purple-600": "bg-navy",
-};
-
-const fallbackColors = [
-  "bg-navy",
-  "bg-gold",
-  "bg-sky",
-  "bg-emerald-600",
-];
 
 // Descrições curtas exibidas abaixo do título (igual ao portal WP)
 const descriptionMap: Record<string, string> = {
@@ -255,14 +227,13 @@ export const QuickAccessSection = ({
         <div className={gridClass}>
           {items.map((item, index) => {
             const IconComponent = iconMap[item.icon || ""] || FileText;
-            const color = colorMap[item.color || ""] || fallbackColors[index % fallbackColors.length];
             const description = descriptionMap[item.title.toLowerCase().trim()];
             const cardClass =
               "group card-modern flex min-h-[126px] cursor-pointer flex-col items-center p-3 text-center no-underline transition-colors duration-200 hover:border-navy/30 sm:min-h-0 sm:p-6";
             const cardStyle = {};
             const inner = (
               <>
-                <div className={`w-10 h-10 sm:w-14 sm:h-14 rounded-full ${color} flex items-center justify-center mb-2.5 sm:mb-4 shadow-sm`}>
+                <div className={`w-10 h-10 sm:w-14 sm:h-14 rounded-full ${ICON_CIRCLE_CLASS} flex items-center justify-center mb-2.5 sm:mb-4 shadow-sm`}>
                   <IconComponent className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
                 </div>
                 <h3 className="font-bold text-foreground text-[13px] sm:text-sm leading-snug group-hover:text-primary transition-colors duration-300">
