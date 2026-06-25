@@ -15,6 +15,8 @@ export function BackToTop() {
     <button
       type="button"
       aria-label="Voltar ao topo"
+      aria-hidden={!visible}
+      tabIndex={visible ? 0 : -1}
       onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
       className={`fixed left-3 bottom-[calc(env(safe-area-inset-bottom)+1rem)] z-40 flex h-11 w-11 items-center justify-center rounded-full bg-navy text-white shadow-lg transition-all duration-500 hover:-translate-y-1 hover:bg-gold hover:text-navy-dark hover:shadow-md sm:left-6 sm:bottom-6 sm:h-12 sm:w-12 ${
         visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6 pointer-events-none'

@@ -87,11 +87,25 @@ export default class HomeController {
       sessions,
     ] = await Promise.all([
       News.query()
+        .select('id', 'title', 'slug', 'excerpt', 'cover_image_url', 'published_at', 'category_id')
         .where('status', 'published')
         .orderBy('published_at', 'desc')
         .limit(12)
         .preload('category'),
-      Councilor.query().where('is_active', true).orderBy('display_order', 'asc'),
+      Councilor.query()
+        .select(
+          'id',
+          'name',
+          'parliamentary_name',
+          'party',
+          'role',
+          'photo_url',
+          'slug',
+          'is_active',
+          'legislature_id'
+        )
+        .where('is_active', true)
+        .orderBy('display_order', 'asc'),
       RuntimeCache.getOrSet('home:quick-links:v1', 60_000, () =>
         QuickLink.query().where('is_active', true).orderBy('display_order', 'asc')
       ),
@@ -105,6 +119,20 @@ export default class HomeController {
       SystemCategory.byType('information_record'),
       RuntimeCache.getOrSet('home:legislative-activities:v1', 60_000, () =>
         LegislativeActivity.query()
+          .select(
+            'id',
+            'title',
+            'type',
+            'number',
+            'year',
+            'status',
+            'author',
+            'session_date',
+            'slug',
+            'file_url',
+            'created_at',
+            'is_active'
+          )
           .where('is_active', true)
           .orderBy('created_at', 'desc')
           .limit(600)

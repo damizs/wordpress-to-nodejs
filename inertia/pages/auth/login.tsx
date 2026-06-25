@@ -56,19 +56,20 @@ export default function Login({ siteSettings = {} }: LoginProps) {
             <p className="text-white/80 text-sm mt-1">{loginSubtitle}</p>
           </div>
 
-          <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-xl p-8 space-y-5">
+          <form onSubmit={handleSubmit} className="bg-card text-card-foreground rounded-2xl shadow-xl p-8 space-y-5">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label htmlFor="email" className="block text-sm font-medium text-foreground mb-1.5">
                 Email
               </label>
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" aria-hidden="true" />
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" aria-hidden="true" />
                 <input
                   id="email"
                   type="email"
+                  autoComplete="email"
                   value={data.email}
                   onChange={(e) => setData('email', e.target.value)}
-                  className="w-full pl-11 pr-4 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none transition-all"
+                  className="w-full pl-11 pr-4 py-3 border border-input bg-background text-foreground placeholder:text-muted-foreground rounded-xl text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none transition-all"
                   placeholder="seu@email.com"
                   required
                   aria-invalid={!!errors.email}
@@ -76,24 +77,25 @@ export default function Login({ siteSettings = {} }: LoginProps) {
                 />
               </div>
               {errors.email && (
-                <p id="email-error" role="alert" className="mt-1.5 text-xs text-red-600">
+                <p id="email-error" role="alert" className="mt-1.5 text-xs text-destructive">
                   {errors.email}
                 </p>
               )}
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1.5">
+              <label htmlFor="password" className="block text-sm font-medium text-foreground mb-1.5">
                 Senha
               </label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500" aria-hidden="true" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" aria-hidden="true" />
                 <input
                   id="password"
                   type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
                   value={data.password}
                   onChange={(e) => setData('password', e.target.value)}
-                  className="w-full pl-11 pr-11 py-3 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none transition-all"
+                  className="w-full pl-11 pr-11 py-3 border border-input bg-background text-foreground placeholder:text-muted-foreground rounded-xl text-sm focus:ring-2 focus:ring-navy/20 focus:border-navy outline-none transition-all"
                   placeholder="Sua senha"
                   required
                   aria-invalid={!!errors.password}
@@ -102,14 +104,14 @@ export default function Login({ siteSettings = {} }: LoginProps) {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                   aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" aria-hidden="true" /> : <Eye className="w-5 h-5" aria-hidden="true" />}
                 </button>
               </div>
               {errors.password && (
-                <p id="password-error" role="alert" className="mt-1.5 text-xs text-red-600">
+                <p id="password-error" role="alert" className="mt-1.5 text-xs text-destructive">
                   {errors.password}
                 </p>
               )}

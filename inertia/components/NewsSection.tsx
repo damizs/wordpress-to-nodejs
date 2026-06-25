@@ -49,6 +49,7 @@ export function NewsHeroPanel({ news, limit }: { news: NewsItem[]; limit?: numbe
               <img
                 src={featured.image || NEWS_PLACEHOLDER}
                 alt={featured.title}
+                loading="lazy"
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-navy-dark via-navy-dark/55 to-transparent" />
@@ -82,6 +83,7 @@ export function NewsHeroPanel({ news, limit }: { news: NewsItem[]; limit?: numbe
                   <img
                     src={item.image || NEWS_PLACEHOLDER}
                     alt={item.title}
+                    loading="lazy"
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/70 to-transparent opacity-80" />
@@ -111,7 +113,7 @@ export const NewsSection = ({ news = [], backgroundImage, bannerImage, layout, l
       {/* Fundo (imagem opcional) */}
       {!plain && backgroundImage ? (
         <div className="absolute inset-0 overflow-hidden">
-          <img src={backgroundImage} alt="" className="w-full h-full object-cover" />
+          <img src={backgroundImage} alt="" loading="lazy" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-navy-dark/85" />
         </div>
       ) : !plain ? (
@@ -168,6 +170,7 @@ function MosaicLayout({ news }: { news: NewsItem[] }) {
               <img
                 src={featured.image || NEWS_PLACEHOLDER}
                 alt={featured.title}
+                loading="lazy"
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-navy-dark via-navy-dark/70 to-transparent" />
@@ -198,6 +201,7 @@ function MosaicLayout({ news }: { news: NewsItem[] }) {
                 <img
                   src={item.image || NEWS_PLACEHOLDER}
                   alt={item.title}
+                  loading="lazy"
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-navy-dark via-navy-dark/60 to-transparent" />
@@ -232,6 +236,7 @@ function GridLayout({ news }: { news: NewsItem[] }) {
               <img
                 src={item.image || NEWS_PLACEHOLDER}
                 alt={item.title}
+                loading="lazy"
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-navy-dark/70 to-transparent" />
@@ -268,6 +273,7 @@ function ListLayout({ news }: { news: NewsItem[] }) {
               <img
                 src={item.image || NEWS_PLACEHOLDER}
                 alt={item.title}
+                loading="lazy"
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               />
             </div>
@@ -303,6 +309,7 @@ function HighlightListLayout({ news }: { news: NewsItem[] }) {
               <img
                 src={featured.image || NEWS_PLACEHOLDER}
                 alt={featured.title}
+                loading="lazy"
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-navy-dark via-navy-dark/70 to-transparent" />
@@ -333,6 +340,7 @@ function HighlightListLayout({ news }: { news: NewsItem[] }) {
                 <img
                   src={item.image || NEWS_PLACEHOLDER}
                   alt={item.title}
+                  loading="lazy"
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
               </div>
@@ -363,6 +371,7 @@ function HighlightListPlainLayout({ news }: { news: NewsItem[]; bannerImage?: st
               <img
                 src={featured.image || NEWS_PLACEHOLDER}
                 alt={featured.title}
+                loading="lazy"
                 className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
             </div>
@@ -399,6 +408,7 @@ function HighlightListPlainLayout({ news }: { news: NewsItem[]; bannerImage?: st
                 <img
                   src={item.image || NEWS_PLACEHOLDER}
                   alt={item.title}
+                  loading="lazy"
                   className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
               </div>

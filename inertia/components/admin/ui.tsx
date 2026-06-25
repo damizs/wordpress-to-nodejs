@@ -5,6 +5,7 @@
  * A paleta vem dos tokens do design system (navy/gold/border/muted/card).
  */
 import { Link, router } from '@inertiajs/react'
+import { useFocusTrap } from '~/hooks/useFocusTrap'
 import {
   AlertTriangle,
   ChevronLeft,
@@ -643,11 +644,19 @@ export function Modal({
   children: ReactNode
   maxWidth?: string
 }) {
+  const ref = useFocusTrap(open, onClose)
   if (!open) return null
   return (
     <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4 overflow-y-auto">
-      <div className="absolute inset-0 bg-navy-dark/50 backdrop-blur-sm" onClick={onClose} />
       <div
+        className="absolute inset-0 bg-navy-dark/50 backdrop-blur-sm"
+        aria-hidden="true"
+        onClick={onClose}
+      />
+      <div
+        ref={ref}
+        role="dialog"
+        aria-modal="true"
         className={`relative bg-card rounded-t-2xl sm:rounded-xl shadow-lg w-full ${maxWidth} max-h-[min(92dvh,calc(100vh-1rem))] sm:max-h-[min(90dvh,calc(100vh-2rem))] overflow-y-auto animate-scale-in border border-border`}
       >
         {children}

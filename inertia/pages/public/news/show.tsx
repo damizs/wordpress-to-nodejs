@@ -36,6 +36,16 @@ export default function NewsShow({ news, related = [] }: Props) {
   const featuredImage = news.featured_image || news.coverImageUrl || news.cover_image_url;
   const publishedAt = news.published_at || news.publishedAt || new Date().toISOString();
 
+  // og:image precisa ser URL ABSOLUTA (Facebook/WhatsApp não resolvem caminhos
+  // relativos). Host base fixo (sem window) para SSR estável; se vazio, deixa o
+  // SeoHead cair no default (já absoluto).
+  const SEO_BASE = 'https://node.camaradesume.pb.gov.br';
+  const ogImage = featuredImage
+    ? (featuredImage.startsWith('http')
+        ? featuredImage
+        : `${SEO_BASE}${featuredImage.startsWith('/') ? '' : '/'}${featuredImage}`)
+    : undefined;
+
   // Copy link function
   const copyLink = () => {
     navigator.clipboard.writeText(fullUrl);
@@ -49,7 +59,12 @@ export default function NewsShow({ news, related = [] }: Props) {
         title={`${news.title} - Câmara Municipal de Sumé`}
         description={news.excerpt || news.title}
         url={`/noticias/${news.slug}`}
-        image={featuredImage}
+        image={ogImage}
+        type="article"
+        publishedTime={publishedAt}
+        modifiedTime={publishedAt}
+        author={news.author?.name}
+        section={news.category?.name}
       />
       <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar />

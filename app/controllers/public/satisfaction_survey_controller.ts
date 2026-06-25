@@ -79,7 +79,7 @@ export default class SatisfactionSurveyController {
     })
   }
 
-  async store({ request, response, session }: HttpContext) {
+  async store({ request, response, session, logger }: HttpContext) {
     const ip = request.ip()
     if (isSurveyRateLimited(ip)) {
       session.flash(
@@ -132,12 +132,11 @@ export default class SatisfactionSurveyController {
         ratingInfraestrutura: answers[4] ? Number.parseInt(answers[4]) : null,
         ratingGeral: avgRating,
         suggestions: data.suggestion || null,
-        ipAddress: ip,
         isRead: false,
       })
       recordSurveySubmission(ip)
     } catch (e) {
-      console.log('Error saving survey:', e)
+      logger.error({ err: e }, 'Falha ao salvar pesquisa de satisfação')
     }
 
     session.flash(

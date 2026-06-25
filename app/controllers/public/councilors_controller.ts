@@ -11,6 +11,20 @@ export default class CouncilorsController {
   async index({ inertia }: HttpContext) {
     const currentLegislature = await Legislature.query().where('is_current', true).first()
     const councilors = await Councilor.query()
+      .select(
+        'id',
+        'name',
+        'parliamentary_name',
+        'slug',
+        'party',
+        'photo_url',
+        'role',
+        'email',
+        'phone',
+        'is_active',
+        'legislature_id',
+        'display_order'
+      )
       .where('is_active', true)
       .if(currentLegislature, (q) => q.where('legislature_id', currentLegislature!.id))
       .orderBy('display_order', 'asc')

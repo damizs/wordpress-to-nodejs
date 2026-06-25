@@ -114,7 +114,7 @@ export default function SearchIndex({ q = "", results = [], total = 0 }: Props) 
           subtitle="Encontre notícias, atas, pautas, licitações, publicações, vereadores e mais"
           centered
         />
-        <main>
+        <main id="conteudo" tabIndex={-1}>
           <section className="py-10 lg:py-14">
             <div className="container">
               <div>

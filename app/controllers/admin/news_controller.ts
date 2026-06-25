@@ -10,6 +10,7 @@ import string from '@adonisjs/core/helpers/string'
 import { saveOptimizedImage } from '#helpers/image_upload'
 import { sanitizeRichHtml } from '#helpers/sanitize_html'
 import { assertSafeUpload } from '#helpers/upload_security'
+import { newsValidator } from '#validators/news'
 
 export default class NewsController {
   /** List all news with pagination */
@@ -49,14 +50,7 @@ export default class NewsController {
 
   /** Store new news */
   async store({ request, response, auth, session }: HttpContext) {
-    const data = request.only([
-      'title',
-      'excerpt',
-      'content',
-      'status',
-      'category_id',
-      'published_at',
-    ])
+    const data = await request.validateUsing(newsValidator)
 
     // Generate slug
     let slug = string.slug(data.title, { lower: true })
@@ -119,14 +113,7 @@ export default class NewsController {
   /** Update existing news */
   async update({ request, response, params, session }: HttpContext) {
     const news = await News.findOrFail(params.id)
-    const data = request.only([
-      'title',
-      'excerpt',
-      'content',
-      'status',
-      'category_id',
-      'published_at',
-    ])
+    const data = await request.validateUsing(newsValidator)
 
     news.title = data.title
     news.excerpt = data.excerpt || null

@@ -11,6 +11,12 @@
 UPLOADS="/app/public/uploads"
 mkdir -p "$UPLOADS"
 
+# Acumula etapas que falharam para decidir o marcador agregado no final.
+FAILED_STEPS=""
+mark_failed() {
+  FAILED_STEPS="$FAILED_STEPS $1"
+}
+
 if [ "$FORCE_CONTENT_BOOTSTRAP" = "true" ]; then
   rm -f \
     "$UPLOADS/.wp-migrated-v2" \
@@ -32,6 +38,7 @@ if [ "$FORCE_WP_MIGRATE" = "true" ] || [ ! -f "$WP_MARKER" ]; then
     touch "$WP_MARKER"
   else
     echo "WP migration had errors (non-fatal)"
+    mark_failed "wp:migrate"
   fi
 else
   echo "=== [1/8] WordPress migration already done ==="
@@ -47,6 +54,7 @@ if [ "$FORCE_ACTIVITIES_IMPORT" = "true" ] || [ ! -f "$ACT_MARKER" ]; then
     touch "$ACT_MARKER"
   else
     echo "Activities import had errors (non-fatal)"
+    mark_failed "wp:activities"
   fi
 else
   echo "=== [2/8] Activities import already done ==="
@@ -60,6 +68,7 @@ if [ "$FORCE_PNTP_IMPORT" = "true" ] || [ ! -f "$PNTP_MARKER" ]; then
     touch "$PNTP_MARKER"
   else
     echo "PNTP import had errors (non-fatal)"
+    mark_failed "wp:pntp"
   fi
 else
   echo "=== [3/8] PNTP import already done ==="
@@ -73,6 +82,7 @@ if [ "$FORCE_DIARIO_IMPORT" = "true" ] || [ ! -f "$DIARIO_MARKER" ]; then
     touch "$DIARIO_MARKER"
   else
     echo "Diario import had errors (non-fatal)"
+    mark_failed "wp:diario"
   fi
 else
   echo "=== [4/8] Diario import already done ==="
@@ -86,6 +96,7 @@ if [ "$FORCE_QUICK_LINKS_IMPORT" = "true" ] || [ ! -f "$QUICK_LINKS_MARKER" ]; t
     touch "$QUICK_LINKS_MARKER"
   else
     echo "Quick links import had errors (non-fatal)"
+    mark_failed "wp:quick-links"
   fi
 else
   echo "=== [5/8] Quick links import already done ==="
@@ -99,6 +110,7 @@ if [ "$FORCE_PORTAL_BOOTSTRAP" = "true" ] || [ ! -f "$BOOT_MARKER" ]; then
     touch "$BOOT_MARKER"
   else
     echo "Portal bootstrap had errors (non-fatal)"
+    mark_failed "portal:bootstrap"
   fi
 else
   echo "=== [6/8] Portal bootstrap already done ==="
@@ -112,6 +124,7 @@ if [ "$FORCE_LEGACY_CONTENT_IMPORT" = "true" ] || [ ! -f "$LEGACY_MARKER" ]; the
     touch "$LEGACY_MARKER"
   else
     echo "Legacy content import had errors (non-fatal)"
+    mark_failed "wp:legacy-content"
   fi
 else
   echo "=== [7/8] Legacy content import already done ==="
@@ -119,7 +132,21 @@ fi
 
 # ── 8. Otimização de imagens ──
 echo "=== [8/8] Image optimization ==="
-sh "$(dirname "$0")/optimize_images.sh" || echo "Image optimization had errors (non-fatal)"
+if sh "$(dirname "$0")/optimize_images.sh"; then
+  :
+else
+  echo "Image optimization had errors (non-fatal)"
+  mark_failed "optimize_images"
+fi
 
-touch "$UPLOADS/.content-bootstrap-complete-v1"
-echo "=== Content bootstrap finished ==="
+# Marcador agregado: só "complete" se todos os passos essenciais retornaram 0.
+rm -f "$UPLOADS/.content-bootstrap-partial"
+if [ -z "$FAILED_STEPS" ]; then
+  touch "$UPLOADS/.content-bootstrap-complete-v1"
+  echo "=== Content bootstrap finished (all steps OK) ==="
+else
+  rm -f "$UPLOADS/.content-bootstrap-complete-v1"
+  echo "Failed steps:$FAILED_STEPS" > "$UPLOADS/.content-bootstrap-partial"
+  echo "=== Content bootstrap finished with FAILURES:$FAILED_STEPS ==="
+  echo "    Marcador .content-bootstrap-partial gravado para o healthcheck/operador."
+fi

@@ -108,7 +108,11 @@ export function ConfirmProvider({ children }: { children: ReactNode }) {
           aria-describedby="confirm-message"
         >
           {/* Backdrop */}
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => close(false)} />
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            aria-hidden="true"
+            onClick={() => close(false)}
+          />
 
           {/* Dialog */}
           <div className="relative bg-card text-card-foreground border border-border rounded-xl shadow-2xl w-full max-w-md animate-in fade-in zoom-in-95 duration-200">

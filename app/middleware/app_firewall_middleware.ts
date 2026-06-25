@@ -82,6 +82,9 @@ async function recordEvent(payload: {
 
 export default class AppFirewallMiddleware {
   async handle({ request, response }: HttpContext, next: NextFn) {
+    response.header('Referrer-Policy', 'strict-origin-when-cross-origin')
+    response.header('Permissions-Policy', 'geolocation=(), microphone=(), camera=()')
+
     const path = request.url()
     const method = request.method()
     const ip = request.ip()

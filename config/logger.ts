@@ -14,6 +14,40 @@ const loggerConfig = defineConfig({
       enabled: true,
       name: env.get('APP_NAME'),
       level: env.get('LOG_LEVEL'),
+
+      /**
+       * Redação de campos sensíveis (defesa em profundidade / LGPD).
+       * Evita que PII (CPF, IP, e-mail, telefone) e segredos (authorization,
+       * cookie) vazem para os logs, mesmo se forem incluídos por engano em
+       * objetos logados (ex.: mensagens de erro do Postgres com valores da linha).
+       */
+      redact: [
+        'cpf',
+        'cpf_hash',
+        'cpfHash',
+        'ip',
+        'ipAddress',
+        'ip_address',
+        'email',
+        'phone',
+        'authorization',
+        'cookie',
+        '*.cpf',
+        '*.cpf_hash',
+        '*.cpfHash',
+        '*.ip',
+        '*.ipAddress',
+        '*.ip_address',
+        '*.email',
+        '*.phone',
+        '*.authorization',
+        '*.cookie',
+        'req.headers.authorization',
+        'req.headers.cookie',
+        'request.headers.authorization',
+        'request.headers.cookie',
+      ],
+
       transport: {
         targets: targets()
           .pushIf(!app.inProduction, targets.pretty())
