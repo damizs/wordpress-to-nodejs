@@ -131,6 +131,20 @@
       <div class="vw-plugin-top-wrapper"></div>
     </div>
   </div>
+  {{-- Ancora o widget VLibras no canto inferior direito também no desktop
+       (no mobile o app.css já faz isso). Sem essa âncora o botão de acesso
+       flutua na altura da 1ª dobra e cobre o último card do Acesso Rápido em
+       ~1440px (auditoria MEC). Fica empilhado acima dos FABs de assistente/
+       acessibilidade (bottom-6 e bottom-24), sem cobrir conteúdo clicável. --}}
+  <style>
+    @media (min-width: 641px) {
+      [vw] {
+        top: auto !important;
+        right: 1.5rem !important;
+        bottom: 10.5rem !important;
+      }
+    }
+  </style>
   <script src="https://cdn.jsdelivr.net/gh/spbgovbr-vlibras/vlibras-portal@sgd/app/vlibras-plugin.js?v=20260510"></script>
   <script>
     (function () {

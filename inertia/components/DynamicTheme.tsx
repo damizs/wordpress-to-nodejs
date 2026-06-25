@@ -106,8 +106,15 @@ export function DynamicTheme() {
 
     /* ---- Modelo do site (data-template): estrutura do header/home ----
        Ortogonal a cores e ao layout_style. Persistido para o script
-       anti-flash reaplicar antes do paint na próxima visita. */
-    const template = getSiteTemplate(siteSettings?.site_template).key
+       anti-flash reaplicar antes do paint na próxima visita.
+       Override explícito via query `?template=` (auditoria/preview): só vale
+       quando a chave é um modelo conhecido; senão usa o setting do servidor. */
+    const templateOverride = (() => {
+      if (typeof window === 'undefined') return null
+      const q = new URLSearchParams(window.location.search).get('template')
+      return q && getSiteTemplate(q).key === q ? q : null
+    })()
+    const template = templateOverride ?? getSiteTemplate(siteSettings?.site_template).key
     root.dataset.template = template
     try {
       localStorage.setItem('siteTemplate', template)

@@ -266,7 +266,7 @@ export default function TransparenciaIndex({ sections = [], openLink = null }: P
               {/* Sidebar de navegação (padrão dos portais): card fixo no viewport,
                   sem ocupar toda a altura da página. */}
               <aside className="hidden lg:block w-[260px] xl:w-[300px] 2xl:w-[340px] shrink-0 self-start sticky top-20">
-                <nav className="max-h-[calc(100vh-6rem)] overflow-y-auto overscroll-contain rounded-2xl bg-card/95 border border-border/60 shadow-sm [scrollbar-width:thin]">
+                <nav aria-label="Seções da transparência" className="max-h-[calc(100vh-6rem)] overflow-y-auto overscroll-contain rounded-2xl bg-card/95 border border-border/60 shadow-sm [scrollbar-width:thin]">
                   {filtered.map((section) => {
                     const Icon = iconMap[section.icon || ""] || FolderOpen;
                     const isActive = activeSection === section.slug;
@@ -274,7 +274,7 @@ export default function TransparenciaIndex({ sections = [], openLink = null }: P
                       <div key={section.id} className="border-b border-border/60 last:border-b-0">
                         <a
                           href={`#secao-${section.slug}`}
-                          aria-current={isActive ? "true" : undefined}
+                          aria-current={isActive ? "location" : undefined}
                           onClick={(e) => {
                             e.preventDefault();
                             setActiveSection(section.slug);
@@ -352,7 +352,7 @@ export default function TransparenciaIndex({ sections = [], openLink = null }: P
                       className="flex-1 px-5 py-3.5 rounded-l-xl border-2 border-r-0 border-border bg-card text-sm text-foreground outline-none focus:border-primary transition-colors"
                       aria-label="Buscar no Portal da Transparência"
                     />
-                    <span className="px-6 rounded-r-xl bg-primary text-primary-foreground flex items-center justify-center">
+                    <span aria-hidden="true" className="px-6 rounded-r-xl bg-primary text-primary-foreground flex items-center justify-center">
                       <Search className="w-5 h-5" />
                     </span>
                   </div>
@@ -386,7 +386,7 @@ export default function TransparenciaIndex({ sections = [], openLink = null }: P
                           </span>
                         </header>
 
-                        <div className="grid gap-3 sm:gap-4 2xl:gap-5 grid-cols-1 min-[400px]:grid-cols-2 sm:grid-cols-[repeat(auto-fill,minmax(200px,1fr))] xl:grid-cols-[repeat(auto-fill,minmax(220px,1fr))] 2xl:grid-cols-[repeat(auto-fill,minmax(240px,1fr))]">
+                        <div className="grid gap-3 sm:gap-4 2xl:gap-5 grid-cols-2 sm:grid-cols-[repeat(auto-fill,minmax(200px,1fr))] xl:grid-cols-[repeat(auto-fill,minmax(220px,1fr))] 2xl:grid-cols-[repeat(auto-fill,minmax(240px,1fr))]">
                           {section.links.map((link) => (
                             <CardLink key={link.id} link={link} onOpenModal={openModal} />
                           ))}
@@ -415,6 +415,7 @@ export default function TransparenciaIndex({ sections = [], openLink = null }: P
 
                 {/* E-SIC */}
                 <div data-reveal="zoom" className="mt-4 p-8 bg-gradient-hero rounded-3xl text-primary-foreground text-center">
+                  <div className="max-w-2xl mx-auto">
                   <h2 className="text-2xl font-bold mb-2">Não encontrou o que procura?</h2>
                   <p className="opacity-80 mb-6">
                     Utilize o Sistema Eletrônico de Informação ao Cidadão para solicitar informações
@@ -426,6 +427,7 @@ export default function TransparenciaIndex({ sections = [], openLink = null }: P
                     <Search className="w-5 h-5" />
                     Acessar e-SIC
                   </Link>
+                  </div>
                 </div>
               </div>
             </div>

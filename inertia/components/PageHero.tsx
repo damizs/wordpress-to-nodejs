@@ -42,7 +42,7 @@ export const PageHero = ({ title, subtitle, badge, centered = false, size = "com
           <p
             data-reveal="up"
             data-reveal-delay="100"
-            className={`text-base md:text-lg text-primary-foreground/85 ${centered ? 'max-w-2xl mx-auto' : 'max-w-2xl'}`}
+            className={`text-base md:text-lg text-primary-foreground/85 max-w-2xl lg:max-w-3xl xl:max-w-4xl ${centered ? 'mx-auto' : ''}`}
           >
             {subtitle}
           </p>

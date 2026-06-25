@@ -179,7 +179,18 @@ export const QuickAccessSection = ({
   showTransparenciaCta = true,
 }: QuickAccessSectionProps) => {
   const isCompact = variant === "compact";
-  const allItems = quickLinks.length > 0 ? quickLinks : defaultItems;
+  const sourceItems = quickLinks.length > 0 ? quickLinks : defaultItems;
+  // Deduplica atalhos pelo título (ex.: 'Sessões Plenárias'/'Ouvidoria' repetidos
+  // no banco com URLs diferentes) — mantém só a 1ª ocorrência. Não usa a URL na
+  // chave porque há destinos distintos que compartilham rota (ex.: Regimento
+  // Interno e Leis Municipais → /publicacoes-oficiais).
+  const seen = new Set<string>();
+  const allItems = sourceItems.filter((item) => {
+    const key = (item.title || "").trim().toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
   const items = itemLimit ? allItems.slice(0, itemLimit) : allItems;
   const [modalLink, setModalLink] = useState<LinkModalLink | null>(null);
 

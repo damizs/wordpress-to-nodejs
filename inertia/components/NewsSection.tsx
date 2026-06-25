@@ -15,6 +15,13 @@ export interface NewsItem {
 
 export const NEWS_PLACEHOLDER = "/images/placeholder-news.jpg";
 
+/** Degrada graciosamente quando a imagem (CDN/uploads) falha ao carregar. */
+function handleNewsImgError(e: React.SyntheticEvent<HTMLImageElement>) {
+  const img = e.currentTarget;
+  if (img.src.endsWith(NEWS_PLACEHOLDER)) return; // evita loop se o próprio placeholder falhar
+  img.src = NEWS_PLACEHOLDER;
+}
+
 interface NewsSectionProps {
   news?: NewsItem[];
   backgroundImage?: string | null;
@@ -49,6 +56,7 @@ export function NewsHeroPanel({ news, limit }: { news: NewsItem[]; limit?: numbe
               <img
                 src={featured.image || NEWS_PLACEHOLDER}
                 alt={featured.title}
+                onError={handleNewsImgError}
                 loading="lazy"
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               />
@@ -83,6 +91,7 @@ export function NewsHeroPanel({ news, limit }: { news: NewsItem[]; limit?: numbe
                   <img
                     src={item.image || NEWS_PLACEHOLDER}
                     alt={item.title}
+                    onError={handleNewsImgError}
                     loading="lazy"
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
@@ -170,6 +179,7 @@ function MosaicLayout({ news }: { news: NewsItem[] }) {
               <img
                 src={featured.image || NEWS_PLACEHOLDER}
                 alt={featured.title}
+                onError={handleNewsImgError}
                 loading="lazy"
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               />
@@ -201,6 +211,7 @@ function MosaicLayout({ news }: { news: NewsItem[] }) {
                 <img
                   src={item.image || NEWS_PLACEHOLDER}
                   alt={item.title}
+                  onError={handleNewsImgError}
                   loading="lazy"
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
@@ -236,6 +247,7 @@ function GridLayout({ news }: { news: NewsItem[] }) {
               <img
                 src={item.image || NEWS_PLACEHOLDER}
                 alt={item.title}
+                onError={handleNewsImgError}
                 loading="lazy"
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               />
@@ -273,6 +285,7 @@ function ListLayout({ news }: { news: NewsItem[] }) {
               <img
                 src={item.image || NEWS_PLACEHOLDER}
                 alt={item.title}
+                onError={handleNewsImgError}
                 loading="lazy"
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               />
@@ -309,6 +322,7 @@ function HighlightListLayout({ news }: { news: NewsItem[] }) {
               <img
                 src={featured.image || NEWS_PLACEHOLDER}
                 alt={featured.title}
+                onError={handleNewsImgError}
                 loading="lazy"
                 className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
               />
@@ -340,6 +354,7 @@ function HighlightListLayout({ news }: { news: NewsItem[] }) {
                 <img
                   src={item.image || NEWS_PLACEHOLDER}
                   alt={item.title}
+                  onError={handleNewsImgError}
                   loading="lazy"
                   className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                 />
@@ -371,6 +386,7 @@ function HighlightListPlainLayout({ news }: { news: NewsItem[]; bannerImage?: st
               <img
                 src={featured.image || NEWS_PLACEHOLDER}
                 alt={featured.title}
+                onError={handleNewsImgError}
                 loading="lazy"
                 className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
@@ -408,6 +424,7 @@ function HighlightListPlainLayout({ news }: { news: NewsItem[]; bannerImage?: st
                 <img
                   src={item.image || NEWS_PLACEHOLDER}
                   alt={item.title}
+                  onError={handleNewsImgError}
                   loading="lazy"
                   className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />

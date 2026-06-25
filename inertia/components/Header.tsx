@@ -145,7 +145,7 @@ function reorderPrimaryMenu(items: NavItem[]): NavItem[] {
 const DESKTOP_NAV_LIMIT_BY_TEMPLATE: Record<string, number> = {
   institucional: 6,
   classico: 6,
-  moderno: 6,
+  moderno: 7,
   compacto: 6,
 };
 
@@ -326,7 +326,7 @@ export const Header = ({ logoUrl }: HeaderProps) => {
                 <li key={`${item.href}-${index}`} className="relative group">
                   <Link
                     href={item.href}
-                    className="flex items-center gap-1 px-3 py-2 text-[13px] font-medium rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors no-underline"
+                    className="flex items-center gap-1 px-3 py-2 text-[13px] font-medium rounded-lg text-primary-foreground/85 hover:text-primary-foreground hover:bg-primary-foreground/10 transition-colors no-underline"
                   >
                     {item.label}
                     {item.hasDropdown && <ChevronDown className="w-3.5 h-3.5 opacity-60 group-hover:rotate-180 transition-transform duration-300" />}
@@ -355,7 +355,7 @@ export const Header = ({ logoUrl }: HeaderProps) => {
               aria-expanded={searchOpen}
               aria-label="Abrir busca"
               title="Buscar"
-              className="flex items-center justify-center p-2 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+              className="flex items-center justify-center p-2 rounded-lg text-primary-foreground/85 hover:text-primary-foreground hover:bg-primary-foreground/10 transition-colors"
             >
               <Search className="w-4 h-4" aria-hidden="true" />
             </button>
@@ -365,7 +365,7 @@ export const Header = ({ logoUrl }: HeaderProps) => {
               aria-pressed={dark}
               aria-label={dark ? "Desativar modo escuro" : "Ativar modo escuro"}
               title={dark ? "Modo claro" : "Modo escuro"}
-              className="flex items-center justify-center p-2 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-colors"
+              className="flex items-center justify-center p-2 rounded-lg text-primary-foreground/85 hover:text-primary-foreground hover:bg-primary-foreground/10 transition-colors"
             >
               {dark ? <Sun className="w-4 h-4" aria-hidden="true" /> : <Moon className="w-4 h-4" aria-hidden="true" />}
             </button>
@@ -377,15 +377,28 @@ export const Header = ({ logoUrl }: HeaderProps) => {
 
   /** Navegação desktop sobre fundo escuro (navy / gradiente). */
   const renderNavLinks = (dropdownAlign: "left" | "right" = "left") =>
-    desktopNavItems.map((item, index) => (
+    desktopNavItems.map((item, index) => {
+      const isActive =
+        item.href === "/"
+          ? currentPath === "/"
+          : currentPath === item.href || currentPath.startsWith(`${item.href}/`);
+      return (
       <li key={`${item.href}-${index}`} className="relative group">
         <Link
           href={item.href}
-          className="flex min-h-[2.75rem] items-center gap-1 rounded-lg px-3.5 py-2.5 text-sm font-medium text-primary-foreground/85 no-underline transition-colors duration-200 hover:bg-primary-foreground/10 hover:text-primary-foreground"
+          aria-current={isActive ? "page" : undefined}
+          className={`relative flex min-h-[2.75rem] items-center gap-1 rounded-lg px-3.5 py-2.5 text-sm font-medium no-underline transition-colors duration-200 ${
+            isActive
+              ? "bg-primary-foreground/10 text-primary-foreground"
+              : "text-primary-foreground/85 hover:bg-primary-foreground/10 hover:text-primary-foreground"
+          }`}
         >
           {item.label}
           {item.hasDropdown && (
             <ChevronDown className="w-3.5 h-3.5 opacity-60 group-hover:rotate-180 transition-transform duration-300" />
+          )}
+          {isActive && (
+            <span className="absolute bottom-1 left-3.5 right-3.5 h-0.5 rounded-full bg-gold" aria-hidden="true" />
           )}
         </Link>
         {item.hasDropdown && item.subItems && (
@@ -406,7 +419,8 @@ export const Header = ({ logoUrl }: HeaderProps) => {
           </div>
         )}
       </li>
-    ));
+      );
+    });
 
   const searchButtonDark = (
     <button
@@ -608,7 +622,7 @@ export const Header = ({ logoUrl }: HeaderProps) => {
 
         <nav className="hidden bg-navy text-primary-foreground lg:block">
           <div className="container">
-            <ul className="flex flex-wrap items-center gap-0.5">{renderNavLinks()}</ul>
+            <ul className="flex items-center gap-0.5">{renderNavLinks()}</ul>
           </div>
         </nav>
 
