@@ -10,6 +10,7 @@ import {
   Select,
   Textarea,
 } from '~/components/admin/ui'
+import RichTextEditor from '~/components/admin/RichTextEditor'
 
 interface Props {
   session: any | null
@@ -118,20 +119,18 @@ export default function PlenarySessionForm({ session, sessionTypes = [] }: Props
             </div>
 
             <Field label="Pauta / resumo da sessão">
-              <Textarea
-                value={data.agenda}
-                onChange={(e) => setData('agenda', e.target.value)}
-                rows={5}
-                placeholder="Resumo da pauta, matérias previstas ou orientações ao cidadão."
+              <RichTextEditor
+                value={data.agenda || ''}
+                onChange={(html) => setData('agenda', html)}
+                minHeight={220}
               />
             </Field>
 
             <Field label="Ata / minuta / observações">
-              <Textarea
-                value={data.minutes}
-                onChange={(e) => setData('minutes', e.target.value)}
-                rows={5}
-                placeholder="Use este campo quando houver texto da ata ou observações da sessão."
+              <RichTextEditor
+                value={data.minutes || ''}
+                onChange={(html) => setData('minutes', html)}
+                minHeight={240}
               />
             </Field>
 

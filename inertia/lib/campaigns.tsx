@@ -32,6 +32,53 @@ export function getThemePreset(key: string | null | undefined): ThemePreset | nu
   return THEME_PRESETS.find((p) => p.key === key) ?? null
 }
 
+function hexToHslParts(hex: string): { h: number; s: number; l: number } | null {
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
+  if (!result) return null
+  const r = Number.parseInt(result[1], 16) / 255
+  const g = Number.parseInt(result[2], 16) / 255
+  const b = Number.parseInt(result[3], 16) / 255
+  const max = Math.max(r, g, b)
+  const min = Math.min(r, g, b)
+  let h = 0
+  let s = 0
+  const l = (max + min) / 2
+  if (max !== min) {
+    const d = max - min
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
+    if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) / 6
+    else if (max === g) h = ((b - r) / d + 2) / 6
+    else h = ((r - g) / d + 4) / 6
+  }
+  return { h: Math.round(h * 360), s: Math.round(s * 100), l: Math.round(l * 100) }
+}
+
+/**
+ * Converte um preset de tema nas CSS custom properties (HSL) dos tokens, para
+ * aplicar uma paleta de forma escopada (ex.: só no painel admin, via style inline
+ * no container — sem afetar o site público).
+ */
+export function presetToCssVars(preset: ThemePreset): Record<string, string> {
+  const navy = hexToHslParts(preset.navy)
+  if (!navy) return {}
+  const gold = hexToHslParts(preset.gold)
+  const sky = hexToHslParts(preset.sky)
+  const fmt = (p: { h: number; s: number; l: number }, dl = 0) =>
+    `${p.h} ${p.s}% ${Math.min(100, Math.max(0, p.l + dl))}%`
+  const vars: Record<string, string> = {
+    '--navy': fmt(navy),
+    '--navy-dark': fmt(navy, -9),
+    '--navy-light': fmt(navy, 14),
+    '--primary': fmt(navy),
+  }
+  if (gold) {
+    vars['--gold'] = fmt(gold)
+    vars['--gold-light'] = fmt(gold, 12)
+  }
+  if (sky) vars['--sky'] = fmt(sky)
+  return vars
+}
+
 /* ============================== Laço (ribbon) ============================== */
 
 /**

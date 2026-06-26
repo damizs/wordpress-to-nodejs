@@ -11,6 +11,7 @@ import {
   Select,
   Textarea,
 } from '~/components/admin/ui'
+import RichTextEditor from '~/components/admin/RichTextEditor'
 
 interface Props {
   councilor: any | null
@@ -183,14 +184,18 @@ export default function CouncilorForm({ councilor, legislatures, biennia }: Prop
             </div>
 
             <Field label="Biografia">
-              <Textarea value={data.bio} onChange={(e) => setData('bio', e.target.value)} rows={3} />
+              <RichTextEditor
+                value={data.bio || ''}
+                onChange={(html) => setData('bio', html)}
+                minHeight={220}
+              />
             </Field>
 
             <Field label="História / Trajetória">
-              <Textarea
-                value={data.history}
-                onChange={(e) => setData('history', e.target.value)}
-                rows={3}
+              <RichTextEditor
+                value={data.history || ''}
+                onChange={(html) => setData('history', html)}
+                minHeight={200}
               />
             </Field>
 

@@ -38,6 +38,12 @@ const APPEARANCE_KEYS: Record<
     type: 'text',
     label: 'Tema (preset de cores)',
   },
+  admin_palette: {
+    group: 'appearance',
+    defaultValue: 'navy',
+    type: 'text',
+    label: 'Paleta do painel (cores do admin)',
+  },
   campaign_mode: {
     group: 'appearance',
     defaultValue: 'auto',

@@ -1,6 +1,7 @@
 import { Link, usePage, router } from '@inertiajs/react'
 import { FlashMessages } from '~/components/FlashMessages'
 import { DynamicFavicon } from '~/components/DynamicFavicon'
+import { getThemePreset, presetToCssVars } from '~/lib/campaigns'
 import { ErrorSummary } from '~/components/admin/ui'
 import {
   LayoutDashboard, Newspaper, Palette, ChevronLeft, ChevronRight, ChevronDown,
@@ -9,7 +10,7 @@ import {
   Gavel, ClipboardCheck, Image, Radar, Vote, ExternalLink, Award, Files,
   BookOpen, FolderOpen, Coins, FileSignature, FileBarChart, Search, X, HardDrive,
 } from 'lucide-react'
-import { useState, useEffect, type ReactNode } from 'react'
+import { useState, useEffect, type ReactNode, type CSSProperties } from 'react'
 import { useFocusTrap } from '~/hooks/useFocusTrap'
 
 interface AdminLayoutProps {
@@ -130,7 +131,11 @@ function hasAny(userPermissions: string[], required?: string[]) {
 }
 
 export default function AdminLayout({ children, title }: AdminLayoutProps) {
-  const { auth, errors } = usePage().props as any
+  const { auth, errors, siteSettings } = usePage().props as any
+  // Paleta do painel (independente do site público): recolore os tokens só no
+  // escopo do painel via CSS vars no container. Definida em Aparência → Painel.
+  const adminPreset = getThemePreset(siteSettings?.admin_palette)
+  const paletteVars = adminPreset ? presetToCssVars(adminPreset) : {}
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [commandOpen, setCommandOpen] = useState(false)
@@ -277,7 +282,15 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
     } ${collapsed ? 'justify-center px-0' : ''}`
 
   return (
-    <div className="min-h-screen bg-background" style={{ fontFamily: "'Inter Variable', 'Inter', Verdana, Geneva, sans-serif" }}>
+    <div
+      className="min-h-screen bg-background"
+      style={
+        {
+          ...paletteVars,
+          fontFamily: "'Inter Variable', 'Inter', Verdana, Geneva, sans-serif",
+        } as CSSProperties
+      }
+    >
       {/* Favicon enviado em Aparência → Identidade também se aplica ao painel. */}
       <DynamicFavicon />
       <FlashMessages />
@@ -496,6 +509,15 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Busca só-mobile (a command palette é o atalho com 40+ itens de menu) */}
+            <button
+              type="button"
+              onClick={openCommandPalette}
+              className="md:hidden p-2.5 min-h-[2.75rem] min-w-[2.75rem] rounded-lg hover:bg-muted text-muted-foreground"
+              aria-label="Buscar no painel"
+            >
+              <Search className="w-5 h-5" />
+            </button>
             <button
               type="button"
               onClick={openCommandPalette}

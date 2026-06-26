@@ -3,6 +3,7 @@ import AdminLayout from '~/layouts/AdminLayout'
 import { Save, ArrowLeft, Upload } from 'lucide-react'
 import { useRef } from 'react'
 import { Button, Card, Field, Input, Select, Textarea } from '~/components/admin/ui'
+import RichTextEditor from '~/components/admin/RichTextEditor'
 
 interface Props {
   record: any | null
@@ -56,7 +57,11 @@ export default function InformationRecordForm({ record, categories = [] }: Props
             <Input type="text" value={data.title} onChange={(e) => setData('title', e.target.value)} required />
           </Field>
           <Field label="Conteúdo / Descrição">
-            <Textarea value={data.content} onChange={(e) => setData('content', e.target.value)} rows={4} />
+            <RichTextEditor
+                value={data.content || ''}
+                onChange={(html) => setData('content', html)}
+                minHeight={260}
+              />
           </Field>
           <div className="grid grid-cols-2 gap-4">
             <Field label="Data de Referência">

@@ -14,6 +14,7 @@ import {
   Select,
   Textarea,
 } from '~/components/admin/ui'
+import RichTextEditor from '~/components/admin/RichTextEditor'
 
 interface LicitacaoDoc {
   id: number
@@ -143,7 +144,11 @@ export default function LicitacaoForm({ licitacao, documents, documentTypes, mod
             </Field>
           </div>
           <Field label="Conteúdo / Detalhes">
-            <Textarea value={data.content} onChange={(e) => setData('content', e.target.value)} rows={4} />
+            <RichTextEditor
+                value={data.content || ''}
+                onChange={(html) => setData('content', html)}
+                minHeight={240}
+              />
           </Field>
         </Card>
 

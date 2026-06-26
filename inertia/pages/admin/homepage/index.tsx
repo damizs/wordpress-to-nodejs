@@ -176,7 +176,7 @@ export default function HomepageEditor({ settings }: Props) {
     <AdminLayout title="Editor da Homepage">
       <Head title="Homepage - Painel" />
 
-      <form onSubmit={handleSubmit} className="w-full min-w-0 space-y-6">
+      <form onSubmit={handleSubmit} className="w-full min-w-0 space-y-6 max-w-4xl mx-auto">
         {/* Seções da home: arraste para reordenar + ligue/desligue */}
         <Section
           icon={Eye}

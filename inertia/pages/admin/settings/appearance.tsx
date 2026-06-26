@@ -55,6 +55,7 @@ export default function Appearance({ settings }: Props) {
 
   const { data, setData, post, processing } = useForm<Record<string, any>>({
     theme_preset: getVal(appearance, 'theme_preset') || 'navy',
+    admin_palette: getVal(appearance, 'admin_palette') || 'navy',
     campaign_mode: getVal(appearance, 'campaign_mode') || 'auto',
     layout_style: getVal(appearance, 'layout_style') || 'institucional',
     site_template: getVal(appearance, 'site_template') || 'institucional',
@@ -194,7 +195,7 @@ export default function Appearance({ settings }: Props) {
           </div>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-6 max-w-5xl mx-auto">
           {tab === 'tema' && (
             <Section
               icon={Sparkles}
@@ -204,8 +205,10 @@ export default function Appearance({ settings }: Props) {
               <ThemeAndCampaigns
                 themePreset={data.theme_preset}
                 campaignMode={data.campaign_mode}
+                adminPalette={data.admin_palette}
                 onThemeChange={(v) => setData('theme_preset', v)}
                 onCampaignChange={(v) => setData('campaign_mode', v)}
+                onAdminPaletteChange={(v) => setData('admin_palette', v)}
               />
             </Section>
           )}
@@ -500,13 +503,17 @@ export default function Appearance({ settings }: Props) {
 function ThemeAndCampaigns({
   themePreset,
   campaignMode,
+  adminPalette,
   onThemeChange,
   onCampaignChange,
+  onAdminPaletteChange,
 }: {
   themePreset: string
   campaignMode: string
+  adminPalette: string
   onThemeChange: (v: string) => void
   onCampaignChange: (v: string) => void
+  onAdminPaletteChange: (v: string) => void
 }) {
   const isForced = campaignMode !== 'auto' && campaignMode !== 'off'
   const [forcedKey, setForcedKey] = useState(isForced ? campaignMode : CAMPAIGNS[0].key)
@@ -534,6 +541,40 @@ function ThemeAndCampaigns({
                 key={preset.key}
                 type="button"
                 onClick={() => onThemeChange(preset.key)}
+                aria-pressed={selected}
+                className={`rounded-lg border p-3 text-left transition-all ${
+                  selected
+                    ? 'border-navy ring-2 ring-navy/25 bg-navy/5'
+                    : 'border-border bg-card hover:border-navy/40'
+                }`}
+              >
+                <div className="flex items-center gap-1 mb-2">
+                  <span className="w-6 h-6 rounded-md border border-black/10" style={{ background: preset.navy }} />
+                  <span className="w-6 h-6 rounded-md border border-black/10" style={{ background: preset.gold }} />
+                  <span className="w-6 h-6 rounded-md border border-black/10" style={{ background: preset.sky }} />
+                </div>
+                <span className={`block text-xs font-semibold ${selected ? 'text-navy' : 'text-foreground'}`}>
+                  {preset.label}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+      </Field>
+
+      {/* Paleta do painel (admin) — independente do site público */}
+      <Field
+        label="Paleta do painel (admin)"
+        hint="Recolore apenas o painel administrativo (barra lateral, destaques e botões). Não afeta o site público."
+      >
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+          {THEME_PRESETS.map((preset) => {
+            const selected = (adminPalette || 'navy') === preset.key
+            return (
+              <button
+                key={preset.key}
+                type="button"
+                onClick={() => onAdminPaletteChange(preset.key)}
                 aria-pressed={selected}
                 className={`rounded-lg border p-3 text-left transition-all ${
                   selected

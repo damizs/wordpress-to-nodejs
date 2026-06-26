@@ -747,9 +747,10 @@ html.js-anim [data-reveal].no-transition {
     height: auto;
   }
 
-  /** Formulários do painel — largura total no mobile, limitada no desktop */
+  /** Formulários do painel — largura total no mobile, limitada e CENTRALIZADA no
+      desktop (evita inputs esticados/colados à esquerda em telas largas). */
   .admin-form {
-    @apply w-full min-w-0 space-y-6 lg:max-w-3xl;
+    @apply w-full min-w-0 space-y-6 lg:max-w-3xl lg:mx-auto;
   }
   .admin-form-wide {
     @apply lg:max-w-4xl;

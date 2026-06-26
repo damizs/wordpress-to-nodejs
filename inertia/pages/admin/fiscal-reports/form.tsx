@@ -117,7 +117,11 @@ export default function FiscalReportForm({ report, types, periodKinds }: Props) 
           </Field>
 
           <Field label="Observações (opcional)">
-            <Textarea value={data.description} onChange={(e) => setData('description', e.target.value)} rows={3} />
+            <Textarea
+              value={data.description}
+              onChange={(e) => setData('description', e.target.value)}
+              rows={3}
+            />
           </Field>
         </Card>
 

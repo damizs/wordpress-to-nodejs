@@ -10,6 +10,7 @@ import {
   Select,
   Textarea,
 } from '~/components/admin/ui'
+import RichTextEditor from '~/components/admin/RichTextEditor'
 
 interface CouncilorOption {
   id: number
@@ -155,11 +156,10 @@ export default function ActivityForm({ activity, councilors = [], authorIds = []
             </Field>
 
             <Field label="Conteúdo / Inteiro Teor">
-              <Textarea
-                value={data.content}
-                onChange={(e) => setData('content', e.target.value)}
-                rows={6}
-                className="resize-none"
+              <RichTextEditor
+                value={data.content || ''}
+                onChange={(html) => setData('content', html)}
+                minHeight={260}
               />
             </Field>
 

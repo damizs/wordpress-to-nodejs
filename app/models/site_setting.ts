@@ -81,6 +81,7 @@ export default class SiteSetting extends BaseModel {
       color_navy: 'appearance',
       color_gold: 'appearance',
       color_sky: 'appearance',
+      admin_palette: 'appearance',
       header_title: 'appearance',
       header_subtitle: 'appearance',
       logo_url: 'appearance',

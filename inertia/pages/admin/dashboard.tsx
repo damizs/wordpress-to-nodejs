@@ -450,7 +450,7 @@ export default function Dashboard({ stats, recentNews, upcomingSessions, content
       )}
 
       {statCards.length > 0 && (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
           {statCards.map((card) => (
             <StatCard
               key={card.key}
