@@ -20,6 +20,13 @@ export default class User extends compose(BaseModel, AuthFinder) {
   /** Enum legado — mantido como fallback durante a transição para RBAC */
   @column() declare role: 'super_admin' | 'admin' | 'editor' | 'viewer'
   @column() declare isActive: boolean
+
+  /** 2FA (TOTP, opt-in) — nunca serializados para o cliente. */
+  @column({ serializeAs: null }) declare twofaSecret: string | null
+  @column() declare twofaEnabled: boolean
+  /** JSON (string) com os códigos de backup HASHEADOS; nunca em claro. */
+  @column({ serializeAs: null }) declare twofaBackupCodes: string | null
+
   @column.dateTime({ autoCreate: true }) declare createdAt: DateTime
   @column.dateTime({ autoCreate: true, autoUpdate: true }) declare updatedAt: DateTime | null
 

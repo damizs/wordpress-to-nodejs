@@ -35,14 +35,19 @@ export default class UsersController {
     return null
   }
 
-  async index({ inertia }: HttpContext) {
+  async index({ inertia, auth }: HttpContext) {
     const users = await User.query().preload('roles').orderBy('full_name')
+    const actor = auth.user!
+    const actorPerms = await actor.getPermissionNames()
+    const canManageTwofa = actor.role === 'super_admin' || actorPerms.includes('*')
     return inertia.render('admin/users/index', {
+      canManageTwofa,
       users: users.map((u) => ({
         id: u.id,
         fullName: u.fullName,
         email: u.email,
         isActive: u.isActive,
+        twofaEnabled: !!u.twofaEnabled,
         roles: u.roles.map((r) => ({ id: r.id, name: r.name })),
       })),
     })
@@ -197,6 +202,34 @@ export default class UsersController {
     await user.related('roles').sync(roleIds)
 
     session.flash('success', 'Usuário atualizado com sucesso!')
+    return response.redirect().toPath('/painel/usuarios')
+  }
+
+  /**
+   * Anti-lockout: super_admin (ou acesso total '*') desativa o 2FA de OUTRO
+   * usuário sem precisar do código — para destravar quem perdeu o app/códigos.
+   */
+  async disableTwofa({ params, response, session, auth }: HttpContext) {
+    const actor = auth.user!
+    const actorPerms = await actor.getPermissionNames()
+    const allowed = actor.role === 'super_admin' || actorPerms.includes('*')
+    if (!allowed) {
+      session.flash('error', 'Apenas o super administrador pode destravar o 2FA de outro usuário.')
+      return response.redirect().back()
+    }
+
+    const user = await User.findOrFail(params.id)
+    if (!user.twofaEnabled) {
+      session.flash('error', 'Este usuário não está com a verificação em duas etapas ativa.')
+      return response.redirect().back()
+    }
+
+    user.twofaEnabled = false
+    user.twofaSecret = null
+    user.twofaBackupCodes = null
+    await user.save()
+
+    session.flash('success', `Verificação em duas etapas desativada para ${user.fullName}.`)
     return response.redirect().toPath('/painel/usuarios')
   }
 

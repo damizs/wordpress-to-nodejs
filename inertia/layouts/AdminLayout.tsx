@@ -113,6 +113,13 @@ const navGroups: NavGroup[] = [
       },
     ],
   },
+  {
+    label: 'Minha Conta',
+    items: [
+      // Sem permissões: autogestão de 2FA disponível a qualquer usuário do painel.
+      { label: 'Verificação 2FA', href: '/painel/conta/seguranca', icon: Shield },
+    ],
+  },
 ]
 
 function hasAny(userPermissions: string[], required?: string[]) {

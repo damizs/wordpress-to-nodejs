@@ -73,6 +73,7 @@ const InstagramProxyController = () => import('#controllers/admin/instagram_prox
 const AdminUsersController = () => import('#controllers/admin/users_controller')
 const AdminRolesController = () => import('#controllers/admin/roles_controller')
 const AdminSecurityController = () => import('#controllers/admin/security_controller')
+const AccountSecurityController = () => import('#controllers/admin/account_security_controller')
 const AdminNominalVotingsController = () =>
   import('#controllers/admin/nominal_votings_controller')
 const AdminDuodecimosController = () => import('#controllers/admin/duodecimos_controller')
@@ -89,6 +90,9 @@ router.get('/robots.txt', [SeoController, 'robots'])
 // ========= AUTH =========
 router.get('/login', [AuthController, 'showLogin']).use(middleware.guest())
 router.post('/login', [AuthController, 'login']).use(middleware.guest())
+// Segundo fator (2FA): só quem passou pelas credenciais (estado pendente em sessão)
+router.get('/login/2fa', [AuthController, 'showTwofa']).use(middleware.guest())
+router.post('/login/2fa', [AuthController, 'verifyTwofa']).use(middleware.guest())
 router.post('/logout', [AuthController, 'logout']).use(middleware.auth())
 
 // ========= PUBLIC PAGES =========
@@ -169,6 +173,17 @@ router
   .group(() => {
     // Dashboard — acessível a qualquer usuário autenticado do painel
     router.get('/', [DashboardController, 'index'])
+
+    // Conta / Segurança 2FA — autogestão por qualquer usuário autenticado
+    router.get('/conta/seguranca', [AccountSecurityController, 'index'])
+    router.post('/conta/seguranca/iniciar', [AccountSecurityController, 'start'])
+    router.post('/conta/seguranca/cancelar', [AccountSecurityController, 'cancel'])
+    router.post('/conta/seguranca/ativar', [AccountSecurityController, 'enable'])
+    router.post('/conta/seguranca/desativar', [AccountSecurityController, 'disable'])
+    router.post('/conta/seguranca/backup-codes', [
+      AccountSecurityController,
+      'regenerateBackupCodes',
+    ])
 
     // Site (homepage, aparência, fotos, categorias, links rápidos, selos)
     router
@@ -483,6 +498,7 @@ router
         router.post('/usuarios', [AdminUsersController, 'store'])
         router.get('/usuarios/:id/editar', [AdminUsersController, 'edit'])
         router.put('/usuarios/:id', [AdminUsersController, 'update'])
+        router.post('/usuarios/:id/desativar-2fa', [AdminUsersController, 'disableTwofa'])
         router.delete('/usuarios/:id', [AdminUsersController, 'destroy'])
 
         router.get('/papeis', [AdminRolesController, 'index'])
