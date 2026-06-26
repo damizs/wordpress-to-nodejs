@@ -9,6 +9,7 @@ import Councilor from '#models/councilor'
 import Page from '#models/page'
 import FaqItem from '#models/faq_item'
 import SiteSetting from '#models/site_setting'
+import GetPublicMateria from '#models/getpublic_materia'
 
 type ResultType =
   | 'Notícia'
@@ -20,6 +21,7 @@ type ResultType =
   | 'Vereador'
   | 'Página'
   | 'FAQ'
+  | 'Diário Oficial'
 
 interface SearchResult {
   type: ResultType
@@ -87,6 +89,7 @@ export default class SearchController {
       councilors,
       pages,
       faqs,
+      getpublicMaterias,
     ] = await Promise.all([
       // Notícias publicadas (exclui GetPublic — avisos/atos não são notícia)
       News.query()
@@ -185,6 +188,16 @@ export default class SearchController {
         })
         .orderBy('display_order', 'asc')
         .limit(PER_TYPE),
+
+      // Matérias do GetPublic (Diário Oficial / atos publicados) — índice local,
+      // documento vive no GetPublic (link do visualizador). Mais itens que os
+      // demais tipos: é onde o cidadão costuma procurar atos por número.
+      GetPublicMateria.query()
+        .where((sub) => {
+          sub.whereILike('titulo', term).orWhereILike('tipo', term)
+        })
+        .orderBy('diario_data', 'desc')
+        .limit(PER_TYPE * 2),
     ])
 
     const results: SearchResult[] = []
@@ -276,6 +289,16 @@ export default class SearchController {
         excerpt: makeExcerpt(f.answer, q),
         url: '/perguntas-frequentes',
         date: null,
+      })
+    }
+
+    for (const m of getpublicMaterias) {
+      results.push({
+        type: 'Diário Oficial',
+        title: m.titulo,
+        excerpt: m.tipo || 'Matéria publicada no Diário Oficial (GetPublic).',
+        url: m.urlMateria, // link externo do visualizador (documento vive no GetPublic)
+        date: m.diarioData ? m.diarioData.toISODate() : null,
       })
     }
 

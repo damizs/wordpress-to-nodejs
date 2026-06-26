@@ -131,12 +131,22 @@ else
 fi
 
 # ── 8. Otimização de imagens ──
-echo "=== [8/8] Image optimization ==="
+echo "=== [8/9] Image optimization ==="
 if sh "$(dirname "$0")/optimize_images.sh"; then
   :
 else
   echo "Image optimization had errors (non-fatal)"
   mark_failed "optimize_images"
+fi
+
+# ── 9. Índice GetPublic (Diário/atos) — busca nativa sem armazenar PDFs ──
+# Não-fatal e sem marcador: roda a cada deploy (upsert idempotente) p/ manter
+# o índice fresco. Idealmente também agendado (cron diário) no Coolify.
+echo "=== [9/9] GetPublic index sync ==="
+if node ace getpublic:sync; then
+  :
+else
+  echo "GetPublic sync had errors (non-fatal — depende do getpublic.inf.br)"
 fi
 
 # Marcador agregado: só "complete" se todos os passos essenciais retornaram 0.

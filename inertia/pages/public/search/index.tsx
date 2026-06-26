@@ -19,6 +19,7 @@ import {
   File,
   HelpCircle,
   ArrowRight,
+  BookOpen,
 } from "lucide-react";
 
 type ResultType =
@@ -30,7 +31,8 @@ type ResultType =
   | "Atividade"
   | "Vereador"
   | "Página"
-  | "FAQ";
+  | "FAQ"
+  | "Diário Oficial";
 
 interface SearchResult {
   type: ResultType;
@@ -57,6 +59,7 @@ const TYPE_ICONS: Record<ResultType, typeof Search> = {
   "Vereador": User,
   "Página": File,
   "FAQ": HelpCircle,
+  "Diário Oficial": BookOpen,
 };
 
 // Ordem fixa de exibição dos grupos
@@ -175,6 +178,9 @@ export default function SearchIndex({ q = "", results = [], total = 0 }: Props) 
                                 <li key={`${group.type}-${idx}`}>
                                   <a
                                     href={item.url}
+                                    {...(/^https?:\/\//.test(item.url)
+                                      ? { target: "_blank", rel: "noopener noreferrer" }
+                                      : {})}
                                     className="group block card-modern !transform-none p-5 no-underline hover:border-primary/40 transition-colors"
                                   >
                                     <div className="flex items-start justify-between gap-4">
