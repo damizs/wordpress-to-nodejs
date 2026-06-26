@@ -5,7 +5,7 @@ import { Header } from "~/components/Header";
 import { Breadcrumb } from "~/components/Breadcrumb";
 import { PageHero } from "~/components/PageHero";
 import { Footer } from "~/components/Footer";
-import { SafeHtml } from "~/components/SafeHtml";
+import { RichContent } from "~/components/RichContent";
 import { ChevronDown, HelpCircle, Search, SearchX } from "lucide-react";
 
 interface FaqItem {
@@ -151,7 +151,7 @@ export default function FaqIndex({ faqs = [], categories = [] }: Props) {
                                 <div className="overflow-hidden">
                                   <div className="px-5 pb-5 pl-[3.25rem]">
                                     {hasHtml ? (
-                                      <SafeHtml html={faq.answer} className="prose prose-sm dark:prose-invert max-w-none text-muted-foreground" />
+                                      <RichContent html={faq.answer} className="prose-sm text-muted-foreground" />
                                     ) : (
                                       <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line m-0">{faq.answer}</p>
                                     )}

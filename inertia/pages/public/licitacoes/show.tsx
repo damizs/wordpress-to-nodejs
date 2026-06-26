@@ -6,7 +6,7 @@ import { Breadcrumb } from "~/components/Breadcrumb";
 import { Footer } from "~/components/Footer";
 import { Calendar, ArrowLeft, Download, FileText, Tag, Hash, CheckCircle2, Circle, CircleDollarSign, CalendarCheck, AlertTriangle } from "lucide-react";
 import { DocumentActionsPanel, formatDocumentDate } from "~/components/DocumentActions";
-import { SafeHtml } from "~/components/SafeHtml";
+import { RichContent } from "~/components/RichContent";
 
 interface Attachment { id: number; name: string; url: string; }
 interface DocumentGroup { type: string; label: string; files: { id: number; title: string; url: string }[]; }
@@ -205,7 +205,7 @@ export default function LicitacaoShow({ licitacao, documentGroups = [], phases =
                   )}
 
                   {longText && (
-                    <SafeHtml html={longText} className="prose prose-slate dark:prose-invert max-w-none mb-6" />
+                    <RichContent html={longText} className="mb-6" />
                   )}
 
                   {/* Edital / arquivo principal */}

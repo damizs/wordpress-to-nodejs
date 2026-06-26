@@ -5,7 +5,7 @@ import { TopBar } from "~/components/TopBar";
 import { Header } from "~/components/Header";
 import { Breadcrumb } from "~/components/Breadcrumb";
 import { Footer } from "~/components/Footer";
-import { SafeHtml } from "~/components/SafeHtml";
+import { RichContent } from "~/components/RichContent";
 import {
   Mail,
   Phone,
@@ -794,26 +794,20 @@ export default function VereadorShow({
                 <div className="flex items-center gap-2 mb-5">
                   <BookOpen className="w-4 h-4 text-gold" aria-hidden="true" />
                   <h2 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                    Biografia e Trajetoria
+                    Biografia e Trajetória
                   </h2>
                 </div>
                 <div className="grid gap-6 lg:grid-cols-2">
                   {hasBio && (
                     <div className={!hasHistory ? "lg:col-span-2" : undefined}>
                       <h3 className="text-lg font-bold text-foreground mb-3">Biografia</h3>
-                      <SafeHtml
-                        html={bioHtml as string}
-                        className="prose prose-sm dark:prose-invert max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-strong:text-foreground prose-a:text-primary"
-                      />
+                      <RichContent html={bioHtml as string} className="prose-sm" />
                     </div>
                   )}
                   {hasHistory && (
                     <div className={!hasBio ? "lg:col-span-2" : undefined}>
-                      <h3 className="text-lg font-bold text-foreground mb-3">Trajetoria</h3>
-                      <SafeHtml
-                        html={vereador.history as string}
-                        className="prose prose-sm dark:prose-invert max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-strong:text-foreground prose-a:text-primary"
-                      />
+                      <h3 className="text-lg font-bold text-foreground mb-3">Trajetória</h3>
+                      <RichContent html={vereador.history as string} className="prose-sm" />
                     </div>
                   )}
                 </div>
@@ -1047,9 +1041,9 @@ export default function VereadorShow({
                           <BookOpen className="w-5 h-5 text-gold" aria-hidden="true" />
                           Biografia
                         </h2>
-                        <SafeHtml
+                        <RichContent
                           html={(vereador.bio || vereador.biography) as string}
-                          className="prose prose-sm dark:prose-invert max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-strong:text-foreground prose-a:text-primary"
+                          className="prose-sm"
                         />
                       </div>
                     )}
@@ -1059,10 +1053,7 @@ export default function VereadorShow({
                           <History className="w-5 h-5 text-gold" aria-hidden="true" />
                           História e Trajetória
                         </h2>
-                        <SafeHtml
-                          html={vereador.history as string}
-                          className="prose prose-sm dark:prose-invert max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-strong:text-foreground prose-a:text-primary"
-                        />
+                        <RichContent html={vereador.history as string} className="prose-sm" />
                       </div>
                     )}
                   </div>

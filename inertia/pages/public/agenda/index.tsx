@@ -13,7 +13,7 @@ import {
 import { PageLayout } from "~/components/PageLayout";
 import { FilterBar } from "~/components/FilterBar";
 import { formatDocumentDate } from "~/components/DocumentActions";
-import { SafeHtml } from "~/components/SafeHtml";
+import { RichContent } from "~/components/RichContent";
 
 interface SessionItem {
   id: number;
@@ -202,7 +202,7 @@ export default function AgendaIndex({
                   {session.agenda && (
                     <div className="mt-4 rounded-xl border border-border bg-muted/30 p-4">
                       <p className="mb-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">Pauta</p>
-                      <SafeHtml html={session.agenda} className="prose prose-slate dark:prose-invert max-w-none text-sm" />
+                      <RichContent html={session.agenda} className="text-sm" />
                     </div>
                   )}
                 </div>

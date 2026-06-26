@@ -5,7 +5,7 @@ import { Header } from "~/components/Header";
 import { Breadcrumb } from "~/components/Breadcrumb";
 import { PageHero } from "~/components/PageHero";
 import { Footer } from "~/components/Footer";
-import { SafeHtml } from "~/components/SafeHtml";
+import { RichContent } from "~/components/RichContent";
 import {
   CalendarDays,
   Cookie,
@@ -257,7 +257,7 @@ export default function PrivacyPolicyIndex({ content, dpoOrdinanceUrl }: Props) 
                 {content ? (
                   <div className="grid gap-6 lg:grid-cols-[1fr_320px] lg:items-start">
                     <article className="card-modern !transform-none p-6 md:p-10">
-                      <SafeHtml html={content} className={PROSE} />
+                      <RichContent html={content} />
                     </article>
                     <DpoOrdinanceCard url={dpoOrdinanceUrl} />
                   </div>

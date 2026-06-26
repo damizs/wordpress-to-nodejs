@@ -3,7 +3,7 @@ import { PageLayout } from "~/components/PageLayout";
 import { Calendar, ArrowLeft, Clock, MapPin } from "lucide-react";
 import { formatDocumentDate } from "~/components/DocumentActions";
 import { OfficialDocument } from "~/components/OfficialDocument";
-import { SafeHtml } from "~/components/SafeHtml";
+import { RichContent } from "~/components/RichContent";
 
 interface Props { pauta: { id: number; title: string; slug: string; date: string; time?: string; location?: string; content?: string; items?: { id: number; title: string; description?: string }[]; }; }
 
@@ -60,7 +60,7 @@ export default function PautaShow({ pauta }: Props) {
                   </div>
 
                   {pauta.content && (
-                    <SafeHtml html={pauta.content} className="prose prose-slate dark:prose-invert max-w-none mb-8 prose-p:text-justify" />
+                    <RichContent html={pauta.content} className="mb-8" />
                   )}
 
                   {pauta.items && pauta.items.length > 0 && (
