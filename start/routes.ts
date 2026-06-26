@@ -517,6 +517,7 @@ router
           AdminSecurityController,
           'sendEvolutionReport',
         ])
+        router.get('/notificacoes/recentes', [AdminSecurityController, 'recentNotifications'])
       })
       .use(middleware.can(['usuario.gerenciar']))
   })

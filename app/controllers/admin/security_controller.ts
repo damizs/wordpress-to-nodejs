@@ -105,6 +105,27 @@ export default class SecurityController {
     })
   }
 
+  /** JSON leve para o sininho de notificações no header do painel. */
+  async recentNotifications({ response }: HttpContext) {
+    try {
+      const rows = await NotificationLog.query()
+        .where('channel', 'evolution')
+        .orderBy('created_at', 'desc')
+        .limit(12)
+      return response.json({
+        items: rows.map((n) => ({
+          id: n.id,
+          type: n.type,
+          status: n.status,
+          message: n.message,
+          createdAt: n.createdAt ? n.createdAt.toISO() : null,
+        })),
+      })
+    } catch {
+      return response.json({ items: [] })
+    }
+  }
+
   async updateFirewall({ request, response, session }: HttpContext) {
     const enabled = parseBooleanInput(request.input('enabled'))
     const mode = request.input('mode') === 'monitor' ? 'monitor' : 'block'

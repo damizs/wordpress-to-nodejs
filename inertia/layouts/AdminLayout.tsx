@@ -9,8 +9,10 @@ import {
   ScrollText, Settings, Monitor, HelpCircle, Info, Tags, Calendar, Users2,
   Gavel, ClipboardCheck, Image, Radar, Vote, ExternalLink, Award, Files,
   BookOpen, FolderOpen, Coins, FileSignature, FileBarChart, Search, X, HardDrive,
+  Moon, Sun,
 } from 'lucide-react'
 import { useState, useEffect, type ReactNode, type CSSProperties } from 'react'
+import { NotificationBell } from '~/components/admin/NotificationBell'
 import { useFocusTrap } from '~/hooks/useFocusTrap'
 
 interface AdminLayoutProps {
@@ -136,6 +138,26 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
   // escopo do painel via CSS vars no container. Definida em Aparência → Painel.
   const adminPreset = getThemePreset(siteSettings?.admin_palette)
   const paletteVars = adminPreset ? presetToCssVars(adminPreset) : {}
+  // Sininho de notificações só para quem gerencia segurança (usuario.gerenciar).
+  const canSeeNotifications = !!(auth?.permissions as string[] | undefined)?.includes(
+    'usuario.gerenciar'
+  )
+  // Alternância de modo escuro (lua/sol) — mesma convenção do site (classe .dark + localStorage).
+  const [isDark, setIsDark] = useState(false)
+  useEffect(() => {
+    setIsDark(document.documentElement.classList.contains('dark'))
+  }, [])
+  const toggleDarkMode = () => {
+    const el = document.documentElement
+    const next = !el.classList.contains('dark')
+    el.classList.toggle('dark', next)
+    try {
+      window.localStorage.setItem('theme', next ? 'dark' : 'light')
+    } catch {
+      /* ignore */
+    }
+    setIsDark(next)
+  }
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [commandOpen, setCommandOpen] = useState(false)
@@ -532,6 +554,20 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
                 Ctrl K
               </kbd>
             </button>
+            {/* Alternância de tema: lua (ativar escuro) / sol (ativar claro) */}
+            <button
+              type="button"
+              onClick={toggleDarkMode}
+              className="p-2.5 min-h-[2.75rem] min-w-[2.75rem] rounded-lg hover:bg-muted text-muted-foreground transition-colors"
+              aria-label={isDark ? 'Ativar modo claro' : 'Ativar modo escuro'}
+              title={isDark ? 'Modo claro' : 'Modo escuro'}
+            >
+              {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </button>
+
+            {/* Sininho de notificações (alertas de acesso, segurança, backup, saúde) */}
+            {canSeeNotifications && <NotificationBell />}
+
             <Link
               href="/"
               target="_blank"
@@ -540,13 +576,11 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
               <ExternalLink className="w-3.5 h-3.5" />
               Ver site
             </Link>
-            <div className="flex items-center gap-2.5 pl-2 border-l border-border">
+            {/* Perfil: só o ícone (nome fica no title ao passar o mouse) */}
+            <div className="pl-2 border-l border-border" title={userName}>
               <div className="w-8 h-8 rounded-full bg-navy text-white flex items-center justify-center text-[11px] font-bold ring-2 ring-gold/40">
                 {initials || <User className="w-4 h-4" />}
               </div>
-              <span className="text-sm font-medium text-foreground hidden md:inline max-w-[160px] truncate">
-                {userName}
-              </span>
             </div>
           </div>
         </header>
