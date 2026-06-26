@@ -17,6 +17,23 @@ export const appKey = new Secret(env.get('APP_KEY'))
  */
 export const http = defineConfig({
   generateRequestId: true,
+
+  /**
+   * Confia nos headers X-Forwarded-* SOMENTE quando vêm de um proxy em IP
+   * privado/loopback (o Traefik do Coolify, na rede docker). Sem isso, request.ip()
+   * retorna o IP do proxy e o rate-limit/firewall por IP ficam inúteis; com `true`
+   * irrestrito, um atacante direto poderia forjar o IP. Esta checagem é segura
+   * mesmo com a porta publicada.
+   */
+  trustProxy: (address: string) =>
+    address === '127.0.0.1' ||
+    address === '::1' ||
+    /^10\./.test(address) ||
+    /^192\.168\./.test(address) ||
+    /^172\.(1[6-9]|2\d|3[01])\./.test(address) ||
+    /^::ffff:(10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(address) ||
+    /^(fc|fd|fe80)/i.test(address),
+
   // Habilitado: os formulários de edição do painel enviam POST + ?_method=PUT
   // (padrão do Inertia quando há upload de arquivo/FormData). Sem isso, todas as
   // edições com arquivo caíam em 404.

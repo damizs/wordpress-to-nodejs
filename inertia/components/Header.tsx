@@ -286,12 +286,8 @@ export const Header = ({ logoUrl }: HeaderProps) => {
    * ------------------------------------------------------------------------- */
   const widgets = (
     <>
-      <a
-        href="#conteudo"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:bg-gold focus:text-navy-dark focus:px-4 focus:py-2 focus:rounded-lg focus:font-semibold focus:no-underline focus:shadow-lg"
-      >
-        Pular para o conteúdo
-      </a>
+      {/* Skip-link movido para o topo do <body> (resources/views/inertia_layout.edge)
+          para ser o primeiro elemento focável da página (e-MAG). */}
       <AccessibilityBar />
       <CampaignBanner />
       <DynamicTheme />

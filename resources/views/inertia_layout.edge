@@ -117,6 +117,11 @@
   @vite(['inertia/app/app.tsx'])
 </head>
 <body>
+  {{-- Skip-link e-MAG: PRIMEIRO elemento focável da página (antes do app), levando
+       ao <main id="conteudo">. Oculto no painel. --}}
+  @if(!request.url().includes('/painel'))
+    <a href="#conteudo" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:bg-gold focus:text-navy-dark focus:px-4 focus:py-2 focus:rounded-lg focus:font-semibold focus:no-underline focus:shadow-lg">Pular para o conteúdo</a>
+  @endif
   @inertia()
 
   {{-- VLibras (tradução para Língua Brasileira de Sinais) — widget oficial do
