@@ -33,7 +33,8 @@ export default function Login({ siteSettings = {} }: LoginProps) {
       <DynamicFavicon />
       <FlashMessages />
 
-      <div
+      <main
+        id="conteudo"
         className="min-h-screen flex items-center justify-center px-4 py-10"
         style={{ background: 'var(--gradient-hero)' }}
       >
@@ -130,7 +131,7 @@ export default function Login({ siteSettings = {} }: LoginProps) {
             © {new Date().getFullYear()} {loginSubtitle}
           </p>
         </div>
-      </div>
+      </main>
     </>
   )
 }

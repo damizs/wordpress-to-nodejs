@@ -413,7 +413,7 @@ export const DiarioOficialSection = ({
 
   return (
     <section className="section-block bg-muted/40">
-      <div className="container max-w-5xl min-w-0">
+      <div className="container min-w-0">
         <SectionHeading
           badge="Diário Oficial"
           title={title}
