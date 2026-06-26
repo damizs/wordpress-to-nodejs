@@ -1,7 +1,12 @@
-import { Link } from "@inertiajs/react";
+import { Link, usePage } from "@inertiajs/react";
 import { SeoHead } from "../../components/SeoHead";
 
 export default function NotFound() {
+  const { siteSettings } = usePage().props as {
+    siteSettings?: Record<string, string | null>;
+  };
+  const brasao = siteSettings?.document_brasao_url || siteSettings?.logo_url;
+
   return (
     <>
       <SeoHead
@@ -10,6 +15,13 @@ export default function NotFound() {
       />
       <main className="min-h-screen bg-background text-foreground flex items-center">
         <div className="container py-16 lg:py-24 text-center">
+          {brasao && (
+            <img
+              src={brasao}
+              alt="Brasão da Câmara Municipal de Sumé"
+              className="mx-auto mb-8 h-24 w-auto object-contain sm:h-28"
+            />
+          )}
           <p className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
             Erro 404
           </p>
