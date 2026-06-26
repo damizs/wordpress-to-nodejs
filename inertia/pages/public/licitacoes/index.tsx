@@ -76,7 +76,7 @@ export default function LicitacoesIndex({ licitacoes = [], pagination, filters =
       <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar /><Header /><Breadcrumb items={[{ label: "Licitações" }]} />
         <PageHero badge="Transparência" title="Licitações" subtitle="Processos licitatórios e contratações da Câmara Municipal, com documentos por fase do processo" centered />
-        <main>
+        <main id="conteudo" tabIndex={-1} role="main">
           <section className="py-10 lg:py-14">
             <div className="container">
               <FilterBar>

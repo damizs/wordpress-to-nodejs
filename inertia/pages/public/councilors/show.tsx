@@ -721,7 +721,7 @@ export default function VereadorShow({
           <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-gold/60 to-transparent" aria-hidden="true" />
         </section>
 
-        <main className="py-10 lg:py-14">
+        <main id="conteudo" tabIndex={-1} role="main" className="py-10 lg:py-14">
           <div className="container">
             {/* ===== Dados do Parlamentar + Contato ===== */}
             {(dataItems.length > 0 || vereador.email || vereador.phone) && (

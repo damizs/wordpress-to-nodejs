@@ -32,7 +32,7 @@ export default function AcessoInformacaoIndex() {
           subtitle="Setor de Comunicação e Relações Institucionais — autoridade de monitoramento do acesso à informação"
           centered
         />
-        <main>
+        <main id="conteudo" tabIndex={-1} role="main">
           <ESicSection title={title} subtitle={subtitle} hideHeading />
         </main>
         <Footer />

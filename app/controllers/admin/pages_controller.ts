@@ -44,6 +44,7 @@ const BLOCK_TYPES = new Set([
   'callout',
   'buttons',
   'video',
+  'columns',
 ])
 
 /** Garante que `blocks` vindo do form é um array de blocos com tipos conhecidos. */
@@ -126,6 +127,26 @@ function sanitizeBlock(block: PageBlock): PageBlock | null {
       }
     case 'video':
       return isSafeUrl(block.url) ? { type: 'video', url: String(block.url).trim() } : null
+    case 'columns': {
+      // Layout multi-coluna: sanitiza recursivamente cada coluna; não permite
+      // colunas aninhadas (evita recursão e mantém o editor previsível).
+      const allowed = ['1-1', '1-2', '2-1', '1-1-1']
+      const anyBlock = block as unknown as { layout?: unknown; columns?: unknown }
+      const layout = allowed.includes(String(anyBlock.layout)) ? String(anyBlock.layout) : '1-1'
+      const columns = (Array.isArray(anyBlock.columns) ? anyBlock.columns : []).map((col) =>
+        (Array.isArray(col) ? col : [])
+          .filter(
+            (b: unknown): b is PageBlock =>
+              b !== null &&
+              typeof b === 'object' &&
+              BLOCK_TYPES.has((b as { type?: string }).type ?? '') &&
+              (b as { type?: string }).type !== 'columns'
+          )
+          .map((b) => sanitizeBlock(b))
+          .filter((b): b is PageBlock => b !== null)
+      )
+      return { type: 'columns', layout, columns } as unknown as PageBlock
+    }
     default:
       return null
   }

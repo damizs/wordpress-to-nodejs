@@ -150,7 +150,7 @@ export default function DynamicInfoPage({ records, category, allCategories = [],
       <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar /><Header /><Breadcrumb items={[{ label: "Acesso à Informação" }, { label: category.name }]} />
         <PageHero badge="Acesso à Informação" title={category.name} subtitle="Documentos publicados em cumprimento à Lei de Acesso à Informação" />
-        <main>
+        <main id="conteudo" tabIndex={-1} role="main">
           <section className="py-10 lg:py-14">
             <div className="container">
             <div data-reveal="up" className="mb-8 overflow-hidden rounded-2xl border border-border bg-card shadow-sm">

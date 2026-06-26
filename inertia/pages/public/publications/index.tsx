@@ -50,7 +50,7 @@ export default function PublicationsIndex({ publications = [], pagination, filte
       <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar /><Header /><Breadcrumb items={[{ label: "Publicações Oficiais" }]} />
         <PageHero badge="Documentos" title="Publicações Oficiais" subtitle="Leis, decretos, portarias e demais atos oficiais da Câmara Municipal" centered />
-        <main>
+        <main id="conteudo" tabIndex={-1} role="main">
           <section className="py-10 lg:py-14">
             <div className="container">
               {/* Toolbar de filtros */}

@@ -61,7 +61,7 @@ export default function MapaDoSite({ groups = [] }: Props) {
           subtitle="Todas as seções e páginas do portal organizadas em um só lugar"
           centered
         />
-        <main>
+        <main id="conteudo" tabIndex={-1} role="main">
           <section className="py-10 lg:py-14">
             <div className="container">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -90,7 +90,7 @@ export default function MesaDiretoraIndex({ members = [], biennium }: Props) {
           subtitle={biennium ? `${biennium.name} (${biennium.year_start} - ${biennium.year_end})` : "Composição da Mesa Diretora da Câmara Municipal"}
           centered
         />
-        <main>
+        <main id="conteudo" tabIndex={-1} role="main">
           <section className="py-10 lg:py-14">
             <div className="container">
             {members.length > 0 ? (

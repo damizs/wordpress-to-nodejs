@@ -19,6 +19,7 @@ export default {
         '2xl': '3rem',
         '3xl': '3.5rem',
         '4xl': '4rem',
+        '5xl': '4.5rem',
       },
       screens: {
         sm: '640px',
@@ -26,16 +27,23 @@ export default {
         lg: '1024px',
         xl: '1280px',
         '2xl': '1480px',
-        // Telas grandes (monitores 27"–34"): a largura cresce progressivamente
-        // mantendo margem de segurança e legibilidade (cap ~2040px).
+        // Telas grandes (monitores 27"–34"/TV): a largura cresce progressivamente
+        // para o conteúdo NÃO "ficar pequeno" com margens vazias enormes, mantendo
+        // margem de segurança. Os caps batem com os breakpoints do upscale de
+        // fonte por viewport (app.css), para uma experiência coerente em TV.
         '3xl': '1720px',
         '4xl': '2040px',
+        '5xl': '2400px',
       },
     },
     extend: {
+      // Breakpoints de variante alinhados aos tiers do container (acima) — assim
+      // 2xl:/3xl:/4xl:/5xl: disparam exatamente quando o .container atinge cada cap.
       screens: {
-        '3xl': '1920px',
-        '4xl': '2560px',
+        '2xl': '1480px',
+        '3xl': '1720px',
+        '4xl': '2040px',
+        '5xl': '2400px',
       },
       fontFamily: {
         sans: ['Inter Variable', 'Inter', 'Verdana', 'Geneva', 'sans-serif'],

@@ -130,7 +130,7 @@ export default function CommitteesIndex({ committees = [] }: Props) {
         <Header />
         <Breadcrumb items={[{ label: "Comissões Permanentes" }]} />
         <PageHero badge="Legislativo" title="Comissões Permanentes" subtitle="Órgãos técnicos que analisam as matérias antes da deliberação em Plenário" centered />
-        <main>
+        <main id="conteudo" tabIndex={-1} role="main">
           <section className="py-10 lg:py-14">
             <div className="container">
             {committees.length > 0 ? (

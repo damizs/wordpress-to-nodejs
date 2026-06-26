@@ -193,7 +193,7 @@ export default function PesquisaSatisfacao({
                   
                   {/* Header */}
                   <div className="text-center mb-8">
-                    <h1 className="text-2xl md:text-3xl font-bold text-navy mb-2">
+                    <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2">
                       Avaliação Contínua - Câmara Municipal
                     </h1>
                     <p className="text-muted-foreground">
@@ -219,7 +219,7 @@ export default function PesquisaSatisfacao({
                     <div className="bg-muted rounded-xl p-6 mb-6">
                       <div className="flex flex-col md:flex-row gap-6">
                         <div className="md:w-1/3">
-                          <label htmlFor="survey-cpf" className="block text-sm font-semibold text-navy mb-2">
+                          <label htmlFor="survey-cpf" className="block text-sm font-semibold text-foreground mb-2">
                             Informe seu CPF:
                           </label>
                           <input
@@ -374,7 +374,7 @@ export default function PesquisaSatisfacao({
                 
                 {/* Relatórios */}
                 <div className="bg-card rounded-2xl shadow-sm border border-border p-6 mb-6">
-                  <h3 className="flex items-center gap-2 text-lg font-bold text-navy mb-4">
+                  <h3 className="flex items-center gap-2 text-lg font-bold text-foreground mb-4">
                     <BarChart3 className="w-5 h-5" />
                     Relatórios
                   </h3>

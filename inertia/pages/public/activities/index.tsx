@@ -79,7 +79,7 @@ export default function ActivitiesIndex({ activities = [], pagination, filters =
       <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar /><Header /><Breadcrumb items={[{ label: "Atividades Legislativas" }]} />
         <PageHero badge="Legislativo" title="Atividades Legislativas" subtitle="Projetos de Lei, Requerimentos, Indicações e Moções" centered />
-        <main>
+        <main id="conteudo" tabIndex={-1} role="main">
           <section className="py-10 lg:py-14">
             <div className="container">
               {filters.autor && (

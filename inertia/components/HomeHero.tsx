@@ -33,6 +33,9 @@ interface HomeHeroProps {
   quickLinks?: QuickLinkItem[];
   legislativo?: HomeHeroLegislativo | null;
   legislatura?: string;
+  /** Título/subtítulo do Banner Principal editáveis no painel (homepage_hero_*). */
+  title?: string;
+  subtitle?: string;
 }
 
 /** Atalhos nobres da abertura do modelo Moderno (transparência + serviços). */
@@ -49,17 +52,24 @@ const MODERNO_SHORTCUTS: { title: string; url: string; icon: LucideIcon; descrip
  *  - Moderno  → atalhos de transparência/serviços + indicadores do Legislativo,
  *    em fundo claro/institucional (as notícias têm a seção própria abaixo).
  */
-export function HomeHero({ template, quickLinks = [], legislativo = null, legislatura }: HomeHeroProps) {
+export function HomeHero({
+  template,
+  quickLinks = [],
+  legislativo = null,
+  legislatura,
+  title,
+  subtitle,
+}: HomeHeroProps) {
   const settings = useSiteSettings();
-  const subtitle = settings.header_subtitle || "Estado da Paraíba";
+  const badge = settings.header_subtitle || "Estado da Paraíba";
 
   if (template === "compacto") {
     return (
       <QuickAccessSection
         variant="compact"
         quickLinks={quickLinks}
-        badge={subtitle}
-        title="Acesso rápido"
+        badge={badge}
+        title={title || "Acesso rápido"}
         showSearch
         itemLimit={6}
         showTransparenciaCta={false}
@@ -84,13 +94,20 @@ export function HomeHero({ template, quickLinks = [], legislativo = null, legisl
           <div className="min-w-0">
             <SectionHeading
               align="left"
-              badge={subtitle}
+              badge={badge}
               title={
-                <>
-                  Portal oficial da <span className="text-primary">Câmara Municipal</span>
-                </>
+                title ? (
+                  title
+                ) : (
+                  <>
+                    Portal oficial da <span className="text-primary">Câmara Municipal</span>
+                  </>
+                )
               }
-              subtitle="Acesso rápido à transparência, aos serviços ao cidadão e à atividade legislativa."
+              subtitle={
+                subtitle ||
+                "Acesso rápido à transparência, aos serviços ao cidadão e à atividade legislativa."
+              }
               className="!mb-6 sm:!mb-8"
             />
 

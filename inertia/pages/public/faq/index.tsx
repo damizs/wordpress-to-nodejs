@@ -84,7 +84,7 @@ export default function FaqIndex({ faqs = [], categories = [] }: Props) {
       <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar /><Header /><Breadcrumb items={[{ label: "Perguntas Frequentes" }]} />
         <PageHero badge="Ajuda" title="Perguntas Frequentes" subtitle="Encontre respostas para as dúvidas mais comuns" centered />
-        <main>
+        <main id="conteudo" tabIndex={-1} role="main">
           <section className="py-10 lg:py-14">
             <div className="container">
               <div>

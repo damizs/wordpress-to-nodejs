@@ -181,7 +181,7 @@ export default function DiarioOficialIndex({
           centered
         />
 
-        <main>
+        <main id="conteudo" tabIndex={-1} role="main">
           <section className="py-10 lg:py-14">
             <div className="container">
               <div className="mb-8 overflow-hidden rounded-2xl border border-border bg-card shadow-lg">

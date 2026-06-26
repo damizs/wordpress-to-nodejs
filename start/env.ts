@@ -42,4 +42,5 @@ export default await Env.create(new URL('../', import.meta.url), {
   |----------------------------------------------------------
   */
   GETPUBLIC_API_KEY: Env.schema.string.optional(),
+  ADMIN_INITIAL_PASSWORD: Env.schema.string.optional(),
 })

@@ -207,6 +207,8 @@ export default function Home({
               quickLinks={quickLinks}
               legislativo={legislativo}
               legislatura={legislatura}
+              title={setting('homepage_hero_title')}
+              subtitle={setting('homepage_hero_subtitle')}
             />
           )}
           <HolidaysStrip />

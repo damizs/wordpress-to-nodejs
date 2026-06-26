@@ -77,11 +77,20 @@ export class GetPublicService {
   }
 
   private async get(path: string): Promise<any> {
-    const res = await fetch(`${API}${path}`, {
-      headers: { Authorization: `Bearer ${apiKey()}`, Accept: 'application/json' },
-    })
-    if (!res.ok) throw new Error(`GetPublic API ${res.status} em ${path}`)
-    return res.json()
+    // Timeout defensivo: a sincronização não pode pendurar o processo se a API
+    // externa ficar lenta/indisponível (ver bug de boot travado).
+    const ctrl = new AbortController()
+    const timer = setTimeout(() => ctrl.abort(), 15000)
+    try {
+      const res = await fetch(`${API}${path}`, {
+        headers: { Authorization: `Bearer ${apiKey()}`, Accept: 'application/json' },
+        signal: ctrl.signal,
+      })
+      if (!res.ok) throw new Error(`GetPublic API ${res.status} em ${path}`)
+      return await res.json()
+    } finally {
+      clearTimeout(timer)
+    }
   }
 
   /** Uma página de matérias (filtros opcionais). */

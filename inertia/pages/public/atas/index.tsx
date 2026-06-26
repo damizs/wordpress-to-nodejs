@@ -49,7 +49,7 @@ export default function AtasIndex({ atas = [], pagination, years = [], types = [
       <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar /><Header /><Breadcrumb items={[{ label: "Atas das Sessões" }]} />
         <PageHero badge="Documentos Oficiais" title="Atas das Sessões" subtitle="Registros oficiais das sessões plenárias realizadas pela Câmara Municipal" />
-        <main>
+        <main id="conteudo" tabIndex={-1} role="main">
           <section className="py-10 lg:py-14">
           <div className="container">
             {/* Toolbar de filtros */}

@@ -24,7 +24,7 @@ export default function EsicPage() {
         <TopBar />
         <Header />
         <Breadcrumb items={[{ label: "E-SIC" }]} />
-        <main>
+        <main id="conteudo" tabIndex={-1} role="main">
           <ESicSection title={title} subtitle={subtitle} />
         </main>
         <Footer />

@@ -49,7 +49,7 @@ export default function PautasIndex({ pautas = [], pagination, years = [], types
       <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar /><Header /><Breadcrumb items={[{ label: "Pautas" }]} />
         <PageHero badge="Sessões Plenárias" title="Pautas das Sessões" subtitle="Ordem do dia e matérias em discussão nas sessões da Câmara Municipal" />
-        <main>
+        <main id="conteudo" tabIndex={-1} role="main">
           <section className="py-10 lg:py-14">
           <div className="container">
             <FilterBar>

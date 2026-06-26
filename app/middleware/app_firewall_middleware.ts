@@ -86,6 +86,14 @@ export default class AppFirewallMiddleware {
     response.header('Permissions-Policy', 'geolocation=(), microphone=(), camera=()')
 
     const path = request.url()
+
+    // Liveness e arquivos estáticos NÃO podem depender do banco: em boot frio a
+    // consulta de firewall (getFirewallSettings) deixaria o /health respondendo
+    // 503/504 e quebraria o healthcheck do deploy.
+    if (path === '/health' || path.startsWith('/assets/') || path.startsWith('/uploads/')) {
+      return next()
+    }
+
     const method = request.method()
     const ip = request.ip()
     const userAgent = request.header('user-agent') || null

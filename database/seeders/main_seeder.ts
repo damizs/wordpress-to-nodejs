@@ -1,4 +1,6 @@
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
+import { randomUUID } from 'node:crypto'
+import env from '#start/env'
 import User from '#models/user'
 import Legislature from '#models/legislature'
 import NewsCategory from '#models/news_category'
@@ -11,13 +13,17 @@ import QuickLink from '#models/quick_link'
  */
 export default class MainSeeder extends BaseSeeder {
   async run() {
-    // Usuário admin inicial — firstOrCreate para NÃO resetar a senha a cada boot
+    // Usuário admin inicial — firstOrCreate para NÃO resetar a senha a cada boot.
+    // A senha vem de ADMIN_INITIAL_PASSWORD (Coolify); sem env, gera uma aleatória
+    // (nunca uma senha conhecida/versionada). Só afeta ambientes NOVOS — onde o
+    // admin já existe, o firstOrCreate não recria.
+    const initialPassword = env.get('ADMIN_INITIAL_PASSWORD') || `chg-${randomUUID()}`
     await User.firstOrCreate(
       { email: 'admin@camaradesume.pb.gov.br' },
       {
         fullName: 'Administrador',
         email: 'admin@camaradesume.pb.gov.br',
-        password: 'Camara@2025!',
+        password: initialPassword,
         role: 'super_admin',
         isActive: true,
       }

@@ -207,15 +207,37 @@
     outline-offset: 2px;
   }
 
-  /* ===== Escala de fonte (A- / A / A+) — todo o layout usa rem ===== */
+  /* ===== Escala de fonte — todo o layout usa rem =====
+     Modelo MULTIPLICATIVO: compõe a preferência do usuário (A/A+/A++) com um
+     upscale por viewport. Assim, em monitores 27"/TVs 34"+ tudo (texto,
+     espaçamento, cards) cresce proporcionalmente e o conteúdo deixa de "ficar
+     pequeno" visto de longe — SEM anular a escala de acessibilidade. O notebook
+     16" (~1366–1536px) permanece idêntico (viewport=1). */
   html {
-    font-size: 100%;
+    --font-scale-user: 1;
+    --font-scale-viewport: 1;
+    font-size: calc(100% * var(--font-scale-user) * var(--font-scale-viewport));
   }
   html[data-font-scale='2'] {
-    font-size: 112.5%;
+    --font-scale-user: 1.125;
   }
   html[data-font-scale='3'] {
-    font-size: 125%;
+    --font-scale-user: 1.25;
+  }
+  @media (min-width: 1720px) {
+    html {
+      --font-scale-viewport: 1.05;
+    }
+  }
+  @media (min-width: 2040px) {
+    html {
+      --font-scale-viewport: 1.12;
+    }
+  }
+  @media (min-width: 2400px) {
+    html {
+      --font-scale-viewport: 1.18;
+    }
   }
 
   /* ===== Estilos de layout (atributo data-layout no <html>) =====

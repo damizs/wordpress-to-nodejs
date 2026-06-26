@@ -71,7 +71,7 @@ export default function NewsShow({ news, related = [] }: Props) {
         <Header />
         <Breadcrumb items={[{ label: "Notícias", href: "/noticias" }, { label: news.title }]} />
 
-        <main>
+        <main id="conteudo" tabIndex={-1} role="main">
           <section className="py-10 lg:py-14">
             <div className="container">
             <div>

@@ -289,7 +289,7 @@ export default function DuodecimosIndex({
           centered
         />
 
-        <main>
+        <main id="conteudo" tabIndex={-1} role="main">
           <section className="py-10 lg:py-14">
             <div className="container">
               <div>

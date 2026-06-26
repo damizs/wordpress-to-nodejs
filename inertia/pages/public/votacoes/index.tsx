@@ -166,7 +166,7 @@ export default function VotacoesIndex({ votacoes = [], pagination, years = [], f
       <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar /><Header /><Breadcrumb items={[{ label: "Votações Nominais" }]} />
         <PageHero badge="Atividade Legislativa" title="Votações Nominais" subtitle="Veja como cada vereador votou nas matérias apreciadas em Plenário" />
-        <main>
+        <main id="conteudo" tabIndex={-1} role="main">
           <section className="py-10 lg:py-14">
             <div className="container">
             {/* Toolbar de filtros */}
