@@ -422,11 +422,11 @@ export default function DuodecimosIndex({
                                 <td className="px-4 py-3 text-center whitespace-nowrap">
                                   <span className="inline-flex items-center gap-2 justify-center">
                                     {pendente ? (
-                                      <span className="inline-flex items-center text-xs font-medium px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-700">
+                                      <span className="inline-flex items-center text-xs font-medium px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-300">
                                         Pendente
                                       </span>
                                     ) : (
-                                      <span className="inline-flex items-center text-xs font-medium px-2.5 py-1 rounded-full bg-emerald-600/10 text-emerald-700">
+                                      <span className="inline-flex items-center text-xs font-medium px-2.5 py-1 rounded-full bg-emerald-600/10 text-emerald-700 dark:text-emerald-300">
                                         Recebido
                                       </span>
                                     )}

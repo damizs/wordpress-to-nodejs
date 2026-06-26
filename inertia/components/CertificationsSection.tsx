@@ -65,6 +65,8 @@ export const CertificationsSection = ({ seals = [], title, subtitle }: Certifica
                   <img
                     src={seal.imageUrl}
                     alt={seal.title}
+                    loading="lazy"
+                    decoding="async"
                     className="relative h-32 md:h-36 w-auto object-contain drop-shadow-lg group-hover:scale-105 transition-transform duration-300"
                   />
                 ) : (

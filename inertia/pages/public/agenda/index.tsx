@@ -42,8 +42,8 @@ interface Props {
 }
 
 const statusTone: Record<string, string> = {
-  agendada: "bg-amber-500/10 text-amber-700",
-  realizada: "bg-emerald-600/10 text-emerald-700",
+  agendada: "bg-amber-500/10 text-amber-700 dark:text-amber-300",
+  realizada: "bg-emerald-600/10 text-emerald-700 dark:text-emerald-300",
   cancelada: "bg-destructive/10 text-destructive",
 };
 

@@ -1,5 +1,6 @@
 import { Link, usePage, router } from '@inertiajs/react'
 import { FlashMessages } from '~/components/FlashMessages'
+import { DynamicFavicon } from '~/components/DynamicFavicon'
 import { ErrorSummary } from '~/components/admin/ui'
 import {
   LayoutDashboard, Newspaper, Palette, ChevronLeft, ChevronRight, ChevronDown,
@@ -277,6 +278,8 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
 
   return (
     <div className="min-h-screen bg-background" style={{ fontFamily: "'Inter Variable', 'Inter', Verdana, Geneva, sans-serif" }}>
+      {/* Favicon enviado em Aparência → Identidade também se aplica ao painel. */}
+      <DynamicFavicon />
       <FlashMessages />
 
       {/* Mobile overlay */}
