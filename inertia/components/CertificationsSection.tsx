@@ -27,7 +27,7 @@ export const CertificationsSection = ({ seals = [], title, subtitle }: Certifica
       ? "grid grid-cols-1 gap-6 max-w-md mx-auto"
       : seals.length === 2
         ? "grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto"
-        : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl 2xl:max-w-7xl mx-auto";
+        : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto";
 
   // Com poucos selos a seção fica compacta (evita uma faixa navy alta e vazia);
   // com 3+ usa o respiro padrão do section-block.

@@ -112,7 +112,7 @@ export const ESicSection = ({ title, subtitle, hideHeading = false }: ESicSectio
         </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 max-w-6xl 2xl:max-w-none mx-auto items-stretch">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 max-w-6xl mx-auto items-stretch">
           {/* Sistema E-SIC */}
           <div data-reveal="left" className="card-modern p-5 sm:p-8 flex flex-col bg-card shadow-lg">
             <h3 className="text-xl font-bold text-foreground mb-8">Sistema E-SIC</h3>
@@ -198,7 +198,7 @@ export const ESicSection = ({ title, subtitle, hideHeading = false }: ESicSectio
           </div>
         </div>
 
-        <div className="mt-6 sm:mt-8 max-w-6xl 2xl:max-w-none mx-auto rounded-2xl border border-primary-foreground/15 bg-card/95 p-5 sm:p-6 shadow-lg" data-reveal>
+        <div className="mt-6 sm:mt-8 max-w-6xl mx-auto rounded-2xl border border-primary-foreground/15 bg-card/95 p-5 sm:p-6 shadow-lg" data-reveal>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 text-sm">
             <div>
               <span className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">

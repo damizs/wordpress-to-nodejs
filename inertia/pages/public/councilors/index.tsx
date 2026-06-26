@@ -46,7 +46,7 @@ export default function VereadoresIndex({ vereadores = [], legislature }: Props)
           <section className="py-10 lg:py-14">
             <div className="container">
             {vereadores.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-5 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 {vereadores.map((vereador, i) => (
                   <Link
                     key={vereador.id}

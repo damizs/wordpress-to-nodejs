@@ -26,12 +26,12 @@ import 'tinymce/plugins/table'
 import 'tinymce/plugins/wordcount'
 import 'tinymce/plugins/autoresize'
 
+// APENAS o skin da TOOLBAR (claro). NÃO importar os '*content.min.css': como o
+// editor usa `content_css: false` + `content_style` próprio, eles não estilizam o
+// iframe e ainda VAZAM `body { background: #222F3E }` para a página inteira (o
+// "fundo azul" no /painel). Importar o oxide-dark também deixava a toolbar escura
+// no modo claro (o dark vencia a cascata).
 import 'tinymce/skins/ui/oxide/skin.min.css'
-import 'tinymce/skins/ui/oxide/content.min.css'
-import 'tinymce/skins/ui/oxide-dark/skin.min.css'
-import 'tinymce/skins/ui/oxide-dark/content.min.css'
-import 'tinymce/skins/content/default/content.min.css'
-import 'tinymce/skins/content/dark/content.min.css'
 
 export interface RichTextEditorProps {
   value: string
