@@ -1,14 +1,16 @@
-import { Head } from '@inertiajs/react'
+import { Head, router } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Pencil, Trash2, ShieldCheck } from 'lucide-react'
+import { Pencil, Trash2, ShieldCheck, ShieldOff } from 'lucide-react'
 import { useState } from 'react'
 import {
   Badge,
+  Button,
   ButtonLink,
   ConfirmDelete,
   CreateButton,
   IconButton,
   IconLink,
+  Modal,
   RowActions,
   StatusBadge,
   Table,
@@ -25,11 +27,35 @@ interface UserItem {
   fullName: string
   email: string
   isActive: boolean
+  twofaEnabled: boolean
   roles: { id: number; name: string }[]
 }
 
-export default function UsersIndex({ users }: { users: UserItem[] }) {
+export default function UsersIndex({
+  users,
+  canManageTwofa = false,
+}: {
+  users: UserItem[]
+  canManageTwofa?: boolean
+}) {
   const [deleteTarget, setDeleteTarget] = useState<{ id: number; label: string } | null>(null)
+  const [twofaTarget, setTwofaTarget] = useState<{ id: number; label: string } | null>(null)
+  const [unlocking, setUnlocking] = useState(false)
+
+  function confirmDisableTwofa() {
+    if (!twofaTarget) return
+    setUnlocking(true)
+    router.post(
+      `/painel/usuarios/${twofaTarget.id}/desativar-2fa`,
+      {},
+      {
+        onFinish: () => {
+          setUnlocking(false)
+          setTwofaTarget(null)
+        },
+      }
+    )
+  }
 
   return (
     <AdminLayout title="Usuários">
@@ -50,6 +76,7 @@ export default function UsersIndex({ users }: { users: UserItem[] }) {
           <TH>Usuário</TH>
           <TH>Papéis</TH>
           <TH>Status</TH>
+          <TH>2FA</TH>
           <TH className="text-right">Ações</TH>
         </THead>
         <TBody>
@@ -76,7 +103,23 @@ export default function UsersIndex({ users }: { users: UserItem[] }) {
                 <StatusBadge status={user.isActive ? 'active' : 'inactive'} />
               </TD>
               <TD>
+                {user.twofaEnabled ? (
+                  <Badge tone="success">Ativo</Badge>
+                ) : (
+                  <Badge tone="neutral">Inativo</Badge>
+                )}
+              </TD>
+              <TD>
                 <RowActions>
+                  {canManageTwofa && user.twofaEnabled && (
+                    <IconButton
+                      tone="neutral"
+                      onClick={() => setTwofaTarget({ id: user.id, label: user.fullName })}
+                      title="Destravar 2FA (desativar)"
+                    >
+                      <ShieldOff className="w-4 h-4" />
+                    </IconButton>
+                  )}
                   <IconLink tone="edit" href={`/painel/usuarios/${user.id}/editar`} title="Editar">
                     <Pencil className="w-4 h-4" />
                   </IconLink>
@@ -91,7 +134,7 @@ export default function UsersIndex({ users }: { users: UserItem[] }) {
               </TD>
             </TR>
           ))}
-          {users.length === 0 && <TableEmpty colSpan={4}>Nenhum usuário cadastrado</TableEmpty>}
+          {users.length === 0 && <TableEmpty colSpan={5}>Nenhum usuário cadastrado</TableEmpty>}
         </TBody>
       </Table>
 
@@ -101,6 +144,38 @@ export default function UsersIndex({ users }: { users: UserItem[] }) {
         deleteUrl={(id) => `/painel/usuarios/${id}`}
         entity="usuário"
       />
+
+      <Modal open={!!twofaTarget} onClose={() => (unlocking ? undefined : setTwofaTarget(null))}>
+        <div className="p-5 lg:p-6">
+          <h2 className="text-[15px] font-bold text-foreground mb-2">
+            Destravar verificação em duas etapas
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Isto vai <strong>desativar o 2FA</strong> de{' '}
+            <strong className="text-foreground">{twofaTarget?.label}</strong>. Use apenas para
+            destravar alguém que perdeu o app autenticador e os códigos de backup. A pessoa entrará
+            só com a senha até reativar.
+          </p>
+          <div className="mt-5 flex justify-end gap-2">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setTwofaTarget(null)}
+              disabled={unlocking}
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={confirmDisableTwofa}
+              loading={unlocking}
+            >
+              Desativar 2FA
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </AdminLayout>
   )
 }

@@ -7,7 +7,10 @@ import {
   isLoginRateLimited,
   recordFailedLogin,
 } from '#services/login_rate_limiter'
+import TwofaService from '#services/twofa_service'
 import EvolutionAlertService from '#services/evolution_alert_service'
+
+const TWOFA_PENDING_KEY = 'twofa_pending_user'
 
 export default class AuthController {
   async showLogin({ inertia, auth, response }: HttpContext) {
@@ -52,6 +55,14 @@ export default class AuthController {
         return response.redirect('/login')
       }
 
+      // Credenciais válidas. Se o usuário ativou 2FA, NÃO autentica ainda:
+      // guarda um estado pendente em sessão e exige o segundo fator.
+      if (user.twofaEnabled && user.twofaSecret) {
+        clearFailedLogins(ip, email)
+        session.put(TWOFA_PENDING_KEY, user.id)
+        return response.redirect('/login/2fa')
+      }
+
       await auth.use('web').login(user)
       clearFailedLogins(ip, email)
       return response.redirect('/painel')
@@ -72,6 +83,83 @@ export default class AuthController {
       session.flash('error', 'Email ou senha inválidos.')
       return response.redirect('/login')
     }
+  }
+
+  /** Tela do segundo fator — só acessível quem passou pelas credenciais. */
+  async showTwofa({ inertia, session, response }: HttpContext) {
+    const pendingId = session.get(TWOFA_PENDING_KEY)
+    if (!pendingId) {
+      return response.redirect('/login')
+    }
+    const siteSettings = await SiteSetting.allAsObject()
+    return inertia.render('auth/twofa', { siteSettings })
+  }
+
+  /** Verifica o código TOTP ou um código de backup e conclui o login. */
+  async verifyTwofa({ request, auth, response, session }: HttpContext) {
+    const pendingId = session.get(TWOFA_PENDING_KEY)
+    if (!pendingId) {
+      return response.redirect('/login')
+    }
+
+    const user = await User.find(pendingId)
+    if (!user || !user.isActive || !user.twofaEnabled || !user.twofaSecret) {
+      session.forget(TWOFA_PENDING_KEY)
+      session.flash('error', 'Sessão de verificação inválida. Faça login novamente.')
+      return response.redirect('/login')
+    }
+
+    const ip = request.ip()
+    const email = user.email
+
+    // Rate limit reaproveitando o limitador de login (por usuário/IP).
+    if (isLoginRateLimited(ip, email)) {
+      void EvolutionAlertService.sendAlert(
+        'login',
+        '2FA bloqueado por limite',
+        `O painel bloqueou novas tentativas de 2FA para ${email} a partir do IP ${ip}.`,
+        {
+          dedupeKey: `2fa-rate:${ip}:${email}`,
+          throttleMinutes: 60,
+          metadata: { ip, email },
+        }
+      ).catch(() => null)
+      session.flash('error', 'Muitas tentativas. Aguarde alguns minutos e tente novamente.')
+      return response.redirect('/login/2fa')
+    }
+
+    const rawCode = String(request.input('code', '')).trim()
+    if (!rawCode) {
+      session.flash('error', 'Informe o código de verificação.')
+      return response.redirect('/login/2fa')
+    }
+
+    // 1) Tenta TOTP (6 dígitos).
+    let authorized = TwofaService.verifyToken(rawCode, user.twofaSecret)
+
+    // 2) Se não for um TOTP válido, tenta um código de backup (uso único).
+    if (!authorized) {
+      const hashes = TwofaService.parseBackupCodes(user.twofaBackupCodes)
+      if (hashes.length > 0) {
+        const remaining = await TwofaService.consumeBackupCode(rawCode, hashes)
+        if (remaining) {
+          user.twofaBackupCodes = TwofaService.serializeBackupCodes(remaining)
+          await user.save()
+          authorized = true
+        }
+      }
+    }
+
+    if (!authorized) {
+      recordFailedLogin(ip, email)
+      session.flash('error', 'Código inválido. Tente o código do app ou um código de backup.')
+      return response.redirect('/login/2fa')
+    }
+
+    await auth.use('web').login(user)
+    session.forget(TWOFA_PENDING_KEY)
+    clearFailedLogins(ip, email)
+    return response.redirect('/painel')
   }
 
   async logout({ auth, response }: HttpContext) {
