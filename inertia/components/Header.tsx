@@ -729,15 +729,12 @@ export const Header = ({ logoUrl }: HeaderProps) => {
         <div className="absolute -bottom-1/2 -left-1/4 w-96 h-96 bg-sky/[0.04] rounded-full blur-3xl" />
       </div>
 
-      <div className={`relative container ${institutionalCompact ? "py-3 sm:py-4 md:py-4" : "py-3 sm:py-5 md:py-6"}`}>
-        {/* >=1280px (xl): logo à esquerda + navegação à direita na MESMA linha
-            (cara de portal institucional). Abaixo de xl: empilhado e centrado. */}
-        <div className="xl:flex xl:items-center xl:justify-between xl:gap-8">
+      <div className={`relative container ${institutionalCompact ? "py-3 sm:py-4 md:py-5" : "py-4 sm:py-6 md:py-10"}`}>
         {/* Logo and Title */}
         <Link
           href="/"
-          className={`flex items-center justify-center gap-3 sm:gap-4 animate-fade-in no-underline px-12 md:px-1 xl:shrink-0 xl:justify-start xl:mb-0 ${
-            institutionalCompact ? "mb-0 md:mb-3" : "mb-0 md:mb-4"
+          className={`flex items-center justify-center gap-3 sm:gap-4 animate-fade-in no-underline px-12 md:px-1 ${
+            institutionalCompact ? "mb-0 md:mb-4" : "mb-0 md:mb-7"
           }`}
         >
           {resolvedLogo ? (
@@ -746,8 +743,8 @@ export const Header = ({ logoUrl }: HeaderProps) => {
               alt={headerTitle}
               className={`w-auto object-contain ${
                 institutionalCompact
-                  ? "h-12 sm:h-14 md:h-16 xl:h-14 max-w-[60vw] md:max-w-[30rem]"
-                  : "h-14 sm:h-20 md:h-24 xl:h-16 max-w-[62vw] sm:max-w-[78vw] md:max-w-[85vw]"
+                  ? "h-12 sm:h-14 md:h-20 max-w-[60vw] md:max-w-[34rem]"
+                  : "h-14 sm:h-20 md:h-32 max-w-[62vw] sm:max-w-[78vw] md:max-w-[85vw]"
               }`}
             />
           ) : (
@@ -769,8 +766,8 @@ export const Header = ({ logoUrl }: HeaderProps) => {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden lg:block relative z-40 xl:shrink-0">
-          <div className="glass relative rounded-2xl px-3 lg:px-5 py-2.5 mx-auto w-fit max-w-full xl:mx-0">
+        <nav className="hidden lg:block relative z-40">
+          <div className="glass relative rounded-2xl px-3 lg:px-5 py-2.5 mx-auto w-fit max-w-full">
             <ul className="flex items-center justify-center gap-1 min-w-0">
               {desktopNavItems.map((item, index) => (
                 <li key={`${item.href}-${index}`} className="relative group">
@@ -815,7 +812,6 @@ export const Header = ({ logoUrl }: HeaderProps) => {
             </ul>
           </div>
         </nav>
-        </div>
 
         {/* Overlay de busca (desktop): aparece abaixo da navegação ao clicar na lupa */}
         {searchOpen && (
