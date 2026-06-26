@@ -1,4 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
+import db from '@adonisjs/lucid/services/db'
 import OfficialPublication from '#models/official_publication'
 import Licitacao from '#models/licitacao'
 import SiteSetting from '#models/site_setting'
@@ -44,14 +45,18 @@ export default class PublicationsController {
     const siteSettings = await SiteSetting.allAsObject()
 
     const typeRows = await OfficialPublication.query().distinct('type').orderBy('type', 'asc')
-    const dateRows = await OfficialPublication.query().select('publication_date')
-    const years = Array.from(
-      new Set(
-        dateRows
-          .map((r) => Number(String(r.publicationDate || '').slice(0, 4)))
-          .filter((y) => Number.isFinite(y) && y > 1900)
-      )
-    ).sort((a, b) => b - a)
+    // Extrai os anos NO BANCO (publication_date é coluna `date` e o driver a
+    // retorna como objeto Date — fazer String(date).slice(0,4) dava "Wed " → NaN,
+    // deixando o dropdown de anos VAZIO. EXTRACT é robusto à serialização.
+    const yearsResult = await db.rawQuery(
+      `SELECT DISTINCT EXTRACT(YEAR FROM publication_date)::int AS year
+       FROM official_publications
+       WHERE publication_date IS NOT NULL
+       ORDER BY year DESC`
+    )
+    const years = (yearsResult.rows || [])
+      .map((r: { year: number }) => Number(r.year))
+      .filter((y: number) => Number.isFinite(y) && y > 1900)
 
     return inertia.render('public/publications/index', {
       publications: publications.all().map(mapPublication),
