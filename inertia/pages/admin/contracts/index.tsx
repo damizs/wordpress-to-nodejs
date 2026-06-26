@@ -24,6 +24,7 @@ import {
   Pagination,
   RowActions,
   Select,
+  StatCard,
   StatusBadge,
   Table,
   TableEmpty,
@@ -79,33 +80,6 @@ function baseUrl(filters: Props['filters']) {
   if (filters.search) params.set('busca', filters.search)
   const query = params.toString()
   return `/painel/contratos${query ? `?${query}` : ''}`
-}
-
-function StatCard({
-  label,
-  value,
-  hint,
-  icon: Icon,
-}: {
-  label: string
-  value: string | number
-  hint: string
-  icon: typeof BriefcaseBusiness
-}) {
-  return (
-    <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</p>
-          <p className="mt-2 text-2xl font-bold leading-none text-foreground">{value}</p>
-          <p className="mt-2 text-xs text-muted-foreground">{hint}</p>
-        </div>
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-navy/10 text-navy">
-          <Icon className="h-5 w-5" />
-        </div>
-      </div>
-    </div>
-  )
 }
 
 function ContractCard({
@@ -193,29 +167,23 @@ export default function ContractsIndex({ contracts, filters, linkableCount }: Pr
     <AdminLayout title="Contratos">
       <Head title="Contratos - Painel" />
 
-      <section className="mb-6 rounded-2xl border border-border bg-card p-5 shadow-sm lg:p-6">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-          <div className="min-w-0">
-            <Badge tone="navy" className="mb-3">
-              PNTP 9.1 / 9.3
-            </Badge>
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">Contratos</h1>
-            <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
-              Controle dos contratos estruturados com contratado, vigencia, valor, gestor,
-              fiscal tecnico e arquivo do instrumento.
-            </p>
-          </div>
-          <div className="flex flex-col gap-2 sm:flex-row lg:shrink-0">
-            {linkableCount > 0 && (
-              <Button variant="secondary" onClick={importFromLicitacoes} loading={importing}>
-                <DownloadCloud className="h-4 w-4" />
-                Importar {linkableCount}
-              </Button>
-            )}
-            <CreateButton href="/painel/contratos/criar">Novo contrato</CreateButton>
-          </div>
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm text-muted-foreground">
+          <Badge tone="navy" className="mr-2 align-middle">
+            PNTP 9.1 / 9.3
+          </Badge>
+          Contratos estruturados: contratado, vigência, valor, gestor, fiscal e arquivo.
+        </p>
+        <div className="flex flex-wrap gap-2 sm:shrink-0">
+          {linkableCount > 0 && (
+            <Button variant="secondary" onClick={importFromLicitacoes} loading={importing}>
+              <DownloadCloud className="h-4 w-4" />
+              Importar {linkableCount}
+            </Button>
+          )}
+          <CreateButton href="/painel/contratos/criar">Novo contrato</CreateButton>
         </div>
-      </section>
+      </div>
 
       <div className="mb-6 grid gap-3 md:grid-cols-3">
         <StatCard
@@ -239,7 +207,7 @@ export default function ContractsIndex({ contracts, filters, linkableCount }: Pr
       </div>
 
       <section className="mb-5 rounded-xl border border-border bg-card p-4 shadow-sm">
-        <form className="grid gap-3 lg:grid-cols-[minmax(0,1fr)_220px_auto_auto]" onSubmit={submitSearch}>
+        <form className="grid gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_220px_auto_auto]" onSubmit={submitSearch}>
           <div className="relative">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input

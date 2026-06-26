@@ -315,47 +315,7 @@ export default function Dashboard({ stats, recentNews, upcomingSessions, content
         </div>
       )}
 
-      {statCards.length > 0 && (
-        <Card className="mb-8">
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-5">
-            <div>
-              <div className="inline-flex items-center gap-2 rounded-full bg-muted px-3 py-1 text-xs font-bold uppercase tracking-wide text-muted-foreground">
-                <BarChart3 className="h-3.5 w-3.5" />
-                Indicadores
-              </div>
-              <h2 className="mt-3 text-xl font-bold text-foreground">Volume por área do painel</h2>
-            </div>
-            <p className="text-sm text-muted-foreground">Clique nos cards para ir direto ao módulo.</p>
-          </div>
-          <div className="space-y-3">
-            {statCards.map((card, index) => {
-              const value = Number(stats[card.key] || 0)
-              const width = Math.max(value > 0 ? 8 : 2, (value / maxStat) * 100)
-              return (
-                <Link
-                  key={card.key}
-                  href={card.href}
-                  className="grid gap-2 rounded-xl border border-border/70 p-3 no-underline transition-colors hover:border-navy/30 hover:bg-muted/30 md:grid-cols-[210px_1fr_70px] md:items-center"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${card.accent}`}>
-                      <card.icon className="h-4 w-4" />
-                    </div>
-                    <span className="text-sm font-semibold text-foreground">{card.label}</span>
-                  </div>
-                  <div className="h-3 overflow-hidden rounded-full bg-muted">
-                    <div
-                      className="h-full rounded-full"
-                      style={{ width: `${width}%`, backgroundColor: donutColors[index % donutColors.length] }}
-                    />
-                  </div>
-                  <span className="text-right text-lg font-bold text-foreground tabular-nums">{value}</span>
-                </Link>
-              )
-            })}
-          </div>
-        </Card>
-      )}
+      {/* (removida a Card "Volume por área" — duplicava o donut + os cards numéricos abaixo) */}
 
       {/* Stats — só dos módulos que o usuário acessa */}
       {contentHealth.length > 0 && (

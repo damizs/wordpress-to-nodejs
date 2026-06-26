@@ -95,7 +95,7 @@ export default function NewsForm({ news: existing, categories }: Props) {
     <AdminLayout title={isEditing ? 'Editar Notícia' : 'Nova Notícia'}>
       <Head title={`${isEditing ? 'Editar' : 'Nova'} Notícia - Painel`} />
 
-      <div className="admin-form admin-form-wide">
+      <div className="w-full min-w-0 space-y-6">
         {/* Back */}
         <Link
           href="/painel/noticias"
@@ -106,41 +106,46 @@ export default function NewsForm({ news: existing, categories }: Props) {
         </Link>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Main content */}
-          <Card className="space-y-5">
-            <Field label="Título" required>
-              <Input
-                type="text"
-                value={data.title}
-                onChange={(e) => setData('title', e.target.value)}
-                placeholder="Título da notícia"
-                required
-              />
-            </Field>
+          {/* Layout estilo editor WordPress: conteúdo à esquerda, meta numa
+              barra lateral sticky à direita (empilha no mobile/tablet). */}
+          <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px] xl:items-start">
+            {/* Coluna principal — conteúdo */}
+            <div className="space-y-6 min-w-0">
+              <Card className="space-y-5">
+                <Field label="Título" required>
+                  <Input
+                    type="text"
+                    value={data.title}
+                    onChange={(e) => setData('title', e.target.value)}
+                    placeholder="Título da notícia"
+                    required
+                  />
+                </Field>
 
-            <Field label="Resumo">
-              <Textarea
-                value={data.excerpt}
-                onChange={(e) => setData('excerpt', e.target.value)}
-                rows={2}
-                className="resize-none min-h-0"
-                placeholder="Resumo curto da notícia (aparece na listagem)"
-              />
-            </Field>
+                <Field label="Resumo">
+                  <Textarea
+                    value={data.excerpt}
+                    onChange={(e) => setData('excerpt', e.target.value)}
+                    rows={2}
+                    className="resize-none min-h-0"
+                    placeholder="Resumo curto da notícia (aparece na listagem)"
+                  />
+                </Field>
 
-            <Field label="Conteúdo" hint="Editor visual — formatação, links e imagens (upload pela biblioteca de mídia).">
-              <RichTextEditor
-                value={data.content}
-                onChange={(html) => setData('content', html)}
-                minHeight={420}
-              />
-            </Field>
-          </Card>
+                <Field label="Conteúdo" hint="Editor visual — formatação, links e imagens (upload pela biblioteca de mídia).">
+                  <RichTextEditor
+                    value={data.content}
+                    onChange={(html) => setData('content', html)}
+                    minHeight={420}
+                  />
+                </Field>
+              </Card>
+            </div>
 
-          {/* Sidebar options */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            {/* Cover Image */}
-            <Card>
+            {/* Barra lateral de meta (sticky) */}
+            <aside className="space-y-6 min-w-0 xl:sticky xl:top-20">
+              {/* Imagem de capa */}
+              <Card>
               <Field label="Imagem de Capa">
                 {coverPreview ? (
                   <div className="relative rounded-lg overflow-hidden mb-3 mt-1.5">
@@ -187,9 +192,8 @@ export default function NewsForm({ news: existing, categories }: Props) {
               </Field>
             </Card>
 
-            {/* Status + Category + Date */}
-            <div className="space-y-5">
-              <Card>
+              {/* Status, categoria e data num único card */}
+              <Card className="space-y-5">
                 <Field label="Status">
                   <Select value={data.status} onChange={(e) => setData('status', e.target.value)}>
                     <option value="draft">Rascunho</option>
@@ -197,9 +201,7 @@ export default function NewsForm({ news: existing, categories }: Props) {
                     <option value="archived">Arquivada</option>
                   </Select>
                 </Field>
-              </Card>
 
-              <Card>
                 <Field label="Categoria">
                   <Select
                     value={data.category_id}
@@ -211,9 +213,7 @@ export default function NewsForm({ news: existing, categories }: Props) {
                     ))}
                   </Select>
                 </Field>
-              </Card>
 
-              <Card>
                 <Field
                   label="Data de Publicação"
                   hint="Deixe em branco para usar a data atual ao publicar"
@@ -225,7 +225,7 @@ export default function NewsForm({ news: existing, categories }: Props) {
                   />
                 </Field>
               </Card>
-            </div>
+            </aside>
           </div>
 
           {/* Actions */}

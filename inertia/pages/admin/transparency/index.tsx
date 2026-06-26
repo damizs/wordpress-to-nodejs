@@ -23,6 +23,7 @@ import {
   IconButton,
   IconLink,
   RowActions,
+  StatCard,
   StatusBadge,
 } from '~/components/admin/ui'
 
@@ -44,33 +45,6 @@ interface Section {
   display_order: number
   is_active: boolean
   links: TransparencyLink[]
-}
-
-function StatCard({
-  label,
-  value,
-  hint,
-  icon: Icon,
-}: {
-  label: string
-  value: string | number
-  hint: string
-  icon: typeof Shield
-}) {
-  return (
-    <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</p>
-          <p className="mt-2 text-2xl font-bold leading-none text-foreground">{value}</p>
-          <p className="mt-2 text-xs text-muted-foreground">{hint}</p>
-        </div>
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-navy/10 text-navy">
-          <Icon className="h-5 w-5" />
-        </div>
-      </div>
-    </div>
-  )
 }
 
 function TransparencyLinkRow({
@@ -139,27 +113,19 @@ export default function TransparencyIndex({ sections }: { sections: Section[] })
     <AdminLayout title="Transparencia">
       <Head title="Transparencia - Painel" />
 
-      <section className="mb-6 rounded-2xl border border-border bg-card p-5 shadow-sm lg:p-6">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-          <div className="min-w-0">
-            <Badge tone="navy" className="mb-3">
-              Portal da Transparencia
-            </Badge>
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">Transparencia</h1>
-            <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
-              Organize as secoes e links exibidos ao cidadao. Use links internos quando o portal
-              tiver modulo proprio e links externos para sistemas contratados.
-            </p>
-          </div>
-          <div className="flex flex-col gap-2 sm:flex-row lg:shrink-0">
-            <ButtonLink href="/painel/acesso-informacao" variant="secondary">
-              <FileText className="h-4 w-4" />
-              Acesso a Informacao
-            </ButtonLink>
-            <CreateButton href="/painel/transparencia/secoes/criar">Nova secao</CreateButton>
-          </div>
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <p className="text-sm text-muted-foreground">
+          Organize as seções e links exibidos ao cidadão — internos (módulo próprio) ou externos
+          (sistemas contratados).
+        </p>
+        <div className="flex flex-wrap gap-2 sm:shrink-0">
+          <ButtonLink href="/painel/acesso-informacao" variant="secondary">
+            <FileText className="h-4 w-4" />
+            Acesso à Informação
+          </ButtonLink>
+          <CreateButton href="/painel/transparencia/secoes/criar">Nova seção</CreateButton>
         </div>
-      </section>
+      </div>
 
       <div className="mb-6 grid gap-3 md:grid-cols-3">
         <StatCard
