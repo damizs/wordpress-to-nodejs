@@ -8,6 +8,7 @@ import {
   Field,
   IconButton,
   Input,
+  PageHeader,
   Select,
   Textarea,
 } from '~/components/admin/ui'
@@ -44,7 +45,12 @@ function voteSelectClass(vote: string) {
   return `${base} border-border bg-muted text-muted-foreground`
 }
 
-export default function VotingForm({ voting, sessions = [], activities = [], councilors = [] }: Props) {
+export default function VotingForm({
+  voting,
+  sessions = [],
+  activities = [],
+  councilors = [],
+}: Props) {
   const isEditing = !!voting
   const { data, setData, post, put, processing } = useForm({
     title: voting?.title || '',
@@ -68,12 +74,15 @@ export default function VotingForm({ voting, sessions = [], activities = [], cou
   }
 
   function fillWithCouncilors() {
-    setData('entries', councilors.map((c) => ({
-      councilor_id: c.id,
-      councilor_name: c.name,
-      party: c.party,
-      vote: 'sim',
-    })))
+    setData(
+      'entries',
+      councilors.map((c) => ({
+        councilor_id: c.id,
+        councilor_name: c.name,
+        party: c.party,
+        vote: 'sim',
+      }))
+    )
   }
 
   function updateEntry(index: number, patch: Partial<Entry>) {
@@ -83,15 +92,24 @@ export default function VotingForm({ voting, sessions = [], activities = [], cou
   }
 
   function removeEntry(index: number) {
-    setData('entries', data.entries.filter((_, i) => i !== index))
+    setData(
+      'entries',
+      data.entries.filter((_, i) => i !== index)
+    )
   }
 
   function addEntry() {
-    setData('entries', [...data.entries, { councilor_id: null, councilor_name: '', party: null, vote: 'sim' }])
+    setData('entries', [
+      ...data.entries,
+      { councilor_id: null, councilor_name: '', party: null, vote: 'sim' },
+    ])
   }
 
   function setAllVotes(vote: string) {
-    setData('entries', data.entries.map((e) => ({ ...e, vote })))
+    setData(
+      'entries',
+      data.entries.map((e) => ({ ...e, vote }))
+    )
   }
 
   return (
@@ -105,11 +123,22 @@ export default function VotingForm({ voting, sessions = [], activities = [], cou
         <ArrowLeft className="w-4 h-4" /> Voltar
       </Link>
 
+      <PageHeader
+        title={isEditing ? 'Editar Votação' : 'Nova Votação Nominal'}
+        description={
+          isEditing
+            ? 'Atualize os dados e os votos da votação.'
+            : 'Registre a votação com o voto de cada vereador.'
+        }
+        icon={Vote}
+        eyebrow="Votações Nominais"
+      />
+
       <form onSubmit={handleSubmit} className="admin-form">
         <Card>
           <CardHeader title="Matéria Votada" icon={Vote} />
 
-          <div className="space-y-4">
+          <div className="space-y-5">
             <Field label="Matéria / Título" required>
               <Input
                 type="text"
@@ -129,7 +158,7 @@ export default function VotingForm({ voting, sessions = [], activities = [], cou
               />
             </Field>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <Field label="Data da Votação" required>
                 <Input
                   type="date"
@@ -149,14 +178,18 @@ export default function VotingForm({ voting, sessions = [], activities = [], cou
               </Field>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <Field label="Sessão Plenária">
                 <Select
                   value={data.plenary_session_id}
                   onChange={(e) => setData('plenary_session_id', e.target.value)}
                 >
                   <option value="">Nenhuma</option>
-                  {sessions.map((s) => <option key={s.id} value={s.id}>{s.title}</option>)}
+                  {sessions.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.title}
+                    </option>
+                  ))}
                 </Select>
               </Field>
               <Field label="Atividade Legislativa">
@@ -165,7 +198,11 @@ export default function VotingForm({ voting, sessions = [], activities = [], cou
                   onChange={(e) => setData('legislative_activity_id', e.target.value)}
                 >
                   <option value="">Nenhuma</option>
-                  {activities.map((a) => <option key={a.id} value={a.id}>{a.label}</option>)}
+                  {activities.map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {a.label}
+                    </option>
+                  ))}
                 </Select>
               </Field>
             </div>
@@ -202,11 +239,22 @@ export default function VotingForm({ voting, sessions = [], activities = [], cou
                 {data.entries.length > 0 && (
                   <div className="w-44">
                     <Select
-                      onChange={(e) => { if (e.target.value) { setAllVotes(e.target.value); e.target.value = '' } }}
+                      onChange={(e) => {
+                        if (e.target.value) {
+                          setAllVotes(e.target.value)
+                          e.target.value = ''
+                        }
+                      }}
                       defaultValue=""
                     >
-                      <option value="" disabled>Marcar todos como...</option>
-                      {VOTE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                      <option value="" disabled>
+                        Marcar todos como...
+                      </option>
+                      {VOTE_OPTIONS.map((o) => (
+                        <option key={o.value} value={o.value}>
+                          {o.label}
+                        </option>
+                      ))}
                     </Select>
                   </div>
                 )}
@@ -219,7 +267,8 @@ export default function VotingForm({ voting, sessions = [], activities = [], cou
 
           {data.entries.length === 0 ? (
             <p className="text-sm text-muted-foreground text-center py-6">
-              Nenhum voto registrado. Use "Preencher vereadores" para listar todos os vereadores ativos.
+              Nenhum voto registrado. Use "Preencher vereadores" para listar todos os vereadores
+              ativos.
             </p>
           ) : (
             <div className="space-y-2">
@@ -239,7 +288,10 @@ export default function VotingForm({ voting, sessions = [], activities = [], cou
                   >
                     <option value="">{entry.councilor_name || 'Selecione o vereador'}</option>
                     {councilors.map((c) => (
-                      <option key={c.id} value={c.id}>{c.name}{c.party ? ` (${c.party})` : ''}</option>
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                        {c.party ? ` (${c.party})` : ''}
+                      </option>
                     ))}
                   </Select>
                   <select
@@ -247,9 +299,18 @@ export default function VotingForm({ voting, sessions = [], activities = [], cou
                     onChange={(e) => updateEntry(i, { vote: e.target.value })}
                     className={`w-36 shrink-0 ${voteSelectClass(entry.vote)}`}
                   >
-                    {VOTE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                    {VOTE_OPTIONS.map((o) => (
+                      <option key={o.value} value={o.value}>
+                        {o.label}
+                      </option>
+                    ))}
                   </select>
-                  <IconButton type="button" tone="delete" onClick={() => removeEntry(i)} title="Remover voto">
+                  <IconButton
+                    type="button"
+                    tone="delete"
+                    onClick={() => removeEntry(i)}
+                    title="Remover voto"
+                  >
                     <Trash2 className="w-4 h-4" />
                   </IconButton>
                 </div>
@@ -266,10 +327,12 @@ export default function VotingForm({ voting, sessions = [], activities = [], cou
           </button>
         </Card>
 
-        <Button type="submit" loading={processing}>
-          {!processing && <Save className="w-4 h-4" />}
-          {processing ? 'Salvando...' : 'Salvar'}
-        </Button>
+        <div className="flex justify-end">
+          <Button type="submit" loading={processing}>
+            {!processing && <Save className="w-4 h-4" />}
+            {processing ? 'Salvando...' : 'Salvar'}
+          </Button>
+        </div>
       </form>
     </AdminLayout>
   )

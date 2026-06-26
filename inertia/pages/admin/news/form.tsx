@@ -1,6 +1,6 @@
-import { Head, useForm, Link, router } from '@inertiajs/react'
+import { Head, useForm, router } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Save, ArrowLeft, Upload, Image, X } from 'lucide-react'
+import { Save, ArrowLeft, Upload, Image, X, Newspaper } from 'lucide-react'
 import { useState, useRef } from 'react'
 import {
   Button,
@@ -8,6 +8,7 @@ import {
   Card,
   Field,
   Input,
+  PageHeader,
   Select,
   Textarea,
 } from '~/components/admin/ui'
@@ -96,17 +97,21 @@ export default function NewsForm({ news: existing, categories }: Props) {
       <Head title={`${isEditing ? 'Editar' : 'Nova'} Notícia - Painel`} />
 
       <div className="w-full min-w-0 space-y-6">
-        {/* Back */}
-        <Link
-          href="/painel/noticias"
-          className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-navy mb-6 transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Voltar para listagem
-        </Link>
+        <PageHeader
+          eyebrow="Conteúdo"
+          icon={Newspaper}
+          title={isEditing ? 'Editar Notícia' : 'Nova Notícia'}
+          description={isEditing ? `Editando: ${existing?.title}` : 'Preencha os dados para criar uma nova notícia'}
+          actions={
+            <ButtonLink href="/painel/noticias" variant="secondary">
+              <ArrowLeft className="w-4 h-4" />
+              Voltar
+            </ButtonLink>
+          }
+        />
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Layout estilo editor WordPress: conteúdo à esquerda, meta numa
+        <form id="news-form" onSubmit={handleSubmit} className="space-y-6">
+          {/* Layout estilo editor: conteúdo à esquerda, meta numa
               barra lateral sticky à direita (empilha no mobile/tablet). */}
           <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_340px] xl:items-start">
             {/* Coluna principal — conteúdo */}
@@ -146,51 +151,51 @@ export default function NewsForm({ news: existing, categories }: Props) {
             <aside className="space-y-6 min-w-0 xl:sticky xl:top-20">
               {/* Imagem de capa */}
               <Card>
-              <Field label="Imagem de Capa">
-                {coverPreview ? (
-                  <div className="relative rounded-lg overflow-hidden mb-3 mt-1.5">
-                    <img src={coverPreview} alt="Preview" className="w-full h-40 object-cover" />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setCoverPreview(null)
-                        setData('cover_image', null)
-                      }}
-                      className="absolute top-2 right-2 p-1 bg-navy-dark/50 rounded-full text-white hover:bg-navy-dark/70 transition-colors"
+                <Field label="Imagem de Capa">
+                  {coverPreview ? (
+                    <div className="relative rounded-lg overflow-hidden mb-3 mt-1.5">
+                      <img src={coverPreview} alt="Preview" className="w-full h-40 object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setCoverPreview(null)
+                          setData('cover_image', null)
+                        }}
+                        className="absolute top-2 right-2 p-1 bg-navy-dark/50 rounded-full text-white hover:bg-navy-dark/70 transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div
+                      onClick={() => fileRef.current?.click()}
+                      className="flex flex-col items-center justify-center py-8 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-navy/30 transition-colors mb-3 mt-1.5"
                     >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                ) : (
-                  <div
-                    onClick={() => fileRef.current?.click()}
-                    className="flex flex-col items-center justify-center py-8 border-2 border-dashed border-border rounded-lg cursor-pointer hover:border-navy/30 transition-colors mb-3 mt-1.5"
-                  >
-                    <Image className="w-8 h-8 text-muted-foreground/50 mb-2" />
-                    <span className="text-sm text-muted-foreground">Clique para enviar</span>
-                    <span className="text-xs text-muted-foreground/60 mt-1">JPG, PNG ou WebP até 5MB</span>
-                  </div>
-                )}
-                <input
-                  ref={fileRef}
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp"
-                  className="hidden"
-                  onChange={(e) => handleCoverChange(e.target.files?.[0] || null)}
-                />
-                {!coverPreview && (
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    className="w-full"
-                    onClick={() => fileRef.current?.click()}
-                  >
-                    <Upload className="w-4 h-4" />
-                    Selecionar imagem
-                  </Button>
-                )}
-              </Field>
-            </Card>
+                      <Image className="w-8 h-8 text-muted-foreground/50 mb-2" />
+                      <span className="text-sm text-muted-foreground">Clique para enviar</span>
+                      <span className="text-xs text-muted-foreground/60 mt-1">JPG, PNG ou WebP até 5MB</span>
+                    </div>
+                  )}
+                  <input
+                    ref={fileRef}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="hidden"
+                    onChange={(e) => handleCoverChange(e.target.files?.[0] || null)}
+                  />
+                  {!coverPreview && (
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      className="w-full"
+                      onClick={() => fileRef.current?.click()}
+                    >
+                      <Upload className="w-4 h-4" />
+                      Selecionar imagem
+                    </Button>
+                  )}
+                </Field>
+              </Card>
 
               {/* Status, categoria e data num único card */}
               <Card className="space-y-5">
@@ -229,11 +234,11 @@ export default function NewsForm({ news: existing, categories }: Props) {
           </div>
 
           {/* Actions */}
-          <div className="flex items-center justify-end gap-3 pt-2">
-            <ButtonLink href="/painel/noticias" variant="secondary">
+          <div className="flex flex-col sm:flex-row items-center justify-end gap-3 pt-2">
+            <ButtonLink href="/painel/noticias" variant="secondary" className="w-full sm:w-auto">
               Cancelar
             </ButtonLink>
-            <Button type="submit" loading={processing}>
+            <Button type="submit" loading={processing} className="w-full sm:w-auto">
               {!processing && <Save className="w-4 h-4" />}
               {processing ? 'Salvando...' : isEditing ? 'Atualizar' : 'Criar Notícia'}
             </Button>

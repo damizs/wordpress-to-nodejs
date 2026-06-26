@@ -47,8 +47,8 @@ export default class InstagramController {
       settings,
       categories,
       aiProviders: [
+        { value: 'deepseek', label: 'DeepSeek (Recomendado)' },
         { value: 'gemini', label: 'Google Gemini' },
-        { value: 'deepseek', label: 'DeepSeek' },
         { value: 'openai', label: 'OpenAI GPT' },
         { value: 'claude', label: 'Anthropic Claude' },
       ],

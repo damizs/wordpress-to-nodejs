@@ -1,16 +1,16 @@
 import { Head, router } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Pencil, Trash2, ShieldCheck, ShieldOff } from 'lucide-react'
+import { Pencil, Plus, Trash2, ShieldCheck, ShieldOff, Users } from 'lucide-react'
 import { useState } from 'react'
 import {
   Badge,
   Button,
   ButtonLink,
   ConfirmDelete,
-  CreateButton,
   IconButton,
   IconLink,
   Modal,
+  PageHeader,
   RowActions,
   StatusBadge,
   Table,
@@ -61,15 +61,23 @@ export default function UsersIndex({
     <AdminLayout title="Usuários">
       <Head title="Usuários - Painel" />
 
-      <div className="flex items-center justify-between mb-6">
-        <p className="text-sm text-muted-foreground">{users.length} usuário(s)</p>
-        <div className="flex items-center gap-2">
-          <ButtonLink href="/painel/papeis" variant="secondary">
-            <ShieldCheck className="w-4 h-4" /> Papéis e Permissões
-          </ButtonLink>
-          <CreateButton href="/painel/usuarios/criar">Novo Usuário</CreateButton>
-        </div>
-      </div>
+      <PageHeader
+        title="Usuários"
+        description={`${users.length} usuário(s) cadastrado(s) no sistema.`}
+        icon={Users}
+        eyebrow="Sistema"
+        variant="hero"
+        actions={
+          <>
+            <ButtonLink href="/painel/papeis" variant="secondary">
+              <ShieldCheck className="w-4 h-4" /> Papéis e Permissões
+            </ButtonLink>
+            <ButtonLink href="/painel/usuarios/criar" variant="gold">
+              <Plus className="w-4 h-4" /> Novo Usuário
+            </ButtonLink>
+          </>
+        }
+      />
 
       <Table>
         <THead>

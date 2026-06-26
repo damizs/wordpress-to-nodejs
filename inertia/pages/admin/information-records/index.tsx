@@ -22,9 +22,11 @@ import {
   EmptyState,
   IconButton,
   IconLink,
+  PageHeader,
   Pagination,
   RowActions,
   Select,
+  StatCard,
   Table,
   TableEmpty,
   TBody,
@@ -85,33 +87,6 @@ function baseUrl(filters: Props['filters']) {
   const query = buildQuery(filters, {})
   const params = new URLSearchParams(query).toString()
   return params ? `/painel/acesso-informacao?${params}` : '/painel/acesso-informacao'
-}
-
-function StatCard({
-  icon: Icon,
-  label,
-  value,
-  hint,
-}: {
-  icon: typeof Archive
-  label: string
-  value: string | number
-  hint: string
-}) {
-  return (
-    <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</p>
-          <p className="mt-1 text-2xl font-bold tracking-tight text-foreground">{value}</p>
-        </div>
-        <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-navy/10 text-navy">
-          <Icon className="h-5 w-5" />
-        </span>
-      </div>
-      <p className="mt-3 text-xs text-muted-foreground">{hint}</p>
-    </div>
-  )
 }
 
 function MobileRecordCard({
@@ -199,28 +174,35 @@ export default function InformationRecordsIndex({ records, filters }: Props) {
       <Head title="Acesso à Informação - Painel" />
 
       <div className="space-y-6">
-        <section className="rounded-2xl border border-border bg-card p-5 shadow-sm lg:p-6">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-            <div className="min-w-0">
-              <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-navy/10 px-3 py-1 text-xs font-semibold text-navy">
-                <FolderTree className="h-3.5 w-3.5" />
-                Transparência ativa
-              </div>
-              <h1 className="text-xl font-bold tracking-tight text-foreground">Registros de Acesso à Informação</h1>
-              <p className="mt-1 max-w-3xl text-sm leading-relaxed text-muted-foreground">
-                Organize PDFs, conteúdos e links usados nas páginas públicas de transparência. Use filtros
-                para revisar rapidamente categorias, anos e registros sem arquivo vinculado.
-              </p>
-            </div>
-            <CreateButton href="/painel/acesso-informacao/criar">Novo registro</CreateButton>
-          </div>
+        <PageHeader
+          title="Registros de Acesso à Informação"
+          description="Organize PDFs, conteúdos e links usados nas páginas públicas de transparência."
+          icon={FolderTree}
+          eyebrow="Transparência ativa"
+          variant="hero"
+          actions={<CreateButton href="/painel/acesso-informacao/criar">Novo registro</CreateButton>}
+        />
 
-          <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <StatCard icon={Archive} label="Total" value={total} hint="Registros cadastrados no acervo" />
-            <StatCard icon={FileCheck2} label="Nesta página" value={currentCount} hint="Itens visíveis com os filtros atuais" />
-            <StatCard icon={FileText} label="Com arquivo" value={withFileCount} hint="PDFs ou anexos na página atual" />
-          </div>
-        </section>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <StatCard
+            icon={Archive}
+            label="Total"
+            value={total}
+            hint="Registros cadastrados no acervo"
+          />
+          <StatCard
+            icon={FileCheck2}
+            label="Nesta página"
+            value={currentCount}
+            hint="Itens visíveis com os filtros atuais"
+          />
+          <StatCard
+            icon={FileText}
+            label="Com arquivo"
+            value={withFileCount}
+            hint="PDFs ou anexos na página atual"
+          />
+        </div>
 
         <section className="rounded-2xl border border-border bg-card p-4 shadow-sm">
           <div className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground">
@@ -258,11 +240,21 @@ export default function InformationRecordsIndex({ records, filters }: Props) {
               ))}
             </Select>
             <div className="flex gap-2">
-              <Button type="button" variant="secondary" className="flex-1 lg:flex-none" onClick={() => applyFilters({ q: search })}>
+              <Button
+                type="button"
+                variant="secondary"
+                className="flex-1 lg:flex-none"
+                onClick={() => applyFilters({ q: search })}
+              >
                 Filtrar
               </Button>
               {activeFilters && (
-                <Button type="button" variant="ghost" className="flex-1 lg:flex-none" onClick={clearFilters}>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="flex-1 lg:flex-none"
+                  onClick={clearFilters}
+                >
                   <X className="h-4 w-4" />
                   Limpar
                 </Button>
@@ -346,7 +338,11 @@ export default function InformationRecordsIndex({ records, filters }: Props) {
                       </TD>
                       <TD>
                         <RowActions>
-                          <IconLink tone="edit" href={`/painel/acesso-informacao/${record.id}/editar`} title="Editar">
+                          <IconLink
+                            tone="edit"
+                            href={`/painel/acesso-informacao/${record.id}/editar`}
+                            title="Editar"
+                          >
                             <Pencil className="h-4 w-4" />
                           </IconLink>
                           <IconButton

@@ -22,6 +22,7 @@ import {
   EmptyState,
   IconButton,
   IconLink,
+  PageHeader,
   RowActions,
   StatCard,
   StatusBadge,
@@ -113,19 +114,22 @@ export default function TransparencyIndex({ sections }: { sections: Section[] })
     <AdminLayout title="Transparencia">
       <Head title="Transparencia - Painel" />
 
-      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm text-muted-foreground">
-          Organize as seções e links exibidos ao cidadão — internos (módulo próprio) ou externos
-          (sistemas contratados).
-        </p>
-        <div className="flex flex-wrap gap-2 sm:shrink-0">
-          <ButtonLink href="/painel/acesso-informacao" variant="secondary">
-            <FileText className="h-4 w-4" />
-            Acesso à Informação
-          </ButtonLink>
-          <CreateButton href="/painel/transparencia/secoes/criar">Nova seção</CreateButton>
-        </div>
-      </div>
+      <PageHeader
+        title="Transparência"
+        description="Organize as seções e links exibidos ao cidadão — internos (módulo próprio) ou externos (sistemas contratados)."
+        icon={Shield}
+        eyebrow="Portal de Transparência"
+        variant="hero"
+        actions={
+          <>
+            <ButtonLink href="/painel/acesso-informacao" variant="secondary">
+              <FileText className="h-4 w-4" />
+              Acesso à Informação
+            </ButtonLink>
+            <CreateButton href="/painel/transparencia/secoes/criar">Nova seção</CreateButton>
+          </>
+        }
+      />
 
       <div className="mb-6 grid gap-3 md:grid-cols-3">
         <StatCard

@@ -1190,14 +1190,17 @@ export default function AtriconIndex({
       <PageHeader
         title="Radar ATRICON — PNTP 2026"
         description={`Matriz do Poder Legislativo Municipal: ${t.criteria} critérios monitorados. ${fortnight.label} (${fortnight.start} – ${fortnight.end}).`}
+        icon={RadarIcon}
+        eyebrow="PNTP 2026"
+        variant="hero"
         actions={
           <>
-            <ButtonLink href="/painel/atricon/relatorio">
+            <ButtonLink href="/painel/atricon/relatorio" variant="gold">
               <Printer className="w-4 h-4" /> Relatório quinzenal
             </ButtonLink>
             <a
               href="/painel/atricon/relatorio?format=csv"
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-card border border-border text-foreground rounded-lg text-sm font-medium hover:bg-muted transition-colors no-underline"
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-white/10 border border-white/20 text-white rounded-lg text-sm font-medium hover:bg-white/20 transition-colors no-underline"
             >
               <FileDown className="w-4 h-4" /> Exportar CSV
             </a>

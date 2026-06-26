@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-label="Avatar institucional 2">
+  <defs>
+    <linearGradient id="a2g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#38b6e8"/>
+      <stop offset="1" stop-color="#141b47"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" fill="url(#a2g)"/>
+  <polygon points="64,26 96,46 96,82 64,102 32,82 32,46" fill="#141b47" opacity="0.55"/>
+  <polygon points="64,40 84,52 84,76 64,88 44,76 44,52" fill="none" stroke="#f5c531" stroke-width="4"/>
+</svg>

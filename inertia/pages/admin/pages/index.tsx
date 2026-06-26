@@ -77,6 +77,8 @@ export default function PagesIndex({ pages, filters }: Props) {
       <PageHeader
         title="Páginas"
         description="Páginas de conteúdo livre do portal, montadas com blocos"
+        icon={FileText}
+        eyebrow="Site"
         actions={<CreateButton href="/painel/paginas/nova">Nova Página</CreateButton>}
       />
 

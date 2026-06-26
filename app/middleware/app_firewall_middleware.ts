@@ -3,6 +3,7 @@ import type { NextFn } from '@adonisjs/core/types/http'
 import SiteSetting from '#models/site_setting'
 import SecurityEvent from '#models/security_event'
 import EvolutionAlertService from '#services/evolution_alert_service'
+import { isShuttingDown } from '#services/shutdown_state'
 
 type FirewallMode = 'monitor' | 'block'
 
@@ -90,7 +91,20 @@ export default class AppFirewallMiddleware {
     // Liveness e arquivos estáticos NÃO podem depender do banco: em boot frio a
     // consulta de firewall (getFirewallSettings) deixaria o /health respondendo
     // 503/504 e quebraria o healthcheck do deploy.
-    if (path === '/health' || path.startsWith('/assets/') || path.startsWith('/uploads/')) {
+    if (path === '/health') {
+      // Shutdown gracioso ("fail health then drain"): durante o encerramento
+      // respondemos 503 para o proxy/healthcheck marcar este container como
+      // indisponível e PARAR de rotear, enquanto o servidor continua de pé
+      // drenando as requisições reais já em voo. Fora do shutdown, mantém o
+      // early-return barato de sempre (sem tocar o banco).
+      if (isShuttingDown()) {
+        response.header('Connection', 'close')
+        response.header('Retry-After', '15')
+        return response.status(503).send({ status: 'shutting_down' })
+      }
+      return next()
+    }
+    if (path.startsWith('/assets/') || path.startsWith('/uploads/')) {
       return next()
     }
 

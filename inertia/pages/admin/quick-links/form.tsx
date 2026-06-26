@@ -1,7 +1,7 @@
-import { Head, useForm, Link } from '@inertiajs/react'
+import { Head, useForm } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Save, ArrowLeft } from 'lucide-react'
-import { Button, Card, Field, Input, Select } from '~/components/admin/ui'
+import { Save, ArrowLeft, Link2 } from 'lucide-react'
+import { Button, ButtonLink, Card, CardHeader, Field, Input, PageHeader, Select } from '~/components/admin/ui'
 
 const ICONS = [
   'Scale', 'Users', 'Play', 'BookOpen', 'Shield', 'FileText', 'Phone', 'Building2',
@@ -45,15 +45,20 @@ export default function QuickLinkForm({ link }: { link: any | null }) {
     <AdminLayout title={isEditing ? 'Editar Link' : 'Novo Link'}>
       <Head title={`${isEditing ? 'Editar' : 'Novo'} Link Rápido - Painel`} />
 
-      <Link
-        href="/painel/links-rapidos"
-        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4"
-      >
-        <ArrowLeft className="w-4 h-4" /> Voltar
-      </Link>
+      <PageHeader
+        title={isEditing ? 'Editar Link Rápido' : 'Novo Link Rápido'}
+        eyebrow="Links Rápidos"
+        icon={Link2}
+        actions={
+          <ButtonLink href="/painel/links-rapidos" variant="secondary" size="sm">
+            <ArrowLeft className="w-4 h-4" /> Voltar
+          </ButtonLink>
+        }
+      />
 
-      <form onSubmit={handleSubmit} className="admin-form admin-form-narrow">
+      <form onSubmit={handleSubmit} className="w-full min-w-0 space-y-6">
         <Card>
+          <CardHeader title="Dados do link" icon={Link2} />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field label="Título" required>
               <Input type="text" value={data.title} onChange={(e) => setData('title', e.target.value)} required />
@@ -121,7 +126,10 @@ export default function QuickLinkForm({ link }: { link: any | null }) {
           </div>
         </Card>
 
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-3">
+          <ButtonLink href="/painel/links-rapidos" variant="secondary">
+            Cancelar
+          </ButtonLink>
           <Button type="submit" loading={processing}>
             <Save className="w-4 h-4" />
             {processing ? 'Salvando...' : isEditing ? 'Atualizar' : 'Cadastrar'}

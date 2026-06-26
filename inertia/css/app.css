@@ -582,6 +582,21 @@ html.js-anim [data-reveal].no-transition {
   /** Faixa de feriados — ticker contínuo (mais lento que os carrosséis da home) */
   .holidays-marquee {
     @apply overflow-hidden min-w-0 flex-1;
+    /* fade nas bordas: os feriados surgem/somem suavemente em vez de “cortar” seco */
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      #000 2rem,
+      #000 calc(100% - 3.5rem),
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      #000 2rem,
+      #000 calc(100% - 3.5rem),
+      transparent 100%
+    );
   }
 
   .holidays-marquee-track {

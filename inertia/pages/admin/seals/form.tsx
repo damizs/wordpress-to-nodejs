@@ -1,4 +1,4 @@
-import { Head, Link, useForm } from '@inertiajs/react'
+import { Head, useForm } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
 import { ArrowLeft, Save, Upload, Award } from 'lucide-react'
 import { useRef, useState } from 'react'
@@ -8,7 +8,9 @@ import {
   Card,
   CardHeader,
   Field,
+  FormSection,
   Input,
+  PageHeader,
   Select,
   Textarea,
 } from '~/components/admin/ui'
@@ -61,98 +63,99 @@ export default function SealForm({ seal }: Props) {
     <AdminLayout title={isEditing ? 'Editar Selo' : 'Novo Selo'}>
       <Head title={(isEditing ? 'Editar' : 'Novo') + ' Selo - Painel'} />
 
-      <div className="flex items-center gap-4 mb-6">
-        <Link
-          href="/painel/selos"
-          className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </Link>
-        <h1 className="text-xl font-bold text-foreground tracking-tight">
-          {isEditing ? 'Editar Selo' : 'Novo Selo'}
-        </h1>
-      </div>
+      <PageHeader
+        title={isEditing ? 'Editar Selo' : 'Novo Selo'}
+        eyebrow="Selos e Certificações"
+        icon={Award}
+        actions={
+          <ButtonLink href="/painel/selos" variant="secondary" size="sm">
+            <ArrowLeft className="w-4 h-4" /> Voltar
+          </ButtonLink>
+        }
+      />
 
-      <form onSubmit={handleSubmit} className="admin-form admin-form-narrow">
+      <form onSubmit={handleSubmit} className="w-full min-w-0 space-y-6">
+        <FormSection title="Dados do selo" icon={Award} columns={2}>
+          <Field label="Título" required className="md:col-span-2">
+            <Input
+              type="text"
+              value={data.title}
+              onChange={(e) => setData('title', e.target.value)}
+              placeholder="Ex: Qualidade em Transparência"
+              required
+            />
+          </Field>
+
+          <Field label="Descrição" className="md:col-span-2">
+            <Textarea
+              value={data.description}
+              onChange={(e) => setData('description', e.target.value)}
+              rows={3}
+              placeholder="Ex: Selo concedido pela Atricon"
+            />
+          </Field>
+
+          <Field label="Link (opcional)" className="md:col-span-2">
+            <Input
+              type="url"
+              value={data.link_url}
+              onChange={(e) => setData('link_url', e.target.value)}
+              placeholder="https://..."
+            />
+          </Field>
+
+          <Field label="Ordem">
+            <Input
+              type="number"
+              value={data.sort_order}
+              onChange={(e) => setData('sort_order', Number(e.target.value))}
+            />
+          </Field>
+
+          <Field label="Status">
+            <Select
+              value={data.is_active}
+              onChange={(e) => setData('is_active', e.target.value)}
+            >
+              <option value="true">Ativo</option>
+              <option value="false">Inativo</option>
+            </Select>
+          </Field>
+        </FormSection>
+
         <Card>
-          <CardHeader title="Dados do selo" icon={Award} />
-          <div className="space-y-6">
-            <Field label="Título" required>
-              <Input
-                type="text"
-                value={data.title}
-                onChange={(e) => setData('title', e.target.value)}
-                placeholder="Ex: Qualidade em Transparencia"
-                required
+          <CardHeader title="Imagem do Selo" description="PNG, JPG ou SVG (max 2MB)" icon={Upload} />
+          <div className="flex items-start gap-4">
+            {preview ? (
+              <img
+                src={preview}
+                alt="Preview"
+                className="w-32 h-32 object-contain rounded-lg border border-border bg-muted/40"
               />
-            </Field>
-
-            <Field label="Descrição">
-              <Textarea
-                value={data.description}
-                onChange={(e) => setData('description', e.target.value)}
-                rows={3}
-                placeholder="Ex: Selo concedido pela Atricon"
-              />
-            </Field>
-
-            <Field label="Imagem do Selo" hint="PNG, JPG ou SVG (max 2MB)">
-              <div className="flex items-start gap-4">
-                {preview ? (
-                  <img
-                    src={preview}
-                    alt="Preview"
-                    className="w-32 h-32 object-contain rounded-lg border border-border bg-muted/40"
-                  />
-                ) : (
-                  <div className="w-32 h-32 bg-muted rounded-lg flex items-center justify-center">
-                    <Upload className="w-8 h-8 text-muted-foreground" />
-                  </div>
-                )}
-                <Button type="button" variant="secondary" onClick={() => fileRef.current?.click()}>
-                  Selecionar Imagem
-                </Button>
+            ) : (
+              <div className="w-32 h-32 bg-muted rounded-lg flex items-center justify-center">
+                <Upload className="w-8 h-8 text-muted-foreground" />
               </div>
-              <input
-                ref={fileRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleFileChange}
-              />
-            </Field>
-
-            <Field label="Link (opcional)">
-              <Input
-                type="url"
-                value={data.link_url}
-                onChange={(e) => setData('link_url', e.target.value)}
-                placeholder="https://..."
-              />
-            </Field>
-
-            <div className="grid grid-cols-2 gap-4">
-              <Field label="Ordem">
-                <Input
-                  type="number"
-                  value={data.sort_order}
-                  onChange={(e) => setData('sort_order', Number(e.target.value))}
-                />
-              </Field>
-              <Field label="Status">
-                <Select
-                  value={data.is_active}
-                  onChange={(e) => setData('is_active', e.target.value)}
-                >
-                  <option value="true">Ativo</option>
-                  <option value="false">Inativo</option>
-                </Select>
-              </Field>
+            )}
+            <div className="flex flex-col gap-2 justify-center">
+              <Button type="button" variant="secondary" onClick={() => fileRef.current?.click()}>
+                Selecionar Imagem
+              </Button>
+              {preview && (
+                <p className="text-xs text-muted-foreground">Clique para trocar a imagem</p>
+              )}
             </div>
           </div>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handleFileChange}
+          />
         </Card>
 
-        <div className="flex justify-end gap-3 mt-6">
+        <div className="flex justify-end gap-3">
           <ButtonLink href="/painel/selos" variant="secondary">
             Cancelar
           </ButtonLink>

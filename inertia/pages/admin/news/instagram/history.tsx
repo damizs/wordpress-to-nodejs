@@ -1,9 +1,10 @@
 import { Head, Link, router } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Instagram, ArrowLeft, Trash2, Eye, Filter } from 'lucide-react'
+import { Instagram, Trash2, Eye, Filter } from 'lucide-react'
 import {
   Badge,
   IconLink,
+  PageHeader,
   Pagination,
   RowActions,
   Select,
@@ -15,6 +16,7 @@ import {
   TR,
   Table,
   TableEmpty,
+  Toolbar,
 } from '~/components/admin/ui'
 
 interface Log {
@@ -73,17 +75,23 @@ export default function InstagramHistory({ logs, filters }: Props) {
   return (
     <AdminLayout>
       <Head title="Histórico - Instagram" />
+
       <div className="space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <IconLink href="/painel/noticias/instagram" tone="neutral" title="Voltar">
-              <ArrowLeft className="w-5 h-5" />
+        <PageHeader
+          eyebrow="Instagram"
+          icon={Instagram}
+          title="Histórico de Importação"
+          description={`${logs.meta.total} registro(s) importado(s)${statusFilter ? ` · filtrando por: ${statusFilter}` : ''}`}
+          actions={
+            <IconLink href="/painel/noticias/instagram" tone="neutral" title="Voltar ao painel">
+              <Instagram className="w-5 h-5" />
             </IconLink>
-            <Instagram className="w-8 h-8 text-pink-500" />
-            <h1 className="text-2xl font-bold text-foreground">Histórico de Importação</h1>
-          </div>
+          }
+        />
+
+        <Toolbar>
           <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-muted-foreground" />
+            <Filter className="w-4 h-4 text-muted-foreground shrink-0" />
             <Select
               value={statusFilter}
               onChange={e => onStatusChange(e.target.value)}
@@ -94,12 +102,7 @@ export default function InstagramHistory({ logs, filters }: Props) {
               <option value="error">Erro</option>
             </Select>
           </div>
-        </div>
-
-        <p className="text-sm text-muted-foreground">
-          Total: <strong className="text-foreground">{logs.meta.total}</strong> registros
-          {statusFilter && ` (filtrando por status)`}
-        </p>
+        </Toolbar>
 
         <Table
           footer={
@@ -120,7 +123,7 @@ export default function InstagramHistory({ logs, filters }: Props) {
             <TH>Título Gerado</TH>
             <TH>IA</TH>
             <TH>Status</TH>
-            <TH>Importado por</TH>
+            <TH className="hidden md:table-cell">Importado por</TH>
             <TH className="text-right">Ações</TH>
           </THead>
           <TBody>
@@ -130,7 +133,7 @@ export default function InstagramHistory({ logs, filters }: Props) {
               logs.data.map(log => (
                 <TR key={log.id}>
                   <TD>
-                    <div className="text-sm">
+                    <div className="text-sm whitespace-nowrap">
                       {new Date(log.createdAt).toLocaleDateString('pt-BR')}
                     </div>
                     <div className="text-xs text-muted-foreground">
@@ -158,7 +161,7 @@ export default function InstagramHistory({ logs, filters }: Props) {
                   <TD>
                     <LogStatusBadge status={log.status} />
                   </TD>
-                  <TD>
+                  <TD className="hidden md:table-cell">
                     <span className="text-sm text-muted-foreground">
                       {log.user?.name || 'Sistema'}
                     </span>

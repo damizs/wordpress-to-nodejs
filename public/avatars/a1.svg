@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-label="Avatar institucional 1">
+  <defs>
+    <linearGradient id="a1g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#272971"/>
+      <stop offset="1" stop-color="#141b47"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" fill="url(#a1g)"/>
+  <circle cx="64" cy="64" r="44" fill="none" stroke="#e7a008" stroke-width="4" opacity="0.85"/>
+  <circle cx="64" cy="64" r="30" fill="none" stroke="#38b6e8" stroke-width="3" opacity="0.7"/>
+  <circle cx="64" cy="64" r="14" fill="#f5c531"/>
+</svg>

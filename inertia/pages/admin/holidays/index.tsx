@@ -8,6 +8,7 @@ import {
   Field,
   IconButton,
   Input,
+  PageHeader,
   Select,
 } from '~/components/admin/ui'
 import { CalendarDays, Flag, Plus, Trash2 } from 'lucide-react'
@@ -84,20 +85,17 @@ export default function HolidaysIndex({ holidays }: Props) {
     <AdminLayout title="Feriados">
       <Head title="Feriados - Painel" />
 
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-xl font-bold text-foreground tracking-tight">Feriados</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Cadastre os feriados municipais e estaduais. Os nacionais são calculados
-            automaticamente e exibidos no site junto com os cadastrados aqui.
-          </p>
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
+      <PageHeader
+        title="Feriados"
+        description="Cadastre os feriados municipais e estaduais. Os nacionais são calculados automaticamente e exibidos no site."
+        icon={CalendarDays}
+        eyebrow="Site"
+        actions={
           <Button onClick={submit} loading={processing}>
             Salvar alterações
           </Button>
-        </div>
-      </div>
+        }
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         {/* ============ Feriados municipais/estaduais (editável) ============ */}

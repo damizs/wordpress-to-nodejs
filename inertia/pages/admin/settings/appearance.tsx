@@ -16,7 +16,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { useState, useRef } from 'react'
-import { Button, Card, CardHeader, Field, Input, Select } from '~/components/admin/ui'
+import { Button, Card, CardHeader, Field, Input, PageHeader, Select } from '~/components/admin/ui'
 import { CAMPAIGNS, THEME_PRESETS, getCampaign, resolveActiveCampaign } from '~/lib/campaigns'
 import { LAYOUT_STYLES, type LayoutStyle } from '~/lib/layouts'
 import { SITE_TEMPLATES, type SiteTemplate, type SiteTemplateKey } from '~/lib/templates'
@@ -171,6 +171,14 @@ export default function Appearance({ settings }: Props) {
       <Head title="Aparência - Painel" />
 
       <form onSubmit={handleSubmit} className="w-full min-w-0">
+        <PageHeader
+          title="Aparência"
+          description="Personalize a identidade visual, modelo de site, cores e informações de contato"
+          icon={Palette}
+          eyebrow="Configurações"
+          variant="hero"
+        />
+
         {/* Abas de navegação */}
         <div className="sticky top-16 z-20 mb-6 bg-background/95 backdrop-blur border-b border-border pb-2 lg:border-0 lg:bg-transparent lg:backdrop-blur-none">
           <div className="flex gap-1 overflow-x-auto py-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden lg:flex-wrap lg:rounded-xl lg:bg-muted lg:p-1.5">
@@ -195,7 +203,7 @@ export default function Appearance({ settings }: Props) {
           </div>
         </div>
 
-        <div className="space-y-6 max-w-5xl mx-auto">
+        <div className="space-y-6">
           {tab === 'tema' && (
             <Section
               icon={Sparkles}
@@ -304,17 +312,19 @@ export default function Appearance({ settings }: Props) {
                     onChange={(v) => setData('login_subtitle', v)}
                   />
                 </div>
-                <div className="mt-4 max-w-md">
-                  <FileField
-                    label="Logo do login"
-                    preview={loginLogoPreview}
-                    inputRef={loginLogoRef}
-                    onChange={(f) => handleFileChange('login_logo_url', f)}
-                    accept="image/png,image/jpeg,image/webp"
-                  />
-                  <p className="text-xs text-muted-foreground mt-1.5">
-                    Se vazio, a tela usa a logo principal do site.
-                  </p>
+                <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <FileField
+                      label="Logo do login"
+                      preview={loginLogoPreview}
+                      inputRef={loginLogoRef}
+                      onChange={(f) => handleFileChange('login_logo_url', f)}
+                      accept="image/png,image/jpeg,image/webp"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1.5">
+                      Se vazio, a tela usa a logo principal do site.
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -325,7 +335,7 @@ export default function Appearance({ settings }: Props) {
                     PDF exibido na Política de Privacidade como portaria de nomeação do encarregado.
                   </p>
                 </div>
-                <div className="max-w-md">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FileField
                     label="Portaria do encarregado (PDF)"
                     preview={dpoOrdinancePreview}

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-label="Avatar institucional 4">
+  <rect width="128" height="128" fill="#141b47"/>
+  <polygon points="0,0 128,0 0,128" fill="#272971"/>
+  <polygon points="128,20 128,108 40,108" fill="#e7a008" opacity="0.9"/>
+  <circle cx="84" cy="76" r="16" fill="#141b47"/>
+  <circle cx="44" cy="44" r="8" fill="#38b6e8"/>
+</svg>

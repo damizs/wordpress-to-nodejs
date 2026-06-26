@@ -1,12 +1,15 @@
 import { Head } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Pencil, Trash2 } from 'lucide-react'
+import { Pencil, Trash2, Link2, Plus } from 'lucide-react'
 import { useState } from 'react'
 import {
+  ButtonLink,
   ConfirmDelete,
   CreateButton,
+  EmptyState,
   IconButton,
   IconLink,
+  PageHeader,
   RowActions,
   StatusBadge,
   Table,
@@ -25,13 +28,26 @@ export default function QuickLinksIndex({ links }: { links: any[] }) {
     <AdminLayout title="Links Rápidos">
       <Head title="Links Rápidos - Painel" />
 
-      <div className="flex items-center justify-between mb-6">
-        <p className="text-sm text-muted-foreground">
-          {links.length} link(s) — exibidos na homepage como cards de acesso rápido
-        </p>
-        <CreateButton href="/painel/links-rapidos/criar">Novo Link</CreateButton>
-      </div>
+      <PageHeader
+        title="Links Rápidos"
+        description={`${links.length} link(s) — exibidos na homepage como cards de acesso rápido`}
+        icon={Link2}
+        eyebrow="Site"
+        actions={<CreateButton href="/painel/links-rapidos/criar">Novo Link</CreateButton>}
+      />
 
+      {links.length === 0 ? (
+        <EmptyState
+          icon={Link2}
+          title="Nenhum link rápido cadastrado"
+          description="Adicione links de acesso rápido para exibir na homepage como cards."
+          action={
+            <ButtonLink href="/painel/links-rapidos/criar">
+              <Plus className="w-4 h-4" /> Criar Link Rápido
+            </ButtonLink>
+          }
+        />
+      ) : (
       <Table>
         <THead>
           <TH className="w-12">#</TH>
@@ -73,6 +89,8 @@ export default function QuickLinksIndex({ links }: { links: any[] }) {
           )}
         </TBody>
       </Table>
+
+      )}
 
       <ConfirmDelete
         target={deleteTarget}

@@ -66,6 +66,8 @@ export default function InstitutionalIndex({ entries = [] }: Props) {
       <PageHeader
         title="Conteúdo Institucional"
         description="Edite os textos das páginas Sobre a Câmara e História da Câmara"
+        icon={Landmark}
+        eyebrow="Site"
       />
       <div className="w-full min-w-0 space-y-8">
         {pages.map((page) => (

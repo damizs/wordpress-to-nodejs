@@ -1,7 +1,7 @@
 import { Head, useForm, Link } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Save, ArrowLeft } from 'lucide-react'
-import { Button, Card, Field, Input, Select } from '~/components/admin/ui'
+import { Save, ArrowLeft, Link2 } from 'lucide-react'
+import { Button, Field, FormSection, Input, PageHeader, Select } from '~/components/admin/ui'
 
 interface Props {
   section: any
@@ -34,33 +34,38 @@ export default function LinkForm({ section, link }: Props) {
       <Head title={`${isEditing ? 'Editar' : 'Novo'} Link - Painel`} />
 
       <Link href="/painel/transparencia" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4">
-        <ArrowLeft className="w-4 h-4" /> Voltar
+        <ArrowLeft className="w-4 h-4" /> Voltar para Transparência
       </Link>
 
-      <form onSubmit={handleSubmit} className="admin-form admin-form-narrow">
-        <Card className="space-y-4">
-          <p className="text-sm text-muted-foreground mb-2">Seção: <strong>{section.title}</strong></p>
+      <PageHeader
+        title={isEditing ? 'Editar Link' : 'Novo Link'}
+        description={`Seção: ${section.title}`}
+        icon={Link2}
+      />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field label="Título" required>
-              <Input type="text" value={data.title} onChange={(e) => setData('title', e.target.value)} required />
-            </Field>
-            <Field label="URL" required>
-              <Input type="text" value={data.url} onChange={(e) => setData('url', e.target.value)} required placeholder="https://..." />
-            </Field>
-            <Field label="Ícone">
-              <Input type="text" value={data.icon} onChange={(e) => setData('icon', e.target.value)} placeholder="Ex: FileText" />
-            </Field>
-            <Field label="Ordem">
-              <Input type="number" value={data.display_order} onChange={(e) => setData('display_order', parseInt(e.target.value) || 0)} />
-            </Field>
-            <Field label="Abertura do link" hint="No modal, o visitante também pode abrir em outra aba">
-              <Select value={data.open_mode} onChange={(e) => setData('open_mode', e.target.value)}>
-                <option value="nova_aba">Nova aba</option>
-                <option value="modal">Modal popup</option>
-              </Select>
-            </Field>
-          </div>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <FormSection title="Dados do link" columns={2}>
+          <Field label="Título" required>
+            <Input type="text" value={data.title} onChange={(e) => setData('title', e.target.value)} required />
+          </Field>
+          <Field label="URL" required>
+            <Input type="text" value={data.url} onChange={(e) => setData('url', e.target.value)} required placeholder="https://..." />
+          </Field>
+          <Field label="Ícone">
+            <Input type="text" value={data.icon} onChange={(e) => setData('icon', e.target.value)} placeholder="Ex: FileText" />
+          </Field>
+          <Field label="Ordem">
+            <Input type="number" value={data.display_order} onChange={(e) => setData('display_order', parseInt(e.target.value) || 0)} />
+          </Field>
+          <Field label="Abertura do link" hint="No modal, o visitante também pode abrir em outra aba">
+            <Select value={data.open_mode} onChange={(e) => setData('open_mode', e.target.value)}>
+              <option value="nova_aba">Nova aba</option>
+              <option value="modal">Modal popup</option>
+            </Select>
+          </Field>
+        </FormSection>
+
+        <FormSection title="Opções adicionais">
           {data.open_mode === 'modal' && (
             <div className="flex items-center gap-2">
               <input type="checkbox" id="hide_chrome" checked={data.hide_chrome === true || data.hide_chrome === 'true'}
@@ -77,7 +82,8 @@ export default function LinkForm({ section, link }: Props) {
               className="w-4 h-4 rounded border-border text-navy" />
             <label htmlFor="is_external" className="text-sm text-muted-foreground">Link externo (abre em nova aba)</label>
           </div>
-        </Card>
+        </FormSection>
+
         <div className="flex justify-end">
           <Button type="submit" loading={processing}>
             {!processing && <Save className="w-4 h-4" />}

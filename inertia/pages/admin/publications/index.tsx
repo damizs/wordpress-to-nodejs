@@ -1,18 +1,19 @@
 import { Head, router } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Pencil, Trash2, ExternalLink } from 'lucide-react'
+import { Pencil, Trash2, ExternalLink, BookOpen } from 'lucide-react'
 import { useState } from 'react'
 import {
   Badge,
   ConfirmDelete,
   CreateButton,
+  EmptyState,
   IconButton,
   IconLink,
+  PageHeader,
   Pagination,
   RowActions,
   Select,
   Table,
-  TableEmpty,
   TBody,
   TD,
   TH,
@@ -39,54 +40,67 @@ const typeOptions = ['Portarias', 'Decretos', 'Resoluções', 'Leis', 'Atos', 'C
 
 export default function PublicationsIndex({ publications, filters }: Props) {
   const [deleteTarget, setDeleteTarget] = useState<{ id: number; label: string } | null>(null)
+  const total = publications.meta?.total || publications.data.length
 
   return (
     <AdminLayout title="Publicações Oficiais">
       <Head title="Publicações - Painel" />
 
-      <Toolbar className="sm:justify-between">
-        <div className="flex items-center gap-3">
-          <p className="text-sm text-muted-foreground whitespace-nowrap">
-            {publications.meta?.total || publications.data.length} publicação(ões)
-          </p>
-          <div className="w-44">
-            <Select
-              value={filters.type}
-              onChange={(e) => router.get('/painel/publicacoes', { type: e.target.value }, { preserveState: true })}
-            >
-              <option value="">Todos os tipos</option>
-              {typeOptions.map((t) => <option key={t} value={t}>{t}</option>)}
-            </Select>
-          </div>
-        </div>
-        <CreateButton href="/painel/publicacoes/criar">Nova Publicação</CreateButton>
+      <PageHeader
+        title="Publicações Oficiais"
+        description={`${total} publicação${total === 1 ? '' : 'ões'} cadastrada${total === 1 ? '' : 's'} no portal.`}
+        icon={BookOpen}
+        eyebrow="Diário Oficial"
+        variant="hero"
+        actions={<CreateButton href="/painel/publicacoes/criar">Nova Publicação</CreateButton>}
+      />
+
+      <Toolbar>
+        <Select
+          value={filters.type}
+          onChange={(e) =>
+            router.get('/painel/publicacoes', { type: e.target.value }, { preserveState: true })
+          }
+        >
+          <option value="">Todos os tipos</option>
+          {typeOptions.map((t) => (
+            <option key={t} value={t}>
+              {t}
+            </option>
+          ))}
+        </Select>
       </Toolbar>
 
-      <Table
-        footer={
-          publications.meta ? (
-            <Pagination
-              meta={publications.meta}
-              baseUrl={`/painel/publicacoes${filters.type ? `?type=${filters.type}` : ''}`}
-              itemLabel="publicação"
-              itemLabelPlural="publicações"
-            />
-          ) : undefined
-        }
-      >
-        <THead>
-          <TH>Data</TH>
-          <TH>Título</TH>
-          <TH>Tipo</TH>
-          <TH>Nº</TH>
-          <TH>Arquivo</TH>
-          <TH className="text-right">Ações</TH>
-        </THead>
-        <TBody>
-          {publications.data.length === 0 ? (
-            <TableEmpty colSpan={6}>Nenhuma publicação cadastrada</TableEmpty>
-          ) : (
-            publications.data.map((p) => (
+      {publications.data.length === 0 ? (
+        <EmptyState
+          icon={BookOpen}
+          title="Nenhuma publicação cadastrada"
+          description="Cadastre portarias, decretos, resoluções e demais publicações oficiais."
+          action={<CreateButton href="/painel/publicacoes/criar">Nova Publicação</CreateButton>}
+        />
+      ) : (
+        <Table
+          footer={
+            publications.meta ? (
+              <Pagination
+                meta={publications.meta}
+                baseUrl={`/painel/publicacoes${filters.type ? `?type=${filters.type}` : ''}`}
+                itemLabel="publicação"
+                itemLabelPlural="publicações"
+              />
+            ) : undefined
+          }
+        >
+          <THead>
+            <TH>Data</TH>
+            <TH>Título</TH>
+            <TH>Tipo</TH>
+            <TH>Nº</TH>
+            <TH>Arquivo</TH>
+            <TH className="text-right">Ações</TH>
+          </THead>
+          <TBody>
+            {publications.data.map((p) => (
               <TR key={p.id}>
                 <TD className="text-muted-foreground">
                   {new Date(p.publication_date).toLocaleDateString('pt-BR')}
@@ -125,10 +139,10 @@ export default function PublicationsIndex({ publications, filters }: Props) {
                   </RowActions>
                 </TD>
               </TR>
-            ))
-          )}
-        </TBody>
-      </Table>
+            ))}
+          </TBody>
+        </Table>
+      )}
 
       <ConfirmDelete
         target={deleteTarget}

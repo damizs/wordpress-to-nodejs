@@ -1,16 +1,17 @@
 import { Head } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Pencil, Trash2 } from 'lucide-react'
+import { Landmark, Pencil, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import {
-  Badge,
   ConfirmDelete,
   CreateButton,
+  EmptyState,
   IconButton,
   IconLink,
+  PageHeader,
   RowActions,
+  StatusBadge,
   Table,
-  TableEmpty,
   TBody,
   TD,
   TH,
@@ -29,55 +30,64 @@ export default function BienniaIndex({ biennia }: Props) {
     <AdminLayout title="Biênios">
       <Head title="Biênios - Painel" />
 
-      <div className="flex items-center justify-between mb-6">
-        <p className="text-sm text-muted-foreground">Gerencie os biênios da mesa diretora</p>
-        <CreateButton href="/painel/bienios/criar">Novo Biênio</CreateButton>
-      </div>
+      <PageHeader
+        variant="hero"
+        icon={Landmark}
+        eyebrow="Legislativo"
+        title="Biênios"
+        description="Gerencie os biênios da mesa diretora"
+        actions={<CreateButton href="/painel/bienios/criar">Novo Biênio</CreateButton>}
+      />
 
-      <Table>
-        <THead>
-          <TH>Nome</TH>
-          <TH>Legislatura</TH>
-          <TH>Período</TH>
-          <TH>Cargos</TH>
-          <TH>Status</TH>
-          <TH className="text-right">Ações</TH>
-        </THead>
-        <TBody>
-          {biennia.map((b: any) => (
-            <TR key={b.id}>
-              <TD className="font-medium">{b.name}</TD>
-              <TD className="text-muted-foreground">{b.legislature_name}</TD>
-              <TD className="text-muted-foreground">{b.start_date} → {b.end_date}</TD>
-              <TD className="text-muted-foreground">{b.positions_count}</TD>
-              <TD>
-                {b.is_current ? (
-                  <Badge tone="success">Atual</Badge>
-                ) : (
-                  <Badge tone="neutral">Anterior</Badge>
-                )}
-              </TD>
-              <TD>
-                <RowActions>
-                  <IconLink tone="edit" href={`/painel/bienios/${b.id}/editar`} title="Editar">
-                    <Pencil className="w-4 h-4" />
-                  </IconLink>
-                  <IconButton
-                    tone="delete"
-                    onClick={() => setDeleteTarget({ id: b.id, label: b.name })}
-                    title="Excluir"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </IconButton>
-                </RowActions>
-              </TD>
-            </TR>
-          ))}
-          {biennia.length === 0 && (
-            <TableEmpty colSpan={6}>Nenhum biênio cadastrado.</TableEmpty>
-          )}
-        </TBody>
-      </Table>
+      {biennia.length === 0 ? (
+        <EmptyState
+          icon={Landmark}
+          title="Nenhum biênio cadastrado"
+          description="Adicione o primeiro biênio para organizar a mesa diretora."
+          action={<CreateButton href="/painel/bienios/criar">Novo Biênio</CreateButton>}
+        />
+      ) : (
+        <Table>
+          <THead>
+            <TH>Nome</TH>
+            <TH>Legislatura</TH>
+            <TH>Período</TH>
+            <TH>Cargos</TH>
+            <TH>Status</TH>
+            <TH className="text-right">Ações</TH>
+          </THead>
+          <TBody>
+            {biennia.map((b: any) => (
+              <TR key={b.id}>
+                <TD className="font-medium">{b.name}</TD>
+                <TD className="text-muted-foreground">{b.legislature_name}</TD>
+                <TD className="text-muted-foreground">{b.start_date} → {b.end_date}</TD>
+                <TD className="text-muted-foreground">{b.positions_count}</TD>
+                <TD>
+                  <StatusBadge
+                    status={b.is_current ? 'active' : 'inactive'}
+                    label={b.is_current ? 'Atual' : 'Anterior'}
+                  />
+                </TD>
+                <TD>
+                  <RowActions>
+                    <IconLink tone="edit" href={`/painel/bienios/${b.id}/editar`} title="Editar">
+                      <Pencil className="w-4 h-4" />
+                    </IconLink>
+                    <IconButton
+                      tone="delete"
+                      onClick={() => setDeleteTarget({ id: b.id, label: b.name })}
+                      title="Excluir"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </IconButton>
+                  </RowActions>
+                </TD>
+              </TR>
+            ))}
+          </TBody>
+        </Table>
+      )}
 
       <ConfirmDelete
         target={deleteTarget}

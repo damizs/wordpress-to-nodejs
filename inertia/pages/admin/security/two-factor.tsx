@@ -2,7 +2,7 @@ import { Head, useForm, router } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
 import { ShieldCheck, ShieldAlert, KeyRound, Copy, Check, Download } from 'lucide-react'
 import { useState } from 'react'
-import { Button, Card, CardHeader, Field, Input, Badge } from '~/components/admin/ui'
+import { Button, Card, CardHeader, Field, Input, Badge, PageHeader } from '~/components/admin/ui'
 
 interface TwoFactorProps {
   enabled: boolean
@@ -52,7 +52,7 @@ function BackupCodesPanel({ codes }: { codes: string[] }) {
         description="Mostrados apenas UMA vez. Cada código funciona uma única vez se você perder o app."
         icon={KeyRound}
       />
-      <div className="grid grid-cols-2 sm:grid-cols-2 gap-2 font-mono text-sm">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 font-mono text-sm">
         {codes.map((c) => (
           <div
             key={c}
@@ -124,7 +124,14 @@ export default function TwoFactor({
     <AdminLayout title="Verificação em duas etapas">
       <Head title="Segurança da conta - Painel" />
 
-      <div className="max-w-2xl space-y-6">
+      <PageHeader
+        title="Verificação em duas etapas"
+        description="Proteja sua conta com um segundo fator de autenticação além da senha."
+        icon={ShieldCheck}
+        eyebrow="Minha conta"
+      />
+
+      <div className="space-y-6">
         {/* Status */}
         <Card>
           <div className="flex items-start justify-between gap-4">
@@ -200,21 +207,23 @@ export default function TwoFactor({
 
             <form onSubmit={confirmActivate} className="mt-6 border-t border-border pt-5 space-y-4">
               <p className="text-[15px] font-bold text-foreground">2. Confirme o código</p>
-              <Field
-                label="Código de 6 dígitos do app"
-                required
-                error={confirmForm.errors.code}
-              >
-                <Input
-                  type="text"
-                  inputMode="numeric"
-                  autoComplete="one-time-code"
-                  placeholder="000000"
-                  className="tracking-widest max-w-[12rem]"
-                  value={confirmForm.data.code}
-                  onChange={(e) => confirmForm.setData('code', e.target.value)}
-                />
-              </Field>
+              <div className="grid sm:grid-cols-2 gap-4">
+                <Field
+                  label="Código de 6 dígitos do app"
+                  required
+                  error={confirmForm.errors.code}
+                >
+                  <Input
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    placeholder="000000"
+                    className="tracking-widest"
+                    value={confirmForm.data.code}
+                    onChange={(e) => confirmForm.setData('code', e.target.value)}
+                  />
+                </Field>
+              </div>
               <div className="flex flex-wrap gap-2">
                 <Button type="submit" loading={confirmForm.processing}>
                   Confirmar e ativar
@@ -229,7 +238,7 @@ export default function TwoFactor({
 
         {/* Estado: ATIVO → regenerar backup + desativar */}
         {enabled && (
-          <>
+          <div className="grid gap-6 lg:grid-cols-2">
             <Card>
               <CardHeader
                 title="Códigos de backup"
@@ -254,7 +263,7 @@ export default function TwoFactor({
                   type="text"
                   inputMode="numeric"
                   placeholder="ou código de 6 dígitos do app"
-                  className="tracking-widest max-w-[16rem]"
+                  className="tracking-widest"
                   value={regenForm.data.code}
                   onChange={(e) => regenForm.setData('code', e.target.value)}
                 />
@@ -288,7 +297,7 @@ export default function TwoFactor({
                   type="text"
                   inputMode="numeric"
                   placeholder="ou código de 6 dígitos do app"
-                  className="tracking-widest max-w-[16rem]"
+                  className="tracking-widest"
                   value={disableForm.data.code}
                   onChange={(e) => disableForm.setData('code', e.target.value)}
                 />
@@ -297,7 +306,7 @@ export default function TwoFactor({
                 </Button>
               </form>
             </Card>
-          </>
+          </div>
         )}
       </div>
     </AdminLayout>

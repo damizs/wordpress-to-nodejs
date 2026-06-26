@@ -74,6 +74,7 @@ const AdminUsersController = () => import('#controllers/admin/users_controller')
 const AdminRolesController = () => import('#controllers/admin/roles_controller')
 const AdminSecurityController = () => import('#controllers/admin/security_controller')
 const AccountSecurityController = () => import('#controllers/admin/account_security_controller')
+const AccountController = () => import('#controllers/admin/account_controller')
 const AdminNominalVotingsController = () =>
   import('#controllers/admin/nominal_votings_controller')
 const AdminDuodecimosController = () => import('#controllers/admin/duodecimos_controller')
@@ -173,6 +174,11 @@ router
   .group(() => {
     // Dashboard — acessível a qualquer usuário autenticado do painel
     router.get('/', [DashboardController, 'index'])
+
+    // Minha Conta — perfil + senha (autogestão por qualquer usuário autenticado)
+    router.get('/conta', [AccountController, 'index'])
+    router.post('/conta/perfil', [AccountController, 'updateProfile'])
+    router.post('/conta/senha', [AccountController, 'updatePassword'])
 
     // Conta / Segurança 2FA — autogestão por qualquer usuário autenticado
     router.get('/conta/seguranca', [AccountSecurityController, 'index'])

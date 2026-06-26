@@ -316,14 +316,19 @@ export function Card({
   children,
   className = '',
   padding = true,
+  hover = false,
 }: {
   children: ReactNode
   className?: string
   padding?: boolean
+  /** Realce sutil ao passar o mouse (sombra + borda navy). Opcional. */
+  hover?: boolean
 }) {
   return (
     <div
-      className={`bg-card rounded-xl border border-border shadow-sm ${padding ? 'p-5 lg:p-6' : 'overflow-hidden'} ${className}`}
+      className={`bg-card rounded-xl border border-border shadow-sm ${
+        hover ? 'transition-all hover:shadow-md hover:border-navy/20' : ''
+      } ${padding ? 'p-5 lg:p-6' : 'overflow-hidden'} ${className}`}
     >
       {children}
     </div>
@@ -359,21 +364,79 @@ export function CardHeader({
   )
 }
 
-/** Cabeçalho de página: título + descrição à esquerda, ações à direita */
+/**
+ * Cabeçalho de página: título + descrição à esquerda, ações à direita.
+ * - `eyebrow`: rótulo pequeno em maiúsculas acima do título.
+ * - `icon`: ícone num "chip" à esquerda do título.
+ * - `variant='hero'`: faixa com gradiente (estilo do hero do dashboard),
+ *   texto branco e ações legíveis sobre o gradiente; empilha no mobile.
+ */
 export function PageHeader({
   title,
   description,
   actions,
+  icon: Icon,
+  eyebrow,
+  variant = 'default',
 }: {
   title: string
   description?: string
   actions?: ReactNode
+  icon?: LucideIcon
+  eyebrow?: string
+  variant?: 'default' | 'hero'
 }) {
+  if (variant === 'hero') {
+    return (
+      <div className="relative overflow-hidden bg-gradient-hero text-white rounded-2xl px-6 py-6 lg:px-8 shadow-md mb-6">
+        <div
+          className="absolute -top-16 -right-16 w-56 h-56 bg-gold/10 rounded-full blur-3xl pointer-events-none"
+          aria-hidden="true"
+        />
+        <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-start gap-4 min-w-0">
+            {Icon && (
+              <div className="w-11 h-11 rounded-xl bg-white/10 border border-white/15 flex items-center justify-center shrink-0">
+                <Icon className="w-5 h-5 text-white" />
+              </div>
+            )}
+            <div className="min-w-0">
+              {eyebrow && (
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-white/70 mb-1">
+                  {eyebrow}
+                </p>
+              )}
+              <h1 className="text-2xl font-bold tracking-tight leading-tight">{title}</h1>
+              {description && <p className="text-sm text-white/80 mt-1">{description}</p>}
+            </div>
+          </div>
+          {actions && (
+            <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto sm:shrink-0 sm:justify-end">
+              {actions}
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-6">
-      <div className="min-w-0">
-        <h1 className="text-xl font-bold text-foreground tracking-tight">{title}</h1>
-        {description && <p className="text-sm text-muted-foreground mt-1">{description}</p>}
+      <div className="flex items-start gap-3 min-w-0">
+        {Icon && (
+          <div className="w-10 h-10 rounded-xl bg-navy/10 text-navy flex items-center justify-center shrink-0">
+            <Icon className="w-5 h-5" />
+          </div>
+        )}
+        <div className="min-w-0">
+          {eyebrow && (
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+              {eyebrow}
+            </p>
+          )}
+          <h1 className="text-xl font-bold text-foreground tracking-tight">{title}</h1>
+          {description && <p className="text-sm text-muted-foreground mt-1">{description}</p>}
+        </div>
       </div>
       {actions && (
         <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto sm:shrink-0 sm:justify-end">
@@ -381,6 +444,112 @@ export function PageHeader({
         </div>
       )}
     </div>
+  )
+}
+
+/* ============================== Layout de formulário ============================== */
+
+/**
+ * Grade reutilizável para distribuir campos preenchendo a largura.
+ * `cols` 1 | 2 | 3 (padrão 2). Sempre 1 coluna no mobile.
+ */
+export function FormGrid({
+  children,
+  cols = 2,
+  className = '',
+}: {
+  children: ReactNode
+  cols?: 1 | 2 | 3
+  className?: string
+}) {
+  const colsClass =
+    cols === 1 ? '' : cols === 3 ? 'sm:grid-cols-2 lg:grid-cols-3' : 'sm:grid-cols-2'
+  return <div className={`grid gap-5 ${colsClass} ${className}`.trim()}>{children}</div>
+}
+
+/**
+ * Seção de formulário em Card que OCUPA a largura toda no desktop —
+ * substitui o antigo `max-w-xl mx-auto` estreito. Header opcional (título +
+ * descrição + ícone/ações) e um grid responsivo para os campos.
+ * `columns===2` → 2 colunas a partir de md.
+ */
+export function FormSection({
+  title,
+  description,
+  children,
+  columns = 1,
+  icon,
+  actions,
+  className = '',
+}: {
+  title?: string
+  description?: string
+  children: ReactNode
+  columns?: 1 | 2
+  icon?: LucideIcon
+  actions?: ReactNode
+  className?: string
+}) {
+  return (
+    <Card className={className}>
+      {title && (
+        <CardHeader title={title} description={description} icon={icon} actions={actions} />
+      )}
+      <div className={`grid gap-5 ${columns === 2 ? 'md:grid-cols-2' : ''}`.trim()}>{children}</div>
+    </Card>
+  )
+}
+
+/* ============================== Avatar ============================== */
+
+const avatarSizes: Record<'sm' | 'md' | 'lg', string> = {
+  sm: 'w-8 h-8 text-xs',
+  md: 'w-10 h-10 text-sm',
+  lg: 'w-14 h-14 text-base',
+}
+
+function avatarInitials(name?: string) {
+  if (!name) return '?'
+  const parts = name.trim().split(/\s+/).filter(Boolean)
+  if (parts.length === 0) return '?'
+  const first = parts[0]?.[0] ?? ''
+  const last = parts.length > 1 ? (parts[parts.length - 1]?.[0] ?? '') : ''
+  return (first + last).toUpperCase() || '?'
+}
+
+/**
+ * Avatar apresentacional: mostra a imagem se `src` existir, senão as iniciais
+ * de `name` num círculo navy. Tokens, dark-safe. `size` sm | md | lg.
+ */
+export function Avatar({
+  src,
+  name,
+  size = 'md',
+  className = '',
+}: {
+  src?: string | null
+  name?: string
+  size?: 'sm' | 'md' | 'lg'
+  className?: string
+}) {
+  const sizeClass = avatarSizes[size]
+  if (src) {
+    return (
+      <img
+        src={src}
+        alt={name ?? ''}
+        className={`${sizeClass} rounded-full object-cover bg-muted shrink-0 ${className}`}
+      />
+    )
+  }
+  return (
+    <span
+      title={name || undefined}
+      aria-hidden={name ? undefined : true}
+      className={`${sizeClass} rounded-full bg-navy text-white font-semibold inline-flex items-center justify-center shrink-0 select-none ${className}`}
+    >
+      {avatarInitials(name)}
+    </span>
   )
 }
 

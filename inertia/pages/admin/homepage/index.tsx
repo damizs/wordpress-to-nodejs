@@ -1,7 +1,7 @@
 import { Head, useForm } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
 import { Save, Monitor, Shield, Users, FileText, Globe, Award, Eye, GripVertical, type LucideIcon } from 'lucide-react'
-import { Button, Card, CardHeader, Field, Input, Textarea } from '~/components/admin/ui'
+import { Button, Card, CardHeader, Field, Input, PageHeader, Textarea } from '~/components/admin/ui'
 import {
   DndContext,
   closestCenter,
@@ -176,7 +176,21 @@ export default function HomepageEditor({ settings }: Props) {
     <AdminLayout title="Editor da Homepage">
       <Head title="Homepage - Painel" />
 
-      <form onSubmit={handleSubmit} className="w-full min-w-0 space-y-6 max-w-4xl mx-auto">
+      <PageHeader
+        title="Editor da Homepage"
+        description="Configure seções, textos e ordem do conteúdo da página inicial do portal."
+        icon={Monitor}
+        variant="hero"
+        eyebrow="Site"
+        actions={
+          <Button form="homepage-form" type="submit" loading={processing}>
+            {!processing && <Save className="w-4 h-4" />}
+            {processing ? 'Salvando...' : 'Salvar Configurações'}
+          </Button>
+        }
+      />
+
+      <form id="homepage-form" onSubmit={handleSubmit} className="w-full min-w-0 space-y-6">
         {/* Seções da home: arraste para reordenar + ligue/desligue */}
         <Section
           icon={Eye}
@@ -264,13 +278,6 @@ export default function HomepageEditor({ settings }: Props) {
           <TextField label="Subtítulo" value={data.homepage_seals_subtitle} onChange={(v) => setData('homepage_seals_subtitle', v)} />
         </Section>
 
-        {/* Submit */}
-        <div className="flex justify-end pt-4">
-          <Button type="submit" loading={processing}>
-            {!processing && <Save className="w-4 h-4" />}
-            {processing ? 'Salvando...' : 'Salvar Todas as Configurações'}
-          </Button>
-        </div>
       </form>
     </AdminLayout>
   )

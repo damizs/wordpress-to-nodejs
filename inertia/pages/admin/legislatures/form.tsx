@@ -1,7 +1,7 @@
 import { Head, useForm, Link } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
 import { Save, ArrowLeft, Landmark } from 'lucide-react'
-import { Button, Card, CardHeader, Field, Input } from '~/components/admin/ui'
+import { Button, Card, CardHeader, Field, FormGrid, Input, PageHeader } from '~/components/admin/ui'
 
 interface Props {
   legislature: any | null
@@ -34,15 +34,26 @@ export default function LegislatureForm({ legislature }: Props) {
         href="/painel/legislaturas"
         className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4"
       >
-        <ArrowLeft className="w-4 h-4" /> Voltar
+        <ArrowLeft className="w-4 h-4" /> Voltar para Legislaturas
       </Link>
 
-      <form onSubmit={handleSubmit} className="admin-form admin-form-narrow">
+      <PageHeader
+        icon={Landmark}
+        eyebrow="Legislativo"
+        title={isEditing ? 'Editar Legislatura' : 'Nova Legislatura'}
+        description={
+          isEditing
+            ? `Editando: ${legislature?.name}`
+            : 'Preencha os dados para cadastrar uma nova legislatura'
+        }
+      />
+
+      <form onSubmit={handleSubmit} className="space-y-6">
         <Card>
           <CardHeader title="Dados da Legislatura" icon={Landmark} />
 
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-5">
+            <FormGrid cols={2}>
               <Field label="Nome" required>
                 <Input
                   type="text"
@@ -77,7 +88,7 @@ export default function LegislatureForm({ legislature }: Props) {
                   required
                 />
               </Field>
-            </div>
+            </FormGrid>
 
             <label className="flex items-center gap-2 cursor-pointer">
               <input
@@ -91,10 +102,18 @@ export default function LegislatureForm({ legislature }: Props) {
           </div>
         </Card>
 
-        <Button type="submit" loading={processing}>
-          <Save className="w-4 h-4" />
-          {processing ? 'Salvando...' : 'Salvar'}
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button type="submit" loading={processing}>
+            <Save className="w-4 h-4" />
+            {processing ? 'Salvando...' : 'Salvar'}
+          </Button>
+          <Link
+            href="/painel/legislaturas"
+            className="inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium rounded-lg border border-border bg-card text-foreground hover:bg-muted transition-colors"
+          >
+            Cancelar
+          </Link>
+        </div>
       </form>
     </AdminLayout>
   )

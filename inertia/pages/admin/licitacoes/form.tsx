@@ -1,6 +1,6 @@
 import { Head, useForm, Link, router } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Save, ArrowLeft, Upload, Plus, Trash2, FileText, CheckCircle2, Circle } from 'lucide-react'
+import { Save, ArrowLeft, Upload, Plus, Trash2, FileText, CheckCircle2, Circle, Gavel } from 'lucide-react'
 import { useState } from 'react'
 import {
   Badge,
@@ -11,6 +11,7 @@ import {
   Field,
   IconButton,
   Input,
+  PageHeader,
   Select,
   Textarea,
 } from '~/components/admin/ui'
@@ -97,9 +98,16 @@ export default function LicitacaoForm({ licitacao, documents, documentTypes, mod
     <AdminLayout title={isEditing ? 'Editar Licitação' : 'Nova Licitação'}>
       <Head title={`${isEditing ? 'Editar' : 'Nova'} Licitação - Painel`} />
       <Link href="/painel/licitacoes" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4">
-        <ArrowLeft className="w-4 h-4" /> Voltar
+        <ArrowLeft className="w-4 h-4" /> Voltar para Licitações
       </Link>
-      <form onSubmit={handleSubmit} className="admin-form admin-form-wide">
+
+      <PageHeader
+        title={isEditing ? 'Editar Licitação' : 'Nova Licitação'}
+        description="Cadastre processo licitatório com modalidade, status, documentos e detalhes para publicação no portal."
+        icon={Gavel}
+      />
+
+      <form onSubmit={handleSubmit} className="space-y-6">
         <Card className="space-y-4">
           <Field label="Título" required>
             <Input type="text" value={data.title} onChange={(e) => setData('title', e.target.value)} required />

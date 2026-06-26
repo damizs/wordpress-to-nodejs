@@ -1,14 +1,16 @@
 import { Head, router } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Pencil, Trash2, FileText, ExternalLink } from 'lucide-react'
+import { Pencil, Trash2, FileText, ExternalLink, BarChart3 } from 'lucide-react'
 import { useState } from 'react'
 import {
   ConfirmDelete,
   CreateButton,
   IconButton,
   IconLink,
+  PageHeader,
   RowActions,
   Select,
+  StatusBadge,
   Table,
   TableEmpty,
   TBody,
@@ -49,29 +51,32 @@ export default function FiscalReportsIndex({ reports, filters, years, types }: P
     <AdminLayout title="Relatórios Fiscais">
       <Head title="Relatórios Fiscais - Painel" />
 
-      <Toolbar className="mb-4 sm:justify-between">
-        <p className="text-sm text-muted-foreground">
-          RGF, RREO e demais relatórios — organizados por ano e período (LRF / PNTP 11.5).
-        </p>
-        <div className="flex items-center gap-2">
-          <Select value={filters.type} onChange={(e) => applyFilters({ tipo: e.target.value })} className="sm:w-32">
-            <option value="">Todos os tipos</option>
-            {types.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-          </Select>
-          <Select value={filters.year} onChange={(e) => applyFilters({ ano: e.target.value })} className="sm:w-32">
-            <option value="">Todos os anos</option>
-            {years.map((y) => (
-              <option key={y} value={y}>
-                {y}
-              </option>
-            ))}
-          </Select>
-          <CreateButton href="/painel/relatorios-fiscais/criar">Novo Relatório</CreateButton>
-        </div>
+      <PageHeader
+        title="Relatórios Fiscais"
+        description="RGF, RREO e demais relatórios — organizados por ano e período (LRF / PNTP 11.5)."
+        icon={BarChart3}
+        eyebrow="Transparência Fiscal"
+        variant="hero"
+        actions={<CreateButton href="/painel/relatorios-fiscais/criar">Novo Relatório</CreateButton>}
+      />
+
+      <Toolbar className="mb-4">
+        <Select value={filters.type} onChange={(e) => applyFilters({ tipo: e.target.value })} className="sm:w-40">
+          <option value="">Todos os tipos</option>
+          {types.map((t) => (
+            <option key={t} value={t}>
+              {t}
+            </option>
+          ))}
+        </Select>
+        <Select value={filters.year} onChange={(e) => applyFilters({ ano: e.target.value })} className="sm:w-36">
+          <option value="">Todos os anos</option>
+          {years.map((y) => (
+            <option key={y} value={y}>
+              {y}
+            </option>
+          ))}
+        </Select>
       </Toolbar>
 
       <Table>
@@ -111,7 +116,7 @@ export default function FiscalReportsIndex({ reports, filters, years, types }: P
                   <span className="text-xs text-muted-foreground">sem arquivo</span>
                 )}
               </TD>
-              <TD className="text-muted-foreground text-xs">{r.is_active ? 'Sim' : 'Não'}</TD>
+              <TD><StatusBadge status={r.is_active ? 'sim' : 'nao'} /></TD>
               <TD>
                 <RowActions>
                   <IconLink tone="edit" href={`/painel/relatorios-fiscais/${r.id}/editar`} title="Editar">

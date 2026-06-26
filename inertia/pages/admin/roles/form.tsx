@@ -1,8 +1,17 @@
-import { Head, Link, useForm } from '@inertiajs/react'
+import { Head, useForm } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { ArrowLeft, Save, Lock, ShieldCheck } from 'lucide-react'
+import { ArrowLeft, Lock, Save, ShieldCheck } from 'lucide-react'
 import type { FormEvent } from 'react'
-import { Button, Card, CardHeader, Field, Input } from '~/components/admin/ui'
+import {
+  Button,
+  ButtonLink,
+  Card,
+  CardHeader,
+  Field,
+  FormSection,
+  Input,
+  PageHeader,
+} from '~/components/admin/ui'
 
 interface PermissionItem {
   id: number
@@ -80,46 +89,54 @@ export default function RoleForm({
     <AdminLayout title={isEdit ? 'Editar Papel' : 'Novo Papel'}>
       <Head title={`${isEdit ? 'Editar' : 'Novo'} Papel - Painel`} />
 
-      <Link
-        href="/painel/papeis"
-        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-navy mb-6 transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" /> Voltar para papéis
-      </Link>
+      <PageHeader
+        title={isEdit ? 'Editar Papel' : 'Novo Papel'}
+        description={
+          readonly
+            ? 'Papel do sistema com acesso total — somente leitura.'
+            : isEdit
+              ? 'Edite o nome, descrição e permissões deste papel.'
+              : 'Defina um novo papel e as permissões que ele concede.'
+        }
+        icon={ShieldCheck}
+        eyebrow="Sistema"
+        actions={
+          <ButtonLink href="/painel/papeis" variant="secondary">
+            <ArrowLeft className="w-4 h-4" /> Voltar
+          </ButtonLink>
+        }
+      />
 
       {readonly && (
-        <div className="admin-form-narrow mb-6 flex items-center gap-2 px-4 py-3 rounded-xl bg-gold/15 text-amber-700 text-sm">
+        <div className="mb-6 flex items-center gap-2 px-4 py-3 rounded-xl bg-gold/15 text-amber-700 dark:text-amber-300 text-sm">
           <Lock className="w-4 h-4 flex-shrink-0" />
           Este é um papel do sistema: tem acesso total e não pode ser alterado.
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="admin-form admin-form-narrow">
-        <Card>
-          <CardHeader title="Dados do papel" icon={ShieldCheck} />
-          <div className="space-y-4">
-            <Field label="Nome do papel" required error={errors.name}>
-              <Input
-                type="text"
-                value={data.name}
-                onChange={(e) => setData('name', e.target.value)}
-                placeholder="Ex.: Assessoria Jurídica"
-                disabled={readonly}
-                required
-              />
-            </Field>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <FormSection title="Dados do papel" icon={ShieldCheck} columns={2}>
+          <Field label="Nome do papel" required error={errors.name}>
+            <Input
+              type="text"
+              value={data.name}
+              onChange={(e) => setData('name', e.target.value)}
+              placeholder="Ex.: Assessoria Jurídica"
+              disabled={readonly}
+              required
+            />
+          </Field>
 
-            <Field label="Descrição">
-              <Input
-                type="text"
-                value={data.description ?? ''}
-                onChange={(e) => setData('description', e.target.value)}
-                placeholder="O que este papel pode fazer"
-                disabled={readonly}
-              />
-            </Field>
-          </div>
-        </Card>
+          <Field label="Descrição">
+            <Input
+              type="text"
+              value={data.description ?? ''}
+              onChange={(e) => setData('description', e.target.value)}
+              placeholder="O que este papel pode fazer"
+              disabled={readonly}
+            />
+          </Field>
+        </FormSection>
 
         <Card>
           <CardHeader
@@ -146,7 +163,7 @@ export default function RoleForm({
                       </button>
                     )}
                   </div>
-                  <div className="grid sm:grid-cols-2 gap-2">
+                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
                     {items.map((p) => (
                       <label
                         key={p.id}
@@ -179,9 +196,11 @@ export default function RoleForm({
         </Card>
 
         {!readonly && (
-          <Button type="submit" loading={processing}>
-            <Save className="w-4 h-4" /> {isEdit ? 'Salvar Alterações' : 'Criar Papel'}
-          </Button>
+          <div>
+            <Button type="submit" loading={processing}>
+              <Save className="w-4 h-4" /> {isEdit ? 'Salvar Alterações' : 'Criar Papel'}
+            </Button>
+          </div>
         )}
       </form>
     </AdminLayout>

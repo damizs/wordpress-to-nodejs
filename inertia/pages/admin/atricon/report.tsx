@@ -1,6 +1,6 @@
 import { Head, Link } from '@inertiajs/react'
 import { ArrowLeft, Printer, FileDown } from 'lucide-react'
-import { Badge, Button, type BadgeTone } from '~/components/admin/ui'
+import { Badge, Button, ButtonLink, type BadgeTone } from '~/components/admin/ui'
 
 interface Pending {
   code: string
@@ -45,17 +45,20 @@ export default function AtriconReport({ pendings, scores, fortnight, generatedAt
       <Head title="Relatório Quinzenal PNTP - Painel" />
 
       {/* Barra de ações (não imprime) */}
-      <div className="print:hidden sticky top-0 z-10 bg-card border-b border-border px-6 py-3 flex items-center gap-3">
-        <Link href="/painel/atricon" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-navy no-underline">
+      <div className="print:hidden sticky top-0 z-10 bg-card border-b border-border px-6 py-3 flex flex-col gap-2 sm:flex-row sm:items-center">
+        <Link
+          href="/painel/atricon"
+          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-navy no-underline"
+        >
           <ArrowLeft className="w-4 h-4" /> Voltar ao Radar
         </Link>
-        <div className="ml-auto flex gap-2">
-          <a
+        <div className="flex flex-wrap items-center gap-2 sm:ml-auto">
+          <ButtonLink
             href="/painel/atricon/relatorio?format=csv"
-            className="inline-flex items-center gap-2 px-4 py-2.5 bg-card border border-border text-foreground rounded-lg text-sm font-medium hover:bg-muted transition-colors no-underline"
+            variant="secondary"
           >
             <FileDown className="w-4 h-4" /> CSV
-          </a>
+          </ButtonLink>
           <Button type="button" onClick={() => window.print()}>
             <Printer className="w-4 h-4" /> Imprimir / PDF
           </Button>

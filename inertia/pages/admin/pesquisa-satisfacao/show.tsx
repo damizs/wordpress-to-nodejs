@@ -1,7 +1,7 @@
-import { Head, Link } from '@inertiajs/react'
+import { Head } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { ArrowLeft, BadgeCheck, Star, User, Mail, Phone } from 'lucide-react'
-import { Card, CardHeader } from '~/components/admin/ui'
+import { ArrowLeft, BadgeCheck, ClipboardList, Star, User, Mail, Phone } from 'lucide-react'
+import { ButtonLink, Card, CardHeader, PageHeader } from '~/components/admin/ui'
 
 interface Props { survey: any }
 
@@ -34,73 +34,93 @@ export default function PesquisaSatisfacaoShow({ survey }: Props) {
   return (
     <AdminLayout title="Detalhes da Resposta">
       <Head title="Resposta - Pesquisa de Satisfação" />
-      <Link href="/painel/pesquisa-satisfacao" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4">
-        <ArrowLeft className="w-4 h-4" /> Voltar
-      </Link>
 
-      <div className="admin-form admin-form-narrow">
-        {/* Identificação */}
-        <Card>
-          <CardHeader title="Identificação" />
-          <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <User className="w-4 h-4 text-muted-foreground" />
-              <span className="text-sm text-foreground">{survey.name || <span className="text-muted-foreground italic">Anônimo</span>}</span>
-            </div>
-            {survey.email && (
+      <PageHeader
+        title="Detalhes da Resposta"
+        description={`Enviada em ${new Date(survey.created_at).toLocaleString('pt-BR')}`}
+        icon={ClipboardList}
+        eyebrow="Pesquisa de Satisfação"
+        actions={
+          <ButtonLink href="/painel/pesquisa-satisfacao" variant="secondary">
+            <ArrowLeft className="w-4 h-4" /> Voltar
+          </ButtonLink>
+        }
+      />
+
+      <div className="space-y-6">
+        {/* Top row: Identificação + Avaliações lado a lado no desktop */}
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* Identificação */}
+          <Card>
+            <CardHeader title="Identificação" icon={User} />
+            <div className="space-y-3">
               <div className="flex items-center gap-3">
-                <Mail className="w-4 h-4 text-muted-foreground" />
-                <a href={`mailto:${survey.email}`} className="text-sm text-navy hover:underline">{survey.email}</a>
-              </div>
-            )}
-            {survey.phone && (
-              <div className="flex items-center gap-3">
-                <Phone className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm text-foreground">{survey.phone}</span>
-              </div>
-            )}
-            {cpfVerified && (
-              <div className="flex items-center gap-3">
-                <BadgeCheck className="w-4 h-4 text-muted-foreground" />
+                <User className="w-4 h-4 text-muted-foreground shrink-0" />
                 <span className="text-sm text-foreground">
-                  CPF verificado (dado pseudonimizado — não armazenado em texto claro)
+                  {survey.name || <span className="text-muted-foreground italic">Anônimo</span>}
                 </span>
               </div>
-            )}
-            <p className="text-xs text-muted-foreground">Enviado em {new Date(survey.created_at).toLocaleString('pt-BR')}</p>
-          </div>
-        </Card>
-
-        {/* Avaliações */}
-        <Card>
-          <CardHeader title="Avaliações" />
-          <div className="divide-y divide-border/70">
-            <Stars rating={survey.rating_atendimento} label="Atendimento ao público" />
-            <Stars rating={survey.rating_transparencia} label="Transparência" />
-            <Stars rating={survey.rating_legislativo} label="Atuação legislativa" />
-            <Stars rating={survey.rating_infraestrutura} label="Infraestrutura" />
-            <div className="pt-3 mt-2 border-t-2 border-border">
-              <Stars rating={survey.rating_geral} label="Avaliação geral" />
+              {survey.email && (
+                <div className="flex items-center gap-3">
+                  <Mail className="w-4 h-4 text-muted-foreground shrink-0" />
+                  <a href={`mailto:${survey.email}`} className="text-sm text-navy hover:underline">
+                    {survey.email}
+                  </a>
+                </div>
+              )}
+              {survey.phone && (
+                <div className="flex items-center gap-3">
+                  <Phone className="w-4 h-4 text-muted-foreground shrink-0" />
+                  <span className="text-sm text-foreground">{survey.phone}</span>
+                </div>
+              )}
+              {cpfVerified && (
+                <div className="flex items-center gap-3">
+                  <BadgeCheck className="w-4 h-4 text-muted-foreground shrink-0" />
+                  <span className="text-sm text-foreground">
+                    CPF verificado (dado pseudonimizado — não armazenado em texto claro)
+                  </span>
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground pt-1">
+                Enviado em {new Date(survey.created_at).toLocaleString('pt-BR')}
+              </p>
             </div>
-          </div>
-        </Card>
+          </Card>
 
-        {/* Comentários */}
+          {/* Avaliações */}
+          <Card>
+            <CardHeader title="Avaliações" icon={Star} />
+            <div className="divide-y divide-border/70">
+              <Stars rating={survey.rating_atendimento} label="Atendimento ao público" />
+              <Stars rating={survey.rating_transparencia} label="Transparência" />
+              <Stars rating={survey.rating_legislativo} label="Atuação legislativa" />
+              <Stars rating={survey.rating_infraestrutura} label="Infraestrutura" />
+              <div className="pt-3 mt-2 border-t-2 border-border">
+                <Stars rating={survey.rating_geral} label="Avaliação geral" />
+              </div>
+            </div>
+          </Card>
+        </div>
+
+        {/* Comentários — largura total */}
         {(survey.suggestions || survey.complaints) && (
           <Card>
             <CardHeader title="Comentários" />
-            {survey.suggestions && (
-              <div className="mb-4">
-                <p className="text-xs font-medium text-muted-foreground uppercase mb-1">Sugestões</p>
-                <p className="text-sm text-foreground whitespace-pre-line">{survey.suggestions}</p>
-              </div>
-            )}
-            {survey.complaints && (
-              <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase mb-1">Reclamações</p>
-                <p className="text-sm text-foreground whitespace-pre-line">{survey.complaints}</p>
-              </div>
-            )}
+            <div className="grid gap-4 sm:grid-cols-2">
+              {survey.suggestions && (
+                <div>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase mb-1.5">Sugestões</p>
+                  <p className="text-sm text-foreground whitespace-pre-line">{survey.suggestions}</p>
+                </div>
+              )}
+              {survey.complaints && (
+                <div>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase mb-1.5">Reclamações</p>
+                  <p className="text-sm text-foreground whitespace-pre-line">{survey.complaints}</p>
+                </div>
+              )}
+            </div>
           </Card>
         )}
       </div>

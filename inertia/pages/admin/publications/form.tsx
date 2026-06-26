@@ -1,8 +1,8 @@
 import { Head, useForm, Link } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Save, ArrowLeft, Upload } from 'lucide-react'
+import { Save, ArrowLeft, Upload, BookOpen } from 'lucide-react'
 import { useRef } from 'react'
-import { Button, Card, Field, Input, Select } from '~/components/admin/ui'
+import { Button, Field, Input, Select, PageHeader, FormSection, FormGrid } from '~/components/admin/ui'
 import RichTextEditor from '~/components/admin/RichTextEditor'
 
 interface Props {
@@ -35,69 +35,116 @@ export default function PublicationForm({ publication, types = [] }: Props) {
   return (
     <AdminLayout title={isEditing ? 'Editar Publicação' : 'Nova Publicação'}>
       <Head title={`${isEditing ? 'Editar' : 'Nova'} Publicação - Painel`} />
-      <Link
-        href="/painel/publicacoes"
-        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4"
-      >
-        <ArrowLeft className="w-4 h-4" /> Voltar
-      </Link>
-      <form onSubmit={handleSubmit} className="admin-form">
-        <Card className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <Field label="Tipo" required>
-              <Select value={data.type} onChange={(e) => setData('type', e.target.value)} required>
-                {types.map((t: any) => <option key={t.slug} value={t.slug}>{t.name}</option>)}
-              </Select>
-            </Field>
-            <Field label="Número">
-              <Input type="text" value={data.number} onChange={(e) => setData('number', e.target.value)} />
-            </Field>
-            <Field label="Data" required>
+      <form onSubmit={handleSubmit}>
+        <PageHeader
+          title={isEditing ? 'Editar Publicação' : 'Nova Publicação'}
+          description={
+            isEditing
+              ? `Editando: ${publication?.title}`
+              : 'Cadastre uma nova publicação oficial no portal.'
+          }
+          icon={BookOpen}
+          eyebrow="Publicações Oficiais"
+          actions={
+            <Link
+              href="/painel/publicacoes"
+              className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+            >
+              <ArrowLeft className="w-4 h-4" /> Voltar
+            </Link>
+          }
+        />
+
+        <div className="space-y-5">
+          <FormSection
+            title="Identificação"
+            description="Tipo, número e data de publicação."
+          >
+            <FormGrid cols={3}>
+              <Field label="Tipo" required>
+                <Select value={data.type} onChange={(e) => setData('type', e.target.value)} required>
+                  {types.map((t: any) => (
+                    <option key={t.slug} value={t.slug}>{t.name}</option>
+                  ))}
+                </Select>
+              </Field>
+              <Field label="Número">
+                <Input
+                  type="text"
+                  value={data.number}
+                  onChange={(e) => setData('number', e.target.value)}
+                />
+              </Field>
+              <Field label="Data de publicação" required>
+                <Input
+                  type="date"
+                  value={data.publication_date}
+                  onChange={(e) => setData('publication_date', e.target.value)}
+                  required
+                />
+              </Field>
+            </FormGrid>
+          </FormSection>
+
+          <FormSection
+            title="Conteúdo"
+            description="Título e descrição/ementa da publicação."
+          >
+            <Field label="Título" required>
               <Input
-                type="date"
-                value={data.publication_date}
-                onChange={(e) => setData('publication_date', e.target.value)}
+                type="text"
+                value={data.title}
+                onChange={(e) => setData('title', e.target.value)}
                 required
               />
             </Field>
-          </div>
-          <Field label="Título" required>
-            <Input type="text" value={data.title} onChange={(e) => setData('title', e.target.value)} required />
-          </Field>
-          <Field label="Descrição / ementa" hint="Editor visual — texto que aparece na página pública da publicação.">
-            <RichTextEditor
-              value={data.description}
-              onChange={(html) => setData('description', html)}
-              minHeight={280}
-            />
-          </Field>
-          <Field label="Arquivo PDF">
-            <div>
-              {publication?.file_url && (
-                <p className="text-xs text-muted-foreground mb-1.5">
-                  Atual:{' '}
-                  <a href={publication.file_url} target="_blank" className="text-navy underline">
-                    Ver PDF
-                  </a>
-                </p>
-              )}
-              <Button type="button" variant="secondary" onClick={() => fileRef.current?.click()}>
-                <Upload className="w-4 h-4" /> {data.file ? data.file.name : 'Selecionar PDF'}
-              </Button>
-              <input
-                ref={fileRef}
-                type="file"
-                accept=".pdf"
-                onChange={(e) => setData('file', e.target.files?.[0] || null)}
-                className="hidden"
+            <Field
+              label="Descrição / ementa"
+              hint="Editor visual — texto que aparece na página pública da publicação."
+            >
+              <RichTextEditor
+                value={data.description}
+                onChange={(html) => setData('description', html)}
+                minHeight={280}
               />
-            </div>
-          </Field>
-        </Card>
-        <Button type="submit" loading={processing}>
-          <Save className="w-4 h-4" />
-          {processing ? 'Salvando...' : 'Salvar'}
-        </Button>
+            </Field>
+          </FormSection>
+
+          <FormSection
+            title="Documento"
+            description="Arquivo PDF vinculado à publicação."
+          >
+            <Field label="Arquivo PDF">
+              <div>
+                {publication?.file_url && (
+                  <p className="text-xs text-muted-foreground mb-1.5">
+                    Atual:{' '}
+                    <a href={publication.file_url} target="_blank" className="text-navy underline">
+                      Ver PDF
+                    </a>
+                  </p>
+                )}
+                <Button type="button" variant="secondary" onClick={() => fileRef.current?.click()}>
+                  <Upload className="w-4 h-4" /> {data.file ? data.file.name : 'Selecionar PDF'}
+                </Button>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept=".pdf"
+                  onChange={(e) => setData('file', e.target.files?.[0] || null)}
+                  className="hidden"
+                />
+              </div>
+            </Field>
+          </FormSection>
+        </div>
+
+        <div className="flex justify-end mt-5">
+          <Button type="submit" loading={processing}>
+            {!processing && <Save className="w-4 h-4" />}
+            {processing ? 'Salvando...' : 'Salvar'}
+          </Button>
+        </div>
       </form>
     </AdminLayout>
   )

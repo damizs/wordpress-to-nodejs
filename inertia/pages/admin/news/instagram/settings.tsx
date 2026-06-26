@@ -43,9 +43,9 @@ export default function InstagramSettings({ settings, categories, aiProviders, a
     instagram_sessionid: settings.instagram_sessionid || '',
     instagram_useragent: settings.instagram_useragent || '',
     rapidapi_key: settings.rapidapi_key || '',
-    ai_provider: settings.ai_provider || 'gemini',
+    ai_provider: settings.ai_provider || 'deepseek',
     ai_api_key: settings.ai_api_key || '',
-    ai_model: settings.ai_model || 'gemini-2.0-flash',
+    ai_model: settings.ai_model || 'deepseek-chat',
     ai_prompt: settings.ai_prompt || defaultPrompt || '',
     default_category: settings.default_category || '',
     default_status: settings.default_status || 'draft',
@@ -233,18 +233,21 @@ export default function InstagramSettings({ settings, categories, aiProviders, a
             <CardHeader
               icon={Clock}
               title="Importação Automática"
-              description="Importa automaticamente os posts do dia no horário configurado (fuso de Brasília)."
+              description="Importa os posts do dia no horário configurado (fuso de Brasília). O feed e os Reels também são atualizados 1×/dia nesse horário — roda dentro do próprio app, sem cron externo."
             />
             <div className="space-y-4">
               <label className="flex items-center gap-2">
                 <input type="checkbox" checked={data.auto_import_enabled} onChange={e => setData('auto_import_enabled', e.target.checked)} className="w-4 h-4 rounded accent-navy" />
                 <span className="font-medium text-foreground">Habilitar importação automática</span>
               </label>
+              <p className="text-xs text-muted-foreground -mt-1">
+                Com a importação desligada, o app ainda atualiza o feed e os Reels 1×/dia no horário abaixo.
+              </p>
               <div className="grid grid-cols-3 gap-4">
                 <Field label="Modo">
                   <Select value={data.cron_mode} onChange={e => setData('cron_mode', e.target.value)}>
                     <option value="daily">Diário (Produção)</option>
-                    <option value="test">Teste (a cada 2 min)</option>
+                    <option value="test">Teste (a cada ~30 min)</option>
                   </Select>
                   {data.cron_mode === 'test' && (
                     <p className="flex items-center gap-1.5 text-xs text-destructive mt-1">

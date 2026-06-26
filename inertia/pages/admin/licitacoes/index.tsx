@@ -2,7 +2,6 @@ import { Head, router } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
 import {
   CalendarDays,
-  FileText,
   FolderKanban,
   Gavel,
   Pencil,
@@ -19,9 +18,11 @@ import {
   IconButton,
   IconLink,
   Input,
+  PageHeader,
   Pagination,
   RowActions,
   Select,
+  StatCard,
   StatusBadge,
   Table,
   TableEmpty,
@@ -81,32 +82,6 @@ function buildBaseUrl(filters: Props['filters']) {
   return `/painel/licitacoes${query ? `?${query}` : ''}`
 }
 
-function StatCard({
-  label,
-  value,
-  hint,
-  icon: Icon,
-}: {
-  label: string
-  value: string | number
-  hint: string
-  icon: typeof Gavel
-}) {
-  return (
-    <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{label}</p>
-          <p className="mt-2 text-2xl font-bold leading-none text-foreground">{value}</p>
-          <p className="mt-2 text-xs text-muted-foreground">{hint}</p>
-        </div>
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-navy/10 text-navy">
-          <Icon className="h-5 w-5" />
-        </div>
-      </div>
-    </div>
-  )
-}
 
 function LicitacaoCard({
   item,
@@ -182,21 +157,14 @@ export default function LicitacoesIndex({ licitacoes, filters }: Props) {
     <AdminLayout title="Licitacoes">
       <Head title="Licitacoes - Painel" />
 
-      <section className="mb-6 rounded-2xl border border-border bg-card p-5 shadow-sm lg:p-6">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-          <div className="min-w-0">
-            <Badge tone="gold" className="mb-3">
-              Contratacoes publicas
-            </Badge>
-            <h1 className="text-2xl font-bold tracking-tight text-foreground">Licitacoes</h1>
-            <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
-              Acompanhe processos licitatorios, modalidades, status de abertura e documentos
-              anexados para publicacao no portal.
-            </p>
-          </div>
-          <CreateButton href="/painel/licitacoes/criar">Nova licitacao</CreateButton>
-        </div>
-      </section>
+      <PageHeader
+        title="Licitações"
+        description="Acompanhe processos licitatórios, modalidades, status de abertura e documentos anexados para publicação no portal."
+        icon={Gavel}
+        eyebrow="Transparência — Contratações Públicas"
+        variant="hero"
+        actions={<CreateButton href="/painel/licitacoes/criar">Nova licitação</CreateButton>}
+      />
 
       <div className="mb-6 grid gap-3 md:grid-cols-3">
         <StatCard

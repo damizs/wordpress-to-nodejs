@@ -7,8 +7,10 @@ import {
   Card,
   CardHeader,
   Field,
+  FormGrid,
   IconButton,
   Input,
+  PageHeader,
   Select,
   Textarea,
 } from '~/components/admin/ui'
@@ -39,7 +41,7 @@ export default function CommitteeForm({ committee, members: initialMembers, legi
   })
 
   function generateSlug(name: string) {
-    return name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+    return name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
   }
 
   function addMember() {
@@ -81,14 +83,26 @@ export default function CommitteeForm({ committee, members: initialMembers, legi
         href="/painel/comissoes"
         className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4"
       >
-        <ArrowLeft className="w-4 h-4" /> Voltar
+        <ArrowLeft className="w-4 h-4" /> Voltar para Comissões
       </Link>
 
-      <form onSubmit={handleSubmit} className="admin-form admin-form-narrow">
+      <PageHeader
+        icon={Landmark}
+        eyebrow="Legislativo"
+        title={isEditing ? 'Editar Comissão' : 'Nova Comissão'}
+        description={
+          isEditing
+            ? `Editando: ${committee?.name}`
+            : 'Preencha os dados para cadastrar uma nova comissão'
+        }
+      />
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Dados da Comissão */}
         <Card>
           <CardHeader title="Dados da Comissão" icon={Landmark} />
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-5">
+            <FormGrid cols={2}>
               <Field label="Nome" required>
                 <Input
                   type="text"
@@ -107,7 +121,8 @@ export default function CommitteeForm({ committee, members: initialMembers, legi
                   <option value="especial">Especial</option>
                 </Select>
               </Field>
-            </div>
+            </FormGrid>
+
             <Field label="Legislatura">
               <Select
                 value={data.legislature_id}
@@ -119,6 +134,7 @@ export default function CommitteeForm({ committee, members: initialMembers, legi
                 ))}
               </Select>
             </Field>
+
             <Field label="Descrição">
               <Textarea
                 value={data.description}
@@ -126,6 +142,7 @@ export default function CommitteeForm({ committee, members: initialMembers, legi
                 rows={3}
               />
             </Field>
+
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
@@ -138,7 +155,7 @@ export default function CommitteeForm({ committee, members: initialMembers, legi
           </div>
         </Card>
 
-        {/* Members */}
+        {/* Membros */}
         <Card>
           <CardHeader
             title="Membros"
@@ -151,11 +168,11 @@ export default function CommitteeForm({ committee, members: initialMembers, legi
           />
           <div className="space-y-3">
             {membersList.map((member, idx) => (
-              <div key={idx} className="flex items-center gap-3">
+              <div key={idx} className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
                 <Select
                   value={member.councilor_id}
                   onChange={(e) => updateMember(idx, 'councilor_id', e.target.value)}
-                  className="flex-1"
+                  className="flex-1 w-full"
                 >
                   <option value="">Selecionar vereador...</option>
                   {councilors.map((c: any) => (
@@ -165,11 +182,17 @@ export default function CommitteeForm({ committee, members: initialMembers, legi
                 <Select
                   value={member.role}
                   onChange={(e) => updateMember(idx, 'role', e.target.value)}
-                  className="w-40"
+                  className="w-full sm:w-44"
                 >
                   {roleOptions.map((r) => <option key={r} value={r}>{r}</option>)}
                 </Select>
-                <IconButton type="button" tone="delete" onClick={() => removeMember(idx)} title="Remover">
+                <IconButton
+                  type="button"
+                  tone="delete"
+                  onClick={() => removeMember(idx)}
+                  title="Remover"
+                  className="shrink-0"
+                >
                   <X className="w-4 h-4" />
                 </IconButton>
               </div>
@@ -180,10 +203,18 @@ export default function CommitteeForm({ committee, members: initialMembers, legi
           </div>
         </Card>
 
-        <Button type="submit" loading={processing}>
-          <Save className="w-4 h-4" />
-          {processing ? 'Salvando...' : 'Salvar'}
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button type="submit" loading={processing}>
+            <Save className="w-4 h-4" />
+            {processing ? 'Salvando...' : 'Salvar'}
+          </Button>
+          <Link
+            href="/painel/comissoes"
+            className="inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium rounded-lg border border-border bg-card text-foreground hover:bg-muted transition-colors"
+          >
+            Cancelar
+          </Link>
+        </div>
       </form>
     </AdminLayout>
   )

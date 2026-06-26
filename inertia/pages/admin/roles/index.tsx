@@ -1,13 +1,14 @@
 import { Head } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Pencil, Trash2, ShieldCheck, Lock } from 'lucide-react'
+import { Pencil, Plus, Trash2, ShieldCheck, Lock } from 'lucide-react'
 import { useState } from 'react'
 import {
   Badge,
+  ButtonLink,
   ConfirmDelete,
-  CreateButton,
   IconButton,
   IconLink,
+  PageHeader,
   RowActions,
   Table,
   TableEmpty,
@@ -33,10 +34,18 @@ export default function RolesIndex({ roles }: { roles: RoleItem[] }) {
     <AdminLayout title="Papéis e Permissões">
       <Head title="Papéis - Painel" />
 
-      <div className="flex items-center justify-between mb-6">
-        <p className="text-sm text-muted-foreground">{roles.length} papel(éis)</p>
-        <CreateButton href="/painel/papeis/criar">Novo Papel</CreateButton>
-      </div>
+      <PageHeader
+        title="Papéis e Permissões"
+        description={`${roles.length} papel(éis) configurado(s). Controle o que cada usuário pode acessar no painel.`}
+        icon={ShieldCheck}
+        eyebrow="Sistema"
+        variant="hero"
+        actions={
+          <ButtonLink href="/painel/papeis/criar" variant="gold">
+            <Plus className="w-4 h-4" /> Novo Papel
+          </ButtonLink>
+        }
+      />
 
       <Table>
         <THead>

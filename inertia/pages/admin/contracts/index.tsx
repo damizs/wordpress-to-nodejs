@@ -12,6 +12,7 @@ import {
   WalletCards,
   X,
 } from 'lucide-react'
+
 import { useMemo, useState } from 'react'
 import {
   Badge,
@@ -21,6 +22,7 @@ import {
   IconButton,
   IconLink,
   Input,
+  PageHeader,
   Pagination,
   RowActions,
   Select,
@@ -167,23 +169,24 @@ export default function ContractsIndex({ contracts, filters, linkableCount }: Pr
     <AdminLayout title="Contratos">
       <Head title="Contratos - Painel" />
 
-      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm text-muted-foreground">
-          <Badge tone="navy" className="mr-2 align-middle">
-            PNTP 9.1 / 9.3
-          </Badge>
-          Contratos estruturados: contratado, vigência, valor, gestor, fiscal e arquivo.
-        </p>
-        <div className="flex flex-wrap gap-2 sm:shrink-0">
-          {linkableCount > 0 && (
-            <Button variant="secondary" onClick={importFromLicitacoes} loading={importing}>
-              <DownloadCloud className="h-4 w-4" />
-              Importar {linkableCount}
-            </Button>
-          )}
-          <CreateButton href="/painel/contratos/criar">Novo contrato</CreateButton>
-        </div>
-      </div>
+      <PageHeader
+        title="Contratos"
+        description="Contratos estruturados: contratado, vigência, valor, gestor, fiscal e arquivo (PNTP 9.1/9.3)."
+        icon={BriefcaseBusiness}
+        eyebrow="Transparência — Contratações"
+        variant="hero"
+        actions={
+          <>
+            {linkableCount > 0 && (
+              <Button variant="secondary" onClick={importFromLicitacoes} loading={importing}>
+                <DownloadCloud className="h-4 w-4" />
+                Importar {linkableCount}
+              </Button>
+            )}
+            <CreateButton href="/painel/contratos/criar">Novo contrato</CreateButton>
+          </>
+        }
+      />
 
       <div className="mb-6 grid gap-3 md:grid-cols-3">
         <StatCard

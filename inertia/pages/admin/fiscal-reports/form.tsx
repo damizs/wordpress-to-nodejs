@@ -1,8 +1,8 @@
 import { Head, useForm, Link, router } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Save, ArrowLeft, Upload, FileText } from 'lucide-react'
+import { Save, ArrowLeft, Upload, FileText, BarChart3 } from 'lucide-react'
 import { useState } from 'react'
-import { Button, Card, CardHeader, Field, Input, Select, Textarea } from '~/components/admin/ui'
+import { Button, Card, CardHeader, Field, Input, PageHeader, Select, Textarea } from '~/components/admin/ui'
 
 interface Props {
   report: any | null
@@ -59,10 +59,16 @@ export default function FiscalReportForm({ report, types, periodKinds }: Props) 
         href="/painel/relatorios-fiscais"
         className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4"
       >
-        <ArrowLeft className="w-4 h-4" /> Voltar
+        <ArrowLeft className="w-4 h-4" /> Voltar para Relatórios Fiscais
       </Link>
 
-      <form onSubmit={handleSubmit} className="admin-form">
+      <PageHeader
+        title={isEditing ? 'Editar Relatório Fiscal' : 'Novo Relatório Fiscal'}
+        description="Cadastre RGF, RREO e demais relatórios organizados por ano e período (LRF / PNTP 11.5)."
+        icon={BarChart3}
+      />
+
+      <form onSubmit={handleSubmit} className="space-y-6">
         <Card className="space-y-4">
           <CardHeader title="Identificação do relatório" icon={FileText} />
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

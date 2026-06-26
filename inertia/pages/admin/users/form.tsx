@@ -1,8 +1,17 @@
-import { Head, Link, useForm } from '@inertiajs/react'
+import { Head, useForm } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
 import { ArrowLeft, Save, ShieldCheck, User } from 'lucide-react'
 import type { FormEvent } from 'react'
-import { Button, Card, CardHeader, Field, Input } from '~/components/admin/ui'
+import {
+  Button,
+  ButtonLink,
+  Card,
+  CardHeader,
+  Field,
+  FormSection,
+  Input,
+  PageHeader,
+} from '~/components/admin/ui'
 
 interface RoleOption {
   id: number
@@ -51,49 +60,57 @@ export default function UserForm({ user, roles }: { user: UserData | null; roles
     <AdminLayout title={isEdit ? 'Editar Usuário' : 'Novo Usuário'}>
       <Head title={`${isEdit ? 'Editar' : 'Novo'} Usuário - Painel`} />
 
-      <Link
-        href="/painel/usuarios"
-        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-navy mb-6 transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" /> Voltar para usuários
-      </Link>
+      <PageHeader
+        title={isEdit ? 'Editar Usuário' : 'Novo Usuário'}
+        description={
+          isEdit
+            ? `Editando o perfil de ${user!.fullName}`
+            : 'Crie um novo usuário e atribua papéis de acesso ao painel.'
+        }
+        icon={User}
+        eyebrow="Sistema"
+        actions={
+          <ButtonLink href="/painel/usuarios" variant="secondary">
+            <ArrowLeft className="w-4 h-4" /> Voltar
+          </ButtonLink>
+        }
+      />
 
-      <form onSubmit={handleSubmit} className="admin-form admin-form-narrow">
-        <Card>
-          <CardHeader title="Dados do usuário" icon={User} />
-          <div className="space-y-4">
-            <Field label="Nome completo" required error={errors.full_name}>
-              <Input
-                type="text"
-                value={data.full_name}
-                onChange={(e) => setData('full_name', e.target.value)}
-                required
-              />
-            </Field>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <FormSection title="Dados do usuário" icon={User} columns={2}>
+          <Field label="Nome completo" required error={errors.full_name}>
+            <Input
+              type="text"
+              value={data.full_name}
+              onChange={(e) => setData('full_name', e.target.value)}
+              required
+            />
+          </Field>
 
-            <Field label="E-mail" required error={errors.email}>
-              <Input
-                type="email"
-                value={data.email}
-                onChange={(e) => setData('email', e.target.value)}
-                required
-              />
-            </Field>
+          <Field label="E-mail" required error={errors.email}>
+            <Input
+              type="email"
+              value={data.email}
+              onChange={(e) => setData('email', e.target.value)}
+              required
+            />
+          </Field>
 
-            <Field
-              label={`Senha ${isEdit ? '(deixe em branco para manter a atual)' : ''}`.trim()}
+          <Field
+            label={`Senha ${isEdit ? '(deixe em branco para manter a atual)' : ''}`.trim()}
+            required={!isEdit}
+            error={errors.password}
+          >
+            <Input
+              type="password"
+              value={data.password}
+              onChange={(e) => setData('password', e.target.value)}
               required={!isEdit}
-              error={errors.password}
-            >
-              <Input
-                type="password"
-                value={data.password}
-                onChange={(e) => setData('password', e.target.value)}
-                required={!isEdit}
-                minLength={8}
-              />
-            </Field>
+              minLength={8}
+            />
+          </Field>
 
+          <div className="flex items-center md:pt-6">
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
@@ -104,7 +121,7 @@ export default function UserForm({ user, roles }: { user: UserData | null; roles
               <span className="text-sm text-foreground">Usuário ativo</span>
             </label>
           </div>
-        </Card>
+        </FormSection>
 
         <Card>
           <CardHeader
@@ -112,7 +129,7 @@ export default function UserForm({ user, roles }: { user: UserData | null; roles
             description="O usuário só acessa as áreas do painel cobertas pelos papéis marcados. Pode combinar mais de um."
             icon={ShieldCheck}
           />
-          <div className="space-y-2">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
             {roles.map((role) => (
               <label
                 key={role.id}
@@ -139,9 +156,11 @@ export default function UserForm({ user, roles }: { user: UserData | null; roles
           </div>
         </Card>
 
-        <Button type="submit" loading={processing}>
-          <Save className="w-4 h-4" /> {isEdit ? 'Salvar Alterações' : 'Criar Usuário'}
-        </Button>
+        <div>
+          <Button type="submit" loading={processing}>
+            <Save className="w-4 h-4" /> {isEdit ? 'Salvar Alterações' : 'Criar Usuário'}
+          </Button>
+        </div>
       </form>
     </AdminLayout>
   )

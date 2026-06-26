@@ -1,6 +1,6 @@
 import { Head, router, useForm } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Pencil, Trash2, Plus, X } from 'lucide-react'
+import { Pencil, Trash2, Plus, X, CalendarClock } from 'lucide-react'
 import { useState } from 'react'
 import {
   Button,
@@ -232,6 +232,9 @@ export default function DuodecimosIndex({ records = [], years = [], selectedYear
       <PageHeader
         title="Duodécimos"
         description="Repasses mensais de 1/12 do orçamento do Executivo à Câmara (transparência ativa)."
+        icon={CalendarClock}
+        eyebrow="Transparência Fiscal"
+        variant="hero"
       />
 
       <div className="mb-6">

@@ -46,14 +46,13 @@ export default class AIProcessorService {
 
   async init(): Promise<void> {
     if (!this.provider) {
-      this.provider = (await InstagramSetting.get('ai_provider', 'gemini')) || 'gemini'
+      this.provider = (await InstagramSetting.get('ai_provider', 'deepseek')) || 'deepseek'
     }
     if (!this.apiKey) {
       this.apiKey = (await InstagramSetting.get('ai_api_key')) || ''
     }
     if (!this.model) {
-      this.model =
-        (await InstagramSetting.get('ai_model', 'gemini-2.0-flash')) || 'gemini-2.0-flash'
+      this.model = (await InstagramSetting.get('ai_model', 'deepseek-chat')) || 'deepseek-chat'
     }
   }
 

@@ -1,7 +1,7 @@
 import { Head, useForm, Link } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Save, ArrowLeft } from 'lucide-react'
-import { Button, Card, Field, Input, Textarea } from '~/components/admin/ui'
+import { Save, ArrowLeft, Layers3 } from 'lucide-react'
+import { Button, Field, FormSection, Input, PageHeader, Textarea } from '~/components/admin/ui'
 
 export default function SectionForm({ section }: { section: any | null }) {
   const isEditing = !!section
@@ -32,28 +32,35 @@ export default function SectionForm({ section }: { section: any | null }) {
       <Head title={`${isEditing ? 'Editar' : 'Nova'} Seção - Painel`} />
 
       <Link href="/painel/transparencia" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4">
-        <ArrowLeft className="w-4 h-4" /> Voltar
+        <ArrowLeft className="w-4 h-4" /> Voltar para Transparência
       </Link>
 
-      <form onSubmit={handleSubmit} className="admin-form admin-form-narrow">
-        <Card className="space-y-4">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field label="Título" required>
-              <Input type="text" value={data.title} onChange={(e) => {
-                setData('title', e.target.value)
-                if (!isEditing) setData('slug', generateSlug(e.target.value))
-              }} required />
-            </Field>
-            <Field label="Slug">
-              <Input type="text" value={data.slug} onChange={(e) => setData('slug', e.target.value)} className="font-mono" />
-            </Field>
-            <Field label="Ícone">
-              <Input type="text" value={data.icon} onChange={(e) => setData('icon', e.target.value)} placeholder="Ex: Shield, FileText" />
-            </Field>
-            <Field label="Ordem">
-              <Input type="number" value={data.display_order} onChange={(e) => setData('display_order', parseInt(e.target.value) || 0)} />
-            </Field>
-          </div>
+      <PageHeader
+        title={isEditing ? 'Editar Seção' : 'Nova Seção'}
+        description="Configure o título, slug e visibilidade desta seção no portal de transparência."
+        icon={Layers3}
+      />
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <FormSection title="Identificação" columns={2}>
+          <Field label="Título" required>
+            <Input type="text" value={data.title} onChange={(e) => {
+              setData('title', e.target.value)
+              if (!isEditing) setData('slug', generateSlug(e.target.value))
+            }} required />
+          </Field>
+          <Field label="Slug">
+            <Input type="text" value={data.slug} onChange={(e) => setData('slug', e.target.value)} className="font-mono" />
+          </Field>
+          <Field label="Ícone">
+            <Input type="text" value={data.icon} onChange={(e) => setData('icon', e.target.value)} placeholder="Ex: Shield, FileText" />
+          </Field>
+          <Field label="Ordem">
+            <Input type="number" value={data.display_order} onChange={(e) => setData('display_order', parseInt(e.target.value) || 0)} />
+          </Field>
+        </FormSection>
+
+        <FormSection title="Detalhes e visibilidade">
           <Field label="Descrição">
             <Textarea value={data.description} onChange={(e) => setData('description', e.target.value)} rows={2} className="resize-none min-h-0" />
           </Field>
@@ -61,9 +68,10 @@ export default function SectionForm({ section }: { section: any | null }) {
             <input type="checkbox" id="is_active" checked={data.is_active === true || data.is_active === 'true'}
               onChange={(e) => setData('is_active', e.target.checked)}
               className="w-4 h-4 rounded border-border text-navy" />
-            <label htmlFor="is_active" className="text-sm text-muted-foreground">Seção ativa</label>
+            <label htmlFor="is_active" className="text-sm text-muted-foreground">Seção ativa (visível no portal)</label>
           </div>
-        </Card>
+        </FormSection>
+
         <div className="flex justify-end">
           <Button type="submit" loading={processing}>
             {!processing && <Save className="w-4 h-4" />}

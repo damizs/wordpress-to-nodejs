@@ -7,6 +7,7 @@ import {
   ConfirmDelete,
   IconButton,
   IconLink,
+  PageHeader,
   Pagination,
   RowActions,
   Select,
@@ -50,6 +51,14 @@ export default function PesquisaSatisfacaoAdmin({ surveys, stats, filters }: Pro
   return (
     <AdminLayout title="Pesquisa de Satisfação">
       <Head title="Pesquisa de Satisfação - Painel" />
+
+      <PageHeader
+        title="Pesquisa de Satisfação"
+        description="Acompanhe as avaliações enviadas pelos cidadãos sobre os serviços da Câmara."
+        icon={ClipboardList}
+        eyebrow="Sistema"
+        variant="hero"
+      />
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3 mb-6">

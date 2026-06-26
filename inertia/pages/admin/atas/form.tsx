@@ -1,8 +1,8 @@
 import { Head, useForm, Link } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Save, ArrowLeft, Upload, FileText, Paperclip } from 'lucide-react'
+import { Save, ArrowLeft, Upload, FileText, Paperclip, BookOpen } from 'lucide-react'
 import { useRef } from 'react'
-import { Button, Card, CardHeader, Field, Input, Select } from '~/components/admin/ui'
+import { Button, Card, CardHeader, Field, Input, PageHeader, Select } from '~/components/admin/ui'
 import RichTextEditor from '~/components/admin/RichTextEditor'
 
 interface Props {
@@ -45,16 +45,32 @@ export default function AtaForm({ ata, sessionTypes = [] }: Props) {
         <ArrowLeft className="w-4 h-4" /> Voltar
       </Link>
 
+      <PageHeader
+        title={isEditing ? 'Editar Ata' : 'Nova Ata de Sessão'}
+        description={
+          isEditing
+            ? 'Atualize o conteúdo e os dados da ata.'
+            : 'Preencha os campos abaixo para registrar uma nova ata.'
+        }
+        icon={BookOpen}
+        eyebrow="Atas das Sessões"
+      />
+
       <form onSubmit={handleSubmit} className="admin-form">
         <Card>
           <CardHeader title="Dados da Ata" icon={FileText} />
 
-          <div className="space-y-4">
+          <div className="space-y-5">
             <Field label="Título" required>
-              <Input type="text" value={data.title} onChange={(e) => setData('title', e.target.value)} required />
+              <Input
+                type="text"
+                value={data.title}
+                onChange={(e) => setData('title', e.target.value)}
+                required
+              />
             </Field>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
               <Field label="Tipo de sessão">
                 <Select value={data.type} onChange={(e) => setData('type', e.target.value)}>
                   {sessionTypes.length > 0 ? (
@@ -85,12 +101,20 @@ export default function AtaForm({ ata, sessionTypes = [] }: Props) {
                 />
               </Field>
               <Field label="Horário">
-                <Input type="time" value={data.doc_time} onChange={(e) => setData('doc_time', e.target.value)} />
+                <Input
+                  type="time"
+                  value={data.doc_time}
+                  onChange={(e) => setData('doc_time', e.target.value)}
+                />
               </Field>
             </div>
 
             <Field label="Conteúdo (texto da ata)" hint="Editor visual — formatação, links e imagens.">
-              <RichTextEditor value={data.content} onChange={(html) => setData('content', html)} minHeight={360} />
+              <RichTextEditor
+                value={data.content}
+                onChange={(html) => setData('content', html)}
+                minHeight={360}
+              />
             </Field>
 
             <label className="flex items-center gap-2 text-sm text-foreground">
@@ -108,7 +132,7 @@ export default function AtaForm({ ata, sessionTypes = [] }: Props) {
         <Card>
           <CardHeader title="Arquivo PDF (opcional, para download)" icon={Paperclip} />
           {ata?.file_url && (
-            <p className="text-sm text-muted-foreground mb-2">
+            <p className="text-sm text-muted-foreground mb-3">
               Arquivo atual:{' '}
               <a href={ata.file_url} target="_blank" rel="noopener" className="text-navy hover:underline">
                 {ata.file_url.split('/').pop()}
@@ -119,7 +143,9 @@ export default function AtaForm({ ata, sessionTypes = [] }: Props) {
             <Button type="button" variant="secondary" onClick={() => fileRef.current?.click()}>
               <Upload className="w-4 h-4" /> Selecionar PDF
             </Button>
-            <span className="text-sm text-muted-foreground">{data.file?.name || 'Nenhum arquivo selecionado'}</span>
+            <span className="text-sm text-muted-foreground">
+              {data.file?.name || 'Nenhum arquivo selecionado'}
+            </span>
           </div>
           <input
             ref={fileRef}
@@ -130,10 +156,12 @@ export default function AtaForm({ ata, sessionTypes = [] }: Props) {
           />
         </Card>
 
-        <Button type="submit" loading={processing}>
-          {!processing && <Save className="w-4 h-4" />}
-          {processing ? 'Salvando...' : 'Salvar'}
-        </Button>
+        <div className="flex justify-end">
+          <Button type="submit" loading={processing}>
+            {!processing && <Save className="w-4 h-4" />}
+            {processing ? 'Salvando...' : 'Salvar'}
+          </Button>
+        </div>
       </form>
     </AdminLayout>
   )

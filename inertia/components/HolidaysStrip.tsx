@@ -38,9 +38,15 @@ function TypeChip({ type }: { type: Holiday['type'] }) {
 
 function HolidayEntry({ holiday }: { holiday: Holiday }) {
   return (
-    <span className="flex items-center gap-1.5 shrink-0 text-primary-foreground/80 whitespace-nowrap">
+    <span className="flex items-center gap-2 shrink-0 text-primary-foreground/80 whitespace-nowrap">
+      {/* separador discreto entre feriados (cara de ticker limpo) */}
+      <span className="text-gold/40 text-base leading-none" aria-hidden="true">
+        •
+      </span>
       <span>
-        {formatDay(holiday.date)} — {holiday.label}
+        <span className="font-semibold text-primary-foreground tabular-nums">{formatDay(holiday.date)}</span>
+        <span className="text-primary-foreground/45"> · </span>
+        {holiday.label}
       </span>
       <TypeChip type={holiday.type} />
     </span>
@@ -50,24 +56,21 @@ function HolidayEntry({ holiday }: { holiday: Holiday }) {
 function HolidaysMarquee({ holidays }: { holidays: Holiday[] }) {
   if (holidays.length === 0) return null
 
+  // Preenche a faixa o suficiente para NÃO sobrar vazio antes do loop, mesmo com
+  // poucos feriados (cada cópia precisa ser mais larga que a viewport em telas largas).
+  const reps = Math.max(2, Math.ceil(9 / holidays.length))
+  const filled = Array.from({ length: reps }).flatMap(() => holidays)
+
   const renderCopy = (copyKey: string, hidden?: boolean) => (
-    <div
-      className="flex items-center gap-8 shrink-0 pr-8"
-      aria-hidden={hidden || undefined}
-    >
-      {holidays.map((holiday) => (
-        <HolidayEntry key={`${copyKey}-${holiday.date.getTime()}-${holiday.label}`} holiday={holiday} />
+    <div className="flex items-center gap-5 shrink-0 pr-5" aria-hidden={hidden || undefined}>
+      {filled.map((holiday, i) => (
+        <HolidayEntry key={`${copyKey}-${i}-${holiday.date.getTime()}`} holiday={holiday} />
       ))}
     </div>
   )
 
   return (
-    <div
-      className="holidays-marquee"
-      role="marquee"
-      aria-label="Próximos feriados"
-      aria-live="off"
-    >
+    <div className="holidays-marquee" role="marquee" aria-label="Próximos feriados" aria-live="off">
       <div className="holidays-marquee-track">
         {renderCopy('a')}
         {renderCopy('b', true)}
@@ -122,6 +125,11 @@ export const HolidaysStrip = ({ variant = 'default' }: HolidaysStripProps) => {
         <Calendar className="w-3.5 h-3.5 text-gold shrink-0" aria-hidden="true" />
         Próximos feriados
       </span>
+
+      {/* divisor sutil entre a label fixa e o ticker (conecta os dois blocos) */}
+      {upcoming.length > 1 && (
+        <span className="h-3.5 w-px bg-primary-foreground/15 shrink-0" aria-hidden="true" />
+      )}
 
       {upcoming.length === 1 ? (
         <span className={`flex items-center gap-1.5 min-w-0 ${baseText}`}>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-label="Avatar institucional 8">
+  <defs>
+    <linearGradient id="a8g" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#141b47"/>
+      <stop offset="1" stop-color="#272971"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" fill="url(#a8g)"/>
+  <path d="M24 88 A40 40 0 0 1 104 88" fill="none" stroke="#e7a008" stroke-width="6" stroke-linecap="round"/>
+  <path d="M36 96 A28 28 0 0 1 92 96" fill="none" stroke="#38b6e8" stroke-width="5" stroke-linecap="round"/>
+  <circle cx="64" cy="52" r="10" fill="#f5c531"/>
+</svg>

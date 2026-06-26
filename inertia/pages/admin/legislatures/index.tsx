@@ -1,16 +1,17 @@
 import { Head } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Pencil, Trash2 } from 'lucide-react'
+import { Landmark, Pencil, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import {
   ConfirmDelete,
   CreateButton,
+  EmptyState,
   IconButton,
   IconLink,
+  PageHeader,
   RowActions,
   StatusBadge,
   Table,
-  TableEmpty,
   TBody,
   TD,
   TH,
@@ -36,57 +37,67 @@ export default function LegislaturesIndex({ legislatures }: { legislatures: Legi
     <AdminLayout title="Legislaturas">
       <Head title="Legislaturas - Painel" />
 
-      <div className="flex items-center justify-between mb-6">
-        <p className="text-sm text-muted-foreground">{legislatures.length} legislatura(s)</p>
-        <CreateButton href="/painel/legislaturas/criar">Nova Legislatura</CreateButton>
-      </div>
+      <PageHeader
+        variant="hero"
+        icon={Landmark}
+        eyebrow="Legislativo"
+        title="Legislaturas"
+        description={`${legislatures.length} legislatura(s) cadastrada(s)`}
+        actions={<CreateButton href="/painel/legislaturas/criar">Nova Legislatura</CreateButton>}
+      />
 
-      <Table>
-        <THead>
-          <TH>Nº</TH>
-          <TH>Nome</TH>
-          <TH>Período</TH>
-          <TH>Vereadores</TH>
-          <TH>Status</TH>
-          <TH className="text-right">Ações</TH>
-        </THead>
-        <TBody>
-          {legislatures.map((l) => (
-            <TR key={l.id}>
-              <TD className="font-medium">{l.number}ª</TD>
-              <TD>{l.name}</TD>
-              <TD className="text-muted-foreground">
-                {new Date(l.start_date).toLocaleDateString('pt-BR')} —{' '}
-                {new Date(l.end_date).toLocaleDateString('pt-BR')}
-              </TD>
-              <TD className="text-muted-foreground">{l.councilors_count}</TD>
-              <TD>
-                <StatusBadge
-                  status={l.is_current ? 'active' : 'inactive'}
-                  label={l.is_current ? 'Atual' : 'Encerrada'}
-                />
-              </TD>
-              <TD>
-                <RowActions>
-                  <IconLink tone="edit" href={`/painel/legislaturas/${l.id}/editar`} title="Editar">
-                    <Pencil className="w-4 h-4" />
-                  </IconLink>
-                  <IconButton
-                    tone="delete"
-                    onClick={() => setDeleteTarget({ id: l.id, label: l.name })}
-                    title="Excluir"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </IconButton>
-                </RowActions>
-              </TD>
-            </TR>
-          ))}
-          {legislatures.length === 0 && (
-            <TableEmpty colSpan={6}>Nenhuma legislatura cadastrada</TableEmpty>
-          )}
-        </TBody>
-      </Table>
+      {legislatures.length === 0 ? (
+        <EmptyState
+          icon={Landmark}
+          title="Nenhuma legislatura cadastrada"
+          description="Adicione a primeira legislatura para organizar os mandatos."
+          action={<CreateButton href="/painel/legislaturas/criar">Nova Legislatura</CreateButton>}
+        />
+      ) : (
+        <Table>
+          <THead>
+            <TH>Nº</TH>
+            <TH>Nome</TH>
+            <TH>Período</TH>
+            <TH>Vereadores</TH>
+            <TH>Status</TH>
+            <TH className="text-right">Ações</TH>
+          </THead>
+          <TBody>
+            {legislatures.map((l) => (
+              <TR key={l.id}>
+                <TD className="font-medium">{l.number}ª</TD>
+                <TD>{l.name}</TD>
+                <TD className="text-muted-foreground">
+                  {new Date(l.start_date).toLocaleDateString('pt-BR')} —{' '}
+                  {new Date(l.end_date).toLocaleDateString('pt-BR')}
+                </TD>
+                <TD className="text-muted-foreground">{l.councilors_count}</TD>
+                <TD>
+                  <StatusBadge
+                    status={l.is_current ? 'active' : 'inactive'}
+                    label={l.is_current ? 'Atual' : 'Encerrada'}
+                  />
+                </TD>
+                <TD>
+                  <RowActions>
+                    <IconLink tone="edit" href={`/painel/legislaturas/${l.id}/editar`} title="Editar">
+                      <Pencil className="w-4 h-4" />
+                    </IconLink>
+                    <IconButton
+                      tone="delete"
+                      onClick={() => setDeleteTarget({ id: l.id, label: l.name })}
+                      title="Excluir"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </IconButton>
+                  </RowActions>
+                </TD>
+              </TR>
+            ))}
+          </TBody>
+        </Table>
+      )}
 
       <ConfirmDelete
         target={deleteTarget}

@@ -1,8 +1,8 @@
 import { Head, useForm, Link, router } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Save, ArrowLeft, Upload, FileText, UserCheck } from 'lucide-react'
+import { Save, ArrowLeft, Upload, FileText, UserCheck, BriefcaseBusiness } from 'lucide-react'
 import { useState } from 'react'
-import { Button, Card, CardHeader, Field, Input, Select, Textarea } from '~/components/admin/ui'
+import { Button, Card, CardHeader, Field, Input, PageHeader, Select, Textarea } from '~/components/admin/ui'
 
 interface LicitacaoOption {
   id: number
@@ -68,10 +68,16 @@ export default function ContractForm({ contract, licitacoes }: Props) {
         href="/painel/contratos"
         className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4"
       >
-        <ArrowLeft className="w-4 h-4" /> Voltar
+        <ArrowLeft className="w-4 h-4" /> Voltar para Contratos
       </Link>
 
-      <form onSubmit={handleSubmit} className="admin-form admin-form-wide">
+      <PageHeader
+        title={isEditing ? 'Editar Contrato' : 'Novo Contrato'}
+        description="Preencha os dados do contrato: identificação, contratado, vigência, gestor e fiscal (PNTP 9.1/9.3)."
+        icon={BriefcaseBusiness}
+      />
+
+      <form onSubmit={handleSubmit} className="space-y-6">
         {/* Identificação */}
         <Card className="space-y-4">
           <CardHeader title="Identificação do contrato" icon={FileText} />

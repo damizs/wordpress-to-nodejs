@@ -7,6 +7,7 @@ import {
   CardHeader,
   Field,
   Input,
+  PageHeader,
   Select,
   Textarea,
 } from '~/components/admin/ui'
@@ -26,7 +27,16 @@ interface Props {
   origins?: { value: string; label: string }[]
 }
 
-const TYPES = ['Projeto de Lei', 'Requerimento', 'Projeto de Resolução', 'Indicação', 'Veto', 'Portaria', 'Moção', 'Emenda']
+const TYPES = [
+  'Projeto de Lei',
+  'Requerimento',
+  'Projeto de Resolução',
+  'Indicação',
+  'Veto',
+  'Portaria',
+  'Moção',
+  'Emenda',
+]
 const STATUSES = [
   { value: 'tramitando', label: 'Em tramitação' },
   { value: 'aprovado', label: 'Aprovado / sancionado' },
@@ -56,7 +66,12 @@ function formatTramitationSteps(steps: any[] | null | undefined): string {
     .join('\n')
 }
 
-export default function ActivityForm({ activity, councilors = [], authorIds = [], origins = [] }: Props) {
+export default function ActivityForm({
+  activity,
+  councilors = [],
+  authorIds = [],
+  origins = [],
+}: Props) {
   const isEditing = !!activity
   const { data, setData, post, put, processing } = useForm({
     type: activity?.type || 'Projeto de Lei',
@@ -72,7 +87,9 @@ export default function ActivityForm({ activity, councilors = [], authorIds = []
     session_date: activity?.session_date || '',
     voting_system_id: activity?.voting_system_id || activity?.votingSystemId || '',
     voting_system_url: activity?.voting_system_url || activity?.votingSystemUrl || '',
-    tramitation_steps_text: formatTramitationSteps(activity?.tramitation_steps || activity?.tramitationSteps),
+    tramitation_steps_text: formatTramitationSteps(
+      activity?.tramitation_steps || activity?.tramitationSteps
+    ),
   })
 
   const toggleAuthor = (id: number) => {
@@ -104,25 +121,45 @@ export default function ActivityForm({ activity, councilors = [], authorIds = []
         <ArrowLeft className="w-4 h-4" /> Voltar
       </Link>
 
+      <PageHeader
+        title={isEditing ? 'Editar Atividade Legislativa' : 'Nova Atividade Legislativa'}
+        description={
+          isEditing
+            ? 'Atualize os dados e a tramitação da matéria.'
+            : 'Preencha os campos abaixo para cadastrar uma matéria legislativa.'
+        }
+        icon={ScrollText}
+        eyebrow="Atividades Legislativas"
+      />
+
       <form onSubmit={handleSubmit} className="admin-form">
         <Card>
           <CardHeader title="Dados da Atividade" icon={ScrollText} />
 
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="space-y-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
               <Field label="Tipo" required>
                 <Select value={data.type} onChange={(e) => setData('type', e.target.value)} required>
-                  {TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+                  {TYPES.map((t) => (
+                    <option key={t} value={t}>
+                      {t}
+                    </option>
+                  ))}
                 </Select>
               </Field>
               <Field label="Origem">
                 <Select value={data.origin} onChange={(e) => setData('origin', e.target.value)}>
-                  {(origins.length > 0 ? origins : [
-                    { value: 'nao_informado', label: 'Origem não informada' },
-                    { value: 'legislativo', label: 'Poder Legislativo' },
-                    { value: 'executivo', label: 'Poder Executivo' },
-                  ]).map((origin) => (
-                    <option key={origin.value} value={origin.value}>{origin.label}</option>
+                  {(origins.length > 0
+                    ? origins
+                    : [
+                        { value: 'nao_informado', label: 'Origem não informada' },
+                        { value: 'legislativo', label: 'Poder Legislativo' },
+                        { value: 'executivo', label: 'Poder Executivo' },
+                      ]
+                  ).map((origin) => (
+                    <option key={origin.value} value={origin.value}>
+                      {origin.label}
+                    </option>
                   ))}
                 </Select>
               </Field>
@@ -163,10 +200,14 @@ export default function ActivityForm({ activity, councilors = [], authorIds = []
               />
             </Field>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <Field label="Situação">
                 <Select value={data.status} onChange={(e) => setData('status', e.target.value)}>
-                  {STATUSES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+                  {STATUSES.map((s) => (
+                    <option key={s.value} value={s.value}>
+                      {s.label}
+                    </option>
+                  ))}
                 </Select>
               </Field>
               <Field label="Data da Sessão">
@@ -196,8 +237,8 @@ export default function ActivityForm({ activity, councilors = [], authorIds = []
             icon={Link2}
           />
 
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <Field label="ID no sistema de votação">
                 <Input
                   type="text"
@@ -224,7 +265,9 @@ export default function ActivityForm({ activity, councilors = [], authorIds = []
                 value={data.tramitation_steps_text}
                 onChange={(e) => setData('tramitation_steps_text', e.target.value)}
                 rows={5}
-                placeholder={'2026-06-17 | Protocolo | Matéria protocolada\n2026-06-18 | Comissão | Encaminhada para análise'}
+                placeholder={
+                  '2026-06-17 | Protocolo | Matéria protocolada\n2026-06-18 | Comissão | Encaminhada para análise'
+                }
               />
             </Field>
           </div>
@@ -238,7 +281,7 @@ export default function ActivityForm({ activity, councilors = [], authorIds = []
             icon={Users}
           />
 
-          <div className="space-y-4">
+          <div className="space-y-5">
             {councilors.length > 0 && (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                 {councilors.map((c) => {
@@ -255,24 +298,34 @@ export default function ActivityForm({ activity, councilors = [], authorIds = []
                       }`}
                     >
                       {c.photo ? (
-                        <img src={c.photo} alt="" className="w-8 h-8 rounded-full object-cover shrink-0" />
+                        <img
+                          src={c.photo}
+                          alt=""
+                          className="w-8 h-8 rounded-full object-cover shrink-0"
+                        />
                       ) : (
                         <span className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-xs font-bold text-muted-foreground shrink-0">
                           {c.name.charAt(0)}
                         </span>
                       )}
                       <span className="min-w-0">
-                        <span className={`block text-sm font-medium truncate ${selected ? 'text-navy' : 'text-foreground'}`}>
+                        <span
+                          className={`block text-sm font-medium truncate ${selected ? 'text-navy' : 'text-foreground'}`}
+                        >
                           {c.name}
                         </span>
-                        {c.party && <span className="block text-[11px] text-muted-foreground">{c.party}</span>}
+                        {c.party && (
+                          <span className="block text-[11px] text-muted-foreground">{c.party}</span>
+                        )}
                       </span>
                       <span
                         className={`ml-auto w-4 h-4 rounded border flex items-center justify-center shrink-0 ${
                           selected ? 'bg-navy border-navy' : 'border-border'
                         }`}
                       >
-                        {selected && <span className="text-white text-[10px] leading-none">✓</span>}
+                        {selected && (
+                          <span className="text-white text-[10px] leading-none">✓</span>
+                        )}
                       </span>
                     </button>
                   )

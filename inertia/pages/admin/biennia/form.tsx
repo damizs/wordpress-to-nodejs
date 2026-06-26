@@ -1,7 +1,7 @@
 import { Head, useForm, Link } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
 import { Save, ArrowLeft, Landmark } from 'lucide-react'
-import { Button, Card, CardHeader, Field, Input, Select } from '~/components/admin/ui'
+import { Button, Card, CardHeader, Field, FormGrid, Input, PageHeader, Select } from '~/components/admin/ui'
 
 interface Props {
   biennium: any | null
@@ -36,35 +36,46 @@ export default function BienniumForm({ biennium, legislatures }: Props) {
         href="/painel/bienios"
         className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4"
       >
-        <ArrowLeft className="w-4 h-4" /> Voltar
+        <ArrowLeft className="w-4 h-4" /> Voltar para Biênios
       </Link>
 
-      <form onSubmit={handleSubmit} className="max-w-xl">
+      <PageHeader
+        icon={Landmark}
+        eyebrow="Legislativo"
+        title={isEditing ? 'Editar Biênio' : 'Novo Biênio'}
+        description={
+          isEditing
+            ? `Editando: ${biennium?.name}`
+            : 'Preencha os dados para cadastrar um novo biênio'
+        }
+      />
+
+      <form onSubmit={handleSubmit} className="space-y-6">
         <Card>
           <CardHeader title="Dados do Biênio" icon={Landmark} />
-          <div className="space-y-4">
-            <Field label="Nome" required>
-              <Input
-                type="text"
-                value={data.name}
-                onChange={(e) => setData('name', e.target.value)}
-                required
-                placeholder="Ex: BIÊNIO - 2025/2026"
-              />
-            </Field>
-            <Field label="Legislatura" required>
-              <Select
-                value={data.legislature_id}
-                onChange={(e) => setData('legislature_id', e.target.value)}
-                required
-              >
-                <option value="">Selecionar...</option>
-                {legislatures.map((l: any) => (
-                  <option key={l.id} value={l.id}>{l.name} ({l.number}ª){l.is_current ? ' ✓' : ''}</option>
-                ))}
-              </Select>
-            </Field>
-            <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-5">
+            <FormGrid cols={2}>
+              <Field label="Nome" required>
+                <Input
+                  type="text"
+                  value={data.name}
+                  onChange={(e) => setData('name', e.target.value)}
+                  required
+                  placeholder="Ex: BIÊNIO - 2025/2026"
+                />
+              </Field>
+              <Field label="Legislatura" required>
+                <Select
+                  value={data.legislature_id}
+                  onChange={(e) => setData('legislature_id', e.target.value)}
+                  required
+                >
+                  <option value="">Selecionar...</option>
+                  {legislatures.map((l: any) => (
+                    <option key={l.id} value={l.id}>{l.name} ({l.number}ª){l.is_current ? ' ✓' : ''}</option>
+                  ))}
+                </Select>
+              </Field>
               <Field label="Data Início" required>
                 <Input
                   type="date"
@@ -81,7 +92,8 @@ export default function BienniumForm({ biennium, legislatures }: Props) {
                   required
                 />
               </Field>
-            </div>
+            </FormGrid>
+
             <label className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
@@ -94,10 +106,18 @@ export default function BienniumForm({ biennium, legislatures }: Props) {
           </div>
         </Card>
 
-        <Button type="submit" loading={processing} className="mt-4">
-          <Save className="w-4 h-4" />
-          {processing ? 'Salvando...' : 'Salvar'}
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button type="submit" loading={processing}>
+            <Save className="w-4 h-4" />
+            {processing ? 'Salvando...' : 'Salvar'}
+          </Button>
+          <Link
+            href="/painel/bienios"
+            className="inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium rounded-lg border border-border bg-card text-foreground hover:bg-muted transition-colors"
+          >
+            Cancelar
+          </Link>
+        </div>
       </form>
     </AdminLayout>
   )

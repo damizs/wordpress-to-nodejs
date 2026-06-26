@@ -21,6 +21,9 @@ export default class User extends compose(BaseModel, AuthFinder) {
   @column() declare role: 'super_admin' | 'admin' | 'editor' | 'viewer'
   @column() declare isActive: boolean
 
+  /** Avatar do painel: caminho de um avatar pré-definido (ex.: '/avatars/a1.svg') ou null (usa iniciais). */
+  @column() declare avatar: string | null
+
   /** 2FA (TOTP, opt-in) — nunca serializados para o cliente. */
   @column({ serializeAs: null }) declare twofaSecret: string | null
   @column() declare twofaEnabled: boolean

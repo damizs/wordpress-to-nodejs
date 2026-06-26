@@ -33,9 +33,18 @@
   <link rel="canonical" href="https://node.camaradesume.pb.gov.br{{ request.url() }}">
 
   {{-- Favicon --}}
-  <link rel="icon" type="image/x-icon" href="/favicon.ico">
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  {{-- Favicon enviado no painel (Aparência) renderizado já no 1º paint via
+       share_view_data_middleware → ctx.view.share. Os <link> estáticos abaixo
+       são FALLBACK quando não há favicon configurado. O DynamicFavicon reforça
+       o swap no client com o mesmo cache-buster estável. --}}
+  @if(faviconUrl)
+    <link rel="icon" type="{{ faviconType || 'image/png' }}" href="{{ faviconUrl }}">
+    <link rel="apple-touch-icon" href="{{ faviconUrl }}">
+  @else
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  @endif
   <link rel="manifest" href="/manifest.json">
 
   {{-- Theme --}}

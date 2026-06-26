@@ -58,8 +58,12 @@ const PROFILE_PIC_AT_KEY = 'profile_pic_cached_at'
 const PROFILE_FILE = 'profile.jpg'
 
 export default class InstagramFeedService {
-  /** TTL padrão do cache (horas) antes de considerar o feed "velho". */
-  static STALE_HOURS = 6
+  /**
+   * TTL padrão do cache (horas) antes de considerar o feed "velho".
+   * 24h = no máximo uma atualização por dia disparada por tráfego; o
+   * InstagramSchedulerService garante o refresh diário no horário configurado.
+   */
+  static STALE_HOURS = 24
 
   /** Retorna o feed em cache (ou null se inexistente/ inválido). */
   static async getCached(): Promise<{ items: InstagramFeedItem[]; cachedAt: DateTime | null }> {

@@ -2,7 +2,7 @@ import { Head, router } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
 import { Image, Trash2, Save, Plus } from 'lucide-react'
 import { useState, useRef } from 'react'
-import { Button, Card, CardHeader } from '~/components/admin/ui'
+import { Button, Card, CardHeader, PageHeader } from '~/components/admin/ui'
 
 interface Props {
   images: string[]
@@ -70,27 +70,54 @@ export default function CityImages({ images }: Props) {
     <AdminLayout title="Fotos da Cidade">
       <Head title="Fotos da Cidade - Painel" />
 
+      <PageHeader
+        title="Fotos da Cidade"
+        description='Adicione fotos de Sumé que aparecerão no carrossel da seção "Conheça Nossa Cidade".'
+        icon={Image}
+        eyebrow="Site"
+        actions={
+          <Button
+            type="button"
+            onClick={handleSave}
+            loading={saving}
+            disabled={saving || (currentImages.length === images.length && newFiles.length === 0)}
+          >
+            {!saving && <Save className="w-4 h-4" />}
+            {saving ? 'Salvando...' : 'Salvar Alterações'}
+          </Button>
+        }
+      />
+
       <div className="w-full min-w-0">
         <Card>
           <CardHeader
             icon={Image}
-            title="Fotos da Cidade (Carrossel)"
-            description='Adicione fotos de Sumé que aparecerão no carrossel da seção "Conheça Nossa Cidade".'
+            title="Galeria de imagens"
+            description="Adicione, remova ou substitua as fotos do carrossel."
           />
+
+          {currentImages.length === 0 && previews.length === 0 && (
+            <div className="mb-6 rounded-xl border border-dashed border-border py-14 text-center">
+              <Image className="w-10 h-10 text-muted-foreground/40 mx-auto mb-3" />
+              <p className="text-sm text-muted-foreground">Nenhuma foto cadastrada. Clique em "Adicionar Fotos" para começar.</p>
+            </div>
+          )}
 
           {currentImages.length > 0 && (
             <div className="mb-6">
-              <h3 className="text-sm font-medium text-foreground mb-3">Imagens atuais</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <h3 className="text-[13px] font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+                Imagens atuais ({currentImages.length})
+              </h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
                 {currentImages.map((img, index) => (
-                  <div key={index} className="relative group">
-                    <img src={img} alt={`Cidade ${index + 1}`} className="w-full h-32 object-cover rounded-lg border border-border" />
+                  <div key={index} className="relative group aspect-video">
+                    <img src={img} alt={`Cidade ${index + 1}`} className="w-full h-full object-cover rounded-lg border border-border" />
                     <button
                       type="button"
                       onClick={() => removeExisting(index)}
-                      className="absolute top-2 right-2 p-1.5 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/90"
+                      className="absolute top-1.5 right-1.5 p-1 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/90"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 ))}
@@ -100,17 +127,19 @@ export default function CityImages({ images }: Props) {
 
           {previews.length > 0 && (
             <div className="mb-6">
-              <h3 className="text-sm font-medium text-foreground mb-3">Novas imagens</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <h3 className="text-[13px] font-semibold text-muted-foreground uppercase tracking-wide mb-3">
+                Novas imagens a adicionar ({previews.length})
+              </h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
                 {previews.map((preview, index) => (
-                  <div key={index} className="relative group">
-                    <img src={preview} alt={`Nova ${index + 1}`} className="w-full h-32 object-cover rounded-lg border-2 border-gold" />
+                  <div key={index} className="relative group aspect-video">
+                    <img src={preview} alt={`Nova ${index + 1}`} className="w-full h-full object-cover rounded-lg border-2 border-gold" />
                     <button
                       type="button"
                       onClick={() => removeNew(index)}
-                      className="absolute top-2 right-2 p-1.5 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/90"
+                      className="absolute top-1.5 right-1.5 p-1 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive/90"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 ))}
@@ -118,13 +147,13 @@ export default function CityImages({ images }: Props) {
             </div>
           )}
 
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="pt-4 border-t border-border flex flex-col sm:flex-row gap-3">
             <button
               type="button"
               onClick={() => fileRef.current?.click()}
-              className="flex items-center justify-center gap-2 px-4 py-3 border-2 border-dashed border-border rounded-lg hover:border-navy/50 transition-colors"
+              className="flex items-center justify-center gap-2 px-4 py-2.5 border-2 border-dashed border-border rounded-lg hover:border-navy/50 hover:bg-navy/5 transition-colors"
             >
-              <Plus className="w-5 h-5 text-muted-foreground" />
+              <Plus className="w-4 h-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">Adicionar Fotos</span>
             </button>
             <input
@@ -135,16 +164,6 @@ export default function CityImages({ images }: Props) {
               className="hidden"
               onChange={handleFileSelect}
             />
-
-            <Button
-              type="button"
-              onClick={handleSave}
-              loading={saving}
-              disabled={saving || (currentImages.length === images.length && newFiles.length === 0)}
-            >
-              {!saving && <Save className="w-4 h-4" />}
-              {saving ? 'Salvando...' : 'Salvar Alterações'}
-            </Button>
           </div>
         </Card>
       </div>

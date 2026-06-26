@@ -43,6 +43,8 @@ export default function SealsIndex({ seals }: Props) {
       <PageHeader
         title="Selos e Certificações"
         description="Gerencie os selos exibidos na homepage"
+        icon={Award}
+        eyebrow="Site"
         actions={<CreateButton href="/painel/selos/novo">Novo Selo</CreateButton>}
       />
 

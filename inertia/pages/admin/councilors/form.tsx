@@ -3,11 +3,14 @@ import AdminLayout from '~/layouts/AdminLayout'
 import { Save, ArrowLeft, Upload, User, Landmark, ImageIcon } from 'lucide-react'
 import { useState, useRef } from 'react'
 import {
+  Avatar,
   Button,
   Card,
   CardHeader,
   Field,
+  FormGrid,
   Input,
+  PageHeader,
   Select,
   Textarea,
 } from '~/components/admin/ui'
@@ -77,7 +80,7 @@ export default function CouncilorForm({ councilor, legislatures, biennia }: Prop
   }
 
   function generateSlug(name: string) {
-    return name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+    return name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
   }
 
   return (
@@ -88,16 +91,27 @@ export default function CouncilorForm({ councilor, legislatures, biennia }: Prop
         href="/painel/vereadores"
         className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4"
       >
-        <ArrowLeft className="w-4 h-4" /> Voltar
+        <ArrowLeft className="w-4 h-4" /> Voltar para Vereadores
       </Link>
 
-      <form onSubmit={handleSubmit} className="admin-form">
+      <PageHeader
+        icon={User}
+        eyebrow="Legislativo"
+        title={isEditing ? 'Editar Vereador' : 'Novo Vereador'}
+        description={
+          isEditing
+            ? `Editando: ${councilor?.name}`
+            : 'Preencha os dados para cadastrar um novo vereador'
+        }
+      />
+
+      <form onSubmit={handleSubmit} className="space-y-6">
         {/* Dados Pessoais */}
         <Card>
           <CardHeader title="Dados Pessoais" icon={User} />
 
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-5">
+            <FormGrid cols={2}>
               <Field label="Nome Completo" required>
                 <Input
                   type="text"
@@ -164,9 +178,9 @@ export default function CouncilorForm({ councilor, legislatures, biennia }: Prop
                   onChange={(e) => setData('display_order', parseInt(e.target.value) || 0)}
                 />
               </Field>
-            </div>
+            </FormGrid>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <FormGrid cols={2}>
               <Field label="E-mail">
                 <Input
                   type="email"
@@ -181,7 +195,7 @@ export default function CouncilorForm({ councilor, legislatures, biennia }: Prop
                   onChange={(e) => setData('phone', e.target.value)}
                 />
               </Field>
-            </div>
+            </FormGrid>
 
             <Field label="Biografia">
               <RichTextEditor
@@ -215,8 +229,8 @@ export default function CouncilorForm({ councilor, legislatures, biennia }: Prop
         <Card>
           <CardHeader title="Legislatura e Mesa Diretora" icon={Landmark} />
 
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-5">
+            <FormGrid cols={2}>
               <Field label="Legislatura">
                 <Select
                   value={data.legislature_id}
@@ -239,7 +253,7 @@ export default function CouncilorForm({ councilor, legislatures, biennia }: Prop
                   ))}
                 </Select>
               </Field>
-            </div>
+            </FormGrid>
 
             <Field label="Cargo na Mesa Diretora">
               <Select value={data.position} onChange={(e) => setData('position', e.target.value)}>
@@ -253,19 +267,21 @@ export default function CouncilorForm({ councilor, legislatures, biennia }: Prop
         {/* Foto */}
         <Card>
           <CardHeader title="Foto" icon={ImageIcon} />
-          <div className="flex items-start gap-4">
-            {photoPreview && (
+          <div className="flex flex-col sm:flex-row items-start gap-4">
+            {photoPreview ? (
               <img
                 src={photoPreview}
                 alt="Preview"
-                className="w-24 h-24 rounded-xl object-cover border border-border"
+                className="w-24 h-24 rounded-xl object-cover border border-border shrink-0"
               />
+            ) : (
+              <Avatar name={data.name || 'Vereador'} size="lg" />
             )}
-            <div>
+            <div className="flex flex-col gap-2">
               <Button type="button" variant="secondary" onClick={() => photoRef.current?.click()}>
                 <Upload className="w-4 h-4" /> {photoPreview ? 'Trocar foto' : 'Selecionar foto'}
               </Button>
-              <p className="text-xs text-muted-foreground mt-1">PNG, JPG ou WebP. Máx 2MB.</p>
+              <p className="text-xs text-muted-foreground">PNG, JPG ou WebP. Máx 2MB.</p>
             </div>
           </div>
           <input
@@ -277,10 +293,18 @@ export default function CouncilorForm({ councilor, legislatures, biennia }: Prop
           />
         </Card>
 
-        <Button type="submit" loading={processing}>
-          <Save className="w-4 h-4" />
-          {processing ? 'Salvando...' : 'Salvar'}
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button type="submit" loading={processing}>
+            <Save className="w-4 h-4" />
+            {processing ? 'Salvando...' : 'Salvar'}
+          </Button>
+          <Link
+            href="/painel/vereadores"
+            className="inline-flex items-center justify-center px-4 py-2.5 text-sm font-medium rounded-lg border border-border bg-card text-foreground hover:bg-muted transition-colors"
+          >
+            Cancelar
+          </Link>
+        </div>
       </form>
     </AdminLayout>
   )

@@ -1,14 +1,14 @@
 import { Head, useForm, Link } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Save, ArrowLeft, FileText, Link2 } from 'lucide-react'
+import { Save, ArrowLeft, FileText, Link2, Calendar } from 'lucide-react'
 import {
   Button,
   Card,
   CardHeader,
   Field,
   Input,
+  PageHeader,
   Select,
-  Textarea,
 } from '~/components/admin/ui'
 import RichTextEditor from '~/components/admin/RichTextEditor'
 
@@ -54,11 +54,22 @@ export default function PlenarySessionForm({ session, sessionTypes = [] }: Props
         <ArrowLeft className="w-4 h-4" /> Voltar
       </Link>
 
+      <PageHeader
+        title={isEditing ? 'Editar Sessão Plenária' : 'Nova Sessão Plenária'}
+        description={
+          isEditing
+            ? 'Atualize os dados da sessão.'
+            : 'Preencha os campos abaixo para registrar uma nova sessão.'
+        }
+        icon={Calendar}
+        eyebrow="Sessões Plenárias"
+      />
+
       <form onSubmit={handleSubmit} className="admin-form">
         <Card>
           <CardHeader title="Dados da Sessão" icon={FileText} />
 
-          <div className="space-y-4">
+          <div className="space-y-5">
             <Field label="Título" required>
               <Input
                 type="text"
@@ -68,16 +79,22 @@ export default function PlenarySessionForm({ session, sessionTypes = [] }: Props
               />
             </Field>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
               <Field label="Tipo">
                 <Select value={data.type} onChange={(e) => setData('type', e.target.value)}>
-                  {sessionTypes.map((t: any) => <option key={t.slug} value={t.slug}>{t.name}</option>)}
-                  {sessionTypes.length === 0 && <>
-                    <option value="ordinaria">Ordinária</option>
-                    <option value="extraordinaria">Extraordinária</option>
-                    <option value="solene">Solene</option>
-                    <option value="especial">Especial</option>
-                  </>}
+                  {sessionTypes.map((t: any) => (
+                    <option key={t.slug} value={t.slug}>
+                      {t.name}
+                    </option>
+                  ))}
+                  {sessionTypes.length === 0 && (
+                    <>
+                      <option value="ordinaria">Ordinária</option>
+                      <option value="extraordinaria">Extraordinária</option>
+                      <option value="solene">Solene</option>
+                      <option value="especial">Especial</option>
+                    </>
+                  )}
                 </Select>
               </Field>
               <Field label="Data da Sessão" required>
@@ -100,7 +117,7 @@ export default function PlenarySessionForm({ session, sessionTypes = [] }: Props
               </Field>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <Field label="Horário de Início">
                 <Input
                   type="time"
@@ -118,6 +135,15 @@ export default function PlenarySessionForm({ session, sessionTypes = [] }: Props
               </Field>
             </div>
 
+            <Field label="URL do PDF da sessão">
+              <Input
+                type="url"
+                value={data.file_url}
+                onChange={(e) => setData('file_url', e.target.value)}
+                placeholder="https://..."
+              />
+            </Field>
+
             <Field label="Pauta / resumo da sessão">
               <RichTextEditor
                 value={data.agenda || ''}
@@ -134,18 +160,9 @@ export default function PlenarySessionForm({ session, sessionTypes = [] }: Props
               />
             </Field>
 
-            <Field label="URL do PDF da sessão">
-              <Input
-                type="url"
-                value={data.file_url}
-                onChange={(e) => setData('file_url', e.target.value)}
-                placeholder="https://..."
-              />
-            </Field>
-
             <p className="text-xs text-muted-foreground bg-muted/50 rounded-lg p-3 border border-border">
               As <strong>Atas</strong> e <strong>Pautas</strong> agora são módulos próprios
-              (menu Legislativo). Cadastre-as separadamente em “Atas” e “Pautas”.
+              (menu Legislativo). Cadastre-as separadamente em "Atas" e "Pautas".
             </p>
           </div>
         </Card>
@@ -156,7 +173,7 @@ export default function PlenarySessionForm({ session, sessionTypes = [] }: Props
             description="Campos de conciliação para quando a API do sistema de votação for definida."
             icon={Link2}
           />
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <Field label="ID da sessão no sistema de votação">
               <Input
                 type="text"
@@ -176,10 +193,12 @@ export default function PlenarySessionForm({ session, sessionTypes = [] }: Props
           </div>
         </Card>
 
-        <Button type="submit" loading={processing}>
-          {!processing && <Save className="w-4 h-4" />}
-          {processing ? 'Salvando...' : 'Salvar'}
-        </Button>
+        <div className="flex justify-end">
+          <Button type="submit" loading={processing}>
+            {!processing && <Save className="w-4 h-4" />}
+            {processing ? 'Salvando...' : 'Salvar'}
+          </Button>
+        </div>
       </form>
     </AdminLayout>
   )

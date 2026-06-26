@@ -95,6 +95,8 @@ export default function MenusIndex({ headerMenu, footerColumns }: Props) {
       <PageHeader
         title="Menus do Site"
         description="Controle os itens do menu principal (header) e as colunas de links do rodapé."
+        icon={MenuIcon}
+        eyebrow="Site"
         actions={
           <>
             <Button variant="secondary" onClick={restoreDefaults} disabled={processing}>

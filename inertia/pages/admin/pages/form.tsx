@@ -35,6 +35,7 @@ import {
   Field,
   IconButton,
   Input,
+  PageHeader,
   Select,
   Textarea,
 } from '~/components/admin/ui'
@@ -868,17 +869,16 @@ export default function PageForm({ page }: Props) {
     <AdminLayout title={isEditing ? 'Editar Página' : 'Nova Página'}>
       <Head title={(isEditing ? 'Editar' : 'Nova') + ' Página - Painel'} />
 
-      <div className="flex items-center gap-4 mb-6">
-        <Link
-          href="/painel/paginas"
-          className="p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-        >
-          <ArrowLeft className="w-5 h-5" />
-        </Link>
-        <h1 className="text-xl font-bold text-foreground tracking-tight">
-          {isEditing ? 'Editar Página' : 'Nova Página'}
-        </h1>
-      </div>
+      <PageHeader
+        title={isEditing ? 'Editar Página' : 'Nova Página'}
+        eyebrow="Páginas"
+        icon={FileText}
+        actions={
+          <ButtonLink href="/painel/paginas" variant="secondary" size="sm">
+            <ArrowLeft className="w-4 h-4" /> Voltar
+          </ButtonLink>
+        }
+      />
 
       <form onSubmit={handleSubmit} className="w-full min-w-0 space-y-6">
         <Card>

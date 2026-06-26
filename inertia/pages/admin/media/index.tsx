@@ -163,6 +163,9 @@ export default function MediaIndex({ files, filters }: Props) {
       <PageHeader
         title="Biblioteca de Mídia"
         description="Imagens e documentos enviados para uso em todo o site"
+        icon={FileImage}
+        eyebrow="Site"
+        variant="hero"
       />
 
       {/* Área de upload */}

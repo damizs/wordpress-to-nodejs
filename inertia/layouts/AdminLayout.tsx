@@ -160,6 +160,7 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
   }
   const [collapsed, setCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [profileOpen, setProfileOpen] = useState(false)
   const [commandOpen, setCommandOpen] = useState(false)
   const [commandQuery, setCommandQuery] = useState('')
   const [expandedMenus, setExpandedMenus] = useState<string[]>([])
@@ -297,7 +298,7 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
     .toUpperCase()
 
   const itemClass = (active: boolean) =>
-    `relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-colors ${
+    `relative flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
       active
         ? 'bg-white/10 text-white before:absolute before:left-0 before:top-1.5 before:bottom-1.5 before:w-[3px] before:rounded-full before:bg-gold'
         : 'text-white/60 hover:text-white hover:bg-white/5'
@@ -392,14 +393,22 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
       {/* Sidebar */}
       <aside
         className={`fixed top-0 left-0 h-full z-50 bg-navy-dark text-white transition-all duration-300 flex flex-col ${
-          collapsed ? 'w-[68px]' : 'w-64'
+          collapsed ? 'w-[72px]' : 'w-72'
         } ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0`}
       >
         {/* Logo */}
         <div className={`flex items-center h-16 px-4 border-b border-white/10 shrink-0 ${collapsed ? 'justify-center' : 'gap-3'}`}>
-          <div className="w-9 h-9 rounded-xl bg-gold flex items-center justify-center flex-shrink-0 shadow-md">
-            <span className="text-navy-dark font-extrabold text-base">C</span>
-          </div>
+          {siteSettings?.logo_url ? (
+            <img
+              src={siteSettings.logo_url}
+              alt="Câmara de Sumé"
+              className={`object-contain flex-shrink-0 ${collapsed ? 'h-9 w-11' : 'h-9 max-w-[160px]'}`}
+            />
+          ) : (
+            <div className="w-9 h-9 rounded-xl bg-gold flex items-center justify-center flex-shrink-0 shadow-md">
+              <span className="text-navy-dark font-extrabold text-base">C</span>
+            </div>
+          )}
           {!collapsed && (
             <div className="min-w-0">
               <p className="text-sm font-bold truncate leading-tight">Câmara de Sumé</p>
@@ -418,7 +427,7 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
                 <button
                   type="button"
                   onClick={() => toggleGroup(group.label!)}
-                  className="group/gh w-full flex items-center justify-between px-3 mb-1.5 text-[10px] font-bold uppercase tracking-widest text-white/30 hover:text-white/60 transition-colors"
+                  className="group/gh w-full flex items-center justify-between px-3 mb-1.5 text-[11px] font-bold uppercase tracking-widest text-white/30 hover:text-white/60 transition-colors"
                 >
                   <span>{group.label}</span>
                   <ChevronDown
@@ -437,7 +446,7 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
                         title={collapsed ? item.label : undefined}
                       >
                         <span className={`flex items-center gap-3 ${collapsed ? 'justify-center' : ''}`}>
-                          <item.icon className="w-[18px] h-[18px] flex-shrink-0" />
+                          <item.icon className="w-5 h-5 flex-shrink-0" />
                           {!collapsed && <span>{item.label}</span>}
                         </span>
                         {!collapsed && (
@@ -455,7 +464,7 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
                               key={child.href}
                               href={child.href}
                               onClick={closeMobile}
-                              className={`block px-2.5 py-2 rounded-md text-[12.5px] transition-colors ${
+                              className={`block px-2.5 py-2 rounded-md text-[13px] transition-colors ${
                                 isActive(child.href)
                                   ? 'text-gold font-medium'
                                   : 'text-white/50 hover:text-white'
@@ -475,7 +484,7 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
                       className={itemClass(isActive(item.href!))}
                       title={collapsed ? item.label : undefined}
                     >
-                      <item.icon className="w-[18px] h-[18px] flex-shrink-0" />
+                      <item.icon className="w-5 h-5 flex-shrink-0" />
                       {!collapsed && <span>{item.label}</span>}
                     </Link>
                   )
@@ -513,7 +522,7 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
       </aside>
 
       {/* Main content — fluido (sem max-width); o site público continua com .container 1200px */}
-      <div className={`min-w-0 transition-all duration-300 ${collapsed ? 'lg:ml-[68px]' : 'lg:ml-64'}`}>
+      <div className={`min-w-0 transition-all duration-300 ${collapsed ? 'lg:ml-[72px]' : 'lg:ml-72'}`}>
         {/* Top bar */}
         <header className="h-16 bg-card/90 backdrop-blur border-b border-border flex items-center justify-between px-4 lg:px-8 sticky top-0 z-30">
           <div className="flex items-center gap-3 min-w-0">
@@ -576,11 +585,61 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
               <ExternalLink className="w-3.5 h-3.5" />
               Ver site
             </Link>
-            {/* Perfil: só o ícone (nome fica no title ao passar o mouse) */}
-            <div className="pl-2 border-l border-border" title={userName}>
-              <div className="w-8 h-8 rounded-full bg-navy text-white flex items-center justify-center text-[11px] font-bold ring-2 ring-gold/40">
-                {initials || <User className="w-4 h-4" />}
-              </div>
+            {/* Perfil: avatar abre menu da conta (Minha conta / Sair) */}
+            <div className="relative pl-2 border-l border-border">
+              <button
+                type="button"
+                onClick={() => setProfileOpen((v) => !v)}
+                className="flex items-center rounded-full transition-opacity hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold/60"
+                title={userName}
+                aria-haspopup="menu"
+                aria-expanded={profileOpen}
+                aria-label="Minha conta"
+              >
+                <span className="w-8 h-8 rounded-full bg-navy text-white flex items-center justify-center text-[11px] font-bold ring-2 ring-gold/40">
+                  {initials || <User className="w-4 h-4" />}
+                </span>
+              </button>
+              {profileOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-40"
+                    aria-hidden="true"
+                    onClick={() => setProfileOpen(false)}
+                  />
+                  <div
+                    role="menu"
+                    aria-label="Conta"
+                    className="absolute right-0 top-[calc(100%+0.5rem)] z-50 w-56 overflow-hidden rounded-xl border border-border bg-card shadow-xl"
+                  >
+                    <div className="px-3 py-2.5 border-b border-border">
+                      <p className="text-[11px] text-muted-foreground/70 leading-none mb-1">Conectado como</p>
+                      <p className="text-sm font-semibold text-foreground truncate">{userName}</p>
+                    </div>
+                    <Link
+                      href="/painel/conta"
+                      role="menuitem"
+                      onClick={() => setProfileOpen(false)}
+                      className="flex items-center gap-2.5 px-3 py-2.5 text-sm text-foreground hover:bg-muted transition-colors no-underline"
+                    >
+                      <UserCog className="w-4 h-4 text-muted-foreground" />
+                      Minha conta
+                    </Link>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={() => {
+                        setProfileOpen(false)
+                        handleLogout()
+                      }}
+                      className="flex w-full items-center gap-2.5 px-3 py-2.5 text-sm text-foreground hover:bg-red-400/10 hover:text-red-500 transition-colors"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      Sair
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </header>

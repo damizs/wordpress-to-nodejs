@@ -1,7 +1,16 @@
 import { Head, useForm, Link } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Save, ArrowLeft } from 'lucide-react'
-import { Button, Card, Field, Input, Select } from '~/components/admin/ui'
+import { Save, ArrowLeft, Tag } from 'lucide-react'
+import {
+  Button,
+  ButtonLink,
+  Field,
+  FormGrid,
+  FormSection,
+  Input,
+  PageHeader,
+  Select,
+} from '~/components/admin/ui'
 
 const typeOptions = [
   { value: 'faq', label: 'FAQ' },
@@ -26,7 +35,7 @@ export default function CategoryForm({ category }: Props) {
   })
 
   function generateSlug(name: string) {
-    return name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
+    return name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '')
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -42,68 +51,88 @@ export default function CategoryForm({ category }: Props) {
     <AdminLayout title={isEditing ? 'Editar Categoria' : 'Nova Categoria'}>
       <Head title={`${isEditing ? 'Editar' : 'Nova'} Categoria - Painel`} />
 
-      <Link
-        href="/painel/categorias"
-        className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground mb-4"
-      >
-        <ArrowLeft className="w-4 h-4" /> Voltar
-      </Link>
+      <div className="w-full min-w-0 space-y-6">
+        <PageHeader
+          eyebrow="Sistema"
+          icon={Tag}
+          title={isEditing ? 'Editar Categoria' : 'Nova Categoria'}
+          description={isEditing ? `Editando: ${category?.name}` : 'Configure o tipo, nome e slug da nova categoria'}
+          actions={
+            <ButtonLink href="/painel/categorias" variant="secondary">
+              <ArrowLeft className="w-4 h-4" />
+              Voltar
+            </ButtonLink>
+          }
+        />
 
-      <form onSubmit={handleSubmit} className="max-w-xl">
-        <Card className="space-y-4">
-          <Field label="Tipo" required>
-            <Select value={data.type} onChange={(e) => setData('type', e.target.value)} required>
-              {typeOptions.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
-            </Select>
-          </Field>
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="Nome" required>
-              <Input
-                type="text"
-                value={data.name}
-                onChange={(e) => {
-                  setData('name', e.target.value)
-                  if (!isEditing) setData('slug', generateSlug(e.target.value))
-                }}
-                required
-              />
+        <form id="category-form" onSubmit={handleSubmit} className="space-y-6">
+          <FormSection
+            title="Dados da Categoria"
+            description="Preencha o tipo e as informações de identificação"
+            icon={Tag}
+            columns={1}
+          >
+            <Field label="Tipo" required>
+              <Select value={data.type} onChange={(e) => setData('type', e.target.value)} required>
+                {typeOptions.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+              </Select>
             </Field>
-            <Field label="Slug">
-              <Input
-                type="text"
-                value={data.slug}
-                onChange={(e) => setData('slug', e.target.value)}
-                className="font-mono"
-              />
-            </Field>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="Ordem">
-              <Input
-                type="number"
-                value={data.display_order}
-                onChange={(e) => setData('display_order', parseInt(e.target.value) || 0)}
-              />
-            </Field>
-            <div className="flex items-end pb-1">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={data.is_active}
-                  onChange={(e) => setData('is_active', e.target.checked)}
-                  className="rounded border-border text-navy"
+
+            <FormGrid cols={2}>
+              <Field label="Nome" required>
+                <Input
+                  type="text"
+                  value={data.name}
+                  onChange={(e) => {
+                    setData('name', e.target.value)
+                    if (!isEditing) setData('slug', generateSlug(e.target.value))
+                  }}
+                  required
                 />
-                <span className="text-sm text-muted-foreground">Ativa</span>
-              </label>
-            </div>
-          </div>
-        </Card>
+              </Field>
+              <Field label="Slug" hint="Gerado automaticamente a partir do nome">
+                <Input
+                  type="text"
+                  value={data.slug}
+                  onChange={(e) => setData('slug', e.target.value)}
+                  className="font-mono"
+                />
+              </Field>
+            </FormGrid>
 
-        <Button type="submit" loading={processing} className="mt-4">
-          <Save className="w-4 h-4" />
-          {processing ? 'Salvando...' : 'Salvar'}
-        </Button>
-      </form>
+            <FormGrid cols={2}>
+              <Field label="Ordem de exibição">
+                <Input
+                  type="number"
+                  value={data.display_order}
+                  onChange={(e) => setData('display_order', parseInt(e.target.value) || 0)}
+                />
+              </Field>
+              <div className="flex items-end pb-1">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={data.is_active}
+                    onChange={(e) => setData('is_active', e.target.checked)}
+                    className="rounded border-border text-navy"
+                  />
+                  <span className="text-sm text-foreground">Ativa</span>
+                </label>
+              </div>
+            </FormGrid>
+          </FormSection>
+
+          <div className="flex flex-col sm:flex-row items-center justify-end gap-3">
+            <ButtonLink href="/painel/categorias" variant="secondary" className="w-full sm:w-auto">
+              Cancelar
+            </ButtonLink>
+            <Button type="submit" loading={processing} className="w-full sm:w-auto">
+              <Save className="w-4 h-4" />
+              {processing ? 'Salvando...' : 'Salvar'}
+            </Button>
+          </div>
+        </form>
+      </div>
     </AdminLayout>
   )
 }

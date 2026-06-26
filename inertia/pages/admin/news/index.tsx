@@ -1,6 +1,6 @@
 import { Head, router } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Edit, Trash2, Eye } from 'lucide-react'
+import { Edit, Trash2, Eye, Newspaper } from 'lucide-react'
 import { useState } from 'react'
 import {
   Badge,
@@ -8,6 +8,7 @@ import {
   CreateButton,
   IconButton,
   IconLink,
+  PageHeader,
   Pagination,
   RowActions,
   SearchInput,
@@ -73,7 +74,17 @@ export default function NewsIndex({ news, categories, filters }: Props) {
     <AdminLayout title="Notícias">
       <Head title="Notícias - Painel" />
 
-      {/* Filtros + ação */}
+      {/* Hero header com ação principal */}
+      <PageHeader
+        eyebrow="Conteúdo"
+        icon={Newspaper}
+        title="Notícias"
+        description={`${news.meta.total} notícia(s) cadastrada(s)`}
+        variant="hero"
+        actions={<CreateButton href="/painel/noticias/criar">Nova Notícia</CreateButton>}
+      />
+
+      {/* Filtros */}
       <Toolbar>
         <SearchInput
           value={search}
@@ -84,7 +95,7 @@ export default function NewsIndex({ news, categories, filters }: Props) {
         />
 
         <Select value={filters.status} onChange={(e) => applyFilters({ status: e.target.value })}>
-          <option value="">Todos</option>
+          <option value="">Todos os status</option>
           <option value="published">Publicadas</option>
           <option value="draft">Rascunhos</option>
           <option value="archived">Arquivadas</option>
@@ -93,20 +104,15 @@ export default function NewsIndex({ news, categories, filters }: Props) {
         <Select
           value={filters.category}
           onChange={(e) => applyFilters({ category: e.target.value })}
-          className="hidden sm:block"
         >
-          <option value="">Categoria</option>
+          <option value="">Todas as categorias</option>
           {categories.map((cat) => (
             <option key={cat.id} value={cat.id}>{cat.name}</option>
           ))}
         </Select>
-
-        <div className="sm:ml-auto">
-          <CreateButton href="/painel/noticias/criar">Nova Notícia</CreateButton>
-        </div>
       </Toolbar>
 
-      {/* Table */}
+      {/* Tabela */}
       <Table footer={<Pagination meta={news.meta} baseUrl="/painel/noticias" itemLabel="notícia" />}>
         <THead>
           <TH>Título</TH>
@@ -124,7 +130,7 @@ export default function NewsIndex({ news, categories, filters }: Props) {
               <TD>
                 <div className="flex items-center gap-3">
                   {item.cover_image_url && (
-                    <img src={item.cover_image_url} alt="" className="w-10 h-10 rounded-lg object-cover hidden sm:block" />
+                    <img src={item.cover_image_url} alt="" className="w-10 h-10 rounded-lg object-cover hidden sm:block shrink-0" />
                   )}
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-foreground truncate max-w-xs">{item.title}</p>

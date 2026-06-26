@@ -261,10 +261,13 @@ export default function AdminSecurityIndex({
 
       <AdminPage>
         <PageHeader
-          title="Seguranca e backups"
-          description="Firewall de aplicacao, auditoria de eventos e backups locais com envio externo."
+          title="Segurança e Backups"
+          description="Firewall de aplicação, auditoria de eventos e backups locais com envio externo."
+          icon={ShieldCheck}
+          eyebrow="Sistema"
+          variant="hero"
           actions={
-            <Button onClick={runBackup} loading={runningBackup}>
+            <Button onClick={runBackup} loading={runningBackup} variant="gold">
               <RefreshCw className="w-4 h-4" />
               Gerar backup agora
             </Button>

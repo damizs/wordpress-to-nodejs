@@ -30,6 +30,24 @@ services:
       - default
       - coolify
     restart: unless-stopped
+    # Coolify usa este healthcheck para gatear o rolling: só direciona tráfego ao
+    # container novo quando ele responde 200 em /health (servidor realmente escutando)
+    # e marca o antigo para parada só depois. Espelha o do Dockerfile e deixa o gate
+    # explícito no compose. /health é barato e não toca o banco (interceptado no
+    # firewall middleware), então não dá falso-negativo em boot frio.
+    healthcheck:
+      test:
+        ['CMD', 'node', '-e', "fetch('http://localhost:3333/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 900s
+    # Shutdown gracioso: ao trocar de container, o Docker manda SIGTERM e espera
+    # ESTE tempo antes do SIGKILL. Precisa ser MAIOR que a janela de DRAIN
+    # (SHUTDOWN_DRAIN_MS, default 6s em bin/server.ts) + o teto de uma requisição
+    # em voo (query_timeout=25s em config/database.ts) ⇒ ~31s. 45s dá margem para
+    # o app.terminate() fechar o servidor HTTP e o pool do Postgres sem SIGKILL.
+    stop_grace_period: 45s
 
 volumes:
   uploads:

@@ -11,6 +11,7 @@ import {
   IconButton,
   Input,
   Modal,
+  PageHeader,
   Select,
   StatCard,
   Textarea,
@@ -319,25 +320,28 @@ export default function InstagramDashboard({ settings, logs, stats }: Props) {
     <AdminLayout>
       <Head title="Instagram Auto Publisher" />
 
-      <div className="p-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <Instagram className="w-8 h-8 text-pink-500" />
-            <h1 className="text-2xl font-bold text-foreground">Instagram Auto Publisher</h1>
-          </div>
-          <div className="flex gap-2">
-            <ButtonLink href="/painel/noticias/instagram/configuracoes" variant="secondary">
-              <Settings className="w-4 h-4" /> Configurações
-            </ButtonLink>
-            <ButtonLink href="/painel/noticias/instagram/historico" variant="secondary">
-              <History className="w-4 h-4" /> Histórico
-            </ButtonLink>
-          </div>
-        </div>
+      <div className="space-y-6">
+        {/* Hero header */}
+        <PageHeader
+          eyebrow="Automação"
+          icon={Instagram}
+          title="Instagram Auto Publisher"
+          description={settings.instagram_profile_url ? `Perfil: ${settings.instagram_profile_url}` : 'Importe e publique posts do Instagram como notícias automaticamente'}
+          variant="hero"
+          actions={
+            <>
+              <ButtonLink href="/painel/noticias/instagram/configuracoes" variant="secondary">
+                <Settings className="w-4 h-4" /> Configurações
+              </ButtonLink>
+              <ButtonLink href="/painel/noticias/instagram/historico" variant="secondary">
+                <History className="w-4 h-4" /> Histórico
+              </ButtonLink>
+            </>
+          }
+        />
 
         {/* Stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard label="Total Importados" value={stats.total} icon={Instagram} />
           <StatCard label="Publicados" value={stats.success} icon={CheckCircle} />
           <StatCard label="Erros" value={stats.errors} icon={XCircle} />
@@ -346,18 +350,18 @@ export default function InstagramDashboard({ settings, logs, stats }: Props) {
 
         {/* Messages */}
         {message && (
-          <div className={`mb-4 p-4 rounded-lg border text-sm ${message.type === 'success' ? 'bg-emerald-600/10 text-emerald-700 border-emerald-600/20' : 'bg-destructive/10 text-destructive border-destructive/20'}`}>
+          <div className={`p-4 rounded-lg border text-sm ${message.type === 'success' ? 'bg-emerald-600/10 text-emerald-700 dark:text-emerald-300 border-emerald-600/20' : 'bg-destructive/10 text-destructive border-destructive/20'}`}>
             {message.text}
           </div>
         )}
 
-        {/* Load Posts Section */}
-        <Card className="mb-6">
+        {/* Carregar Posts */}
+        <Card>
           <CardHeader
             title="Carregar Posts do Instagram"
-            description={settings.instagram_profile_url ? `Perfil: ${settings.instagram_profile_url}` : undefined}
+            description="Busque os posts mais recentes do perfil configurado para selecionar e publicar como notícias."
             actions={
-              <div className="flex gap-2">
+              <div className="flex flex-wrap gap-2">
                 <Button onClick={loadPosts} loading={loadingPosts}>
                   {!loadingPosts && <Search className="w-4 h-4" />}
                   Carregar Posts
@@ -372,10 +376,10 @@ export default function InstagramDashboard({ settings, logs, stats }: Props) {
         </Card>
 
         {/* Feed ao vivo da home */}
-        <Card className="mb-6">
+        <Card>
           <CardHeader
-            title="Feed do site (seção “Siga-nos” na home)"
-            description="Exibe as publicações mais recentes do perfil, atualizadas pelo scraper (sem precisar de senha do Instagram). As imagens são baixadas e cacheadas. Atualiza sozinho a cada poucas horas; use o botão para forçar agora."
+            title={`Feed do site (seção "Siga-nos" na home)`}
+            description='Exibe as publicações mais recentes do perfil, atualizadas pelo scraper (sem precisar de senha do Instagram). As imagens são baixadas e cacheadas. Atualiza sozinho a cada poucas horas; use o botão para forçar agora.'
             actions={
               <Button variant="secondary" onClick={refreshSiteFeed} loading={loadingFeed}>
                 {!loadingFeed && <Instagram className="w-4 h-4" />}
@@ -388,7 +392,7 @@ export default function InstagramDashboard({ settings, logs, stats }: Props) {
         {/* Posts Grid */}
         {posts.length > 0 && (
           <Card>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
               <div className="flex items-center gap-4">
                 <span className="font-semibold text-foreground">Posts: {filteredPosts.length}</span>
                 <div className="w-44">
@@ -401,7 +405,7 @@ export default function InstagramDashboard({ settings, logs, stats }: Props) {
                   </Select>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <Button variant="secondary" size="sm" onClick={selectAll}>Selecionar Novos</Button>
                 <Button variant="secondary" size="sm" onClick={deselectAll}>Desmarcar</Button>
                 <Button onClick={startPublishing} disabled={selectedPosts.size === 0}>
@@ -484,7 +488,7 @@ export default function InstagramDashboard({ settings, logs, stats }: Props) {
                   </div>
 
                   {/* Content */}
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-sm text-muted-foreground">{formatDate(item.post.takenAtTimestamp)}</span>
                       {getStatusBadge(item.status)}
@@ -518,9 +522,9 @@ export default function InstagramDashboard({ settings, logs, stats }: Props) {
                         ) : (
                           <div>
                             <div className="flex items-center gap-2 mb-1">
-                              <h3 className="font-semibold text-foreground">{item.title}</h3>
+                              <h3 className="font-semibold text-foreground truncate">{item.title}</h3>
                               {currentStep === 'review' && (
-                                <IconButton tone="edit" className="p-1" onClick={() => setEditingIndex(index)}>
+                                <IconButton tone="edit" className="p-1 shrink-0" onClick={() => setEditingIndex(index)}>
                                   <Edit3 className="w-4 h-4" />
                                 </IconButton>
                               )}
@@ -549,27 +553,28 @@ export default function InstagramDashboard({ settings, logs, stats }: Props) {
           </div>
 
           {/* Footer */}
-          <div className="p-4 border-t border-border bg-muted/50 rounded-b-xl flex items-center justify-between">
+          <div className="p-4 border-t border-border bg-muted/50 rounded-b-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <div className="text-sm text-muted-foreground">
               {currentStep === 'review' && `${processedPosts.filter(p => p.status === 'ready').length} post(s) pronto(s) para publicar`}
               {currentStep === 'done' && `${processedPosts.filter(p => p.status === 'published').length} publicado(s), ${processedPosts.filter(p => p.status === 'error').length} erro(s)`}
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 w-full sm:w-auto">
               {currentStep === 'review' && (
                 <>
-                  <Button variant="secondary" onClick={closeModal}>
+                  <Button variant="secondary" onClick={closeModal} className="flex-1 sm:flex-none">
                     Cancelar
                   </Button>
                   <Button
                     onClick={publishReviewedPosts}
                     disabled={processedPosts.filter(p => p.status === 'ready').length === 0}
+                    className="flex-1 sm:flex-none"
                   >
                     <Play className="w-4 h-4" /> Publicar Agora
                   </Button>
                 </>
               )}
               {currentStep === 'done' && (
-                <Button onClick={closeModal}>
+                <Button onClick={closeModal} className="w-full sm:w-auto">
                   Fechar
                 </Button>
               )}
