@@ -107,6 +107,9 @@ export function sanitizeHtmlString(html: string): string {
     .replace(/\sstyle\s*=\s*"[^"]*"/gi, '')
     .replace(/\sstyle\s*=\s*'[^']*'/gi, '')
     .replace(/\sstyle\s*=\s*[^\s>]+/gi, '')
+    // Converte quebras de linha ESCAPADAS literais ("\n", "\r\n") que vazaram como
+    // texto do import (78 publicações tinham "\n" visível na descrição).
+    .replace(/\\r\\n|\\n|\\r/g, ' ')
     // Remove SHORTCODES do WordPress que vazaram como texto cru (ex.: [wpdatatable id=5],
     // [vc_row], [/gallery]). Tags abrem com letra; preserva texto entre pares.
     .replace(/\[\/?[a-z][a-z0-9_-]*(?:\s[^\]]*)?\]/gi, '')
