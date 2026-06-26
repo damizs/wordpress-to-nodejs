@@ -207,15 +207,30 @@
     outline-offset: 2px;
   }
 
-  /* ===== Escala de fonte (A- / A / A+) — todo o layout usa rem ===== */
+  /* ===== Escala de fonte — todo o layout usa rem =====
+     Modelo multiplicativo: preferência do usuário (A/A+/A++) × upscale por viewport.
+     O CONTEÚDO continua capado em 1480px (container), mas em monitores/TVs grandes a
+     fonte cresce para não "ficar pequena" vista de longe. Notebook ≤1536px = idêntico. */
   html {
-    font-size: 100%;
+    --font-scale-user: 1;
+    --font-scale-viewport: 1;
+    font-size: calc(100% * var(--font-scale-user) * var(--font-scale-viewport));
   }
   html[data-font-scale='2'] {
-    font-size: 112.5%;
+    --font-scale-user: 1.125;
   }
   html[data-font-scale='3'] {
-    font-size: 125%;
+    --font-scale-user: 1.25;
+  }
+  @media (min-width: 1720px) {
+    html {
+      --font-scale-viewport: 1.05;
+    }
+  }
+  @media (min-width: 2200px) {
+    html {
+      --font-scale-viewport: 1.12;
+    }
   }
 
   /* ===== Estilos de layout (atributo data-layout no <html>) =====
