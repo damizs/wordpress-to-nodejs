@@ -91,7 +91,17 @@ fixos no chrome (quebra o modo escuro).
   dourado) — contraste AA. Ex.: badge do PageHero = `bg-gold text-navy-dark`.
 - Painel: **UI kit** `inertia/components/admin/ui.tsx** (Button, Input, Select,
   Field, Card, Table, StatusBadge, ConfirmDelete, Pagination, EmptyState, Modal,
-  Toolbar, PageHeader). Nunca reimplementar tabela/badge com cores soltas.
+  Toolbar, **PageHeader** (variante `hero` = faixa com gradiente), **FormSection**/
+  **FormGrid** (forms full-width multi-coluna), **Avatar**). Nunca reimplementar
+  tabela/badge com cores soltas. Páginas do painel ocupam 100% da largura útil
+  (sem `max-w-* mx-auto` que centraliza e desperdiça margem em telas grandes).
+- **Conteúdo rico (HTML do WP):** renderizar SEMPRE com `RichContent`
+  (`inertia/components/RichContent.tsx`) — encapsula `SafeHtml` + classes prose
+  boas (sem `text-justify` forçado). `sanitize_html.ts` é **SSR-safe** (limpeza por
+  string no servidor + allowlist por DOM no cliente; colapsa parágrafos vazios do WP).
+- **Favicon:** o enviado em Aparência é renderizado no servidor (1º paint) por
+  `share_view_data_middleware` → edge, com fallback estático + reforço client
+  (`DynamicFavicon`).
 - Carrossel automático infinito: `InfiniteCarousel.tsx` (scroll-snap + rAF).
 - Status com cor: `StatusBadge` (admin) / mapa único por entidade (público).
 
@@ -147,7 +157,9 @@ mas institucional, com informação fácil de achar.
 Menu em `inertia/layouts/AdminLayout.tsx` (`navGroups`) — grupos **recolhíveis**
 (estado em `localStorage: admin_collapsed_groups`).
 
-**Conteúdo:** Notícias (+ Automação Instagram via RapidAPI+IA), Publicações, FAQ.
+**Conteúdo:** Notícias (+ Automação Instagram via RapidAPI + IA — provedor padrão
+**DeepSeek**, configurável em Notícias→Instagram→Configurações; `ai_processor_service`),
+Publicações, FAQ.
 **Legislativo:** Vereadores, Comissões, Legislaturas, Biênios, **Sessões**
 (agendamento/vídeo), **Atas** e **Pautas** (módulos INDEPENDENTES — tabelas
 `atas`/`pautas`, models `Ata`/`Pauta`, mesmos campos: título, data, tipo de
@@ -168,7 +180,11 @@ Biblioteca de Mídia, Aparência (**em abas**: Tema/Campanhas · Modelo & Layout
 Cores · Identidade/logos · **Notícias** (modelo de card: `news_layout` =
 mosaico/grade/lista/destaque) · Rodapé & Contato), Menus do Site,
 Feriados, Selos, Links Rápidos, Categorias, Fotos da Cidade.
-**Sistema:** Usuários, Papéis e Permissões (RBAC).
+**Sistema:** Usuários, Papéis e Permissões (RBAC), **Minha Conta** (`/painel/conta`
+— `account_controller`: editar nome + escolher avatar entre placeholders
+`public/avatars/a1..a8.svg`, trocar senha (verifica a atual via scrypt), ativar 2FA
+reaproveitando o fluxo `/painel/conta/seguranca`; coluna `users.avatar`). O ícone
+de perfil no topo do painel abre o menu para esta página.
 
 ---
 
@@ -301,8 +317,13 @@ em Números, Diário, Instagram, Conheça Sumé, Certificações, Pesquisa) → 
       focus trap; pesquisa de satisfação com tokens dark-safe + radiogroup.
 - [x] Rate limiting no login e na pesquisa de satisfação; hash de CPF (LGPD);
       proxy Instagram autenticado no painel.
-- [ ] Passada dedicada de **responsividade/UX** ("site bem preenchido", todas as
-      telas) e de acessibilidade (ver §3 Observações de Revisão Visual).
+- [x] **Painel full-width/responsivo** (removidos `max-w-* mx-auto`/`admin-form-narrow`;
+      forms em `FormSection`/`FormGrid`; menu lateral maior; PageHeader hero) e
+      **conteúdo do WP bem formatado** (`RichContent`, sem `text-justify`, sem
+      parágrafos vazios). Modelo institucional preservado.
+- [ ] Passada dedicada de **responsividade/UX** do site público + acessibilidade
+      (ver §3 Observações de Revisão Visual) — site público já estava responsivo;
+      o foco era o painel (feito).
 - [ ] Bloquear/sanear upload de SVG; cache de `siteSettings`; pipeline de
       otimização de imagem (sharp) nos uploads além do `optimize_images.sh`.
 - [ ] Primeiros testes automatizados (Japa) dos fluxos críticos além dos unitários
@@ -435,6 +456,19 @@ Ordem em cada deploy:
 2. `node ace db:seed`
 3. `sh /app/scripts/wp_import.sh` (salvo `SKIP_CONTENT_BOOTSTRAP=true`)
 
+**Deploy sem Bad Gateway (drain gracioso):** no `SIGTERM`, `bin/server.ts` marca
+shutdown (`app/services/shutdown_state.ts`) → o `app_firewall_middleware` passa a
+responder **503 no `/health`** (proxy para de rotear), aguarda `SHUTDOWN_DRAIN_MS`
+(~6s) e só então `app.terminate()` (drena requisições em voo). O `docker-compose.yml`
+tem `stop_grace_period: 45s` + `healthcheck`. Para **zero-downtime REAL** falta um
+passo manual no Coolify (ligar Rolling Update + remover o publish da porta no host)
+— ver **`DEPLOY-ZERO-DOWNTIME.md`** na raiz.
+
+**Agendador em processo (`start/scheduler.ts`, só ambiente `web`):**
+`InstagramSchedulerService` roda **1×/dia** (horário de `cron_hour:cron_minute`,
+fuso BR; guarda por data em `last_daily_run`): atualiza feed + reels do Instagram e,
+se ligado, roda o auto-import (posts→notícias via DeepSeek). Heartbeat a cada 30 min.
+
 Pipeline `wp_import.sh` (marcadores em `/app/public/uploads/`):
 
 | Passo | Comando | Marcador |
@@ -495,4 +529,6 @@ node ace migration:run --force
 
 ---
 
-_Última atualização: jun/2026. Atualize este arquivo a cada novo módulo._
+_Última atualização: 26/jun/2026 — painel full-width/responsivo, Minha Conta, favicon
+server-side, Instagram/DeepSeek + agendador diário, RichContent (HTML do WP), deploy
+com drain gracioso. Atualize este arquivo a cada novo módulo._
