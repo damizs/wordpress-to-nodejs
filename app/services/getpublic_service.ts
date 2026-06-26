@@ -156,6 +156,73 @@ export class GetPublicService {
       grupo: t.grupo,
     }))
   }
+
+  /**
+   * Sincroniza TODAS as matérias do GetPublic para o banco — em DUAS tabelas:
+   *  - `getpublic_materias`: índice para a busca global (sem armazenar PDFs).
+   *  - `official_gazette_entries`: fonte da página pública do Diário Oficial.
+   *    Upsert por `edition_number = codigo`; `file_url` recebe o PDF direto
+   *    (`url_documento`) para embeber no modal; data/título do GetPublic.
+   * Idempotente (upsert) — não apaga registros existentes (ex.: importados do WP).
+   * Reusado pelo comando `getpublic:sync` e pelo agendador diário.
+   */
+  async syncAll(): Promise<{ total: number; materiasNew: number; gazetteNew: number }> {
+    const { DateTime } = await import('luxon')
+    const { default: GetPublicMateria } = await import('#models/getpublic_materia')
+    const { default: OfficialGazetteEntry } = await import('#models/official_gazette_entry')
+
+    const materias = await this.listAllMaterias()
+    const now = DateTime.now()
+    let materiasNew = 0
+    let gazetteNew = 0
+
+    for (const m of materias) {
+      if (!m.codigo) continue
+
+      // 1) índice de busca
+      const idx = await GetPublicMateria.findBy('codigo', m.codigo)
+      const idxPayload = {
+        codigo: m.codigo,
+        titulo: m.titulo.slice(0, 600),
+        tipo: (m.tipo || '').slice(0, 120),
+        diarioCodigo: m.diarioCodigo || null,
+        diarioData: m.diarioData ? DateTime.fromISO(m.diarioData) : null,
+        urlMateria: m.urlMateria.slice(0, 500),
+        syncedAt: now,
+      }
+      if (idx) {
+        idx.merge(idxPayload)
+        await idx.save()
+      } else {
+        await GetPublicMateria.create(idxPayload)
+        materiasNew++
+      }
+
+      // 2) Diário Oficial público (fonte da página /diario-oficial)
+      const pubDate = m.diarioData || (m.atualizadoEm ? m.atualizadoEm.slice(0, 10) : null)
+      const gaz = await OfficialGazetteEntry.query().where('edition_number', m.codigo).first()
+      // PDF direto (embebível no modal); cai para o visualizador se faltar.
+      const fileUrl = m.urlDocumento || m.urlMateria
+      if (gaz) {
+        gaz.merge({
+          description: m.titulo,
+          fileUrl,
+          ...(pubDate ? { publicationDate: pubDate } : {}),
+        })
+        await gaz.save()
+      } else if (pubDate) {
+        await OfficialGazetteEntry.create({
+          editionNumber: m.codigo,
+          publicationDate: pubDate,
+          description: m.titulo,
+          fileUrl,
+        })
+        gazetteNew++
+      }
+    }
+
+    return { total: materias.length, materiasNew, gazetteNew }
+  }
 }
 
 export default GetPublicService

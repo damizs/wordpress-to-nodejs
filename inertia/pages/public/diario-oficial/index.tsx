@@ -27,6 +27,7 @@ interface GazetteEntry {
   date: string;
   description?: string | null;
   file_url?: string | null;
+  viewer_url?: string | null;
 }
 
 interface Props {
@@ -113,26 +114,42 @@ function PdfPreviewModal({
           </button>
         </header>
 
-        <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-4 bg-muted px-6 py-12 text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-            <FileText className="h-8 w-8" />
-          </div>
-          <div>
-            <p className="text-base font-bold text-foreground">{entryTitle(entry)}</p>
-            <p className="mx-auto mt-1 max-w-md text-sm text-muted-foreground">
-              A matéria abre no Diário Oficial (sistema GetPublic), em uma nova aba.
-            </p>
-          </div>
-          <a
-            href={entry.file_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground no-underline shadow-sm transition-colors hover:bg-primary/90"
-          >
-            <ExternalLink className="h-4 w-4" />
-            Abrir matéria
-          </a>
+        {/* Documento embebido (PDF/visualizador do GetPublic não bloqueiam iframe) */}
+        <div className="min-h-0 flex-1 bg-muted">
+          <iframe
+            src={entry.file_url}
+            title={entryTitle(entry)}
+            className="h-full w-full border-0"
+            loading="lazy"
+          />
         </div>
+
+        <footer className="flex flex-col gap-2 border-t border-border px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+          <p className="text-xs text-muted-foreground">
+            Documento do Diário Oficial (sistema GetPublic).
+          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <a
+              href={entry.viewer_url || entry.file_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-semibold text-foreground no-underline transition-colors hover:bg-muted"
+            >
+              <ExternalLink className="h-4 w-4" />
+              Abrir em outra página
+            </a>
+            <a
+              href={entry.file_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              download
+              className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-bold text-primary-foreground no-underline shadow-sm transition-colors hover:bg-primary/90"
+            >
+              <Download className="h-4 w-4" />
+              Baixar PDF
+            </a>
+          </div>
+        </footer>
       </div>
     </div>
   );

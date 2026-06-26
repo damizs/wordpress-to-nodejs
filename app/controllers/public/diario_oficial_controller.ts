@@ -3,6 +3,7 @@ import db from '@adonisjs/lucid/services/db'
 import OfficialGazetteEntry from '#models/official_gazette_entry'
 import SiteSetting from '#models/site_setting'
 import { fixGetpublicUrl } from '#helpers/document_file_url'
+import GetPublicService from '#services/getpublic_service'
 
 export default class DiarioOficialController {
   async index({ inertia, request }: HttpContext) {
@@ -47,6 +48,7 @@ export default class DiarioOficialController {
         date: e.publicationDate,
         description: e.description,
         file_url: fixGetpublicUrl(e.fileUrl),
+        viewer_url: GetPublicService.materiaViewerUrl(e.editionNumber),
       })),
       pagination: {
         currentPage: entries.currentPage,
@@ -62,6 +64,7 @@ export default class DiarioOficialController {
             date: latestEntry.publicationDate,
             description: latestEntry.description,
             file_url: fixGetpublicUrl(latestEntry.fileUrl),
+            viewer_url: GetPublicService.materiaViewerUrl(latestEntry.editionNumber),
           }
         : null,
       siteSettings,

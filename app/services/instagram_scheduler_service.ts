@@ -132,6 +132,23 @@ export default class InstagramSchedulerService {
     } else {
       console.log('[InstagramScheduler] auto-import desabilitado — só o feed/reels foi atualizado')
     }
+
+    // GetPublic / Diário Oficial — mantém o Diário público em dia (matérias novas).
+    // Isolado: falha aqui não afeta o Instagram. Só roda se a API key existir.
+    try {
+      const { default: env } = await import('#start/env')
+      if (env.get('GETPUBLIC_API_KEY')) {
+        const { default: GetPublicService } = await import('#services/getpublic_service')
+        const r = await new GetPublicService().syncAll()
+        console.log(
+          `[InstagramScheduler] GetPublic sync: total ${r.total} · índice +${r.materiasNew} · diário +${r.gazetteNew}`
+        )
+      } else {
+        console.log('[InstagramScheduler] GETPUBLIC_API_KEY ausente — pulando sync do Diário')
+      }
+    } catch (err: any) {
+      console.error('[InstagramScheduler] GetPublic sync falhou:', err?.message)
+    }
   }
 
   private static clampNumber(

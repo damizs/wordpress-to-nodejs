@@ -9,15 +9,22 @@ import {
   Search,
   Shield,
 } from "lucide-react";
+import { useSiteSettings } from "~/hooks/use_site_settings";
 
 export const TopBar = () => {
   const { url: currentUrl } = usePage();
   const isEmbed = /[?&]embed=1/.test(currentUrl);
+  const settings = useSiteSettings();
+
+  // e-SIC e Ouvidoria são sistemas EXTERNOS (configuráveis no painel) — devem
+  // abrir o sistema do fornecedor em nova aba, não uma âncora/página interna.
+  const esicUrl = settings.esic_new_url?.trim() || "https://doc3.inf.br/cmsu2516300/esic";
+  const ouvidoriaUrl = settings.ouvidoria_url?.trim() || "https://atendimento.camaradesume.pb.gov.br/";
 
   const topLinks = [
     { icon: Search, label: "Portal da Transparência", shortLabel: "Transparência", href: "/transparencia", external: false },
-    { icon: FileText, label: "e-SIC", shortLabel: "e-SIC", href: "/#esic", external: false },
-    { icon: MessageSquare, label: "Ouvidoria", shortLabel: "Ouvidoria", href: "/ouvidoria", external: false },
+    { icon: FileText, label: "e-SIC", shortLabel: "e-SIC", href: esicUrl, external: true },
+    { icon: MessageSquare, label: "Ouvidoria", shortLabel: "Ouvidoria", href: ouvidoriaUrl, external: true },
     { icon: HelpCircle, label: "Perguntas Frequentes", shortLabel: "FAQ", href: "/perguntas-frequentes", external: false },
     { icon: Shield, label: "Política de Privacidade", shortLabel: "Privacidade", href: "/politica-de-privacidade", external: false },
     { icon: Map, label: "Mapa do Site", shortLabel: "Mapa", href: "/mapa-do-site", external: false },

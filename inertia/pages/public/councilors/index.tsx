@@ -38,7 +38,13 @@ export default function VereadoresIndex({ vereadores = [], legislature }: Props)
         <PageHero
           badge="Poder Legislativo"
           title="Vereadores"
-          subtitle={legislature ? `${legislature.name} (${legislature.year_start} - ${legislature.year_end})` : "Integrantes do Poder Legislativo Municipal"}
+          subtitle={
+            legislature
+              ? /\d{4}/.test(legislature.name)
+                ? legislature.name
+                : `${legislature.name} (${legislature.year_start} - ${legislature.year_end})`
+              : "Integrantes do Poder Legislativo Municipal"
+          }
           centered
         />
 

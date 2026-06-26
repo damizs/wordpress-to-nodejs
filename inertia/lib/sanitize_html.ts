@@ -107,6 +107,9 @@ export function sanitizeHtmlString(html: string): string {
     .replace(/\sstyle\s*=\s*"[^"]*"/gi, '')
     .replace(/\sstyle\s*=\s*'[^']*'/gi, '')
     .replace(/\sstyle\s*=\s*[^\s>]+/gi, '')
+    // Remove SHORTCODES do WordPress que vazaram como texto cru (ex.: [wpdatatable id=5],
+    // [vc_row], [/gallery]). Tags abrem com letra; preserva texto entre pares.
+    .replace(/\[\/?[a-z][a-z0-9_-]*(?:\s[^\]]*)?\]/gi, '')
     .replace(/<p\b[^>]*>([\s\S]*?)<\/p>/gi, (match, inner) =>
       paragraphInnerIsBlank(inner) ? '' : match
     )
