@@ -16,6 +16,9 @@ export default class SeoController {
       await Promise.all([
         News.query()
           .where('status', 'published')
+          .whereNotIn('category_id', (sub) =>
+            sub.from('news_categories').where('slug', 'getpublic').select('id')
+          )
           .orderBy('published_at', 'desc')
           .select('slug', 'updated_at', 'published_at'),
         Councilor.query().where('is_active', true).select('slug', 'updated_at'),

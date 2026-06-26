@@ -89,6 +89,10 @@ export default class HomeController {
       News.query()
         .select('id', 'title', 'slug', 'excerpt', 'cover_image_url', 'published_at', 'category_id')
         .where('status', 'published')
+        // Exclui GetPublic (avisos/atos) do feed de notícias da home.
+        .whereNotIn('category_id', (sub) =>
+          sub.from('news_categories').where('slug', 'getpublic').select('id')
+        )
         .orderBy('published_at', 'desc')
         .limit(12)
         .preload('category'),

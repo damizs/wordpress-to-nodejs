@@ -88,9 +88,12 @@ export default class SearchController {
       pages,
       faqs,
     ] = await Promise.all([
-      // Notícias publicadas
+      // Notícias publicadas (exclui GetPublic — avisos/atos não são notícia)
       News.query()
         .where('status', 'published')
+        .whereNotIn('category_id', (sub) =>
+          sub.from('news_categories').where('slug', 'getpublic').select('id')
+        )
         .where((sub) => {
           sub
             .whereILike('title', term)

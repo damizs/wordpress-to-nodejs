@@ -11,6 +11,11 @@ export default class PublicNewsController {
     const year = request.input('ano', '')
     const search = request.input('busca', '')
 
+    // GetPublic (avisos de dispensa/licitação/extratos de contrato/diário) é
+    // importado como categoria própria e NÃO deve aparecer no feed de Notícias.
+    // Fica acessível só quando o usuário filtra explicitamente por essa categoria.
+    const getpublicCat = await NewsCategory.findBy('slug', 'getpublic')
+
     let query = News.query()
       .where('status', 'published')
       .preload('category')
@@ -18,6 +23,8 @@ export default class PublicNewsController {
 
     if (category) {
       query = query.where('category_id', category)
+    } else if (getpublicCat) {
+      query = query.whereNot('category_id', getpublicCat.id)
     }
     if (year) {
       const y = Number(year)
