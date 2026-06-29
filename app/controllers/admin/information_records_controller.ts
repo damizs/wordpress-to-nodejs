@@ -10,6 +10,8 @@ import { existsSync } from 'node:fs'
 import { sanitizeRichHtml } from '#helpers/sanitize_html'
 import { assertSafeUpload } from '#helpers/upload_security'
 import TrashService from '#services/trash_service'
+import { DateTime } from 'luxon'
+import { normalizeSafeWebUrl } from '#helpers/safe_url'
 
 export default class InformationRecordsController {
   /**
@@ -25,7 +27,7 @@ export default class InformationRecordsController {
     const q = String(request.input('q', '') || '').trim()
 
     // Categorias ativas de Acesso à Informação (com grupo) + contagem por slug.
-    const [categories, countRows] = await Promise.all([
+    const [categories, countRows, latestRecord] = await Promise.all([
       SystemCategory.query()
         .where('type', 'information_record')
         .where('is_active', true)
@@ -37,6 +39,13 @@ export default class InformationRecordsController {
         .select('category')
         .count('* as total')
         .groupBy('category'),
+      InformationRecord.query()
+        .whereNull('deleted_at')
+        .where((builder) => {
+          builder.whereNotNull('reference_date').orWhereNotNull('updated_at').orWhereNotNull('created_at')
+        })
+        .orderByRaw('COALESCE(reference_date, updated_at, created_at) DESC')
+        .first(),
     ])
     const countBySlug = new Map<string, number>(
       countRows.map((r: any) => [String(r.category), Number(r.total)])
@@ -66,6 +75,7 @@ export default class InformationRecordsController {
       count: number
     } | null = null
     let years: number[] = []
+    let categoryLatestUpdate: string | null = null
 
     if (category) {
       const found = categoryList.find((c) => c.slug === category)
@@ -86,6 +96,21 @@ export default class InformationRecordsController {
         .distinct('year')
         .orderBy('year', 'desc')
       years = yearRows.map((r: any) => Number(r.year)).filter(Boolean)
+
+      const latestCategoryRecord = await InformationRecord.query()
+        .where('category', category)
+        .whereNull('deleted_at')
+        .where((builder) => {
+          builder.whereNotNull('reference_date').orWhereNotNull('updated_at').orWhereNotNull('created_at')
+        })
+        .orderByRaw('COALESCE(reference_date, updated_at, created_at) DESC')
+        .first()
+      categoryLatestUpdate = latestCategoryRecord
+        ? latestCategoryRecord.referenceDate ||
+          latestCategoryRecord.updatedAt?.toISO() ||
+          latestCategoryRecord.createdAt?.toISO() ||
+          null
+        : null
 
       let query = InformationRecord.query()
         .where('category', category)
@@ -111,7 +136,77 @@ export default class InformationRecordsController {
       records: records ? { data: records, meta: recordsMeta } : null,
       years,
       filters: { category, year, q },
+      latestUpdate:
+        latestRecord?.referenceDate ||
+        latestRecord?.updatedAt?.toISO() ||
+        latestRecord?.createdAt?.toISO() ||
+        null,
+      categoryLatestUpdate,
     })
+  }
+
+  async export({ request, response }: HttpContext) {
+    const category = String(request.input('category', '') || '').trim()
+    const format = String(request.input('format', 'csv') || 'csv').trim().toLowerCase()
+    const year = String(request.input('year', '') || '').trim()
+    const q = String(request.input('q', '') || '').trim()
+
+    let query = InformationRecord.query().whereNull('deleted_at').orderBy('year', 'desc')
+    if (category) query = query.where('category', category)
+    if (year) query = query.where('year', year)
+    if (q) {
+      query = query.where((builder) => {
+        builder.whereILike('title', `%${q}%`).orWhereILike('content', `%${q}%`)
+      })
+    }
+    const records = await query.limit(2000)
+
+    const categories = await SystemCategory.byType('information_record')
+    const categoryNameBySlug = new Map(categories.map((c) => [c.slug, c.name]))
+    const exportedAt = DateTime.now().toISO()
+    const filenameBase = `acesso-informacao${category ? `-${category}` : ''}${year ? `-${year}` : ''}`
+
+    if (format === 'json') {
+      response.header('Content-Type', 'application/json; charset=utf-8')
+      response.header('Content-Disposition', `attachment; filename="${filenameBase}.json"`)
+      return response.send({
+        exported_at: exportedAt,
+        filters: { category, year, q },
+        total: records.length,
+        records: records.map((record) => ({
+          id: record.id,
+          category: record.category,
+          category_name: categoryNameBySlug.get(record.category) || record.category,
+          year: record.year,
+          title: record.title,
+          content: record.content,
+          reference_date: record.referenceDate,
+          file_url: record.fileUrl,
+          is_active: record.isActive,
+          updated_at: record.updatedAt?.toISO() || null,
+        })),
+      })
+    }
+
+    const rows = [
+      ['ID', 'Categoria', 'Ano', 'Título', 'Conteúdo', 'Data de referência', 'Arquivo', 'Status', 'Atualizado em'],
+      ...records.map((record) => [
+        String(record.id),
+        categoryNameBySlug.get(record.category) || record.category,
+        String(record.year),
+        record.title,
+        stripHtml(record.content),
+        record.referenceDate || '',
+        record.fileUrl || '',
+        record.isActive ? 'Ativo' : 'Inativo',
+        record.updatedAt?.toISO() || '',
+      ]),
+    ]
+
+    const csv = `\uFEFF${rows.map((row) => row.map(csvCell).join(';')).join('\n')}`
+    response.header('Content-Type', 'text/csv; charset=utf-8')
+    response.header('Content-Disposition', `attachment; filename="${filenameBase}.csv"`)
+    return response.send(csv)
   }
 
   async create({ inertia, request }: HttpContext) {
@@ -132,6 +227,8 @@ export default class InformationRecordsController {
       'year',
       'content',
       'reference_date',
+      'file_url',
+      'is_active',
       'open_mode',
       'hide_chrome',
     ])
@@ -145,6 +242,8 @@ export default class InformationRecordsController {
       const fileName = `info-${cuid()}.${file.extname}`
       await file.move(uploadDir, { name: fileName })
       fileUrl = `/uploads/acesso-informacao/${fileName}`
+    } else {
+      fileUrl = normalizeSafeWebUrl(data.file_url)
     }
 
     await InformationRecord.create({
@@ -154,7 +253,7 @@ export default class InformationRecordsController {
       content: sanitizeRichHtml(data.content) || null,
       referenceDate: data.reference_date || null,
       fileUrl,
-      isActive: true,
+      isActive: data.is_active === undefined || data.is_active === 'true' || data.is_active === true || data.is_active === '1',
       openMode: data.open_mode === 'modal' ? 'modal' : 'nova_aba',
       // Formulário envia via FormData: booleanos chegam como '1'/'0'
       hideChrome: !(data.hide_chrome === 'false' || data.hide_chrome === false || data.hide_chrome === '0'),
@@ -182,6 +281,7 @@ export default class InformationRecordsController {
       'year',
       'content',
       'reference_date',
+      'file_url',
       'is_active',
       'open_mode',
       'hide_chrome',
@@ -195,6 +295,8 @@ export default class InformationRecordsController {
       const fileName = `info-${cuid()}.${file.extname}`
       await file.move(uploadDir, { name: fileName })
       record.fileUrl = `/uploads/acesso-informacao/${fileName}`
+    } else {
+      record.fileUrl = normalizeSafeWebUrl(data.file_url)
     }
 
     record.merge({
@@ -234,4 +336,16 @@ function categoryPath(category?: string | null): string {
   return slug
     ? `/painel/acesso-informacao?category=${encodeURIComponent(slug)}`
     : '/painel/acesso-informacao'
+}
+
+function stripHtml(value: string | null | undefined) {
+  return String(value || '')
+    .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+function csvCell(value: string) {
+  return `"${String(value).replace(/"/g, '""')}"`
 }

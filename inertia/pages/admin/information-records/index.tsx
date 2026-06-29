@@ -7,10 +7,15 @@ import {
   Calendar,
   CheckCircle2,
   CircleDashed,
+  Clock3,
+  Download,
+  Eye,
   ExternalLink,
   FileText,
+  FileJson,
   FolderTree,
   Layers,
+  Link2,
   Paperclip,
   Pencil,
   Plus,
@@ -29,19 +34,20 @@ import {
   EmptyState,
   IconButton,
   IconLink,
+  Modal,
   PageHeader,
   Pagination,
   RowActions,
   Select,
   StatCard,
   Table,
-  TableEmpty,
   TBody,
   TD,
   TH,
   THead,
   TR,
 } from '~/components/admin/ui'
+import { SafeHtml } from '~/components/SafeHtml'
 
 interface CategoryItem {
   id: number
@@ -63,8 +69,12 @@ interface InfoRecord {
   title: string
   category: string
   year: number
+  content: string | null
+  reference_date: string | null
   file_url: string | null
   is_active: boolean
+  open_mode?: string | null
+  hide_chrome?: boolean | null
   updated_at: string | null
 }
 
@@ -83,6 +93,8 @@ interface Props {
   records: { data: InfoRecord[]; meta: any } | null
   years: number[]
   filters: { category: string; year: string; q: string }
+  latestUpdate?: string | null
+  categoryLatestUpdate?: string | null
 }
 
 const SEM_GRUPO = 'Outras categorias'
@@ -102,16 +114,49 @@ function formatDateTime(value: string | null): string {
   }
 }
 
+function formatDate(value: string | null): string {
+  if (!value) return '—'
+  try {
+    return new Intl.DateTimeFormat('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    }).format(new Date(value))
+  } catch {
+    return '—'
+  }
+}
+
+function previewUrl(record: InfoRecord) {
+  if (!record.file_url) return null
+  if (record.file_url.startsWith('/') && !record.file_url.startsWith('/uploads/') && record.hide_chrome !== false) {
+    const separator = record.file_url.includes('?') ? '&' : '?'
+    return `${record.file_url}${separator}embed=1`
+  }
+  return record.file_url
+}
+
+function freshness(value: string | null) {
+  if (!value) return { label: 'Sem data', tone: 'warning' as const }
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return { label: 'Sem data', tone: 'warning' as const }
+  const diffDays = Math.floor((Date.now() - date.getTime()) / 86_400_000)
+  if (diffDays > 90) return { label: 'Desatualizado', tone: 'warning' as const }
+  return { label: 'Atualizado', tone: 'success' as const }
+}
+
 /* ============================== Visão geral ============================== */
 
 function Overview({
   categories,
   stats,
   canManageCategories,
+  latestUpdate,
 }: {
   categories: CategoryItem[]
   stats: Stats
   canManageCategories: boolean
+  latestUpdate?: string | null
 }) {
   const grouped = useMemo(() => {
     const map = new Map<string, CategoryItem[]>()
@@ -142,6 +187,17 @@ function Overview({
           ) : undefined
         }
       />
+
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-card px-4 py-3 shadow-sm">
+        <div className="flex items-center gap-2 text-sm text-foreground">
+          <Clock3 className="h-4 w-4 text-gold" />
+          <span className="font-semibold">Atualizado em</span>
+          <span className="text-muted-foreground">{formatDateTime(latestUpdate || null)}</span>
+        </div>
+        <div className="text-xs text-muted-foreground">
+          Referência do registro PNTP/LAI mais recente no painel.
+        </div>
+      </div>
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard icon={Tags} label="Categorias" value={stats.totalCategories} hint="Seções PNTP" />
@@ -258,9 +314,11 @@ function Overview({
 function MobileRecordCard({
   record,
   onDelete,
+  onPreview,
 }: {
   record: InfoRecord
   onDelete: (record: InfoRecord) => void
+  onPreview: (record: InfoRecord) => void
 }) {
   return (
     <article className="rounded-xl border border-border bg-card p-4 shadow-sm">
@@ -296,6 +354,9 @@ function MobileRecordCard({
           <span className="text-xs text-muted-foreground">Sem PDF vinculado</span>
         )}
         <RowActions>
+          <IconButton tone="view" title="Visualizar" onClick={() => onPreview(record)}>
+            <Eye className="h-4 w-4" />
+          </IconButton>
           <IconLink tone="edit" href={`/painel/acesso-informacao/${record.id}/editar`} title="Editar">
             <Pencil className="h-4 w-4" />
           </IconLink>
@@ -310,18 +371,25 @@ function MobileRecordCard({
 
 function CategoryListing({
   selectedCategory,
+  categories,
   records,
   years,
   filters,
   onDelete,
+  categoryLatestUpdate,
 }: {
   selectedCategory: SelectedCategory
+  categories: CategoryItem[]
   records: { data: InfoRecord[]; meta: any }
   years: number[]
   filters: Props['filters']
   onDelete: (record: InfoRecord) => void
+  categoryLatestUpdate?: string | null
 }) {
   const [search, setSearch] = useState(filters.q || '')
+  const [previewRecord, setPreviewRecord] = useState<InfoRecord | null>(null)
+  const fresh = freshness(categoryLatestUpdate || null)
+  const totalRecords = Number(records.meta?.total ?? records.data.length)
 
   const yearOptions = useMemo(() => {
     const current = new Date().getFullYear()
@@ -348,6 +416,14 @@ function CategoryListing({
     )
   }
 
+  function changeCategory(nextCategory: string) {
+    router.get(
+      '/painel/acesso-informacao',
+      { category: nextCategory },
+      { preserveScroll: true }
+    )
+  }
+
   const activeFilters = Boolean(filters.year || filters.q)
   const baseUrl = (() => {
     const query: Record<string, string> = { category: selectedCategory.slug }
@@ -359,6 +435,22 @@ function CategoryListing({
   const createUrl = `/painel/acesso-informacao/criar?category=${encodeURIComponent(
     selectedCategory.slug
   )}`
+
+  const recordsByYear = useMemo(() => {
+    const map = new Map<number, InfoRecord[]>()
+    for (const record of records.data) {
+      if (!map.has(record.year)) map.set(record.year, [])
+      map.get(record.year)!.push(record)
+    }
+    return Array.from(map.entries()).sort(([a], [b]) => b - a)
+  }, [records.data])
+
+  const exportUrl = (format: 'csv' | 'json') => {
+    const query: Record<string, string> = { category: selectedCategory.slug, format }
+    if (filters.year) query.year = filters.year
+    if (filters.q?.trim()) query.q = filters.q.trim()
+    return `/painel/acesso-informacao/exportar?${new URLSearchParams(query).toString()}`
+  }
 
   return (
     <div className="space-y-6">
@@ -381,9 +473,41 @@ function CategoryListing({
         }
       />
 
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_auto]">
+        <div className="rounded-lg border border-border bg-card p-4 shadow-sm">
+          <div className="flex flex-wrap items-center gap-2 text-sm">
+            <Clock3 className="h-4 w-4 text-gold" />
+            <span className="font-semibold text-foreground">Atualizado em</span>
+            <span className="text-muted-foreground">{formatDateTime(categoryLatestUpdate || null)}</span>
+            <Badge tone={fresh.tone}>{fresh.label}</Badge>
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Data do registro mais recente desta seção, usada como sinal de frescor PNTP.
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-4 shadow-sm">
+          <span className="text-sm font-semibold text-foreground">{totalRecords} registro(s)</span>
+          <a href={exportUrl('csv')} className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-sm font-medium text-foreground no-underline transition-colors hover:border-navy/40 hover:text-navy dark:hover:text-navy-light">
+            <Download className="h-4 w-4" />
+            CSV
+          </a>
+          <a href={exportUrl('json')} className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-sm font-medium text-foreground no-underline transition-colors hover:border-navy/40 hover:text-navy dark:hover:text-navy-light">
+            <FileJson className="h-4 w-4" />
+            JSON
+          </a>
+        </div>
+      </div>
+
       {/* Filtros */}
       <section className="rounded-2xl border border-border bg-card p-4 shadow-sm">
-        <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(16rem,1fr)_12rem_auto]">
+        <div className="grid grid-cols-1 gap-3 lg:grid-cols-[16rem_minmax(16rem,1fr)_12rem_auto]">
+          <Select value={selectedCategory.slug} onChange={(event) => changeCategory(event.target.value)}>
+            {categories.map((category) => (
+              <option key={category.slug} value={category.slug}>
+                {category.name}
+              </option>
+            ))}
+          </Select>
           <form
             onSubmit={(e) => {
               e.preventDefault()
@@ -450,107 +574,194 @@ function CategoryListing({
         />
       ) : (
         <>
-          <div className="grid gap-3 lg:hidden">
-            {records.data.map((record) => (
-              <MobileRecordCard key={record.id} record={record} onDelete={onDelete} />
+          <div className="grid gap-4 lg:hidden">
+            {recordsByYear.map(([year, group]) => (
+              <section key={year} className="space-y-3">
+                <div className="flex items-center justify-between rounded-lg border border-border bg-muted/40 px-3 py-2">
+                  <span className="text-sm font-bold text-foreground">{year}</span>
+                  <Badge tone="neutral">{group.length} registro(s)</Badge>
+                </div>
+                {group.map((record) => (
+                  <MobileRecordCard
+                    key={record.id}
+                    record={record}
+                    onDelete={onDelete}
+                    onPreview={setPreviewRecord}
+                  />
+                ))}
+              </section>
             ))}
           </div>
 
-          <Table
-            className="hidden lg:block"
-            footer={
-              <Pagination
-                meta={records.meta}
-                baseUrl={baseUrl}
-                itemLabel="registro"
-                itemLabelPlural="registros"
-              />
-            }
-          >
-            <THead>
-              <TH className="w-24">Ano</TH>
-              <TH>Título</TH>
-              <TH className="w-28">Anexos</TH>
-              <TH className="w-28">Status</TH>
-              <TH className="w-44">Atualizado</TH>
-              <TH className="w-28 text-right">Ações</TH>
-            </THead>
-            <TBody>
-              {records.data.length === 0 ? (
-                <TableEmpty colSpan={6}>Nenhum registro cadastrado</TableEmpty>
-              ) : (
-                records.data.map((record) => (
-                  <TR key={record.id}>
-                    <TD>
-                      <Badge tone="neutral">
-                        <Calendar className="h-3 w-3" />
-                        {record.year}
-                      </Badge>
-                    </TD>
-                    <TD>
-                      <div className="min-w-0">
-                        <p className="font-semibold text-foreground">{record.title}</p>
-                        <p className="mt-0.5 text-xs text-muted-foreground">ID #{record.id}</p>
-                      </div>
-                    </TD>
-                    <TD>
-                      {record.file_url ? (
-                        <a
-                          href={record.file_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 rounded-lg bg-sky/10 px-2.5 py-1.5 text-xs font-semibold text-sky no-underline hover:bg-sky/15"
-                        >
-                          <Paperclip className="h-3.5 w-3.5" />
-                          Abrir
-                        </a>
-                      ) : (
-                        <span className="text-sm text-muted-foreground">—</span>
-                      )}
-                    </TD>
-                    <TD>
-                      <Badge tone={record.is_active ? 'success' : 'neutral'}>
-                        {record.is_active ? 'Ativo' : 'Inativo'}
-                      </Badge>
-                    </TD>
-                    <TD>
-                      <span className="text-xs text-muted-foreground">
-                        {formatDateTime(record.updated_at)}
-                      </span>
-                    </TD>
-                    <TD>
-                      <RowActions>
-                        <IconLink
-                          tone="edit"
-                          href={`/painel/acesso-informacao/${record.id}/editar`}
-                          title="Editar"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </IconLink>
-                        <IconButton tone="delete" title="Excluir" onClick={() => onDelete(record)}>
-                          <Trash2 className="h-4 w-4" />
-                        </IconButton>
-                      </RowActions>
-                    </TD>
-                  </TR>
-                ))
-              )}
-            </TBody>
-          </Table>
+          <div className="hidden space-y-4 lg:block">
+            {recordsByYear.map(([year, group]) => (
+              <section key={year} className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+                <div className="flex items-center justify-between border-b border-border bg-muted/40 px-4 py-3">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-gold" />
+                    <h2 className="text-sm font-bold text-foreground">{year}</h2>
+                  </div>
+                  <Badge tone="neutral">{group.length} registro(s)</Badge>
+                </div>
+                <Table className="border-0 shadow-none">
+                  <THead>
+                    <TH>Título</TH>
+                    <TH className="w-28">Arquivo</TH>
+                    <TH className="w-28">Status</TH>
+                    <TH className="w-44">Atualizado</TH>
+                    <TH className="w-36 text-right">Ações</TH>
+                  </THead>
+                  <TBody>
+                    {group.map((record) => (
+                      <TR key={record.id}>
+                        <TD>
+                          <div className="min-w-0">
+                            <p className="font-semibold text-foreground">{record.title}</p>
+                            <p className="mt-0.5 text-xs text-muted-foreground">
+                              ID #{record.id}
+                              {record.reference_date ? ` · Ref. ${formatDate(record.reference_date)}` : ''}
+                            </p>
+                          </div>
+                        </TD>
+                        <TD>
+                          {record.file_url ? (
+                            <button
+                              type="button"
+                              onClick={() => setPreviewRecord(record)}
+                              className="inline-flex items-center gap-1.5 rounded-lg bg-sky/10 px-2.5 py-1.5 text-xs font-semibold text-sky transition-colors hover:bg-sky/15"
+                            >
+                              <Paperclip className="h-3.5 w-3.5" />
+                              Ver
+                            </button>
+                          ) : (
+                            <span className="text-sm text-muted-foreground">—</span>
+                          )}
+                        </TD>
+                        <TD>
+                          <Badge tone={record.is_active ? 'success' : 'neutral'}>
+                            {record.is_active ? 'Ativo' : 'Inativo'}
+                          </Badge>
+                        </TD>
+                        <TD>
+                          <span className="text-xs text-muted-foreground">
+                            {formatDateTime(record.updated_at)}
+                          </span>
+                        </TD>
+                        <TD>
+                          <RowActions>
+                            <IconButton tone="view" title="Visualizar" onClick={() => setPreviewRecord(record)}>
+                              <Eye className="h-4 w-4" />
+                            </IconButton>
+                            <IconLink
+                              tone="edit"
+                              href={`/painel/acesso-informacao/${record.id}/editar`}
+                              title="Editar"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </IconLink>
+                            <IconButton tone="delete" title="Excluir" onClick={() => onDelete(record)}>
+                              <Trash2 className="h-4 w-4" />
+                            </IconButton>
+                          </RowActions>
+                        </TD>
+                      </TR>
+                    ))}
+                  </TBody>
+                </Table>
+              </section>
+            ))}
+          </div>
 
           {records.meta?.last_page > 1 && (
-            <div className="lg:hidden">
-              <Pagination
-                meta={records.meta}
-                baseUrl={baseUrl}
-                itemLabel="registro"
-                itemLabelPlural="registros"
-              />
-            </div>
+            <Pagination
+              meta={records.meta}
+              baseUrl={baseUrl}
+              itemLabel="registro"
+              itemLabelPlural="registros"
+            />
           )}
         </>
       )}
+
+      <RecordPreviewModal record={previewRecord} onClose={() => setPreviewRecord(null)} />
     </div>
+  )
+}
+
+function RecordPreviewModal({ record, onClose }: { record: InfoRecord | null; onClose: () => void }) {
+  const url = record ? previewUrl(record) : null
+
+  return (
+    <Modal open={Boolean(record)} onClose={onClose} maxWidth="max-w-5xl">
+      {record && (
+        <div className="flex max-h-[90dvh] flex-col">
+          <div className="flex flex-wrap items-start justify-between gap-3 border-b border-border p-4">
+            <div className="min-w-0">
+              <div className="mb-2 flex flex-wrap items-center gap-2">
+                <Badge tone="neutral">
+                  <Calendar className="h-3 w-3" />
+                  {record.year}
+                </Badge>
+                <Badge tone={record.is_active ? 'success' : 'neutral'}>
+                  {record.is_active ? 'Ativo' : 'Inativo'}
+                </Badge>
+                {record.file_url && (
+                  <Badge tone="info">
+                    <Paperclip className="h-3 w-3" />
+                    Documento
+                  </Badge>
+                )}
+              </div>
+              <h2 className="text-lg font-bold leading-tight text-foreground">{record.title}</h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Atualizado em {formatDateTime(record.updated_at)}
+                {record.reference_date ? ` · Referência ${formatDate(record.reference_date)}` : ''}
+              </p>
+            </div>
+            <div className="flex shrink-0 items-center gap-2">
+              {record.file_url && (
+                <a
+                  href={record.file_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-lg border border-border bg-background px-3 py-2 text-sm font-medium text-foreground no-underline transition-colors hover:border-navy/40 hover:text-navy dark:hover:text-navy-light"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  Nova aba
+                </a>
+              )}
+              <Button type="button" variant="secondary" onClick={onClose}>
+                Fechar
+              </Button>
+            </div>
+          </div>
+
+          <div className="min-h-0 flex-1 overflow-y-auto p-4">
+            {url ? (
+              <div className="overflow-hidden rounded-lg border border-border bg-background">
+                <iframe
+                  src={url}
+                  title={record.title}
+                  className="h-[70dvh] w-full bg-background"
+                />
+              </div>
+            ) : (
+              <div className="rounded-lg border border-border bg-background p-5">
+                <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-muted-foreground">
+                  <Link2 className="h-4 w-4" />
+                  Conteúdo textual
+                </div>
+                {record.content ? (
+                  <SafeHtml html={record.content} className="prose prose-sm max-w-none dark:prose-invert" />
+                ) : (
+                  <p className="text-sm text-muted-foreground">Este registro ainda não possui arquivo ou descrição.</p>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </Modal>
   )
 }
 
@@ -563,6 +774,8 @@ export default function InformationRecordsIndex({
   records,
   years,
   filters,
+  latestUpdate,
+  categoryLatestUpdate,
 }: Props) {
   const { auth } = usePage().props as any
   const canManageCategories = auth?.user?.role === 'super_admin'
@@ -577,13 +790,20 @@ export default function InformationRecordsIndex({
       {inCategory ? (
         <CategoryListing
           selectedCategory={selectedCategory!}
+          categories={categories}
           records={records!}
           years={years}
           filters={filters}
+          categoryLatestUpdate={categoryLatestUpdate}
           onDelete={(record) => setDeleteTarget({ id: record.id, label: record.title })}
         />
       ) : (
-        <Overview categories={categories} stats={stats} canManageCategories={canManageCategories} />
+        <Overview
+          categories={categories}
+          stats={stats}
+          canManageCategories={canManageCategories}
+          latestUpdate={latestUpdate}
+        />
       )}
 
       <ConfirmDelete

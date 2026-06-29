@@ -47,8 +47,10 @@ Portal institucional da **Câmara Municipal de Sumé (PB)**, reescrito do WordPr
 
 **Pastas:** `app/` (controllers, models, services, helpers), `inertia/`
 (pages, components, layouts, lib, hooks, css), `start/` (routes, kernel,
-legacy_redirects), `database/migrations`, `config/`, `public/`, `.acervo/plugins`
-(plugins WP de referência para portar).
+legacy_redirects), `database/migrations`, `config/`, `public/`. Plugins WP de
+referência disponíveis neste servidor: `/root/wp-backup-sume/files/wp-content/plugins`
+(`pntp-legislativo`, `portal-transparencia`) e `/root/legislativo-app/wordpress-plugin`
+(`automacao-legislativa-ai`).
 
 ---
 
@@ -122,7 +124,9 @@ vazios/desatualizados, última data e caminho direto para correção.
 votação e export público ICS em `/agenda.ics`), **Atas** e **Pautas** (módulos INDEPENDENTES — tabelas
 `atas`/`pautas`, models `Ata`/`Pauta`, mesmos campos: título, data, tipo de
 sessão, conteúdo textual e PDF; páginas públicas `/atas` e `/pautas` leem dessas
-tabelas; busca/sitemap/ATRICON repontados), Atividades Legislativas (multi-autoria
+tabelas; busca/sitemap/ATRICON repontados; no backup WP recente de 26/06/2026 há
+atas reais, mas não há pauta real cadastrada, apenas templates/menu/listagem),
+Atividades Legislativas (multi-autoria
 → perfil do vereador, **origem Executivo/Legislativo** para organizar Projetos de Lei),
 Votações Nominais (importação por HTML).
 **Transparência:** Transparência (seções+links, link com `open_mode` nova-aba/
@@ -333,9 +337,10 @@ em Números, Diário, Instagram, Conheça Sumé, Certificações, Pesquisa) → 
 - [ ] **Avisos de licitação** (definir formato com o cliente: mural de abertas /
       tipo de conteúdo novo / aba).
 - [ ] **QR Code** em páginas de detalhe (publicações, atas, vereador, transparência).
-- [ ] **PNTP/admin:** passar uma rodada visual dedicada no painel de Acesso à
-      Informação para aproximar ainda mais do plugin PNTP original, com preview
-      modal/exportações no painel se necessário.
+- [x] **PNTP/admin:** painel de Acesso à Informação aproximado do plugin PNTP
+      original: cabeçalho "Atualizado em", filtros por ano/busca/categoria,
+      contadores, agrupamento por ano, export CSV/JSON e preview modal de
+      PDF/link/conteúdo.
 
 **Qualidade**
 - [x] Container padrão único (1480px + padding responsivo de 24px a 48px), conteúdo alinhado ao breadcrumb em todas
@@ -364,7 +369,10 @@ Plugins ativos no site de Sumé e equivalente nativo:
 - `ajax-search-pro` → Busca global ✅ · `ht-qrcode-generator` → QR (💡 pendente)
 - `forminator` → formulários (ouvidoria externa) · `wpdatatables` → tabelas
 
-Fontes de referência em `.acervo/plugins/`.
+Fontes de referência neste servidor:
+`/root/wp-backup-sume/files/wp-content/plugins/pntp-legislativo`,
+`/root/wp-backup-sume/files/wp-content/plugins/portal-transparencia` e
+`/root/legislativo-app/wordpress-plugin/automacao-legislativa-ai`.
 
 ---
 
@@ -399,6 +407,12 @@ Fontes de referência em `.acervo/plugins/`.
  também classifica `origin` (`executivo`, `legislativo`, `nao_informado`) por
  autoria/texto para separar Projetos de Lei do Executivo e do Legislativo no site e
  no painel. O branch legislativo do `importMaterias` foi desativado para não duplicar.
+- **Migração WP — Atas/Pautas:** Atas foram consolidadas como módulo nativo
+`atas`; o backup recente em `/root/backup-hoje/database.sql` e os ajustes manuais
+em `/root/backup-hoje/update_atas.sql` adicionaram/atualizaram as atas de 2026 com
+conteúdo e arquivo. O WordPress de Sumé não possui pautas reais cadastradas
+(`post_type=pauta` é template/listagem), então `pautas=0` no banco novo é esperado
+até a Câmara começar a cadastrar esse acervo no painel.
 - **Migração WP — registros PNTP + arquivos:** o plugin `portal-transparencia`
  mantém 4 tabelas (`pntp_registros`, `pntp_anexos`, `pntp_declaracoes`, `pntp_secoes`).
  `node scripts/extract_wp_pntp.mjs <database.sql>` gera `database/wp_pntp.json`

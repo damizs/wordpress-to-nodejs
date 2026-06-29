@@ -447,6 +447,7 @@ router
     router
       .group(() => {
         router.get('/acesso-informacao', [AdminInformationRecordsController, 'index'])
+        router.get('/acesso-informacao/exportar', [AdminInformationRecordsController, 'export'])
         router.get('/acesso-informacao/criar', [AdminInformationRecordsController, 'create'])
         router.post('/acesso-informacao', [AdminInformationRecordsController, 'store'])
         router.get('/acesso-informacao/:id/editar', [AdminInformationRecordsController, 'edit'])

@@ -29,7 +29,7 @@ export const LICITACAO_MATERIA_TYPES = new Set([
 ])
 
 const LICITACAO_TITLE_RE =
-  /\b(DV\s*\d|PE\s*\d|dispensa|licitaç|pregão|habilitação|adjudicaç|homologaç|contrataç|inexigib|ratificaç|edital|processo\s+administrativo)\b/i
+  /\b(DV\s*\d|PE\s*\d|dispensa|licitaç|pregão|habilitação|adjudicaç|homologaç|contrataç|contrato|contratual|apostilamento|gestor\s+e\s+fiscal|ordem\s+de\s+serviço|inexigib|ratificaç|edital|processo\s+administrativo)\b/i
 
 const ADMIN_ATA_TITLE_RE =
   /\b(reunião|comissão|orçamento|votação|plano de contratação|mesa diretora)\b/i
