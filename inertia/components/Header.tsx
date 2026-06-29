@@ -317,12 +317,12 @@ export const Header = ({ logoUrl }: HeaderProps) => {
             )}
           </Link>
           <nav className="min-w-0 justify-self-center">
-            <ul className="flex items-center justify-center gap-0.5">
+            <ul className="flex items-center justify-center gap-1">
               {desktopNavItems.map((item, index) => (
                 <li key={`${item.href}-${index}`} className="relative group">
                   <Link
                     href={item.href}
-                    className="flex items-center gap-1 px-3 py-2 text-[13px] font-medium rounded-lg text-primary-foreground/85 hover:text-primary-foreground hover:bg-primary-foreground/10 transition-colors no-underline"
+                    className="flex items-center gap-1 px-3.5 py-2 text-[15px] font-medium rounded-lg text-primary-foreground/85 hover:text-primary-foreground hover:bg-primary-foreground/10 transition-colors no-underline"
                   >
                     {item.label}
                     {item.hasDropdown && <ChevronDown className="w-3.5 h-3.5 opacity-60 group-hover:rotate-180 transition-transform duration-300" />}

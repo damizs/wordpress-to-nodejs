@@ -226,12 +226,20 @@ export default function TransparenciaIndex({ sections = [], openLink = null }: P
       .filter((el): el is HTMLElement => el !== null);
     if (elements.length === 0) return;
 
+    // Mantém o conjunto de seções visíveis e marca SEMPRE a mais ao topo. Sem
+    // isso, quando duas seções entravam na faixa no mesmo callback, o ativo
+    // pulava para a última do array (ordem arbitrária) → destaque "bugado".
+    const visible = new Map<string, number>();
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
-          if (entry.isIntersecting) {
-            setActiveSection(entry.target.id.replace(/^secao-/, ""));
-          }
+          const id = entry.target.id;
+          if (entry.isIntersecting) visible.set(id, entry.boundingClientRect.top);
+          else visible.delete(id);
+        }
+        if (visible.size > 0) {
+          const topmost = [...visible.entries()].sort((a, b) => a[1] - b[1])[0][0];
+          setActiveSection(topmost.replace(/^secao-/, ""));
         }
       },
       // Faixa entre 20% do topo e 30% da base: só uma seção "ativa" por vez

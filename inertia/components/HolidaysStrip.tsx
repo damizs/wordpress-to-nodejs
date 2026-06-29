@@ -61,6 +61,11 @@ function HolidaysMarquee({ holidays }: { holidays: Holiday[] }) {
   const reps = Math.max(2, Math.ceil(9 / holidays.length))
   const filled = Array.from({ length: reps }).flatMap(() => holidays)
 
+  // Velocidade CONSTANTE: a animação percorre UMA cópia (-50%) num tempo
+  // proporcional ao nº de itens (~6s por item). Sem isso, mais itens por cópia
+  // (reps) faziam os 50s fixos cobrirem mais distância → ticker rápido demais.
+  const durationSec = Math.max(40, filled.length * 6)
+
   const renderCopy = (copyKey: string, hidden?: boolean) => (
     <div className="flex items-center gap-5 shrink-0 pr-5" aria-hidden={hidden || undefined}>
       {filled.map((holiday, i) => (
@@ -71,7 +76,10 @@ function HolidaysMarquee({ holidays }: { holidays: Holiday[] }) {
 
   return (
     <div className="holidays-marquee" role="marquee" aria-label="Próximos feriados" aria-live="off">
-      <div className="holidays-marquee-track">
+      <div
+        className="holidays-marquee-track"
+        style={{ animationDuration: `${durationSec}s` }}
+      >
         {renderCopy('a')}
         {renderCopy('b', true)}
       </div>
