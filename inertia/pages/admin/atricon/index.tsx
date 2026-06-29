@@ -507,14 +507,14 @@ function KpiCard({
   delta?: number | null
 }) {
   return (
-    <div className="rounded-xl border border-border bg-card p-4">
-      <div className="flex items-center justify-between">
+    <div className="h-full flex flex-col rounded-xl border border-border bg-card p-4 shadow-sm">
+      <div className="flex items-center justify-between gap-2">
         <span className={`inline-flex items-center justify-center w-9 h-9 rounded-lg ${accent}`}>
           <Icon className="w-5 h-5" />
         </span>
         {delta !== undefined && delta !== null && delta !== 0 && (
           <span
-            className={`text-[11px] font-bold inline-flex items-center gap-0.5 ${
+            className={`text-[11px] font-bold inline-flex items-center gap-0.5 tabular-nums ${
               delta > 0 ? 'text-emerald-600' : 'text-destructive'
             }`}
           >
@@ -523,9 +523,9 @@ function KpiCard({
           </span>
         )}
       </div>
-      <p className="text-2xl font-extrabold text-foreground mt-2 tabular-nums">{value}</p>
-      <p className="text-xs font-medium text-foreground/80">{label}</p>
-      {sub && <p className="text-[11px] text-muted-foreground mt-0.5">{sub}</p>}
+      <p className="mt-3 text-2xl font-extrabold leading-none text-foreground tabular-nums">{value}</p>
+      <p className="mt-1.5 text-xs font-medium text-foreground/80">{label}</p>
+      {sub && <p className="mt-auto pt-1.5 text-[11px] text-muted-foreground">{sub}</p>}
     </div>
   )
 }
@@ -1340,7 +1340,11 @@ export default function AtriconIndex({
 
       {/* Navegação por seções — quebra o scroll único da página */}
       <div className="sticky top-0 z-10 -mx-1 mb-5 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 border-b border-border">
-        <div role="tablist" aria-label="Seções do Radar ATRICON" className="flex flex-wrap gap-1 py-2">
+        <div
+          role="tablist"
+          aria-label="Seções do Radar ATRICON"
+          className="flex gap-1 py-2 overflow-x-auto overscroll-x-contain [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+        >
           {TABS.map((tb) => {
             const active = tab === tb.key
             return (
@@ -1350,9 +1354,9 @@ export default function AtriconIndex({
                 role="tab"
                 aria-selected={active}
                 onClick={() => setTab(tb.key)}
-                className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
+                className={`inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                   active
-                    ? 'bg-navy text-white'
+                    ? 'bg-navy text-white shadow-sm'
                     : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                 }`}
               >
@@ -1375,30 +1379,30 @@ export default function AtriconIndex({
 
       {/* ===================== Aba: Evidências / IA ===================== */}
       <div role="tabpanel" hidden={tab !== 'ia'}>
-      <Card className="mb-6 border-navy/15">
+      <Card className="border-navy/15">
         <CardHeader
           title="Rotina de verificação periódica com IA"
           description="Use este fluxo para revisar o portal antes e durante o ciclo PNTP: ler evidências, separar links externos, preencher módulos internos e revalidar o Radar."
           icon={Bot}
         />
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 mb-4">
-          <div className="rounded-lg border border-border bg-muted/30 p-3">
+          <div className="h-full flex flex-col justify-center rounded-lg border border-border bg-muted/30 p-3">
             <p className="text-2xl font-bold text-foreground tabular-nums">{aiFlow.needsReview.length}</p>
             <p className="text-xs text-muted-foreground">Critérios para revisar</p>
           </div>
-          <div className="rounded-lg border border-border bg-muted/30 p-3">
+          <div className="h-full flex flex-col justify-center rounded-lg border border-border bg-muted/30 p-3">
             <p className="text-2xl font-bold text-foreground tabular-nums">{aiFlow.staleContent.length}</p>
             <p className="text-xs text-muted-foreground">Módulos vazios/desatualizados</p>
           </div>
-          <div className="rounded-lg border border-border bg-muted/30 p-3">
+          <div className="h-full flex flex-col justify-center rounded-lg border border-border bg-muted/30 p-3">
             <p className="text-2xl font-bold text-foreground tabular-nums">{linkAudit.contentGaps.length}</p>
             <p className="text-xs text-muted-foreground">Links com atenção</p>
           </div>
-          <div className="rounded-lg border border-border bg-muted/30 p-3">
+          <div className="h-full flex flex-col justify-center rounded-lg border border-border bg-muted/30 p-3">
             <p className="text-2xl font-bold text-foreground tabular-nums">{aiFlow.ownInfoPages.length}</p>
             <p className="text-xs text-muted-foreground">Páginas próprias PNTP</p>
           </div>
-          <div className="rounded-lg border border-border bg-muted/30 p-3">
+          <div className="h-full flex flex-col justify-center rounded-lg border border-border bg-muted/30 p-3">
             <p className="text-2xl font-bold text-foreground tabular-nums">{aiFlow.externalSystems.length}</p>
             <p className="text-xs text-muted-foreground">Sistemas externos</p>
           </div>
@@ -1456,10 +1460,11 @@ export default function AtriconIndex({
 
       {/* ===================== Aba: Visão geral ===================== */}
       <div role="tabpanel" hidden={tab !== 'visao'}>
+      <div className="space-y-6">
       {/* Painel de gráficos: índice + distribuição + radar */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* Índice / selo */}
-        <Card className="flex flex-col items-center text-center justify-center gap-3">
+        <Card className="h-full flex flex-col items-center text-center justify-center gap-3">
           <LevelMedal value={scores.index} level={scores.level} logoUrl={atriconLogoUrl} />
           <div>
             <p className="text-xs text-muted-foreground leading-relaxed max-w-xs">
@@ -1473,26 +1478,30 @@ export default function AtriconIndex({
         </Card>
 
         {/* Donut de distribuição */}
-        <Card>
+        <Card className="h-full flex flex-col">
           <CardHeader title="Distribuição dos critérios" icon={PieChart} />
-          <DonutChart segments={statusSegments} centerValue={t.criteria} centerLabel="critérios" />
+          <div className="flex flex-1 flex-col justify-center">
+            <DonutChart segments={statusSegments} centerValue={t.criteria} centerLabel="critérios" />
+          </div>
         </Card>
 
         {/* Radar por dimensão */}
-        <Card>
+        <Card className="h-full flex flex-col">
           <CardHeader
             title="Cobertura por dimensão"
             description="Quanto mais cheio o polígono, melhor a cobertura."
             icon={RadarIcon}
           />
-          <RadarChart axes={scores.dimensions} />
+          <div className="flex flex-1 flex-col justify-center">
+            <RadarChart axes={scores.dimensions} />
+          </div>
         </Card>
       </div>
 
       {/* Essenciais (LRF) */}
-      <Card className="mb-4">
+      <Card>
         <CardHeader title="Critérios essenciais (LRF)" description="Obrigatórios para os selos Prata, Ouro e Diamante." />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1.5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-1">
           {scores.essentials.map((e) => (
             <div key={e.code} className="flex items-center gap-2 text-sm py-0.5">
               <span className={`w-2 h-2 rounded-full shrink-0 ${STATUS_META[e.status].dot}`} />
@@ -1512,7 +1521,7 @@ export default function AtriconIndex({
       </Card>
 
       {/* Barras por dimensão (lacunas primeiro) */}
-      <Card className="mb-6">
+      <Card>
         <CardHeader
           title="Atendimento por dimensão (ponderado)"
           description="Ordenado pelas maiores lacunas. Clique para filtrar a matriz por dimensão."
@@ -1548,9 +1557,9 @@ export default function AtriconIndex({
       </Card>
 
       {/* Mapa de Conteúdo + Evolução */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
         {/* Mapa de Conteúdo do Portal */}
-        <Card>
+        <Card className="h-full">
           <CardHeader
             title="Mapa de Conteúdo do Portal"
             description="Mapeamento em tempo real, módulo a módulo — vazios e desatualizados aparecem primeiro."
@@ -1597,7 +1606,7 @@ export default function AtriconIndex({
         </Card>
 
         {/* Evolução do índice */}
-        <Card>
+        <Card className="h-full">
           <CardHeader
             title="Evolução do índice"
             description="Série diária do índice estimado de transparência (0 a 100)."
@@ -1607,32 +1616,33 @@ export default function AtriconIndex({
         </Card>
       </div>
       </div>
+      </div>
 
       {/* ===================== Aba: Auditoria de links ===================== */}
       <div role="tabpanel" hidden={tab !== 'auditoria'}>
       {/* Auditoria inteligente — Links da Transparência */}
-      <Card className="mb-6">
+      <Card>
         <CardHeader
           title="Auditoria inteligente — Links da Transparência"
           description={`Valida cada link: URL preenchida, conteúdo do módulo interno (atas, pautas, licitações…) e acessibilidade de URLs externas. Atas/pautas/votações: meta quinzenal (${fortnight.label}).`}
           icon={Link2}
         />
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-4">
-          <div className="rounded-lg border border-border p-3 text-center">
+          <div className="h-full flex flex-col justify-center rounded-lg border border-border p-3 text-center">
             <p className="text-2xl font-bold text-foreground tabular-nums">{linkAudit.summary.total}</p>
-            <p className="text-xs text-muted-foreground">Links auditados</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Links auditados</p>
           </div>
-          <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3 text-center">
+          <div className="h-full flex flex-col justify-center rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3 text-center">
             <p className="text-2xl font-bold text-emerald-600 tabular-nums">{linkAudit.summary.ok}</p>
-            <p className="text-xs text-muted-foreground">Em dia / acessíveis</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Em dia / acessíveis</p>
           </div>
-          <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-center">
+          <div className="h-full flex flex-col justify-center rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-center">
             <p className="text-2xl font-bold text-amber-600 tabular-nums">{linkAudit.summary.parcial}</p>
-            <p className="text-xs text-muted-foreground">Desatualizados</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Desatualizados</p>
           </div>
-          <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-center">
+          <div className="h-full flex flex-col justify-center rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-center">
             <p className="text-2xl font-bold text-destructive tabular-nums">{linkAudit.summary.falha}</p>
-            <p className="text-xs text-muted-foreground">Vazios / quebrados</p>
+            <p className="text-xs text-muted-foreground mt-0.5">Vazios / quebrados</p>
           </div>
         </div>
 
@@ -1688,7 +1698,7 @@ export default function AtriconIndex({
       {/* ===================== Aba: O que falta ===================== */}
       <div role="tabpanel" hidden={tab !== 'falta'}>
       {/* O que falta */}
-      <Card className="mb-6">
+      <Card>
         <CardHeader
           title="O que falta"
           description="Cada pendência explicada: o que a ATRICON exige, por que está pendente e como resolver. Priorizado pelo ganho real em pontos do índice — clique para expandir."
@@ -1719,9 +1729,10 @@ export default function AtriconIndex({
 
       {/* ===================== Aba: Matriz ===================== */}
       <div role="tabpanel" hidden={tab !== 'matriz'}>
+      <div className="space-y-6">
       {/* Filtros */}
-      <div className="flex flex-wrap items-center gap-2 mb-4">
-        <Filter className="w-4 h-4 text-muted-foreground" />
+      <div className="flex flex-wrap items-center gap-2">
+        <Filter className="w-4 h-4 text-muted-foreground shrink-0" />
         <div className="w-full sm:w-56">
           <Select value={dimensionFilter} onChange={(e) => setDimensionFilter(e.target.value)}>
             <option value="">Todas as dimensões</option>
@@ -1741,7 +1752,7 @@ export default function AtriconIndex({
             <option value="nao_ocorre">Não ocorre (declarado)</option>
           </Select>
         </div>
-        <span className="text-xs text-muted-foreground ml-auto">{filtered.length} critérios exibidos</span>
+        <span className="text-xs text-muted-foreground ml-auto tabular-nums">{filtered.length} critérios exibidos</span>
       </div>
 
       {/* Lista por dimensão */}
@@ -1750,9 +1761,9 @@ export default function AtriconIndex({
           .filter((d) => grouped.has(d.key))
           .map((d) => (
             <div key={d.key}>
-              <h3 className="text-sm font-bold text-foreground uppercase tracking-wide mb-2 flex items-center gap-2">
+              <h3 className="text-sm font-bold text-foreground uppercase tracking-wide mb-2.5 flex items-center gap-2">
                 {d.label}
-                <span className="text-[11px] font-medium text-muted-foreground normal-case">
+                <span className="text-[11px] font-medium text-muted-foreground normal-case tabular-nums">
                   {grouped.get(d.key)!.length} critérios
                 </span>
               </h3>
@@ -1769,13 +1780,14 @@ export default function AtriconIndex({
       </div>
 
       {/* Nota e-SIC/Ouvidoria */}
-      <div className="mt-6 bg-sky/10 border border-sky/20 rounded-xl p-4 text-xs text-sky flex items-start gap-2">
+      <div className="bg-sky/10 border border-sky/20 rounded-xl p-4 text-xs text-sky flex items-start gap-2">
         <ExternalLink className="w-4 h-4 mt-0.5 shrink-0" />
         <p>
           Os critérios de <strong>e-SIC e Ouvidoria</strong> são atendidos pelo sistema externo contratado
           e entram no radar como “Sistema externo” (contam como atendidos no índice). Mantenha os links de
           acesso visíveis no portal — isso é o que o avaliador confere.
         </p>
+      </div>
       </div>
       </div>
     </AdminLayout>

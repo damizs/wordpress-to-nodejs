@@ -81,21 +81,21 @@ export default function AtriconReport({ pendings, scores, fortnight, generatedAt
 
         {/* Resumo executivo */}
         <section className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
-          <div className="rounded-lg border border-border p-3 text-center">
-            <p className="text-2xl font-extrabold text-foreground">{scores.index}%</p>
-            <p className="text-[11px] text-muted-foreground">Índice estimado · {scores.level}</p>
+          <div className="h-full flex flex-col justify-center rounded-lg border border-border p-3 text-center">
+            <p className="text-2xl font-extrabold text-foreground tabular-nums">{scores.index}%</p>
+            <p className="text-[11px] text-muted-foreground mt-0.5">Índice estimado · {scores.level}</p>
           </div>
-          <div className="rounded-lg border border-border p-3 text-center">
-            <p className="text-2xl font-extrabold text-emerald-600">{scores.totals.met + scores.totals.external}</p>
-            <p className="text-[11px] text-muted-foreground">Critérios atendidos</p>
+          <div className="h-full flex flex-col justify-center rounded-lg border border-border p-3 text-center">
+            <p className="text-2xl font-extrabold text-emerald-600 tabular-nums">{scores.totals.met + scores.totals.external}</p>
+            <p className="text-[11px] text-muted-foreground mt-0.5">Critérios atendidos</p>
           </div>
-          <div className="rounded-lg border border-border p-3 text-center">
-            <p className="text-2xl font-extrabold text-amber-600">{scores.totals.partial}</p>
-            <p className="text-[11px] text-muted-foreground">Parciais</p>
+          <div className="h-full flex flex-col justify-center rounded-lg border border-border p-3 text-center">
+            <p className="text-2xl font-extrabold text-amber-600 tabular-nums">{scores.totals.partial}</p>
+            <p className="text-[11px] text-muted-foreground mt-0.5">Parciais</p>
           </div>
-          <div className="rounded-lg border border-border p-3 text-center">
-            <p className="text-2xl font-extrabold text-destructive">{scores.totals.pending}</p>
-            <p className="text-[11px] text-muted-foreground">Pendentes</p>
+          <div className="h-full flex flex-col justify-center rounded-lg border border-border p-3 text-center">
+            <p className="text-2xl font-extrabold text-destructive tabular-nums">{scores.totals.pending}</p>
+            <p className="text-[11px] text-muted-foreground mt-0.5">Pendentes</p>
           </div>
         </section>
 
