@@ -143,11 +143,14 @@ interface Props {
     rcloneTargets: string[]
     hasRcloneTargets: boolean
     pgDumpConfigured: boolean
+    pgDumpAvailable: boolean
+    rcloneAvailable: boolean
   }
   storageSyncEnv: {
     localPath: string
     targets: string[]
     hasTargets: boolean
+    rcloneAvailable: boolean
   }
   evolution: EvolutionSettings
   evolutionState: EvolutionState
@@ -406,7 +409,7 @@ export default function AdminSecurityIndex({
             label="Nuvem"
             value={backupEnv.hasRcloneTargets ? 'Configurada' : 'Pendente'}
             icon={Cloud}
-            hint={backupEnv.rcloneTargets.length ? backupEnv.rcloneTargets.join(', ') : 'Drive/Dropbox via rclone'}
+            hint={backupEnv.rcloneTargets.length ? backupEnv.rcloneTargets.join(', ') : 'R2/Drive/Dropbox via rclone'}
           />
           <StatCard
             label="R2 uploads"
@@ -508,12 +511,17 @@ export default function AdminSecurityIndex({
               </div>
               <div className="rounded-lg border border-border bg-muted/30 p-3">
                 <p className="font-semibold text-foreground">Banco de dados</p>
-                <Badge tone={backupEnv.pgDumpConfigured ? 'success' : 'warning'}>
-                  {backupEnv.pgDumpConfigured ? 'Variaveis configuradas' : 'Verificar variaveis DB_*'}
-                </Badge>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  <Badge tone={backupEnv.pgDumpConfigured ? 'success' : 'warning'}>
+                    {backupEnv.pgDumpConfigured ? 'Variaveis DB_* configuradas' : 'Verificar variaveis DB_*'}
+                  </Badge>
+                  <Badge tone={backupEnv.pgDumpAvailable ? 'success' : 'danger'}>
+                    {backupEnv.pgDumpAvailable ? 'pg_dump instalado' : 'pg_dump ausente'}
+                  </Badge>
+                </div>
               </div>
               <div className="rounded-lg border border-border bg-muted/30 p-3">
-                <p className="font-semibold text-foreground">Google Drive / Dropbox</p>
+                <p className="font-semibold text-foreground">R2 / Drive / Dropbox</p>
                 {backupEnv.rcloneTargets.length > 0 ? (
                   <div className="mt-2 flex flex-wrap gap-2">
                     {backupEnv.rcloneTargets.map((target) => (
@@ -525,14 +533,23 @@ export default function AdminSecurityIndex({
                 ) : (
                   <p className="mt-1 text-muted-foreground">
                     Configure BACKUP_RCLONE_TARGETS no servidor, por exemplo:
-                    gdrive:camara-sume,dropbox:camara-sume
+                    r2:camara-sume-backups,gdrive:camara-sume
                   </p>
                 )}
+                <div className="mt-2">
+                  <Badge tone={backupEnv.rcloneAvailable ? 'success' : 'warning'}>
+                    {backupEnv.rcloneAvailable ? 'rclone instalado' : 'rclone ausente no container'}
+                  </Badge>
+                </div>
               </div>
               <div className="rounded-lg border border-border bg-muted/30 p-3">
                 <p className="font-semibold text-foreground">Agendamento recomendado</p>
                 <p className="mt-1 text-muted-foreground">
                   Rodar <code className="rounded bg-card px-1.5 py-0.5">node ace backup:run</code> diariamente.
+                </p>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Retencao sugerida: local 7 a 14 dias; R2 diario 90 dias, semanal 12 meses e mensal 5 anos
+                  para acervo critico. O app nao apaga remoto automaticamente.
                 </p>
               </div>
             </div>
@@ -571,6 +588,11 @@ export default function AdminSecurityIndex({
                     Configure STORAGE_RCLONE_TARGETS ou R2_RCLONE_TARGET no servidor.
                   </p>
                 )}
+                <div className="mt-2">
+                  <Badge tone={storageSyncEnv.rcloneAvailable ? 'success' : 'warning'}>
+                    {storageSyncEnv.rcloneAvailable ? 'rclone instalado' : 'rclone ausente no container'}
+                  </Badge>
+                </div>
               </div>
               <div className="rounded-lg border border-border bg-muted/30 p-3">
                 <p className="font-semibold text-foreground">Agendamento recomendado</p>

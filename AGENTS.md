@@ -34,6 +34,17 @@ Portal institucional da **Câmara Municipal de Sumé (PB)**, reescrito do WordPr
   `migration:run --force` → `db:seed` → server. Import do WordPress só com
   `FORCE_WP_MIGRATE=true` (comando `wp:migrate`, idempotente).
 
+**Coolify / banco em produção (checado em 29/06/2026):**
+- A aplicação principal (`swkow0cwkscwk8ogo8sgwsck`) usa o PostgreSQL do serviço
+  Supabase/Coolify `supabase-db-ldnnyd5fd64huxqtewhsybwo`, com `DB_DATABASE`
+  `camara_sume`, `DB_USER` `postgres` e porta `5432`.
+- O PostgreSQL standalone `wksk0w4kgg8gkccs8ckkwwcw` / database `camara_portal`
+  é legado/paralelo. **Não remover ainda**: ele só pode ser descartado depois de
+  uma conferência final de dados antigos contra o Supabase, sem expor senhas nos
+  logs ou na documentação.
+- O `Dockerfile` de produção instala `postgresql-client` (`pg_dump`) e `rclone`;
+  a tela `/painel/seguranca` mostra se esses binários estão disponíveis.
+
 **Pastas:** `app/` (controllers, models, services, helpers), `inertia/`
 (pages, components, layouts, lib, hooks, css), `start/` (routes, kernel,
 legacy_redirects), `database/migrations`, `config/`, `public/`, `.acervo/plugins`
@@ -128,7 +139,9 @@ Biblioteca de Mídia, Aparência (**em abas**: Tema/Campanhas · Modelo & Layout
 Cores · Identidade/logos · **Notícias** (modelo de card: `news_layout` =
 mosaico/grade/lista/destaque) · Rodapé & Contato), Menus do Site,
 Feriados, Selos, Links Rápidos, Categorias, Fotos da Cidade.
-**Sistema:** Usuários, Papéis e Permissões (RBAC), **Seguranca e Backups**
+**Sistema:** Usuários, Papéis e Permissões (RBAC; papel **Publicador** com
+Notícias/Publicações, Atas e Pautas, sem usuários/papéis/segurança/backups),
+**Seguranca e Backups**
 (firewall de aplicacao, auditoria de eventos, backup local/envio via rclone e
 alertas WhatsApp via Evolution API).
 
@@ -185,9 +198,14 @@ em Números, Diário, Instagram, Conheça Sumé, Certificações, Pesquisa) → 
   de IP e bloqueio por trechos de URL. Eventos ficam em `security_events`.
 - **Backups:** `node ace backup:run` gera dump do PostgreSQL (`pg_dump`) e pacote do
   site (`site.tar.gz`) em `storage/backups` ou `BACKUP_LOCAL_DIR`. Envio para
-  Google Drive/Dropbox usa `rclone` configurado no servidor via
-  `BACKUP_RCLONE_TARGETS` (ex.: `gdrive:camara-sume,dropbox:camara-sume`).
-  Historico das execucoes fica em `backup_runs`.
+  R2/Drive/Dropbox usa `rclone` configurado no servidor via
+  `BACKUP_RCLONE_TARGETS` (ex.: `r2:camara-sume-backups,gdrive:camara-sume`).
+  Historico das execucoes fica em `backup_runs`; a execução fica **partial** se o
+  dump do banco falhar, mesmo que o pacote do site exista. No primeiro momento,
+  **não apagar remoto automaticamente**. Retenção recomendada: local/Coolify 7 a
+  14 dias; R2 diário 90 dias; semanal 12 meses; mensal 5 anos para acervo crítico.
+  A retenção longa deve ser feita por lifecycle no Cloudflare R2, não por exclusão
+  automática agressiva no app.
 - **Alertas WhatsApp (Evolution API):** `/painel/seguranca` configura URL da
   Evolution, instancia, API key, numeros destinatarios, mensagem do relatorio e
   gatilhos (login suspeito, bloqueio de firewall e falha/parcial de backup). O
@@ -217,7 +235,10 @@ em Números, Diário, Instagram, Conheça Sumé, Certificações, Pesquisa) → 
   também expõe unidade responsável, autoridade de monitoramento, contato e prazos
   da LAI; esses campos são editáveis em Aparência → E-SIC.
 - **Modal de links da transparência:** `/transparencia/:slug` (deep-link) abre o
-  conteúdo configurado; links internos escondem header/rodapé (`?embed=1`).
+  conteúdo configurado; links internos escondem header/rodapé (`?embed=1`). O
+  frontend também aceita hashes antigos do WordPress (`/transparencia/#ldo`):
+  normaliza slug/título/seção, abre o link/modal correspondente e usa a URL nova
+  quando houver slug.
 - **SEO:** `SeoController` (sitemap.xml, robots.txt), `SeoHead`.
 - **Campanhas/temas/layout:** ver §3.
 
@@ -256,6 +277,14 @@ em Números, Diário, Instagram, Conheça Sumé, Certificações, Pesquisa) → 
 
 **Funcionalidades**
 - [x] **Agenda/calendário de sessões** (página `/agenda` + export ICS em `/agenda.ics`).
+- [x] **Lixeira real** nos módulos com `deleted_at` prioritários: Notícias, Atas,
+      Pautas, Atividades Legislativas, Publicações Oficiais, Páginas, FAQ, Acesso
+      à Informação, Sessões, Votações Nominais e Biblioteca de Mídia. `destroy`
+      deve usar `TrashService`; mídia não apaga o arquivo físico no soft delete.
+- [x] **Compatibilidade WordPress da Transparência:** hashes antigos
+      `/transparencia/#slug` resolvidos no frontend.
+- [x] **RBAC Publicador:** permissões granulares `ata.ver/criar/editar/excluir` e
+      `pauta.ver/criar/editar/excluir`, papel Publicador sem permissões de sistema.
 - [ ] **Transmissão ao vivo** das sessões (campo YouTube na sessão → banner "AO
       VIVO" + vídeo na ata). Integração com o **sistema de votação próprio** via
       **API** (a especificar).
@@ -284,6 +313,14 @@ em Números, Diário, Instagram, Conheça Sumé, Certificações, Pesquisa) → 
 - [ ] **Avisos de licitação** (definir formato com o cliente: mural de abertas /
       tipo de conteúdo novo / aba).
 - [ ] **QR Code** em páginas de detalhe (publicações, atas, vereador, transparência).
+- [ ] **Upload PDF restante:** sessões e duodécimos ainda precisam de campo de
+      upload direto onde hoje dependerem de URL; manter validação por assinatura.
+- [ ] **Modo eleitoral:** criar configuração `election_mode_enabled`,
+      `election_start`, `election_end`, `election_message` e ocultar conteúdo
+      institucional promocional no período, mantendo transparência/atos oficiais.
+- [ ] **PNTP/admin:** passar uma rodada visual dedicada no painel de Acesso à
+      Informação para aproximar ainda mais do plugin PNTP original, com preview
+      modal/exportações no painel se necessário.
 
 **Qualidade**
 - [x] Container padrão único (1480px + padding responsivo de 24px a 48px), conteúdo alinhado ao breadcrumb em todas

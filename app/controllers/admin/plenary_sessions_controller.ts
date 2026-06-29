@@ -4,6 +4,7 @@ import SystemCategory from '#models/system_category'
 import { sessionSlug } from '#helpers/slug'
 import { sanitizeRichHtml } from '#helpers/sanitize_html'
 import { normalizeSafeWebUrl } from '#helpers/safe_url'
+import TrashService from '#services/trash_service'
 
 export default class PlenarySessionsController {
   async index({ inertia, request }: HttpContext) {
@@ -11,7 +12,7 @@ export default class PlenarySessionsController {
     const year = request.input('year', '')
     const type = request.input('type', '')
 
-    let query = PlenarySession.query().orderBy('session_date', 'desc')
+    let query = PlenarySession.query().whereNull('deleted_at').orderBy('session_date', 'desc')
     if (year) query = query.where('year', year)
     if (type) query = query.where('type', type)
 
@@ -113,10 +114,14 @@ export default class PlenarySessionsController {
     return response.redirect().toPath('/painel/sessoes')
   }
 
-  async destroy({ params, response, session }: HttpContext) {
+  async destroy(ctx: HttpContext) {
+    const { params, response, session } = ctx
     const plenarySession = await PlenarySession.findOrFail(params.id)
-    await plenarySession.delete()
-    session.flash('success', 'Sessão excluída com sucesso!')
+    await TrashService.moveToTrash(plenarySession, ctx, {
+      displayName: plenarySession.title,
+      resource: 'sessao',
+    })
+    session.flash('success', 'Sessão movida para a lixeira.')
     return response.redirect().toPath('/painel/sessoes')
   }
 }

@@ -4,7 +4,7 @@ import Role from '#models/role'
 import User from '#models/user'
 import db from '@adonisjs/lucid/services/db'
 
-const PERMISSIONS: { name: string; label: string; module: string }[] = [
+export const PERMISSIONS: { name: string; label: string; module: string }[] = [
   { name: 'noticia.criar', label: 'Criar notícias', module: 'Notícias' },
   { name: 'noticia.editar', label: 'Editar notícias', module: 'Notícias' },
   { name: 'noticia.publicar', label: 'Publicar notícias', module: 'Notícias' },
@@ -18,7 +18,15 @@ const PERMISSIONS: { name: string; label: string; module: string }[] = [
   { name: 'atividade.gerenciar', label: 'Atividades legislativas', module: 'Legislativo' },
   { name: 'sessao.gerenciar', label: 'Sessões, atas e pautas', module: 'Legislativo' },
   { name: 'ata.gerenciar', label: 'Atas', module: 'Legislativo' },
+  { name: 'ata.ver', label: 'Ver atas', module: 'Legislativo' },
+  { name: 'ata.criar', label: 'Criar atas', module: 'Legislativo' },
+  { name: 'ata.editar', label: 'Editar atas', module: 'Legislativo' },
+  { name: 'ata.excluir', label: 'Excluir atas', module: 'Legislativo' },
   { name: 'pauta.gerenciar', label: 'Pautas', module: 'Legislativo' },
+  { name: 'pauta.ver', label: 'Ver pautas', module: 'Legislativo' },
+  { name: 'pauta.criar', label: 'Criar pautas', module: 'Legislativo' },
+  { name: 'pauta.editar', label: 'Editar pautas', module: 'Legislativo' },
+  { name: 'pauta.excluir', label: 'Excluir pautas', module: 'Legislativo' },
   { name: 'votacao.gerenciar', label: 'Votações nominais', module: 'Legislativo' },
   { name: 'publicacao.gerenciar', label: 'Publicações oficiais', module: 'Legislativo' },
   { name: 'transparencia.gerenciar', label: 'Portal da transparência', module: 'Transparência' },
@@ -35,7 +43,7 @@ const PERMISSIONS: { name: string; label: string; module: string }[] = [
   { name: 'usuario.gerenciar', label: 'Usuários e papéis', module: 'Administração' },
 ]
 
-const ROLES: {
+export const ROLES: {
   name: string
   slug: string
   description: string
@@ -82,7 +90,17 @@ const ROLES: {
     name: 'Gestor de Sessões',
     slug: 'gestor-sessoes',
     description: 'Gerencia sessões plenárias, atas e pautas.',
-    permissions: ['sessao.gerenciar'],
+    permissions: [
+      'sessao.gerenciar',
+      'ata.ver',
+      'ata.criar',
+      'ata.editar',
+      'ata.excluir',
+      'pauta.ver',
+      'pauta.criar',
+      'pauta.editar',
+      'pauta.excluir',
+    ],
   },
   {
     name: 'Editor',
@@ -99,10 +117,38 @@ const ROLES: {
       'atividade.gerenciar',
       'publicacao.gerenciar',
       'sessao.gerenciar',
+      'ata.ver',
+      'ata.criar',
+      'ata.editar',
+      'ata.excluir',
+      'pauta.ver',
+      'pauta.criar',
+      'pauta.editar',
+      'pauta.excluir',
       'votacao.gerenciar',
       'licitacao.gerenciar',
       'transparencia.gerenciar',
       'pntp.gerenciar',
+    ],
+  },
+  {
+    name: 'Publicador',
+    slug: 'publicador',
+    description: 'Publica notícias, publicações oficiais, atas e pautas sem acesso administrativo.',
+    permissions: [
+      'noticia.criar',
+      'noticia.editar',
+      'noticia.publicar',
+      'noticia.excluir',
+      'publicacao.gerenciar',
+      'ata.ver',
+      'ata.criar',
+      'ata.editar',
+      'ata.excluir',
+      'pauta.ver',
+      'pauta.criar',
+      'pauta.editar',
+      'pauta.excluir',
     ],
   },
 ]

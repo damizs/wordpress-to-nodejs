@@ -16,6 +16,7 @@ import { cuid } from '@adonisjs/core/helpers'
 import { mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 import { existsSync } from 'node:fs'
+import TrashService from '#services/trash_service'
 
 export default class LegislativeActivitiesController {
   private async councilorOptions() {
@@ -69,7 +70,10 @@ export default class LegislativeActivitiesController {
     const origin = request.input('origin', '')
     const search = request.input('search', '')
 
-    let query = LegislativeActivity.query().orderBy('year', 'desc').orderBy('created_at', 'desc')
+    let query = LegislativeActivity.query()
+      .whereNull('deleted_at')
+      .orderBy('year', 'desc')
+      .orderBy('created_at', 'desc')
     if (type) query = query.where('type', type)
     if (year) query = query.where('year', Number.parseInt(year))
     if (origin) query = query.where('origin', normalizeLegislativeOrigin(origin))
@@ -81,8 +85,8 @@ export default class LegislativeActivitiesController {
       })
 
     const activities = await query.paginate(page, 20)
-    const types = await LegislativeActivity.query().distinct('type').orderBy('type')
-    const years = await LegislativeActivity.query().distinct('year').orderBy('year', 'desc')
+    const types = await LegislativeActivity.query().whereNull('deleted_at').distinct('type').orderBy('type')
+    const years = await LegislativeActivity.query().whereNull('deleted_at').distinct('year').orderBy('year', 'desc')
 
     return inertia.render('admin/activities/index', {
       activities: activities.serialize(),
@@ -161,6 +165,7 @@ export default class LegislativeActivitiesController {
   async edit({ params, inertia }: HttpContext) {
     const activity = await LegislativeActivity.query()
       .where('id', params.id)
+      .whereNull('deleted_at')
       .preload('authors')
       .firstOrFail()
     return inertia.render('admin/activities/form', {
@@ -234,10 +239,14 @@ export default class LegislativeActivitiesController {
     return response.redirect().toPath('/painel/atividades')
   }
 
-  async destroy({ params, response, session }: HttpContext) {
+  async destroy(ctx: HttpContext) {
+    const { params, response, session } = ctx
     const activity = await LegislativeActivity.findOrFail(params.id)
-    await activity.delete()
-    session.flash('success', 'Atividade legislativa excluída!')
+    await TrashService.moveToTrash(activity, ctx, {
+      displayName: activity.title || activity.summary,
+      resource: 'atividade_legislativa',
+    })
+    session.flash('success', 'Atividade legislativa movida para a lixeira.')
     return response.redirect().toPath('/painel/atividades')
   }
 }

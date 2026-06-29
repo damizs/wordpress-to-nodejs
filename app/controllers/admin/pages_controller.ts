@@ -3,6 +3,7 @@ import { DateTime } from 'luxon'
 import Page, { type PageBlock } from '#models/page'
 import { generateSlug } from '#helpers/slug'
 import { sanitizeRichHtml, sanitizePlainText } from '#helpers/sanitize_html'
+import TrashService from '#services/trash_service'
 
 /**
  * Slugs que nunca podem ser usados por uma Página: colidem com rotas
@@ -157,7 +158,7 @@ export default class PagesController {
     const page = request.input('page', 1)
     const search = request.input('search', '')
 
-    let query = Page.query().orderBy('updated_at', 'desc')
+    let query = Page.query().whereNull('deleted_at').orderBy('updated_at', 'desc')
     if (search) {
       query = query.where((q) => {
         q.whereILike('title', `%${search}%`).orWhereILike('slug', `%${search}%`)
@@ -227,10 +228,14 @@ export default class PagesController {
     return response.redirect('/painel/paginas')
   }
 
-  async destroy({ params, response, session }: HttpContext) {
+  async destroy(ctx: HttpContext) {
+    const { params, response, session } = ctx
     const page = await Page.findOrFail(params.id)
-    await page.delete()
-    session.flash('success', 'Página excluída!')
+    await TrashService.moveToTrash(page, ctx, {
+      displayName: page.title,
+      resource: 'pagina',
+    })
+    session.flash('success', 'Página movida para a lixeira.')
     return response.redirect('/painel/paginas')
   }
 
@@ -267,7 +272,7 @@ export default class PagesController {
     } else if (RESERVED_SLUGS.has(slug)) {
       errors.slug = `O slug "${slug}" é reservado por uma rota do portal. Escolha outro.`
     } else {
-      let existsQuery = Page.query().where('slug', slug)
+      let existsQuery = Page.query().where('slug', slug).whereNull('deleted_at')
       if (ignoreId) existsQuery = existsQuery.whereNot('id', ignoreId)
       if (await existsQuery.first()) {
         errors.slug = `Já existe uma página com o slug "${slug}".`

@@ -76,6 +76,21 @@ function normalize(text: string) {
   return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
+function decodeHash(value: string) {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return value;
+  }
+}
+
+function normalizeLegacySlug(text: string) {
+  return normalize(decodeHash(text).trim())
+    .replace(/&/g, " e ")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
 function isRevenueLink(link: TransparencyLink) {
   return normalize(link.title).includes("receita");
 }
@@ -121,10 +136,10 @@ function splitRevenueAndExpenseSections(sections: TransparencySection[]) {
 
 function CardLink({
   link,
-  onOpenModal,
+  onOpenLink,
 }: {
   link: TransparencyLink;
-  onOpenModal: (link: TransparencyLink) => void;
+  onOpenLink: (link: TransparencyLink) => void;
 }) {
   const Icon = pickLinkIcon(link);
   const className =
@@ -144,9 +159,9 @@ function CardLink({
       )}
     </>
   );
-  if (link.slug) {
+  if (link.slug && link.open_mode === "modal") {
     return (
-      <button type="button" onClick={() => onOpenModal(link)} className={className}>
+      <button type="button" onClick={() => onOpenLink(link)} className={className}>
         {inner}
       </button>
     );
@@ -170,6 +185,7 @@ export default function TransparenciaIndex({ sections = [], openLink = null }: P
   const [activeSection, setActiveSection] = useState<string | null>(
     displaySections[0]?.slug ?? null
   );
+  const allLinks = useMemo(() => displaySections.flatMap((section) => section.links), [displaySections]);
 
   // Deep-link: a prop openLink (rota /transparencia/<slug>) controla o modal —
   // também cobre voltar/avançar do navegador entre /transparencia e o slug.
@@ -192,6 +208,21 @@ export default function TransparenciaIndex({ sections = [], openLink = null }: P
     }
   }, []);
 
+  const openLinkTarget = useCallback(
+    (link: TransparencyLink) => {
+      if (link.slug && link.open_mode === "modal") {
+        openModal(link);
+        return;
+      }
+      if (link.is_external) {
+        window.open(link.url, "_blank", "noopener,noreferrer");
+        return;
+      }
+      router.visit(link.url, { preserveScroll: true, preserveState: true });
+    },
+    [openModal]
+  );
+
   /** Fecha o modal e devolve a URL para /transparencia */
   const closeModal = useCallback(() => {
     setModalLink(null);
@@ -200,20 +231,52 @@ export default function TransparenciaIndex({ sections = [], openLink = null }: P
     }
   }, []);
 
-  // Compatibilidade com as URLs antigas do WordPress: /transparencia/#ldo.
-  // O hash NÃO é enviado ao servidor, então resolvemos no cliente — se o slug
-  // do hash casar um link existente, abre o mesmo conteúdo de /transparencia/<slug>.
+  // Compatibilidade com URLs antigas do WordPress, como /transparencia/#ldo.
+  // O hash nao chega ao backend, entao resolvemos no cliente por slug, titulo
+  // e secao. Hash de link modal vira a URL nova /transparencia/<slug>.
   useEffect(() => {
     if (typeof window === "undefined" || openLink) return;
-    const hash = window.location.hash.replace(/^#/, "").trim().toLowerCase();
-    if (!hash) return;
-    const link = displaySections.flatMap((s) => s.links).find((l) => l.slug === hash);
-    if (link) {
-      history.replaceState(null, "", "/transparencia");
-      openModal(link);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [displaySections, openModal]);
+
+    const handleLegacyHash = () => {
+      const hash = normalizeLegacySlug(window.location.hash.replace(/^#/, ""));
+      if (!hash) return;
+
+      const link = allLinks.find((candidate) => {
+        const candidates = [
+          candidate.slug,
+          candidate.title,
+          candidate.url.split("?")[0].split("#")[0].split("/").filter(Boolean).at(-1),
+        ]
+          .filter((value): value is string => Boolean(value))
+          .map(normalizeLegacySlug);
+
+        return candidates.includes(hash);
+      });
+
+      if (link) {
+        window.history.replaceState(null, "", "/transparencia");
+        openLinkTarget(link);
+        return;
+      }
+
+      const section = displaySections.find((candidate) =>
+        [candidate.slug, candidate.title].map(normalizeLegacySlug).includes(hash)
+      );
+      if (section) {
+        window.history.replaceState(null, "", "/transparencia");
+        setActiveSection(section.slug);
+        window.setTimeout(() => {
+          document
+            .getElementById(`secao-${section.slug}`)
+            ?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 0);
+      }
+    };
+
+    handleLegacyHash();
+    window.addEventListener("hashchange", handleLegacyHash);
+    return () => window.removeEventListener("hashchange", handleLegacyHash);
+  }, [allLinks, displaySections, openLink, openLinkTarget]);
 
   const filtered = useMemo(() => {
     const q = normalize(query.trim());
@@ -326,11 +389,11 @@ export default function TransparenciaIndex({ sections = [], openLink = null }: P
                         </a>
                         <div className="py-2 pl-11 pr-4">
                           {section.links.map((link) =>
-                            link.slug ? (
+                            link.slug && link.open_mode === "modal" ? (
                               <button
                                 key={link.id}
                                 type="button"
-                                onClick={() => openModal(link)}
+                                onClick={() => openLinkTarget(link)}
                                 className="block w-full text-left py-1.5 px-2 rounded-md text-[13px] text-muted-foreground transition-all hover:text-primary hover:bg-muted hover:pl-3"
                               >
                                 {link.title}
@@ -411,7 +474,7 @@ export default function TransparenciaIndex({ sections = [], openLink = null }: P
 
                         <div className="grid gap-3 sm:gap-4 2xl:gap-5 grid-cols-2 sm:grid-cols-[repeat(auto-fill,minmax(200px,1fr))] xl:grid-cols-[repeat(auto-fill,minmax(220px,1fr))] 2xl:grid-cols-[repeat(auto-fill,minmax(240px,1fr))]">
                           {section.links.map((link) => (
-                            <CardLink key={link.id} link={link} onOpenModal={openModal} />
+                            <CardLink key={link.id} link={link} onOpenLink={openLinkTarget} />
                           ))}
                         </div>
                       </section>

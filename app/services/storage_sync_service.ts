@@ -1,6 +1,6 @@
 import app from '@adonisjs/core/services/app'
 import { DateTime } from 'luxon'
-import { execFile as execFileCallback } from 'node:child_process'
+import { execFile as execFileCallback, execFileSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import { readdir, stat } from 'node:fs/promises'
 import { basename, join } from 'node:path'
@@ -18,6 +18,7 @@ interface StorageSyncEnvironmentStatus {
   localPath: string
   targets: string[]
   hasTargets: boolean
+  rcloneAvailable: boolean
 }
 
 function getRootPath() {
@@ -33,6 +34,15 @@ function getTargets() {
     .split(',')
     .map((target) => target.trim())
     .filter(Boolean)
+}
+
+function commandExists(command: string) {
+  try {
+    execFileSync('sh', ['-lc', `command -v ${command}`], { stdio: 'ignore' })
+    return true
+  } catch {
+    return false
+  }
 }
 
 function pushLog(logs: string[], message: string) {
@@ -77,6 +87,7 @@ export default class StorageSyncService {
       localPath: getLocalPath(),
       targets,
       hasTargets: targets.length > 0,
+      rcloneAvailable: commandExists('rclone'),
     }
   }
 

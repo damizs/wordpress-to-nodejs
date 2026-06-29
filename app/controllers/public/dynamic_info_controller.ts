@@ -51,7 +51,12 @@ export default class DynamicInfoController {
       .orderBy('year', 'desc')
       .orderBy('created_at', 'desc')
     if (year) query = query.where('year', year)
-    if (search) query = query.whereILike('title', `%${search}%`)
+    if (search) {
+      query = query.where((builder) => {
+        const term = `%${search}%`
+        builder.whereILike('title', term).orWhereILike('content', term)
+      })
+    }
 
     const records = await query.paginate(page, 50)
     const allCategories = await SystemCategory.byType('information_record')

@@ -1,7 +1,7 @@
 import app from '@adonisjs/core/services/app'
 import BackupRun, { type BackupProviderStatus } from '#models/backup_run'
 import { DateTime } from 'luxon'
-import { execFile as execFileCallback } from 'node:child_process'
+import { execFile as execFileCallback, execFileSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
 import { mkdir, readdir, stat, writeFile } from 'node:fs/promises'
 import { basename, join } from 'node:path'
@@ -18,6 +18,8 @@ interface BackupEnvironmentStatus {
   rcloneTargets: string[]
   hasRcloneTargets: boolean
   pgDumpConfigured: boolean
+  pgDumpAvailable: boolean
+  rcloneAvailable: boolean
 }
 
 const SOURCE_PATHS = [
@@ -50,6 +52,15 @@ function getRcloneTargets() {
     .split(',')
     .map((target) => target.trim())
     .filter(Boolean)
+}
+
+function commandExists(command: string) {
+  try {
+    execFileSync('sh', ['-lc', `command -v ${command}`], { stdio: 'ignore' })
+    return true
+  } catch {
+    return false
+  }
 }
 
 function pushLog(logs: string[], message: string) {
@@ -169,6 +180,8 @@ export default class BackupService {
       rcloneTargets,
       hasRcloneTargets: rcloneTargets.length > 0,
       pgDumpConfigured: Boolean(process.env.DB_HOST && process.env.DB_USER && process.env.DB_DATABASE),
+      pgDumpAvailable: commandExists('pg_dump'),
+      rcloneAvailable: commandExists('rclone'),
     }
   }
 
@@ -226,8 +239,9 @@ export default class BackupService {
 
       const sizeBytes = await pathSize(backupDir)
       const hasCloudFailure = providers.some((provider) => provider.status === 'failed')
+      const hasDatabaseFailure = !databasePath
       const hasLocalBackup = Boolean(databasePath || uploadsPath)
-      const status = !hasLocalBackup ? 'failed' : hasCloudFailure ? 'partial' : 'success'
+      const status = !hasLocalBackup || hasDatabaseFailure ? (hasLocalBackup ? 'partial' : 'failed') : hasCloudFailure ? 'partial' : 'success'
 
       run.merge({
         status,
@@ -238,7 +252,12 @@ export default class BackupService {
         sizeBytes,
         providers,
         logs: logs.join('\n'),
-        error: status === 'failed' ? 'Nenhum artefato local foi gerado.' : null,
+        error:
+          status === 'failed'
+            ? 'Nenhum artefato local foi gerado.'
+            : hasDatabaseFailure
+              ? 'Dump do banco nao foi gerado.'
+              : null,
       })
       await run.save()
       await notifyBackupIssue(run)

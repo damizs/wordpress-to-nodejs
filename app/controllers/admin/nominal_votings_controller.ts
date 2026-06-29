@@ -5,6 +5,7 @@ import PlenarySession from '#models/plenary_session'
 import LegislativeActivity from '#models/legislative_activity'
 import Councilor from '#models/councilor'
 import VoteExtractorService from '#services/vote_extractor_service'
+import TrashService from '#services/trash_service'
 
 const VALID_VOTES = ['sim', 'nao', 'abstencao', 'ausente', 'nao_votou']
 const VALID_RESULTS = ['aprovado', 'rejeitado', 'retirado', 'adiado', 'outro']
@@ -66,13 +67,14 @@ export default class NominalVotingsController {
     const year = request.input('year', '')
 
     let query = NominalVoting.query()
+      .whereNull('deleted_at')
       .preload('entries')
       .preload('plenarySession')
       .orderBy('voting_date', 'desc')
     if (year) query = query.where('year', year)
 
     const votings = await query.paginate(page, 20)
-    const yearRows = await NominalVoting.query().distinct('year').orderBy('year', 'desc')
+    const yearRows = await NominalVoting.query().whereNull('deleted_at').distinct('year').orderBy('year', 'desc')
 
     return inertia.render('admin/votacoes/index', {
       votings: {
@@ -224,10 +226,14 @@ export default class NominalVotingsController {
     return response.redirect().toPath('/painel/votacoes')
   }
 
-  async destroy({ params, response, session }: HttpContext) {
+  async destroy(ctx: HttpContext) {
+    const { params, response, session } = ctx
     const voting = await NominalVoting.findOrFail(params.id)
-    await voting.delete()
-    session.flash('success', 'Votação excluída com sucesso!')
+    await TrashService.moveToTrash(voting, ctx, {
+      displayName: voting.title,
+      resource: 'votacao_nominal',
+    })
+    session.flash('success', 'Votação movida para a lixeira.')
     return response.redirect().toPath('/painel/votacoes')
   }
 

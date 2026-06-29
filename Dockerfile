@@ -27,8 +27,9 @@ RUN npm ci --omit=dev
 
 COPY --from=builder /app/build ./
 
-# Install curl for asset downloads, ImageMagick for resizing, jpegoptim/optipng for compression, libwebp for WebP
-RUN apk add --no-cache curl imagemagick jpegoptim optipng libwebp-tools
+# Install runtime tools: curl for asset downloads, ImageMagick/jpegoptim/optipng/libwebp for media,
+# postgresql-client for pg_dump backups and rclone for R2/Drive/Dropbox sync.
+RUN apk add --no-cache curl imagemagick jpegoptim optipng libwebp-tools postgresql-client rclone
 
 # Ensure uploads directory exists for volume mount
 RUN mkdir -p /app/public/uploads

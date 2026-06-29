@@ -9,6 +9,7 @@ import { join } from 'node:path'
 import { existsSync } from 'node:fs'
 import { sanitizeRichHtml } from '#helpers/sanitize_html'
 import { assertSafeUpload } from '#helpers/upload_security'
+import TrashService from '#services/trash_service'
 
 export default class PautasController {
   async index({ inertia, request }: HttpContext) {
@@ -16,12 +17,12 @@ export default class PautasController {
     const year = request.input('year', '')
     const type = request.input('type', '')
 
-    let query = Pauta.query().orderBy('document_date', 'desc')
+    let query = Pauta.query().whereNull('deleted_at').orderBy('document_date', 'desc')
     if (year) query = query.where('year', year)
     if (type) query = query.where('type', type)
 
     const pautas = await query.paginate(page, 20)
-    const yearRows = await Pauta.query().distinct('year').orderBy('year', 'desc')
+    const yearRows = await Pauta.query().whereNull('deleted_at').distinct('year').orderBy('year', 'desc')
 
     return inertia.render('admin/pautas/index', {
       pautas: pautas.serialize(),
@@ -69,10 +70,14 @@ export default class PautasController {
     return response.redirect().toPath('/painel/pautas')
   }
 
-  async destroy({ params, response, session }: HttpContext) {
+  async destroy(ctx: HttpContext) {
+    const { params, response, session } = ctx
     const pauta = await Pauta.findOrFail(params.id)
-    await pauta.delete()
-    session.flash('success', 'Pauta excluída com sucesso!')
+    await TrashService.moveToTrash(pauta, ctx, {
+      displayName: pauta.title,
+      resource: 'pauta',
+    })
+    session.flash('success', 'Pauta movida para a lixeira.')
     return response.redirect().toPath('/painel/pautas')
   }
 
@@ -104,7 +109,7 @@ export default class PautasController {
   private async uniqueSlug(base: string): Promise<string> {
     let slug = base || `pauta-${cuid()}`
     let n = 2
-    while (await Pauta.findBy('slug', slug)) {
+    while (await Pauta.query().where('slug', slug).whereNull('deleted_at').first()) {
       slug = `${base}-${n++}`
     }
     return slug

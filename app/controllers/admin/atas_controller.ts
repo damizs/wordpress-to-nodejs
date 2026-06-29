@@ -9,6 +9,7 @@ import { join } from 'node:path'
 import { existsSync } from 'node:fs'
 import { sanitizeRichHtml } from '#helpers/sanitize_html'
 import { assertSafeUpload } from '#helpers/upload_security'
+import TrashService from '#services/trash_service'
 
 export default class AtasController {
   async index({ inertia, request }: HttpContext) {
@@ -16,12 +17,12 @@ export default class AtasController {
     const year = request.input('year', '')
     const type = request.input('type', '')
 
-    let query = Ata.query().orderBy('document_date', 'desc')
+    let query = Ata.query().whereNull('deleted_at').orderBy('document_date', 'desc')
     if (year) query = query.where('year', year)
     if (type) query = query.where('type', type)
 
     const atas = await query.paginate(page, 20)
-    const yearRows = await Ata.query().distinct('year').orderBy('year', 'desc')
+    const yearRows = await Ata.query().whereNull('deleted_at').distinct('year').orderBy('year', 'desc')
 
     return inertia.render('admin/atas/index', {
       atas: atas.serialize(),
@@ -69,10 +70,14 @@ export default class AtasController {
     return response.redirect().toPath('/painel/atas')
   }
 
-  async destroy({ params, response, session }: HttpContext) {
+  async destroy(ctx: HttpContext) {
+    const { params, response, session } = ctx
     const ata = await Ata.findOrFail(params.id)
-    await ata.delete()
-    session.flash('success', 'Ata excluída com sucesso!')
+    await TrashService.moveToTrash(ata, ctx, {
+      displayName: ata.title,
+      resource: 'ata',
+    })
+    session.flash('success', 'Ata movida para a lixeira.')
     return response.redirect().toPath('/painel/atas')
   }
 
@@ -104,7 +109,7 @@ export default class AtasController {
   private async uniqueSlug(base: string): Promise<string> {
     let slug = base || `ata-${cuid()}`
     let n = 2
-    while (await Ata.findBy('slug', slug)) {
+    while (await Ata.query().where('slug', slug).whereNull('deleted_at').first()) {
       slug = `${base}-${n++}`
     }
     return slug

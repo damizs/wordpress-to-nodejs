@@ -8,6 +8,7 @@ import { join, extname, relative, resolve, isAbsolute, sep } from 'node:path'
 import { existsSync } from 'node:fs'
 import { isOptimizableImage, saveOptimizedImage } from '#helpers/image_upload'
 import { assertSafeUpload } from '#helpers/upload_security'
+import TrashService from '#services/trash_service'
 
 const UPLOAD_OPTIONS = {
   size: '20mb',
@@ -144,7 +145,7 @@ export default class MediaController {
     } | null = null
 
     if (tab === 'library') {
-      const query = MediaFile.query().orderBy('created_at', 'desc')
+      const query = MediaFile.query().whereNull('deleted_at').orderBy('created_at', 'desc')
 
       if (type === 'image') {
         query.whereILike('mime_type', 'image/%')
@@ -164,7 +165,7 @@ export default class MediaController {
 
       // Mapa url -> id dos registros rastreados na biblioteca.
       const trackedById = new Map<string, number>()
-      const records = await MediaFile.query().select('id', 'url')
+      const records = await MediaFile.query().whereNull('deleted_at').select('id', 'url')
       for (const record of records) {
         if (record.url) trackedById.set(record.url, record.id)
       }
@@ -309,22 +310,18 @@ export default class MediaController {
     return response.json({ files: saved })
   }
 
-  /** Apaga registro e tenta remover o arquivo físico */
-  async destroy({ params, response, session }: HttpContext) {
+  /** Move o registro para a lixeira; o arquivo físico fica preservado para restauração. */
+  async destroy(ctx: HttpContext) {
+    const { params, response, session } = ctx
     const media = await MediaFile.findOrFail(params.id)
 
-    if (media.url) {
-      const filePath = join(app.publicPath(), media.url)
-      try {
-        if (existsSync(filePath)) await unlink(filePath)
-      } catch (error) {
-        console.error('Error deleting media file from disk:', error)
-      }
-    }
+    await TrashService.moveToTrash(media, ctx, {
+      displayName: media.filename,
+      resource: 'midia',
+      metadata: { url: media.url },
+    })
 
-    await media.delete()
-
-    session.flash('success', 'Arquivo excluído!')
+    session.flash('success', 'Arquivo movido para a lixeira.')
     return response.redirect().back()
   }
 

@@ -9,6 +9,7 @@ import { join } from 'node:path'
 import { existsSync } from 'node:fs'
 import { sanitizeRichHtml } from '#helpers/sanitize_html'
 import { assertSafeUpload } from '#helpers/upload_security'
+import TrashService from '#services/trash_service'
 
 export default class InformationRecordsController {
   /**
@@ -30,7 +31,12 @@ export default class InformationRecordsController {
         .where('is_active', true)
         .orderBy('display_order', 'asc')
         .orderBy('name', 'asc'),
-      db.from('information_records').select('category').count('* as total').groupBy('category'),
+      db
+        .from('information_records')
+        .whereNull('deleted_at')
+        .select('category')
+        .count('* as total')
+        .groupBy('category'),
     ])
     const countBySlug = new Map<string, number>(
       countRows.map((r: any) => [String(r.category), Number(r.total)])
@@ -76,12 +82,14 @@ export default class InformationRecordsController {
       const yearRows = await db
         .from('information_records')
         .where('category', category)
+        .whereNull('deleted_at')
         .distinct('year')
         .orderBy('year', 'desc')
       years = yearRows.map((r: any) => Number(r.year)).filter(Boolean)
 
       let query = InformationRecord.query()
         .where('category', category)
+        .whereNull('deleted_at')
         .orderBy('year', 'desc')
         .orderBy('created_at', 'desc')
       if (year) query = query.where('year', year)
@@ -206,11 +214,16 @@ export default class InformationRecordsController {
     return response.redirect().toPath(categoryPath(record.category))
   }
 
-  async destroy({ params, response, session }: HttpContext) {
+  async destroy(ctx: HttpContext) {
+    const { params, response, session } = ctx
     const record = await InformationRecord.findOrFail(params.id)
     const category = record.category
-    await record.delete()
-    session.flash('success', 'Registro excluído com sucesso!')
+    await TrashService.moveToTrash(record, ctx, {
+      displayName: record.title,
+      resource: 'acesso_informacao',
+      metadata: { category },
+    })
+    session.flash('success', 'Registro movido para a lixeira.')
     return response.redirect().toPath(categoryPath(category))
   }
 }

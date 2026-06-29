@@ -9,13 +9,14 @@ import { join } from 'node:path'
 import { existsSync } from 'node:fs'
 import { sanitizeRichHtml } from '#helpers/sanitize_html'
 import { assertSafeUpload } from '#helpers/upload_security'
+import TrashService from '#services/trash_service'
 
 export default class OfficialPublicationsController {
   async index({ inertia, request }: HttpContext) {
     const page = request.input('page', 1)
     const type = request.input('type', '')
 
-    let query = OfficialPublication.query().orderBy('publication_date', 'desc')
+    let query = OfficialPublication.query().whereNull('deleted_at').orderBy('publication_date', 'desc')
     if (type) query = query.where('type', type)
 
     const publications = await query.paginate(page, 20)
@@ -98,10 +99,14 @@ export default class OfficialPublicationsController {
     return response.redirect().toPath('/painel/publicacoes')
   }
 
-  async destroy({ params, response, session }: HttpContext) {
+  async destroy(ctx: HttpContext) {
+    const { params, response, session } = ctx
     const publication = await OfficialPublication.findOrFail(params.id)
-    await publication.delete()
-    session.flash('success', 'Publicação excluída com sucesso!')
+    await TrashService.moveToTrash(publication, ctx, {
+      displayName: publication.title,
+      resource: 'publicacao_oficial',
+    })
+    session.flash('success', 'Publicação movida para a lixeira.')
     return response.redirect().toPath('/painel/publicacoes')
   }
 }

@@ -346,28 +346,42 @@ router
       .use(middleware.can(['sessao.gerenciar']))
 
     // Atas (módulo independente)
+    router.get('/atas', [AdminAtasController, 'index']).use(middleware.can(['ata.gerenciar', 'ata.ver']))
     router
-      .group(() => {
-        router.get('/atas', [AdminAtasController, 'index'])
-        router.get('/atas/criar', [AdminAtasController, 'create'])
-        router.post('/atas', [AdminAtasController, 'store'])
-        router.get('/atas/:id/editar', [AdminAtasController, 'edit'])
-        router.put('/atas/:id', [AdminAtasController, 'update'])
-        router.delete('/atas/:id', [AdminAtasController, 'destroy'])
-      })
-      .use(middleware.can(['ata.gerenciar']))
+      .get('/atas/criar', [AdminAtasController, 'create'])
+      .use(middleware.can(['ata.gerenciar', 'ata.criar']))
+    router
+      .post('/atas', [AdminAtasController, 'store'])
+      .use(middleware.can(['ata.gerenciar', 'ata.criar']))
+    router
+      .get('/atas/:id/editar', [AdminAtasController, 'edit'])
+      .use(middleware.can(['ata.gerenciar', 'ata.editar']))
+    router
+      .put('/atas/:id', [AdminAtasController, 'update'])
+      .use(middleware.can(['ata.gerenciar', 'ata.editar']))
+    router
+      .delete('/atas/:id', [AdminAtasController, 'destroy'])
+      .use(middleware.can(['ata.gerenciar', 'ata.excluir']))
 
     // Pautas (módulo independente)
     router
-      .group(() => {
-        router.get('/pautas', [AdminPautasController, 'index'])
-        router.get('/pautas/criar', [AdminPautasController, 'create'])
-        router.post('/pautas', [AdminPautasController, 'store'])
-        router.get('/pautas/:id/editar', [AdminPautasController, 'edit'])
-        router.put('/pautas/:id', [AdminPautasController, 'update'])
-        router.delete('/pautas/:id', [AdminPautasController, 'destroy'])
-      })
-      .use(middleware.can(['pauta.gerenciar']))
+      .get('/pautas', [AdminPautasController, 'index'])
+      .use(middleware.can(['pauta.gerenciar', 'pauta.ver']))
+    router
+      .get('/pautas/criar', [AdminPautasController, 'create'])
+      .use(middleware.can(['pauta.gerenciar', 'pauta.criar']))
+    router
+      .post('/pautas', [AdminPautasController, 'store'])
+      .use(middleware.can(['pauta.gerenciar', 'pauta.criar']))
+    router
+      .get('/pautas/:id/editar', [AdminPautasController, 'edit'])
+      .use(middleware.can(['pauta.gerenciar', 'pauta.editar']))
+    router
+      .put('/pautas/:id', [AdminPautasController, 'update'])
+      .use(middleware.can(['pauta.gerenciar', 'pauta.editar']))
+    router
+      .delete('/pautas/:id', [AdminPautasController, 'destroy'])
+      .use(middleware.can(['pauta.gerenciar', 'pauta.excluir']))
 
     // Votações Nominais
     router

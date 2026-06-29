@@ -2,10 +2,14 @@ import type { HttpContext } from '@adonisjs/core/http'
 import FaqItem from '#models/faq_item'
 import SystemCategory from '#models/system_category'
 import { sanitizeRichHtml } from '#helpers/sanitize_html'
+import TrashService from '#services/trash_service'
 
 export default class FaqController {
   async index({ inertia }: HttpContext) {
-    const items = await FaqItem.query().orderBy('category').orderBy('display_order')
+    const items = await FaqItem.query()
+      .whereNull('deleted_at')
+      .orderBy('category')
+      .orderBy('display_order')
     return inertia.render('admin/faq/index', {
       items: items.map((i) => i.serialize()),
     })
@@ -60,10 +64,14 @@ export default class FaqController {
     return response.redirect().toPath('/painel/faq')
   }
 
-  async destroy({ params, response, session }: HttpContext) {
+  async destroy(ctx: HttpContext) {
+    const { params, response, session } = ctx
     const item = await FaqItem.findOrFail(params.id)
-    await item.delete()
-    session.flash('success', 'Pergunta excluída com sucesso!')
+    await TrashService.moveToTrash(item, ctx, {
+      displayName: item.question,
+      resource: 'faq',
+    })
+    session.flash('success', 'Pergunta movida para a lixeira.')
     return response.redirect().toPath('/painel/faq')
   }
 }

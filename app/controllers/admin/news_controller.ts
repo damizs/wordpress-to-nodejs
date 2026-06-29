@@ -12,6 +12,7 @@ import { saveOptimizedImage } from '#helpers/image_upload'
 import { sanitizeRichHtml } from '#helpers/sanitize_html'
 import { assertSafeUpload } from '#helpers/upload_security'
 import { newsValidator } from '#validators/news'
+import TrashService from '#services/trash_service'
 
 export default class NewsController {
   /** List all news with pagination */
@@ -21,7 +22,11 @@ export default class NewsController {
     const category = request.input('category', '')
     const search = request.input('search', '')
 
-    let query = News.query().preload('category').preload('author').orderBy('created_at', 'desc')
+    let query = News.query()
+      .whereNull('deleted_at')
+      .preload('category')
+      .preload('author')
+      .orderBy('created_at', 'desc')
 
     if (status) query = query.where('status', status)
     if (category) query = query.where('category_id', category)
@@ -62,7 +67,7 @@ export default class NewsController {
 
     // Generate slug
     let slug = string.slug(data.title, { lower: true })
-    const existing = await News.findBy('slug', slug)
+    const existing = await News.query().where('slug', slug).whereNull('deleted_at').first()
     if (existing) slug = `${slug}-${cuid().slice(0, 6)}`
 
     // Handle published_at
@@ -171,10 +176,14 @@ export default class NewsController {
   }
 
   /** Delete news */
-  async destroy({ params, response, session }: HttpContext) {
+  async destroy(ctx: HttpContext) {
+    const { params, response, session } = ctx
     const news = await News.findOrFail(params.id)
-    await news.delete()
-    session.flash('success', 'Notícia excluída com sucesso!')
+    await TrashService.moveToTrash(news, ctx, {
+      displayName: news.title,
+      resource: 'noticia',
+    })
+    session.flash('success', 'Notícia movida para a lixeira.')
     return response.redirect('/painel/noticias')
   }
 }
