@@ -1412,7 +1412,21 @@ function currentFortnight(now: DateTime) {
 }
 
 export default class AtriconController {
-  async index({ inertia }: HttpContext) {
+  /**
+   * Radar ATRICON é INTERNO — apenas o master (super_admin) acessa, mesmo que
+   * outro papel tenha a permissão pntp.gerenciar. Gate aplicado em toda action.
+   * Retorna true se já respondeu (bloqueou) — o chamador deve dar return.
+   */
+  private blockNonMaster(ctx: HttpContext): boolean {
+    if (ctx.auth.user?.role !== 'super_admin') {
+      ctx.response.redirect('/painel')
+      return true
+    }
+    return false
+  }
+
+  async index({ inertia, auth, response }: HttpContext) {
+    if (this.blockNonMaster({ auth, response } as HttpContext)) return
     const [matrix, contentMap, linkAudit, atriconLogoUrl] = await Promise.all([
       buildMatrix(),
       buildContentMap(),
@@ -1436,6 +1450,7 @@ export default class AtriconController {
   }
 
   async updateStatus({ params, request, response, session, auth }: HttpContext) {
+    if (this.blockNonMaster({ auth, response } as HttpContext)) return
     const code = params.code
     const criterion = ATRICON_CRITERIA.find((c) => c.code === code)
     if (!criterion) {
@@ -1488,7 +1503,8 @@ export default class AtriconController {
   }
 
   /** Relatório quinzenal de pendências (imprimível ou CSV), com os status efetivos. */
-  async report({ inertia, request, response }: HttpContext) {
+  async report({ inertia, request, response, auth }: HttpContext) {
+    if (this.blockNonMaster({ auth, response } as HttpContext)) return
     const matrix = await buildMatrix()
     const scores = computeScores(matrix)
     const fortnight = currentFortnight(DateTime.now())
@@ -1555,7 +1571,8 @@ export default class AtriconController {
     })
   }
 
-  async evidencePack({ response }: HttpContext) {
+  async evidencePack({ response, auth }: HttpContext) {
+    if (this.blockNonMaster({ auth, response } as HttpContext)) return
     const [matrix, contentMap, linkAudit] = await Promise.all([
       buildMatrix(),
       buildContentMap(),

@@ -25,6 +25,7 @@ interface NavItem {
   href?: string
   icon: any
   permissions?: string[] // exibe se o usuário tiver QUALQUER uma destas
+  superAdminOnly?: boolean // só visível para o master (super_admin)
   children?: { label: string; href: string; permissions?: string[] }[]
 }
 
@@ -77,7 +78,7 @@ const navGroups: NavGroup[] = [
       { label: 'Licitações', href: '/painel/licitacoes', icon: Gavel, permissions: ['licitacao.gerenciar'] },
       { label: 'Contratos', href: '/painel/contratos', icon: FileSignature, permissions: ['contrato.gerenciar'] },
       { label: 'Acesso à Informação', href: '/painel/acesso-informacao', icon: Info, permissions: ['pntp.gerenciar'] },
-      { label: 'Radar ATRICON', href: '/painel/atricon', icon: Radar, permissions: ['pntp.gerenciar'] },
+      { label: 'Radar ATRICON', href: '/painel/atricon', icon: Radar, permissions: ['pntp.gerenciar'], superAdminOnly: true },
       { label: 'Pesquisa Satisfação', href: '/painel/pesquisa-satisfacao', icon: ClipboardCheck, permissions: ['pesquisa.gerenciar'] },
     ],
   },
@@ -176,10 +177,14 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
   const commandRef = useFocusTrap(commandOpen, () => setCommandOpen(false))
 
   const userPermissions: string[] = auth?.permissions ?? []
+  const isSuperAdmin: boolean = auth?.user?.role === 'super_admin'
   const visibleGroups = navGroups
     .map((group) => ({
       ...group,
       items: group.items
+        // Itens marcados como superAdminOnly (ex.: Radar ATRICON, interno) só
+        // aparecem para o master, mesmo que o papel tenha a permissão.
+        .filter((item) => (item.superAdminOnly ? isSuperAdmin : true))
         .filter((item) => hasAny(userPermissions, item.permissions))
         .map((item) =>
           item.children
