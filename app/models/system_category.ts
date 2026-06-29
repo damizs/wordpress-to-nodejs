@@ -9,6 +9,8 @@ export default class SystemCategory extends BaseModel {
   @column() declare type: string
   @column() declare name: string
   @column() declare slug: string
+  /** Dimensão/módulo p/ agrupar categorias na visão geral (só Acesso à Informação). */
+  @column() declare grupo: string | null
   @column() declare displayOrder: number
   @column() declare isActive: boolean
   @column.dateTime({ autoCreate: true }) declare createdAt: DateTime

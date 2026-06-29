@@ -8,15 +8,20 @@ import RichTextEditor from '~/components/admin/RichTextEditor'
 interface Props {
   record: any | null
   categories: any[]
+  defaultCategory?: string | null
 }
 
-export default function InformationRecordForm({ record, categories = [] }: Props) {
+export default function InformationRecordForm({ record, categories = [], defaultCategory }: Props) {
   const isEditing = !!record
   const fileRef = useRef<HTMLInputElement>(null)
+  const backCategory = record?.category || defaultCategory || ''
+  const backUrl = backCategory
+    ? `/painel/acesso-informacao?category=${encodeURIComponent(backCategory)}`
+    : '/painel/acesso-informacao'
 
   const { data, setData, post, processing } = useForm({
     title: record?.title || '',
-    category: record?.category || (categories[0]?.slug || ''),
+    category: record?.category || defaultCategory || categories[0]?.slug || '',
     year: record?.year || new Date().getFullYear(),
     content: record?.content || '',
     reference_date: record?.reference_date || '',
@@ -46,7 +51,7 @@ export default function InformationRecordForm({ record, categories = [] }: Props
           eyebrow="Acesso à Informação"
           actions={
             <Link
-              href="/painel/acesso-informacao"
+              href={backUrl}
               className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
             >
               <ArrowLeft className="w-4 h-4" /> Voltar

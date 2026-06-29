@@ -78,6 +78,7 @@ const navGroups: NavGroup[] = [
       { label: 'Licitações', href: '/painel/licitacoes', icon: Gavel, permissions: ['licitacao.gerenciar'] },
       { label: 'Contratos', href: '/painel/contratos', icon: FileSignature, permissions: ['contrato.gerenciar'] },
       { label: 'Acesso à Informação', href: '/painel/acesso-informacao', icon: Info, permissions: ['pntp.gerenciar'] },
+      { label: 'Categorias (Acesso à Info)', href: '/painel/acesso-informacao/categorias', icon: Tags, permissions: ['pntp.gerenciar'], superAdminOnly: true },
       { label: 'Radar ATRICON', href: '/painel/atricon', icon: Radar, permissions: ['pntp.gerenciar'], superAdminOnly: true },
       { label: 'Pesquisa Satisfação', href: '/painel/pesquisa-satisfacao', icon: ClipboardCheck, permissions: ['pesquisa.gerenciar'] },
     ],

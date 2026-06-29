@@ -57,6 +57,8 @@ const AdminPublicationsController = () =>
 const AdminFaqController = () => import('#controllers/admin/faq_controller')
 const AdminInformationRecordsController = () =>
   import('#controllers/admin/information_records_controller')
+const AdminInformationCategoriesController = () =>
+  import('#controllers/admin/information_categories_controller')
 const AdminAtriconController = () => import('#controllers/admin/atricon_controller')
 const AdminCategoriesController = () => import('#controllers/admin/system_categories_controller')
 const AdminLicitacoesController = () => import('#controllers/admin/licitacoes_controller')
@@ -414,6 +416,17 @@ router
         router.put('/atricon/:code', [AdminAtriconController, 'updateStatus'])
       })
       .use(middleware.can(['pntp.gerenciar']))
+
+    // Gerência de CATEGORIAS de Acesso à Informação — restrita ao MASTER
+    // (guard super_admin no próprio controller; rotas mais específicas que /:id
+    // registradas ANTES do grupo de registros para evitar captura por :id).
+    router.get('/acesso-informacao/categorias', [AdminInformationCategoriesController, 'index'])
+    router.post('/acesso-informacao/categorias', [AdminInformationCategoriesController, 'store'])
+    router.put('/acesso-informacao/categorias/:id', [AdminInformationCategoriesController, 'update'])
+    router.delete('/acesso-informacao/categorias/:id', [
+      AdminInformationCategoriesController,
+      'destroy',
+    ])
 
     // Acesso à Informação (PNTP)
     router
