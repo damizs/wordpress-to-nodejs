@@ -221,7 +221,41 @@ export class GetPublicService {
       }
     }
 
-    return { total: materias.length, materiasNew, gazetteNew }
+    // 3) EDIÇÕES DIÁRIAS do Diário Oficial (o "jornal do dia") — vão até hoje,
+    // enquanto as matérias individuais podem parar antes. Sem elas, o calendário
+    // do Diário ficava preso no mês da última matéria. Upsert por edition_number.
+    let diariosNew = 0
+    try {
+      const diarios = await this.listDiarios()
+      for (const d of diarios) {
+        if (!d.codigo || !d.data) continue
+        const fileUrl = d.urlDocumento || GetPublicService.materiaViewerUrl(d.codigo)
+        const existing = await OfficialGazetteEntry.query()
+          .where('edition_number', d.codigo)
+          .first()
+        if (existing) {
+          existing.merge({
+            description: d.titulo || existing.description,
+            fileUrl,
+            publicationDate: d.data,
+          })
+          await existing.save()
+        } else {
+          await OfficialGazetteEntry.create({
+            editionNumber: d.codigo,
+            publicationDate: d.data,
+            description: d.titulo || `Diário Oficial - Edição ${d.codigo}`,
+            fileUrl,
+          })
+          diariosNew++
+        }
+      }
+    } catch (err) {
+      // Não derruba o sync das matérias se o endpoint de diários falhar.
+      console.error('[GetPublic] sync de edições diárias falhou:', (err as Error)?.message)
+    }
+
+    return { total: materias.length, materiasNew, gazetteNew: gazetteNew + diariosNew }
   }
 }
 

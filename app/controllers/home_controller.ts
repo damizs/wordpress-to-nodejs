@@ -392,7 +392,7 @@ export default class HomeController {
         : null,
       // Lista para o módulo "Últimas Publicações" da home (preview com busca/
       // filtro/paginação client-side). Limita o payload; o restante fica em /diario-oficial.
-      gazetteEntries: gazetteRecent.slice(0, 60).map((g) => ({
+      gazetteEntries: gazetteRecent.slice(0, 200).map((g) => ({
         id: g.id,
         editionNumber: g.editionNumber,
         publicationDate: toIsoDate(g.publicationDate),
