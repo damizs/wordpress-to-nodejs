@@ -83,19 +83,21 @@ const navGroups: NavGroup[] = [
     ],
   },
   {
-    label: 'Site',
+    // Tudo ligado à aparência e ao site público fica reunido numa área clara.
+    // Ordem: mais usados no topo (Homepage, Aparência, Páginas, Menus...).
+    label: 'Front-end / Site',
     items: [
       { label: 'Homepage', href: '/painel/homepage', icon: Monitor, permissions: ['site.gerenciar'] },
-      { label: 'Páginas', href: '/painel/paginas', icon: Files, permissions: ['site.gerenciar'] },
-      { label: 'Conteúdo Institucional', href: '/painel/institucional', icon: BookOpen, permissions: ['site.gerenciar'] },
-      { label: 'Biblioteca de Mídia', href: '/painel/midia', icon: FolderOpen, permissions: ['site.gerenciar'] },
       { label: 'Aparência', href: '/painel/aparencia', icon: Palette, permissions: ['site.gerenciar'] },
+      { label: 'Páginas', href: '/painel/paginas', icon: Files, permissions: ['site.gerenciar'] },
       { label: 'Menus do Site', href: '/painel/menus', icon: Menu, permissions: ['site.gerenciar'] },
+      { label: 'Links Rápidos', href: '/painel/links-rapidos', icon: Link2, permissions: ['site.gerenciar'] },
       { label: 'Feriados', href: '/painel/feriados', icon: Calendar, permissions: ['site.gerenciar'] },
       { label: 'Selos', href: '/painel/selos', icon: Award, permissions: ['site.gerenciar'] },
-      { label: 'Links Rápidos', href: '/painel/links-rapidos', icon: Link2, permissions: ['site.gerenciar'] },
-      { label: 'Categorias', href: '/painel/categorias', icon: Tags, permissions: ['site.gerenciar'] },
       { label: 'Fotos da Cidade', href: '/painel/configuracoes/fotos-cidade', icon: Image, permissions: ['site.gerenciar'] },
+      { label: 'Conteúdo Institucional', href: '/painel/institucional', icon: BookOpen, permissions: ['site.gerenciar'] },
+      { label: 'Biblioteca de Mídia', href: '/painel/midia', icon: FolderOpen, permissions: ['site.gerenciar'] },
+      { label: 'Categorias', href: '/painel/categorias', icon: Tags, permissions: ['site.gerenciar'] },
     ],
   },
   {

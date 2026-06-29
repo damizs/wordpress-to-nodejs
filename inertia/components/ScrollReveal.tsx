@@ -1,8 +1,9 @@
 import { useEffect } from 'react'
 
 /**
- * Motor de animações on-scroll. Elementos com [data-reveal] entram com
- * fade/slide quando atingem o viewport (com stagger via data-reveal-delay).
+ * Motor de animações on-scroll. Elementos com [data-reveal] entram com um
+ * reveal sutil (fade + leve translate/zoom; timing/easing em app.css) ao
+ * atingir o viewport — uma única vez, com stagger via data-reveal-delay.
  * Direções: data-reveal="" | "up" | "left" | "right" | "zoom".
  * Respeita prefers-reduced-motion e funciona entre navegações Inertia.
  */
@@ -47,13 +48,22 @@ export function ScrollReveal() {
 
     scan()
 
-    // Re-escaneia quando o Inertia troca de página
-    const mo = new MutationObserver(() => scan())
+    // Re-escaneia quando o Inertia troca de página. Debounce via rAF: uma
+    // varredura por frame, mesmo com muitas mutações do React (perf).
+    let frame = 0
+    const mo = new MutationObserver(() => {
+      if (frame) return
+      frame = requestAnimationFrame(() => {
+        frame = 0
+        scan()
+      })
+    })
     mo.observe(document.body, { childList: true, subtree: true })
 
     return () => {
       io.disconnect()
       mo.disconnect()
+      if (frame) cancelAnimationFrame(frame)
     }
   }, [])
 

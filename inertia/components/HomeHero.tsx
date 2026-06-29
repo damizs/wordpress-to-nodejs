@@ -87,11 +87,13 @@ export function HomeHero({
     : [];
 
   return (
-    <section className="section-block bg-muted/40 border-b border-border">
-      <div className="container">
+    <section className="section-block bg-muted/40 border-b border-border relative">
+      {/* Aurora institucional sóbria atrás do conteúdo (decorativa, sem foco) */}
+      <div className="hero-aurora" aria-hidden="true" />
+      <div className="container relative z-10">
         <div className="grid gap-8 lg:grid-cols-[1.5fr_1fr] lg:items-stretch">
           {/* Coluna principal: boas-vindas + atalhos nobres */}
-          <div className="min-w-0">
+          <div className="min-w-0" data-reveal>
             <SectionHeading
               align="left"
               badge={badge}
@@ -139,7 +141,11 @@ export function HomeHero({
           </div>
 
           {/* Aside institucional: indicadores do Legislativo + CTA */}
-          <aside className="card-modern flex flex-col gap-5 p-6 sm:p-7">
+          <aside
+            className="card-modern flex flex-col gap-5 p-6 sm:p-7"
+            data-reveal
+            data-reveal-delay="120"
+          >
             <div>
               <span className="inline-block rounded-full bg-primary/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-wider text-primary">
                 Legislativo em números

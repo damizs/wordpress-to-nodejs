@@ -992,3 +992,93 @@ html.dark .rich-content a:hover {
   background: transparent;
   font-size: 0.875em;
 }
+
+/* ===========================================================================
+   feat:animacao — reveal refinado + aurora sóbria do hero
+   Append-only: não altera as regras acima. Tudo dark-safe via tokens
+   (--navy*/--gold/--sky) e pausado quando o usuário pede redução de movimento.
+   =========================================================================== */
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Reveal mais curto e elegante (~500-550ms). Sobrescreve apenas
+     timing/distância; o mecanismo segue em ScrollReveal.tsx. */
+  html.js-anim [data-reveal] {
+    transform: translateY(20px);
+    transition:
+      opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  html.js-anim [data-reveal='left'] {
+    transform: translateX(-24px);
+  }
+  html.js-anim [data-reveal='right'] {
+    transform: translateX(24px);
+  }
+  html.js-anim [data-reveal='zoom'] {
+    transform: scale(0.96);
+  }
+}
+
+/* Após revelar, libera o will-change (perf). Vence por especificidade. */
+html.js-anim [data-reveal].is-revealed {
+  will-change: auto;
+}
+
+/* ----- Hero (modelo Moderno): aurora institucional muito sutil -----
+   Duas luzes suaves nas cores do tema, atrás do título. Só transform/opacity
+   (compositor-friendly), discretas (opacidade baixa + blur). */
+.hero-aurora {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.hero-aurora::before,
+.hero-aurora::after {
+  content: '';
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(64px);
+}
+
+.hero-aurora::before {
+  width: 38rem;
+  height: 38rem;
+  top: -14rem;
+  left: -6rem;
+  background: radial-gradient(circle at center, hsl(var(--gold) / 0.14), transparent 70%);
+}
+
+.hero-aurora::after {
+  width: 34rem;
+  height: 34rem;
+  top: -10rem;
+  right: -8rem;
+  background: radial-gradient(circle at center, hsl(var(--sky) / 0.14), transparent 70%);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-aurora::before {
+    animation: hero-aurora-a 19s ease-in-out infinite alternate;
+  }
+  .hero-aurora::after {
+    animation: hero-aurora-b 23s ease-in-out infinite alternate;
+  }
+}
+
+@keyframes hero-aurora-a {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(4%, 7%, 0) scale(1.08); }
+}
+
+@keyframes hero-aurora-b {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to   { transform: translate3d(-5%, 5%, 0) scale(1.1); }
+}
+
+/* Alto contraste: sem camada decorativa, fundo limpo para legibilidade. */
+html.high-contrast .hero-aurora {
+  display: none;
+}

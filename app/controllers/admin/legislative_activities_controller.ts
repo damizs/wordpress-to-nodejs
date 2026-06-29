@@ -1,5 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
-import LegislativeActivity, { type TramitationStep } from '#models/legislative_activity'
+import LegislativeActivity from '#models/legislative_activity'
 import Councilor from '#models/councilor'
 import { activitySlug } from '#helpers/slug'
 import {
@@ -10,6 +10,12 @@ import {
 } from '#helpers/legislative_origin'
 import { sanitizeRichHtml, sanitizePlainText } from '#helpers/sanitize_html'
 import { normalizeSafeWebUrl } from '#helpers/safe_url'
+import { assertSafeUpload } from '#helpers/upload_security'
+import app from '@adonisjs/core/services/app'
+import { cuid } from '@adonisjs/core/helpers'
+import { mkdir } from 'node:fs/promises'
+import { join } from 'node:path'
+import { existsSync } from 'node:fs'
 
 export default class LegislativeActivitiesController {
   private async councilorOptions() {
@@ -41,24 +47,19 @@ export default class LegislativeActivitiesController {
     return 'tramitando'
   }
 
-  private parseTramitationSteps(text: string | null | undefined): TramitationStep[] | null {
-    const lines = String(text || '')
-      .split(/\r?\n/)
-      .map((line) => line.trim())
-      .filter(Boolean)
-
-    if (lines.length === 0) return null
-
-    return lines.map((line) => {
-      const parts = line.split('|').map((part) => part.trim())
-      if (parts.length === 1) return { title: parts[0] }
-      if (parts.length === 2) return { title: parts[0], description: parts[1] }
-      return {
-        date: parts[0] || null,
-        title: parts[1] || 'Etapa',
-        description: parts.slice(2).join(' | ') || null,
-      }
-    })
+  /**
+   * Faz upload do arquivo da matéria (PDF/DOC/DOCX) para public/uploads/atividades
+   * e retorna o caminho público; retorna null quando nenhum arquivo é enviado.
+   */
+  private async saveUploadedFile(request: HttpContext['request']): Promise<string | null> {
+    const file = request.file('file', { size: '15mb', extnames: ['pdf', 'doc', 'docx'] })
+    if (!file) return null
+    await assertSafeUpload(file, ['pdf', 'doc', 'docx'])
+    const uploadDir = join(app.publicPath(), 'uploads', 'atividades')
+    if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true })
+    const fileName = `atividade-${cuid()}.${file.extname}`
+    await file.move(uploadDir, { name: fileName })
+    return file.state === 'moved' ? `/uploads/atividades/${fileName}` : null
   }
 
   async index({ inertia, request }: HttpContext) {
@@ -120,15 +121,13 @@ export default class LegislativeActivitiesController {
       'author',
       'file_url',
       'session_date',
-      'voting_system_id',
-      'voting_system_url',
     ])
     data.year = Number.parseInt(data.year)
     data.status = this.normalizeStatus(data.status)
     data.summary = sanitizePlainText(data.summary)
     data.content = sanitizeRichHtml(data.content)
-    data.file_url = normalizeSafeWebUrl(data.file_url)
-    data.voting_system_url = normalizeSafeWebUrl(data.voting_system_url)
+    // Upload do arquivo (PDF/DOC/DOCX); aceita file_url textual como fallback.
+    data.file_url = (await this.saveUploadedFile(request)) || normalizeSafeWebUrl(data.file_url)
 
     const authorIds = (request.input('author_ids', []) as (number | string)[])
       .map(Number)
@@ -147,15 +146,11 @@ export default class LegislativeActivitiesController {
           })
 
     const slug = request.input('slug') || activitySlug(data.type, data.number, data.author)
-    const tramitationSteps = this.parseTramitationSteps(request.input('tramitation_steps_text'))
 
     const activity = await LegislativeActivity.create({
       ...data,
       slug,
       isActive: true,
-      votingSystemId: data.voting_system_id || null,
-      votingSystemUrl: data.voting_system_url || null,
-      tramitationSteps,
     })
     if (authorIds.length > 0) await activity.related('authors').sync(authorIds)
 
@@ -191,17 +186,12 @@ export default class LegislativeActivitiesController {
       'status',
       'origin',
       'author',
-      'file_url',
       'session_date',
-      'voting_system_id',
-      'voting_system_url',
     ])
     data.year = Number.parseInt(data.year)
     data.status = this.normalizeStatus(data.status)
     data.summary = sanitizePlainText(data.summary)
     data.content = sanitizeRichHtml(data.content)
-    data.file_url = normalizeSafeWebUrl(data.file_url)
-    data.voting_system_url = normalizeSafeWebUrl(data.voting_system_url)
 
     const authorIds = (request.input('author_ids', []) as (number | string)[])
       .map(Number)
@@ -220,16 +210,22 @@ export default class LegislativeActivitiesController {
             fallback: activity.origin,
           })
 
+    // Upload do arquivo: novo arquivo substitui; file_url textual é fallback;
+    // sem arquivo nem URL, o file_url atual é preservado.
+    const uploadedFileUrl = await this.saveUploadedFile(request)
+    if (uploadedFileUrl) {
+      activity.fileUrl = uploadedFileUrl
+    } else {
+      const textualFileUrl = normalizeSafeWebUrl(request.input('file_url'))
+      if (textualFileUrl) activity.fileUrl = textualFileUrl
+    }
+
     const slug =
       activity.slug || request.input('slug') || activitySlug(data.type, data.number, data.author)
-    const tramitationSteps = this.parseTramitationSteps(request.input('tramitation_steps_text'))
 
     activity.merge({
       ...data,
       slug,
-      votingSystemId: data.voting_system_id || null,
-      votingSystemUrl: data.voting_system_url || null,
-      tramitationSteps,
     })
     await activity.save()
     await activity.related('authors').sync(authorIds)

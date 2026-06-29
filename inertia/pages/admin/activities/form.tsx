@@ -1,6 +1,7 @@
 import { Head, useForm, Link } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Save, ArrowLeft, Users, ScrollText, Link2 } from 'lucide-react'
+import { Save, ArrowLeft, Users, ScrollText, Upload } from 'lucide-react'
+import { useRef } from 'react'
 import {
   Button,
   Card,
@@ -59,13 +60,6 @@ function extraAuthorText(author: string, councilors: CouncilorOption[], selected
     .join(', ')
 }
 
-function formatTramitationSteps(steps: any[] | null | undefined): string {
-  if (!Array.isArray(steps)) return ''
-  return steps
-    .map((step) => [step.date, step.title, step.description].filter(Boolean).join(' | '))
-    .join('\n')
-}
-
 export default function ActivityForm({
   activity,
   councilors = [],
@@ -73,7 +67,8 @@ export default function ActivityForm({
   origins = [],
 }: Props) {
   const isEditing = !!activity
-  const { data, setData, post, put, processing } = useForm({
+  const fileRef = useRef<HTMLInputElement>(null)
+  const { data, setData, post, processing } = useForm({
     type: activity?.type || 'Projeto de Lei',
     origin: activity?.origin || 'nao_informado',
     number: activity?.number || '',
@@ -83,13 +78,8 @@ export default function ActivityForm({
     status: activity?.status || 'tramitando',
     author: extraAuthorText(activity?.author || '', councilors, authorIds),
     author_ids: authorIds,
-    file_url: activity?.file_url || '',
     session_date: activity?.session_date || '',
-    voting_system_id: activity?.voting_system_id || activity?.votingSystemId || '',
-    voting_system_url: activity?.voting_system_url || activity?.votingSystemUrl || '',
-    tramitation_steps_text: formatTramitationSteps(
-      activity?.tramitation_steps || activity?.tramitationSteps
-    ),
+    file: null as File | null,
   })
 
   const toggleAuthor = (id: number) => {
@@ -104,9 +94,9 @@ export default function ActivityForm({
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (isEditing) {
-      put(`/painel/atividades/${activity.id}`)
+      post(`/painel/atividades/${activity.id}?_method=PUT`, { forceFormData: true })
     } else {
-      post('/painel/atividades')
+      post('/painel/atividades', { forceFormData: true })
     }
   }
 
@@ -219,56 +209,36 @@ export default function ActivityForm({
               </Field>
             </div>
 
-            <Field label="URL do Arquivo (PDF)">
-              <Input
-                type="text"
-                value={data.file_url}
-                onChange={(e) => setData('file_url', e.target.value)}
-                placeholder="https://..."
-              />
-            </Field>
-          </div>
-        </Card>
-
-        <Card>
-          <CardHeader
-            title="Tramitação e integração"
-            description="Preencha manualmente agora ou use estes campos para mapear a matéria quando a API do sistema de votação estiver disponível."
-            icon={Link2}
-          />
-
-          <div className="space-y-5">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              <Field label="ID no sistema de votação">
-                <Input
-                  type="text"
-                  value={data.voting_system_id}
-                  onChange={(e) => setData('voting_system_id', e.target.value)}
-                  placeholder="Ex.: 12345"
+            <Field label="Arquivo (PDF/DOC)">
+              <div>
+                {activity?.file_url && (
+                  <p className="text-xs text-muted-foreground mb-1.5">
+                    Atual:{' '}
+                    <a
+                      href={activity.file_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-navy underline"
+                    >
+                      Ver arquivo
+                    </a>
+                  </p>
+                )}
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => fileRef.current?.click()}
+                >
+                  <Upload className="w-4 h-4" /> {data.file ? data.file.name : 'Selecionar arquivo'}
+                </Button>
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept=".pdf,.doc,.docx"
+                  onChange={(e) => setData('file', e.target.files?.[0] || null)}
+                  className="hidden"
                 />
-              </Field>
-              <Field label="URL no sistema de votação">
-                <Input
-                  type="text"
-                  value={data.voting_system_url}
-                  onChange={(e) => setData('voting_system_url', e.target.value)}
-                  placeholder="https://..."
-                />
-              </Field>
-            </div>
-
-            <Field
-              label="Linha do tempo de tramitação"
-              hint="Uma etapa por linha. Ex.: 2026-06-17 | Enviado à comissão | Aguardando parecer."
-            >
-              <Textarea
-                value={data.tramitation_steps_text}
-                onChange={(e) => setData('tramitation_steps_text', e.target.value)}
-                rows={5}
-                placeholder={
-                  '2026-06-17 | Protocolo | Matéria protocolada\n2026-06-18 | Comissão | Encaminhada para análise'
-                }
-              />
+              </div>
             </Field>
           </div>
         </Card>
