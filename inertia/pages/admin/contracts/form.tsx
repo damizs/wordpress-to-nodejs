@@ -16,6 +16,24 @@ interface Props {
   licitacoes: LicitacaoOption[]
 }
 
+/**
+ * Modalidades de contratação (Lei 14.133/2021 + legado 8.666/93), alinhadas às
+ * opções do módulo de Licitações. Texto legível porque o valor é exibido tal qual
+ * na página pública do contrato.
+ */
+const MODALITY_OPTIONS = [
+  'Pregão Eletrônico',
+  'Pregão Presencial',
+  'Concorrência',
+  'Concurso',
+  'Leilão',
+  'Diálogo Competitivo',
+  'Dispensa',
+  'Inexigibilidade',
+  'Tomada de Preços',
+  'Convite',
+]
+
 export default function ContractForm({ contract, licitacoes }: Props) {
   const isEditing = !!contract
   const [submitting, setSubmitting] = useState(false)
@@ -101,15 +119,27 @@ export default function ContractForm({ contract, licitacoes }: Props) {
             </Field>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field label="Modalidade">
-              <Input
-                type="text"
-                value={data.modality}
-                onChange={(e) => setData('modality', e.target.value)}
-                placeholder="Dispensa, Inexigibilidade, Pregão..."
-              />
+            <Field
+              label="Modalidade"
+              hint="Forma de contratação usada (Lei 14.133/2021). Padroniza o dado para o site e os relatórios."
+            >
+              <Select value={data.modality} onChange={(e) => setData('modality', e.target.value)}>
+                <option value="">Selecionar...</option>
+                {/* Mantém o valor já salvo mesmo que não esteja na lista (não perde dado antigo). */}
+                {data.modality && !MODALITY_OPTIONS.includes(data.modality) && (
+                  <option value={data.modality}>{data.modality} (valor atual)</option>
+                )}
+                {MODALITY_OPTIONS.map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
+                ))}
+              </Select>
             </Field>
-            <Field label="Base legal">
+            <Field
+              label="Base legal"
+              hint="Artigo/lei que fundamenta a contratação. Ex.: Art. 75, II, Lei 14.133/21."
+            >
               <Input
                 type="text"
                 value={data.legal_basis}
@@ -170,7 +200,10 @@ export default function ContractForm({ contract, licitacoes }: Props) {
             icon={UserCheck}
           />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field label="Gestor (nome)">
+            <Field
+              label="Gestor (nome)"
+              hint="Responsável pela gestão administrativa do contrato (prazos, aditivos, pagamentos)."
+            >
               <Input type="text" value={data.manager_name} onChange={(e) => setData('manager_name', e.target.value)} placeholder="José Ribeiro de Oliveira Júnior" />
             </Field>
             <Field label="Cargo do gestor">
@@ -178,14 +211,20 @@ export default function ContractForm({ contract, licitacoes }: Props) {
             </Field>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field label="Fiscal técnico (nome)">
+            <Field
+              label="Fiscal técnico (nome)"
+              hint="Quem acompanha a execução técnica do objeto e atesta a entrega (diferente do gestor)."
+            >
               <Input type="text" value={data.fiscal_name} onChange={(e) => setData('fiscal_name', e.target.value)} placeholder="Maria Verônica Irineu de Assis" />
             </Field>
             <Field label="Cargo do fiscal">
               <Input type="text" value={data.fiscal_role} onChange={(e) => setData('fiscal_role', e.target.value)} placeholder="Chefe de Gabinete" />
             </Field>
           </div>
-          <Field label="Ato de designação (portaria nº/data)">
+          <Field
+            label="Ato de designação (portaria nº/data)"
+            hint="Portaria/ato que nomeou o gestor e o fiscal. Exigência PNTP 9.3."
+          >
             <Input type="text" value={data.fiscal_act} onChange={(e) => setData('fiscal_act', e.target.value)} placeholder="Portaria DV 00001/2025-03" />
           </Field>
         </Card>

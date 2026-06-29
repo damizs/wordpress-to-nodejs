@@ -1,6 +1,6 @@
 import { Head, useForm, Link } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Save, ArrowLeft, Layers3 } from 'lucide-react'
+import { Save, ArrowLeft, Layers3, Info } from 'lucide-react'
 import { Button, Field, FormSection, Input, PageHeader, Textarea } from '~/components/admin/ui'
 
 export default function SectionForm({ section }: { section: any | null }) {
@@ -40,6 +40,15 @@ export default function SectionForm({ section }: { section: any | null }) {
         description="Configure o título, slug e visibilidade desta seção no portal de transparência."
         icon={Layers3}
       />
+
+      <div className="flex items-start gap-2.5 mb-5 rounded-lg border border-sky/30 bg-sky/10 p-3 text-sm text-foreground">
+        <Info className="w-4 h-4 mt-0.5 shrink-0 text-sky" aria-hidden="true" />
+        <p>
+          <strong>Portal da Transparência</strong> = links (em geral externos) organizados por
+          seção. Aparece no site em <strong>/transparencia</strong>. Para documentos internos
+          por ano (LAI/PNTP), use o módulo <strong>Acesso à Informação</strong>.
+        </p>
+      </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <FormSection title="Identificação" columns={2}>

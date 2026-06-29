@@ -32,6 +32,13 @@ const educationOptions = [
 ]
 const positionOptions = ['Vereador', 'Presidente', 'Vice-Presidente', '1º Secretário(a)', '2º Secretário(a)']
 
+/** Siglas de partidos com registro no TSE (atuais). Mantém o valor já salvo se não constar. */
+const partyOptions = [
+  'PT', 'PL', 'MDB', 'PSD', 'PP', 'PSDB', 'UNIÃO', 'PDT', 'REPUBLICANOS', 'PODE',
+  'PSB', 'PCdoB', 'PSOL', 'AVANTE', 'SOLIDARIEDADE', 'NOVO', 'CIDADANIA', 'PV',
+  'REDE', 'PRD', 'AGIR', 'MOBILIZA', 'DC', 'PRTB', 'PMB', 'UP', 'PSTU', 'PCB', 'PCO',
+]
+
 export default function CouncilorForm({ councilor, legislatures, biennia }: Props) {
   const isEditing = !!councilor
   const currentPosition = councilor?.positions?.[0]
@@ -123,7 +130,10 @@ export default function CouncilorForm({ councilor, legislatures, biennia }: Prop
                   required
                 />
               </Field>
-              <Field label="Nome Parlamentar">
+              <Field
+                label="Nome Parlamentar"
+                hint="Nome pelo qual o vereador é conhecido na política (pode diferir do nome civil)."
+              >
                 <Input
                   type="text"
                   value={data.parliamentary_name}
@@ -139,13 +149,15 @@ export default function CouncilorForm({ councilor, legislatures, biennia }: Prop
                   className="font-mono"
                 />
               </Field>
-              <Field label="Partido">
-                <Input
-                  type="text"
-                  value={data.party}
-                  onChange={(e) => setData('party', e.target.value)}
-                  placeholder="Ex: PP, MDB, PSD"
-                />
+              <Field label="Partido" hint="Sigla do partido (registro no TSE).">
+                <Select value={data.party} onChange={(e) => setData('party', e.target.value)}>
+                  <option value="">Selecionar...</option>
+                  {/* Preserva a sigla já salva mesmo que não esteja na lista atual. */}
+                  {data.party && !partyOptions.includes(data.party) && (
+                    <option value={data.party}>{data.party} (valor atual)</option>
+                  )}
+                  {partyOptions.map((p) => <option key={p} value={p}>{p}</option>)}
+                </Select>
               </Field>
               <Field label="Gênero">
                 <Select value={data.gender} onChange={(e) => setData('gender', e.target.value)}>
@@ -171,7 +183,10 @@ export default function CouncilorForm({ councilor, legislatures, biennia }: Prop
                   {educationOptions.map((ed) => <option key={ed} value={ed}>{ed}</option>)}
                 </Select>
               </Field>
-              <Field label="Ordem de Exibição">
+              <Field
+                label="Ordem de Exibição"
+                hint="Define a posição na lista: menor número aparece primeiro (1 antes de 2)."
+              >
                 <Input
                   type="number"
                   value={data.display_order}

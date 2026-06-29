@@ -5,6 +5,8 @@ import {
   AlertTriangle,
   Cloud,
   Database,
+  Eye,
+  EyeOff,
   HardDrive,
   Lock,
   MessageCircle,
@@ -173,6 +175,55 @@ function notificationTypeLabel(type: string) {
     health: 'Conexao',
   }
   return labels[type] ?? type
+}
+
+/**
+ * Campo de segredo (API key) com botão de mostrar/ocultar (olho Eye/EyeOff).
+ * Recebe `id`/`aria-*` do <Field> (via cloneElement) e os repassa ao <Input>.
+ * O botão é type="button" (não submete o form) e tem aria-label dinâmico.
+ */
+function PasswordInput({
+  id,
+  value,
+  onChange,
+  placeholder,
+  ...aria
+}: {
+  id?: string
+  value: string
+  onChange: (value: string) => void
+  placeholder?: string
+  'aria-describedby'?: string
+  'aria-invalid'?: boolean
+}) {
+  const [visible, setVisible] = useState(false)
+  return (
+    <div className="relative">
+      <Input
+        id={id}
+        type={visible ? 'text' : 'password'}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={placeholder}
+        className="pr-11"
+        {...aria}
+      />
+      <button
+        type="button"
+        onClick={() => setVisible((v) => !v)}
+        aria-label={visible ? 'Ocultar chave' : 'Mostrar chave'}
+        aria-pressed={visible}
+        title={visible ? 'Ocultar chave' : 'Mostrar chave'}
+        className="absolute right-1.5 top-1/2 -translate-y-1/2 inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus:outline-none focus:ring-2 focus:ring-navy/25"
+      >
+        {visible ? (
+          <EyeOff className="w-4 h-4" aria-hidden="true" />
+        ) : (
+          <Eye className="w-4 h-4" aria-hidden="true" />
+        )}
+      </button>
+    </div>
+  )
 }
 
 export default function AdminSecurityIndex({
@@ -476,10 +527,9 @@ export default function AdminSecurityIndex({
                   label="API key"
                   hint={evolution.apiKeySet ? 'Chave cadastrada. Preencha apenas para trocar.' : 'Cole a chave da Evolution.'}
                 >
-                  <Input
-                    type="password"
+                  <PasswordInput
                     value={evolutionForm.data.api_key}
-                    onChange={(event) => evolutionForm.setData('api_key', event.target.value)}
+                    onChange={(value) => evolutionForm.setData('api_key', value)}
                     placeholder={evolution.apiKeySet ? '********' : 'apikey'}
                   />
                 </Field>

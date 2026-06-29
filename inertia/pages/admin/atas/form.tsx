@@ -1,6 +1,6 @@
 import { Head, useForm, Link } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Save, ArrowLeft, Upload, FileText, Paperclip, BookOpen } from 'lucide-react'
+import { Save, ArrowLeft, Upload, FileText, Paperclip, BookOpen, Info } from 'lucide-react'
 import { useRef } from 'react'
 import { Button, Card, CardHeader, Field, Input, PageHeader, Select } from '~/components/admin/ui'
 import RichTextEditor from '~/components/admin/RichTextEditor'
@@ -55,6 +55,16 @@ export default function AtaForm({ ata, sessionTypes = [] }: Props) {
         icon={BookOpen}
         eyebrow="Atas das Sessões"
       />
+
+      <div className="flex items-start gap-2.5 mb-5 rounded-lg border border-sky/30 bg-sky/10 p-3 text-sm text-foreground">
+        <Info className="w-4 h-4 mt-0.5 shrink-0 text-sky" aria-hidden="true" />
+        <p>
+          <strong>Ata</strong> = documento <strong>aprovado</strong> da sessão (o que foi
+          decidido). Aparece no site em <strong>/atas</strong>. É diferente de{' '}
+          <strong>Pautas</strong> (o que <strong>será</strong> discutido) e de{' '}
+          <strong>Sessões</strong> (agenda e vídeo).
+        </p>
+      </div>
 
       <form onSubmit={handleSubmit} className="admin-form">
         <Card>

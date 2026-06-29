@@ -15,6 +15,8 @@ import {
 } from '~/components/admin/ui'
 import {
   Check,
+  Eye,
+  EyeOff,
   KeyRound,
   Lock,
   ShieldAlert,
@@ -22,7 +24,63 @@ import {
   UserCircle,
   UserSquare,
 } from 'lucide-react'
-import type { FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
+
+/**
+ * Campo de senha com botão de mostrar/ocultar (olho Eye/EyeOff). Recebe
+ * `id`/`aria-*` do <Field> (via cloneElement) e os repassa ao <Input> para
+ * preservar a associação com o label e a mensagem de erro. O botão é
+ * type="button" (não submete o form) e tem aria-label dinâmico.
+ */
+function PasswordInput({
+  id,
+  value,
+  onChange,
+  autoComplete,
+  required,
+  minLength,
+  ...aria
+}: {
+  id?: string
+  value: string
+  onChange: (value: string) => void
+  autoComplete?: string
+  required?: boolean
+  minLength?: number
+  'aria-describedby'?: string
+  'aria-invalid'?: boolean
+}) {
+  const [visible, setVisible] = useState(false)
+  return (
+    <div className="relative">
+      <Input
+        id={id}
+        type={visible ? 'text' : 'password'}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        autoComplete={autoComplete}
+        required={required}
+        minLength={minLength}
+        className="pr-11"
+        {...aria}
+      />
+      <button
+        type="button"
+        onClick={() => setVisible((v) => !v)}
+        aria-label={visible ? 'Ocultar senha' : 'Mostrar senha'}
+        aria-pressed={visible}
+        title={visible ? 'Ocultar senha' : 'Mostrar senha'}
+        className="absolute right-1.5 top-1/2 -translate-y-1/2 inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus:outline-none focus:ring-2 focus:ring-navy/25"
+      >
+        {visible ? (
+          <EyeOff className="w-4 h-4" aria-hidden="true" />
+        ) : (
+          <Eye className="w-4 h-4" aria-hidden="true" />
+        )}
+      </button>
+    </div>
+  )
+}
 
 interface AccountUser {
   id: number
@@ -200,10 +258,9 @@ export default function AccountIndex({ user, twofaEnabled, presetAvatars }: Prop
             >
               <div className="grid gap-5 sm:grid-cols-3">
                 <Field label="Senha atual" required error={password.errors.currentPassword}>
-                  <Input
-                    type="password"
+                  <PasswordInput
                     value={password.data.currentPassword}
-                    onChange={(event) => password.setData('currentPassword', event.target.value)}
+                    onChange={(value) => password.setData('currentPassword', value)}
                     autoComplete="current-password"
                     required
                   />
@@ -215,10 +272,9 @@ export default function AccountIndex({ user, twofaEnabled, presetAvatars }: Prop
                   error={password.errors.newPassword}
                   hint="Mínimo de 8 caracteres."
                 >
-                  <Input
-                    type="password"
+                  <PasswordInput
                     value={password.data.newPassword}
-                    onChange={(event) => password.setData('newPassword', event.target.value)}
+                    onChange={(value) => password.setData('newPassword', value)}
                     autoComplete="new-password"
                     minLength={8}
                     required
@@ -226,10 +282,9 @@ export default function AccountIndex({ user, twofaEnabled, presetAvatars }: Prop
                 </Field>
 
                 <Field label="Confirmar nova senha" required error={password.errors.confirm}>
-                  <Input
-                    type="password"
+                  <PasswordInput
                     value={password.data.confirm}
-                    onChange={(event) => password.setData('confirm', event.target.value)}
+                    onChange={(value) => password.setData('confirm', value)}
                     autoComplete="new-password"
                     minLength={8}
                     required

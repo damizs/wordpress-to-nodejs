@@ -12,6 +12,8 @@ import {
   AlertTriangle,
   CheckCircle2,
   XCircle,
+  Eye,
+  EyeOff,
 } from 'lucide-react'
 import { useState } from 'react'
 import {
@@ -24,6 +26,58 @@ import {
   Select,
   Textarea,
 } from '~/components/admin/ui'
+
+/**
+ * Campo de segredo (API key / sessionid) com botão de mostrar/ocultar
+ * (olho Eye/EyeOff). Recebe `id`/`aria-*` do <Field> (via cloneElement) e os
+ * repassa ao <Input>. `wrapperClassName` permite o campo crescer (flex-1)
+ * quando dividido com um botão ao lado. Botão type="button" (não submete).
+ */
+function PasswordInput({
+  id,
+  value,
+  onChange,
+  placeholder,
+  wrapperClassName = '',
+  ...aria
+}: {
+  id?: string
+  value: string
+  onChange: (value: string) => void
+  placeholder?: string
+  wrapperClassName?: string
+  'aria-describedby'?: string
+  'aria-invalid'?: boolean
+}) {
+  const [visible, setVisible] = useState(false)
+  return (
+    <div className={`relative ${wrapperClassName}`.trim()}>
+      <Input
+        id={id}
+        type={visible ? 'text' : 'password'}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="pr-11"
+        {...aria}
+      />
+      <button
+        type="button"
+        onClick={() => setVisible((v) => !v)}
+        aria-label={visible ? 'Ocultar chave' : 'Mostrar chave'}
+        aria-pressed={visible}
+        title={visible ? 'Ocultar chave' : 'Mostrar chave'}
+        className="absolute right-1.5 top-1/2 -translate-y-1/2 inline-flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus:outline-none focus:ring-2 focus:ring-navy/25"
+      >
+        {visible ? (
+          <EyeOff className="w-4 h-4" aria-hidden="true" />
+        ) : (
+          <Eye className="w-4 h-4" aria-hidden="true" />
+        )}
+      </button>
+    </div>
+  )
+}
 
 interface Props {
   settings: Record<string, string | null>
@@ -133,7 +187,7 @@ export default function InstagramSettings({ settings, categories, aiProviders, a
               </ol>
             </details>
             <Field label="RapidAPI Key">
-              <Input type="password" value={data.rapidapi_key} onChange={e => setData('rapidapi_key', e.target.value)} placeholder="Cole sua API Key" />
+              <PasswordInput value={data.rapidapi_key} onChange={value => setData('rapidapi_key', value)} placeholder="Cole sua API Key" />
             </Field>
           </Card>
 
@@ -155,7 +209,7 @@ export default function InstagramSettings({ settings, categories, aiProviders, a
             </details>
             <div className="space-y-4">
               <Field label="Session ID">
-                <Input type="password" value={data.instagram_sessionid} onChange={e => setData('instagram_sessionid', e.target.value)} placeholder="Cole seu sessionid" />
+                <PasswordInput value={data.instagram_sessionid} onChange={value => setData('instagram_sessionid', value)} placeholder="Cole seu sessionid" />
               </Field>
               <Field label="User-Agent" hint="Mesmo do navegador onde pegou o sessionid. Console → navigator.userAgent">
                 <Input type="text" value={data.instagram_useragent} onChange={e => setData('instagram_useragent', e.target.value)} placeholder="Mozilla/5.0..." />
@@ -181,7 +235,7 @@ export default function InstagramSettings({ settings, categories, aiProviders, a
             <div className="mb-4">
               <Field label="API Key">
                 <div className="flex gap-2">
-                  <Input type="password" value={data.ai_api_key} onChange={e => setData('ai_api_key', e.target.value)} placeholder="Cole sua API Key" className="flex-1" />
+                  <PasswordInput value={data.ai_api_key} onChange={value => setData('ai_api_key', value)} placeholder="Cole sua API Key" wrapperClassName="flex-1" />
                   <Button type="button" variant="secondary" onClick={testAiConnection} loading={testingAi}>
                     {!testingAi && <TestTube className="w-4 h-4" />}
                     Testar

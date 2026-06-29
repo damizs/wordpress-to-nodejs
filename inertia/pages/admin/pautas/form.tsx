@@ -1,6 +1,6 @@
 import { Head, useForm, Link } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Save, ArrowLeft, Upload, FileText, Paperclip, ClipboardList } from 'lucide-react'
+import { Save, ArrowLeft, Upload, FileText, Paperclip, ClipboardList, Info } from 'lucide-react'
 import { useRef } from 'react'
 import { Button, Card, CardHeader, Field, Input, PageHeader, Select } from '~/components/admin/ui'
 import RichTextEditor from '~/components/admin/RichTextEditor'
@@ -55,6 +55,16 @@ export default function PautaForm({ pauta, sessionTypes = [] }: Props) {
         icon={ClipboardList}
         eyebrow="Pautas das Sessões"
       />
+
+      <div className="flex items-start gap-2.5 mb-5 rounded-lg border border-sky/30 bg-sky/10 p-3 text-sm text-foreground">
+        <Info className="w-4 h-4 mt-0.5 shrink-0 text-sky" aria-hidden="true" />
+        <p>
+          <strong>Pauta</strong> = ordem do dia (o que <strong>será</strong> discutido) antes
+          da sessão. Aparece no site em <strong>/pautas</strong>. É diferente de{' '}
+          <strong>Atas</strong> (o resultado, o que foi decidido) e de{' '}
+          <strong>Sessões</strong> (agenda e vídeo).
+        </p>
+      </div>
 
       <form onSubmit={handleSubmit} className="admin-form">
         <Card>

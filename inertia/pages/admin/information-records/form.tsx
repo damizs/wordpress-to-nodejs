@@ -1,6 +1,6 @@
 import { Head, useForm, Link } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Save, ArrowLeft, Upload, FolderOpen } from 'lucide-react'
+import { Save, ArrowLeft, Upload, FolderOpen, Info } from 'lucide-react'
 import { useRef } from 'react'
 import { Button, Field, Input, Select, PageHeader, FormSection } from '~/components/admin/ui'
 import RichTextEditor from '~/components/admin/RichTextEditor'
@@ -53,6 +53,15 @@ export default function InformationRecordForm({ record, categories = [] }: Props
             </Link>
           }
         />
+
+        <div className="flex items-start gap-2.5 mb-5 rounded-lg border border-sky/30 bg-sky/10 p-3 text-sm text-foreground">
+          <Info className="w-4 h-4 mt-0.5 shrink-0 text-sky" aria-hidden="true" />
+          <p>
+            <strong>Acesso à Informação (LAI/PNTP)</strong> = documentos internos organizados
+            por categoria e ano. Aparecem nas páginas <strong>/:categoria</strong> do site. Para
+            links de sistemas externos, use o módulo <strong>Transparência</strong>.
+          </p>
+        </div>
 
         <div className="space-y-5">
           <FormSection
