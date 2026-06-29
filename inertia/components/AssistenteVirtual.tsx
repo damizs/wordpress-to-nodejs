@@ -313,6 +313,8 @@ const intentKeywords: Record<string, WeightedKeyword[]> = {
     { term: "falar com alguem", weight: 3 },
     { term: "falar com atendente", weight: 3 },
     { term: "atendente", weight: 3 },
+    { term: "atendimento", weight: 2 },
+    { term: "falar com", weight: 2 },
     { term: "humano", weight: 2 },
     { term: "telefone", weight: 2 },
     { term: "ligar", weight: 2 },

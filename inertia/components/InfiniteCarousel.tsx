@@ -31,7 +31,7 @@ interface InfiniteCarouselProps {
 export const InfiniteCarousel = ({
   children,
   gapClass = "gap-6",
-  speed = 0.18,
+  speed = 0.4,
   showArrows = true,
   ariaLabel,
   className = "",

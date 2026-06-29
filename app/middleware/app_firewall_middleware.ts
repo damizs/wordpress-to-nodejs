@@ -22,6 +22,16 @@ const SUSPICIOUS_PATTERNS = [
   /\/setup\.cgi/i,
 ]
 
+/**
+ * User-agents de ferramentas de CÓPIA/ESPELHAMENTO de sites (HTTrack, WebCopier
+ * etc.). São bloqueadas para dificultar o "download" do portal inteiro. NÃO inclui
+ * curl/python/navegadores legítimos nem bots de busca (Google/Bing) — apenas
+ * rippers dedicados. Importante: isto ELEVA o custo, não impede 100% (um ator com
+ * navegador real e UA falsa ainda consegue; conteúdo público é, por lei, aberto).
+ */
+const MIRROR_AGENTS =
+  /httrack|htmls\b|webcopier|web copier|webreaper|teleport ?pro|offline ?explorer|getleft|sitesucker|web2disk|darcy|webzip|webstripper|grab-?site|wget|httraqt|idm\b|internet download manager/i
+
 function parseBoolean(value: string | null | undefined, fallback: boolean) {
   if (value == null || value === '') return fallback
   return ['1', 'true', 'on', 'yes', 'sim'].includes(value.toLowerCase())
@@ -117,6 +127,24 @@ export default class AppFirewallMiddleware {
 
     if (ipMatches(ip, settings.allowedIps)) {
       return next()
+    }
+
+    // Ferramentas de espelhamento/cópia do site (HTTrack & cia.) — bloqueadas
+    // sempre (independe do modo monitor/block), pois não há uso legítimo delas
+    // navegando o portal. Não afeta /health, /assets, /uploads (early-return acima).
+    if (userAgent && MIRROR_AGENTS.test(userAgent)) {
+      await recordEvent({
+        level: 'danger',
+        type: 'site_mirror_tool',
+        action: 'block',
+        ip,
+        method,
+        path,
+        userAgent,
+        message: 'Ferramenta de cópia/espelhamento de site bloqueada.',
+        metadata: { tool: userAgent.slice(0, 120) },
+      })
+      return response.status(403).send('Acesso automatizado de cópia do portal não é permitido.')
     }
 
     const pathBlockedByConfig = settings.blockedPaths.some((rule) => path.includes(rule))

@@ -200,6 +200,21 @@ export default function TransparenciaIndex({ sections = [], openLink = null }: P
     }
   }, []);
 
+  // Compatibilidade com as URLs antigas do WordPress: /transparencia/#ldo.
+  // O hash NÃO é enviado ao servidor, então resolvemos no cliente — se o slug
+  // do hash casar um link existente, abre o mesmo conteúdo de /transparencia/<slug>.
+  useEffect(() => {
+    if (typeof window === "undefined" || openLink) return;
+    const hash = window.location.hash.replace(/^#/, "").trim().toLowerCase();
+    if (!hash) return;
+    const link = displaySections.flatMap((s) => s.links).find((l) => l.slug === hash);
+    if (link) {
+      history.replaceState(null, "", "/transparencia");
+      openModal(link);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [displaySections, openModal]);
+
   const filtered = useMemo(() => {
     const q = normalize(query.trim());
     if (!q) return displaySections;
