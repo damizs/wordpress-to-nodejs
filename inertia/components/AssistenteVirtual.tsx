@@ -16,176 +16,383 @@ interface QuickOption {
   action: string;
 }
 
+// Chips de sugestão (perguntas frequentes) para guiar o usuário.
 const quickOptions: QuickOption[] = [
+  { label: "Pedir informação (e-SIC)", action: "fazer_pedido" },
   { label: "Prazos da LAI", action: "prazos_lai" },
-  { label: "Recurso e-SIC", action: "recurso_esic" },
-  { label: "Consultar protocolo", action: "consultar_protocolo" },
+  { label: "Transparência", action: "transparencia" },
+  { label: "Ouvidoria", action: "ouvidoria" },
   { label: "Falar com atendente", action: "atendente" },
 ];
 
 const responses: Record<string, { text: string; options?: QuickOption[] }> = {
   // Saudações
   greeting: {
-    text: "Olá! 👋 Bem-vindo(a) à Câmara Municipal de Sumé! Como posso ajudar você hoje?",
+    text: "Olá! 👋 Bem-vindo(a) à Câmara Municipal de Sumé. Como posso ajudar você hoje?\n\nEscolha um dos assuntos abaixo ou descreva a sua dúvida.",
     options: [
       { label: "Transparência", action: "transparencia" },
+      { label: "Acesso à Informação (e-SIC)", action: "link_esic" },
       { label: "Ouvidoria", action: "ouvidoria" },
       { label: "Vereadores", action: "vereadores" },
-      { label: "Sessões/Atas", action: "sessoes" },
     ],
   },
-  
+
   // Prazos LAI
   prazos_lai: {
-    text: "📋 **Prazos da Lei de Acesso à Informação (LAI):**\n\n• Resposta inicial: **20 dias** (prorrogáveis por mais 10)\n• Recurso 1ª instância: **10 dias** após resposta\n• Recurso 2ª instância: **10 dias** após decisão\n\nA LAI não exige justificativa para solicitar informações públicas.",
+    text: "📋 **Prazos da Lei de Acesso à Informação (LAI):**\n\n- Resposta ao pedido: **até 20 dias**, prorrogáveis por mais **10 dias** mediante justificativa\n- Recurso (1ª instância): **10 dias** após a resposta\n- Recurso (2ª instância): **10 dias** após a decisão do recurso\n\nA LAI **não exige justificativa** para solicitar informações públicas. Faça o seu pedido pelo [e-SIC](/esic).",
     options: [
-      { label: "Como fazer pedido", action: "fazer_pedido" },
-      { label: "Recurso e-SIC", action: "recurso_esic" },
+      { label: "Como pedir informação", action: "fazer_pedido" },
+      { label: "Interpor recurso", action: "recurso_esic" },
     ],
   },
-  
+
   // Recurso e-SIC
   recurso_esic: {
-    text: "📝 **Como interpor recurso no e-SIC:**\n\n1. Acesse o portal e-SIC\n2. Informe seu número de protocolo\n3. Clique em 'Interpor Recurso'\n4. Descreva os motivos do recurso\n5. Aguarde análise em até 5 dias úteis\n\nPrecisa de mais alguma ajuda?",
+    text: "📝 **Como interpor recurso no e-SIC:**\n\n- Acesse o sistema pelo [e-SIC](/esic) e localize o seu pedido pelo número de protocolo\n- Abra a opção de **recurso** e descreva os motivos\n- Acompanhe a resposta pelo próprio sistema, dentro dos prazos da LAI\n\nO recurso pode ser apresentado em até **10 dias** após receber a resposta.",
     options: [
-      { label: "Acessar e-SIC", action: "link_esic" },
+      { label: "Acessar o e-SIC", action: "link_esic" },
       { label: "Prazos da LAI", action: "prazos_lai" },
     ],
   },
-  
+
   // Consultar protocolo
   consultar_protocolo: {
-    text: "🔍 Para consultar seu protocolo:\n\n1. Acesse: **node.camaradesume.pb.gov.br/e-sic**\n2. Clique em 'Consultar Pedido'\n3. Digite seu número de protocolo\n4. Informe sua senha de acesso\n\nCaso não lembre a senha, clique em 'Esqueci minha senha'.",
+    text: "🔍 **Consultar o andamento de um pedido:**\n\n- Acesse o [e-SIC](/esic)\n- Use a opção de **consulta** e informe o seu número de protocolo\n- Caso não lembre os dados de acesso, utilize a recuperação disponível no próprio sistema\n\nEm caso de dúvida, fale com o SIC pelo telefone **(83) 3353-1191**.",
     options: [
-      { label: "Acessar e-SIC", action: "link_esic" },
+      { label: "Acessar o e-SIC", action: "link_esic" },
       { label: "Fazer novo pedido", action: "fazer_pedido" },
     ],
   },
-  
+
   // Transparência
   transparencia: {
-    text: "🏛️ **Portal da Transparência:**\n\nNo portal você encontra:\n• Receitas e despesas\n• Contratos e licitações\n• Folha de pagamento\n• Diárias e passagens\n• Relatórios de gestão\n\nAcesse: **node.camaradesume.pb.gov.br/transparencia**",
+    text: "🏛️ **Portal da Transparência:**\n\nNo portal você encontra receitas e despesas, contratos e licitações, folha de pagamento, diárias e relatórios de gestão.\n\nAcesse o [Portal da Transparência](/transparencia).",
     options: [
       { label: "Licitações", action: "licitacoes" },
-      { label: "e-SIC", action: "link_esic" },
+      { label: "Acesso à Informação (e-SIC)", action: "link_esic" },
     ],
   },
-  
+
   // Ouvidoria
   ouvidoria: {
-    text: "📞 **Ouvidoria da Câmara:**\n\nCanais de atendimento:\n• Site: node.camaradesume.pb.gov.br/ouvidoria\n• E-mail: ouvidoria@camaradesume.pb.gov.br\n• Telefone: (83) 3353-1974\n• Presencial: Rua Luiz Grande, S/N, Centro\n\nHorário: Segunda a Sexta, 7h às 13h",
+    text: "📞 **Ouvidoria da Câmara:**\n\nCanais de atendimento:\n\n- Site: [Ouvidoria](/ouvidoria)\n- E-mail: ouvidoria@camaradesume.pb.gov.br\n- Telefone: (83) 3353-1185\n- Presencial: Rua Luiz Grande, s/n - Centro, Sumé - PB\n\nHorário: segunda a sexta, das 8h às 14h. O prazo de resposta é de até **20 dias**, prorrogáveis por mais **10**.",
     options: [
       { label: "Fazer denúncia", action: "denuncia" },
       { label: "Fazer sugestão", action: "sugestao" },
     ],
   },
-  
+
   // Vereadores
   vereadores: {
-    text: "👥 **Vereadores da Legislatura 2025-2028:**\n\nA Câmara Municipal de Sumé possui 9 vereadores eleitos.\n\nPara conhecer cada parlamentar, suas comissões e contatos, acesse:\n**node.camaradesume.pb.gov.br/vereadores**",
+    text: "👥 **Vereadores:**\n\nConheça os parlamentares da legislatura atual, suas comissões e contatos na página de [Vereadores](/vereadores).",
     options: [
       { label: "Mesa Diretora", action: "mesa_diretora" },
       { label: "Comissões", action: "comissoes" },
     ],
   },
-  
+
   // Sessões
   sessoes: {
-    text: "📅 **Sessões da Câmara:**\n\n• **Ordinárias:** Terças-feiras, 9h\n• **Extraordinárias:** Conforme convocação\n\nAs sessões são abertas ao público. Atas e pautas disponíveis em:\n**node.camaradesume.pb.gov.br/atas**",
+    text: "📅 **Sessões da Câmara:**\n\nAs sessões são abertas ao público. Você pode consultar as pautas das próximas sessões e as atas das sessões já realizadas.\n\n- [Pautas das sessões](/pautas)\n- [Atas das sessões](/atas)",
     options: [
       { label: "Ver pautas", action: "pautas" },
       { label: "Ver atas", action: "atas" },
     ],
   },
-  
+
   // Licitações
   licitacoes: {
-    text: "📄 **Licitações:**\n\nTodas as licitações da Câmara estão disponíveis com:\n• Editais completos\n• Resultados\n• Contratos firmados\n\nAcesse: **node.camaradesume.pb.gov.br/licitacoes**",
+    text: "📄 **Licitações e contratos:**\n\nConsulte os editais, resultados e contratos firmados pela Câmara:\n\n- [Licitações](/licitacoes)\n- [Contratos](/contratos)\n\nMais informações financeiras no [Portal da Transparência](/transparencia).",
   },
-  
+
   // Fazer pedido
   fazer_pedido: {
-    text: "📝 **Como fazer um pedido de informação:**\n\n1. Acesse o e-SIC\n2. Clique em 'Novo Pedido'\n3. Preencha seus dados\n4. Descreva detalhadamente a informação desejada\n5. Guarde o número do protocolo\n\nVocê receberá resposta em até 20 dias.",
+    text: "📝 **Como fazer um pedido de informação (LAI):**\n\n- Acesse o [e-SIC](/esic) e abra um **novo pedido**\n- Preencha os seus dados e descreva com clareza a informação desejada\n- Guarde o **número de protocolo** para acompanhar a resposta\n\nVocê receberá a resposta em até **20 dias**. Não é preciso justificar o pedido.",
     options: [
-      { label: "Acessar e-SIC", action: "link_esic" },
+      { label: "Acessar o e-SIC", action: "link_esic" },
+      { label: "Prazos da LAI", action: "prazos_lai" },
     ],
   },
-  
-  // Links
+
+  // Acesso ao e-SIC
   link_esic: {
-    text: "🔗 Acesse o e-SIC:\n**node.camaradesume.pb.gov.br/e-sic**\n\nPrecisa de mais alguma ajuda?",
+    text: "🔗 **Acesso à Informação (e-SIC):**\n\nUse a página de [Acesso à Informação / e-SIC](/esic) para fazer pedidos, consultar protocolos e interpor recursos.\n\nDúvidas? SIC: (83) 3353-1191 · contato@camaradesume.pb.gov.br",
+    options: [
+      { label: "Como pedir informação", action: "fazer_pedido" },
+      { label: "Prazos da LAI", action: "prazos_lai" },
+    ],
   },
-  
+
   // Mesa Diretora
   mesa_diretora: {
-    text: "🏛️ **Mesa Diretora 2025-2026:**\n\nA composição da Mesa Diretora está disponível em:\n**node.camaradesume.pb.gov.br/mesa-diretora**",
+    text: "🏛️ **Mesa Diretora:**\n\nConsulte a composição atual da Mesa Diretora na página da [Mesa Diretora](/mesa-diretora).",
   },
-  
+
   // Comissões
   comissoes: {
-    text: "👥 **Comissões Permanentes:**\n\nConheça as comissões e seus membros em:\n**node.camaradesume.pb.gov.br/comissoes**",
+    text: "👥 **Comissões:**\n\nConheça as comissões e os seus membros na página de [Comissões](/comissoes).",
   },
-  
+
+  // Diário Oficial
+  diario: {
+    text: "📰 **Diário Oficial:**\n\nAtos, publicações e edições oficiais da Câmara estão disponíveis no [Diário Oficial](/diario-oficial).",
+  },
+
+  // Perguntas frequentes
+  faq: {
+    text: "❓ **Perguntas Frequentes:**\n\nReunimos as dúvidas mais comuns sobre os serviços da Câmara na página de [Perguntas Frequentes](/perguntas-frequentes).",
+    options: quickOptions,
+  },
+
   // Atendente
   atendente: {
-    text: "👤 Para falar com um atendente humano:\n\n📞 Telefone: (83) 3353-1974\n📧 E-mail: contato@camaradesume.pb.gov.br\n🏢 Presencial: Rua Luiz Grande, S/N, Centro\n\n⏰ Horário: Segunda a Sexta, 7h às 13h",
+    text: "👤 **Falar com um atendente:**\n\n- Telefone: (83) 3353-1185 (Ouvidoria) · (83) 3353-1191 (e-SIC)\n- E-mail: contato@camaradesume.pb.gov.br\n- Presencial: Rua Luiz Grande, s/n - Centro, Sumé - PB\n\nHorário: segunda a sexta, das 8h às 14h.",
   },
-  
+
   // Denúncia
   denuncia: {
-    text: "🚨 **Denúncias:**\n\nVocê pode registrar denúncias de forma anônima através da Ouvidoria.\n\nAcesse: **node.camaradesume.pb.gov.br/ouvidoria**\n\nSua identidade será preservada conforme a lei.",
+    text: "🚨 **Denúncias:**\n\nVocê pode registrar denúncias pela [Ouvidoria](/ouvidoria). A sua identidade é preservada conforme a legislação.",
   },
-  
+
   // Sugestão
   sugestao: {
-    text: "💡 **Sugestões:**\n\nSua opinião é importante! Envie sugestões para melhorar os serviços da Câmara através da Ouvidoria ou da Pesquisa de Satisfação.\n\nAcesse: **node.camaradesume.pb.gov.br/pesquisa-de-satisfacao**",
+    text: "💡 **Sugestões:**\n\nSua opinião é importante! Envie sugestões pela [Ouvidoria](/ouvidoria) ou participe da [Pesquisa de Satisfação](/pesquisa-de-satisfacao).",
   },
-  
+
   // Pautas
   pautas: {
-    text: "📋 **Pautas das Sessões:**\n\nConfira as pautas das próximas sessões em:\n**node.camaradesume.pb.gov.br/pautas**",
+    text: "📋 **Pautas das sessões:**\n\nConfira as pautas das próximas sessões em [Pautas](/pautas).",
   },
-  
+
   // Atas
   atas: {
-    text: "📜 **Atas das Sessões:**\n\nTodas as atas estão disponíveis para download em:\n**node.camaradesume.pb.gov.br/atas**",
+    text: "📜 **Atas das sessões:**\n\nTodas as atas estão disponíveis em [Atas](/atas).",
   },
-  
-  // Fallback
-  fallback: {
-    text: "Desculpe, não entendi sua pergunta. 🤔\n\nPosso ajudar com:\n• Informações sobre transparência\n• e-SIC e pedidos de informação\n• Ouvidoria\n• Sessões e atas\n• Informações sobre vereadores\n\nEscolha uma opção abaixo ou digite sua dúvida de outra forma.",
+
+  // Resposta de baixa confiança (não "chutar" resposta canned)
+  low_confidence: {
+    text: "Não tenho certeza sobre isso. 🤔\n\nVocê pode tentar **reformular a pergunta** ou acessar diretamente:\n\n- [Acesso à Informação / e-SIC](/esic)\n- [Portal da Transparência](/transparencia)\n- [Perguntas Frequentes](/perguntas-frequentes)\n- [Ouvidoria](/ouvidoria)\n\nTambém posso ajudar com os assuntos abaixo:",
     options: quickOptions,
   },
 };
 
-// Palavras-chave para detectar intenção
-const intentKeywords: Record<string, string[]> = {
-  greeting: ["oi", "olá", "ola", "bom dia", "boa tarde", "boa noite", "hey", "eai", "e ai", "oie", "oii", "opa", "fala", "salve"],
-  prazos_lai: ["prazo", "prazos", "lai", "lei de acesso", "quanto tempo", "dias", "resposta"],
-  recurso_esic: ["recurso", "recorrer", "apelar", "contestar"],
-  consultar_protocolo: ["protocolo", "consultar", "consulta", "acompanhar", "status", "andamento"],
-  transparencia: ["transparencia", "transparência", "portal", "gastos", "despesas", "receitas"],
-  ouvidoria: ["ouvidoria", "reclamação", "reclamar", "elogio", "manifestação"],
-  vereadores: ["vereador", "vereadores", "parlamentar", "parlamentares", "edil"],
-  sessoes: ["sessão", "sessao", "sessões", "sessoes", "plenário", "plenaria"],
-  licitacoes: ["licitação", "licitacao", "licitações", "licitacoes", "edital", "pregão", "pregao"],
-  atendente: ["atendente", "humano", "pessoa", "falar com alguém", "telefone", "ligar"],
-  link_esic: ["esic", "e-sic", "sic", "acesso informação", "acesso informacao"],
+/**
+ * Palavras-chave ponderadas por intenção.
+ * - Termos específicos (ex.: "esic", "vereador", "licitacao") têm peso maior.
+ * - Termos genéricos (ex.: "portal", "pedido") têm peso baixo e, sozinhos, não
+ *   disparam uma resposta (evita casar texto irrelevante).
+ * - Termos com espaço são tratados como expressão (correspondência por trecho);
+ *   termos de uma palavra exigem correspondência de palavra inteira (token).
+ */
+interface WeightedKeyword {
+  term: string;
+  weight: number;
+}
+
+const intentKeywords: Record<string, WeightedKeyword[]> = {
+  greeting: [
+    { term: "oi", weight: 2 },
+    { term: "ola", weight: 2 },
+    { term: "opa", weight: 2 },
+    { term: "salve", weight: 2 },
+    { term: "bom dia", weight: 2 },
+    { term: "boa tarde", weight: 2 },
+    { term: "boa noite", weight: 2 },
+  ],
+  prazos_lai: [
+    { term: "lai", weight: 3 },
+    { term: "lei de acesso", weight: 3 },
+    { term: "quanto tempo", weight: 2 },
+    { term: "prazo", weight: 2 },
+    { term: "prazos", weight: 2 },
+    { term: "prorrogacao", weight: 2 },
+    { term: "dias", weight: 1 },
+    { term: "resposta", weight: 1 },
+  ],
+  fazer_pedido: [
+    { term: "fazer pedido", weight: 3 },
+    { term: "novo pedido", weight: 3 },
+    { term: "solicitar informacao", weight: 3 },
+    { term: "pedir informacao", weight: 3 },
+    { term: "pedido de informacao", weight: 3 },
+    { term: "como pedir", weight: 2 },
+    { term: "solicitar", weight: 1 },
+  ],
+  recurso_esic: [
+    { term: "interpor recurso", weight: 3 },
+    { term: "recurso", weight: 2 },
+    { term: "recorrer", weight: 2 },
+    { term: "apelar", weight: 1 },
+    { term: "contestar", weight: 1 },
+  ],
+  consultar_protocolo: [
+    { term: "consultar protocolo", weight: 3 },
+    { term: "protocolo", weight: 3 },
+    { term: "acompanhar pedido", weight: 2 },
+    { term: "andamento", weight: 1 },
+    { term: "status", weight: 1 },
+  ],
+  transparencia: [
+    { term: "portal da transparencia", weight: 3 },
+    { term: "transparencia", weight: 3 },
+    { term: "despesas", weight: 2 },
+    { term: "receitas", weight: 2 },
+    { term: "gastos", weight: 2 },
+    { term: "folha de pagamento", weight: 2 },
+    { term: "salarios", weight: 2 },
+    { term: "diarias", weight: 2 },
+    { term: "portal", weight: 1 },
+  ],
+  ouvidoria: [
+    { term: "ouvidoria", weight: 3 },
+    { term: "reclamacao", weight: 2 },
+    { term: "reclamar", weight: 2 },
+    { term: "manifestacao", weight: 2 },
+    { term: "elogio", weight: 2 },
+  ],
+  denuncia: [
+    { term: "denuncia", weight: 3 },
+    { term: "denunciar", weight: 3 },
+  ],
+  sugestao: [
+    { term: "sugestao", weight: 3 },
+    { term: "sugestoes", weight: 3 },
+    { term: "sugerir", weight: 2 },
+  ],
+  vereadores: [
+    { term: "vereador", weight: 3 },
+    { term: "vereadores", weight: 3 },
+    { term: "parlamentar", weight: 2 },
+    { term: "parlamentares", weight: 2 },
+    { term: "edil", weight: 2 },
+  ],
+  mesa_diretora: [
+    { term: "mesa diretora", weight: 3 },
+    { term: "presidente da camara", weight: 2 },
+  ],
+  comissoes: [
+    { term: "comissao", weight: 3 },
+    { term: "comissoes", weight: 3 },
+  ],
+  sessoes: [
+    { term: "sessao", weight: 3 },
+    { term: "sessoes", weight: 3 },
+    { term: "plenario", weight: 2 },
+    { term: "ordinaria", weight: 2 },
+    { term: "extraordinaria", weight: 2 },
+  ],
+  pautas: [
+    { term: "pauta", weight: 3 },
+    { term: "pautas", weight: 3 },
+  ],
+  atas: [
+    { term: "ata", weight: 3 },
+    { term: "atas", weight: 3 },
+  ],
+  licitacoes: [
+    { term: "licitacao", weight: 3 },
+    { term: "licitacoes", weight: 3 },
+    { term: "edital", weight: 2 },
+    { term: "editais", weight: 2 },
+    { term: "pregao", weight: 2 },
+    { term: "contrato", weight: 2 },
+    { term: "contratos", weight: 2 },
+  ],
+  diario: [
+    { term: "diario oficial", weight: 3 },
+    { term: "diario", weight: 2 },
+    { term: "publicacao oficial", weight: 2 },
+    { term: "publicacoes oficiais", weight: 2 },
+  ],
+  faq: [
+    { term: "perguntas frequentes", weight: 3 },
+    { term: "duvidas frequentes", weight: 3 },
+    { term: "faq", weight: 3 },
+  ],
+  atendente: [
+    { term: "falar com alguem", weight: 3 },
+    { term: "falar com atendente", weight: 3 },
+    { term: "atendente", weight: 3 },
+    { term: "humano", weight: 2 },
+    { term: "telefone", weight: 2 },
+    { term: "ligar", weight: 2 },
+    { term: "contato", weight: 1 },
+    { term: "pessoa", weight: 1 },
+  ],
+  link_esic: [
+    { term: "esic", weight: 3 },
+    { term: "acesso a informacao", weight: 3 },
+    { term: "acesso informacao", weight: 2 },
+    { term: "sic", weight: 2 },
+  ],
 };
 
-function detectIntent(text: string): string {
-  const normalizedText = text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-  
+// Pontuação mínima para considerar uma intenção confiável.
+const MIN_SCORE = 2;
+
+function normalize(text: string): string {
+  return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
+function tokenize(text: string): string[] {
+  return normalize(text)
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+}
+
+function scoreIntents(text: string): Record<string, number> {
+  const normalizedFull = normalize(text);
+  const tokens = tokenize(text);
+  const tokenSet = new Set(tokens);
+  const scores: Record<string, number> = {};
+
   for (const [intent, keywords] of Object.entries(intentKeywords)) {
-    for (const keyword of keywords) {
-      const normalizedKeyword = keyword.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-      if (normalizedText.includes(normalizedKeyword)) {
-        return intent;
-      }
+    let score = 0;
+    for (const { term, weight } of keywords) {
+      const normalizedTerm = normalize(term);
+      const matched = normalizedTerm.includes(" ")
+        ? normalizedFull.includes(normalizedTerm)
+        : tokenSet.has(normalizedTerm);
+      if (matched) score += weight;
+    }
+    if (score > 0) scores[intent] = score;
+  }
+
+  return scores;
+}
+
+/**
+ * Detecta a intenção por pontuação. Só retorna uma intenção concreta quando a
+ * confiança é suficiente (score >= MIN_SCORE); caso contrário devolve
+ * "low_confidence" para um fallback honesto, em vez de "chutar" uma resposta.
+ */
+function detectIntent(text: string): { intent: string; confident: boolean } {
+  const scores = scoreIntents(text);
+
+  const greetingScore = scores.greeting ?? 0;
+  delete scores.greeting;
+
+  let bestIntent: string | null = null;
+  let bestScore = 0;
+  for (const [intent, score] of Object.entries(scores)) {
+    if (score > bestScore) {
+      bestScore = score;
+      bestIntent = intent;
     }
   }
-  
-  return "fallback";
+
+  if (bestIntent && bestScore >= MIN_SCORE) {
+    return { intent: bestIntent, confident: true };
+  }
+
+  // Saudação só vence quando nada mais foi reconhecido com confiança.
+  if (greetingScore >= MIN_SCORE) {
+    return { intent: "greeting", confident: true };
+  }
+
+  return { intent: "low_confidence", confident: false };
 }
 
 function formatTime(): string {
@@ -240,11 +447,11 @@ export const AssistenteVirtual = () => {
     setInput("");
     setIsTyping(true);
 
-    // Detecta intenção e responde
+    // Detecta intenção e responde (com fallback honesto quando incerto)
     setTimeout(() => {
-      const intent = detectIntent(messageText);
-      const response = responses[intent] || responses.fallback;
-      
+      const { intent } = detectIntent(messageText);
+      const response = responses[intent] || responses.low_confidence;
+
       const botMessage: Message = {
         id: nextId(),
         text: response.text,
@@ -261,9 +468,9 @@ export const AssistenteVirtual = () => {
     const response = responses[action];
     if (response) {
       // Adiciona a opção como mensagem do usuário
-      const option = quickOptions.find(o => o.action === action) || 
+      const option = quickOptions.find(o => o.action === action) ||
                      Object.values(responses).flatMap(r => r.options || []).find(o => o.action === action);
-      
+
       if (option) {
         const userMessage: Message = {
           id: nextId(),
@@ -363,7 +570,7 @@ export const AssistenteVirtual = () => {
                   <p className={`text-xs text-muted-foreground mt-1 ${msg.isBot ? "" : "text-right"}`}>
                     {msg.time}
                   </p>
-                  
+
                   {/* Quick Options */}
                   {msg.isBot && msg.options && msg.options.length > 0 && (
                     <div className="flex flex-wrap gap-2 mt-3">
@@ -381,7 +588,7 @@ export const AssistenteVirtual = () => {
                 </div>
               </div>
             ))}
-            
+
             {isTyping && (
               <div className="flex justify-start">
                 <div
@@ -397,7 +604,7 @@ export const AssistenteVirtual = () => {
                 </div>
               </div>
             )}
-            
+
             <div ref={messagesEndRef} />
           </div>
 

@@ -78,12 +78,11 @@ export default function NewsForm({ news: existing, categories }: Props) {
     }
 
     if (isEditing) {
-      formData.append('_method', 'PUT')
-      router.post(`/painel/noticias/${existing!.id}`, formData, {
+      // Method spoofing do AdonisJS lê `_method` da QUERY STRING (antes do
+      // bodyparser) — `_method` no corpo do FormData NÃO funciona e cai como
+      // POST /painel/noticias/:id (rota inexistente) → 404. Padrão dos demais forms.
+      router.post(`/painel/noticias/${existing!.id}?_method=PUT`, formData, {
         forceFormData: true,
-        onSuccess: () => {
-          // Redirect handled by controller
-        }
       })
     } else {
       router.post('/painel/noticias', formData, {
@@ -103,10 +102,16 @@ export default function NewsForm({ news: existing, categories }: Props) {
           title={isEditing ? 'Editar Notícia' : 'Nova Notícia'}
           description={isEditing ? `Editando: ${existing?.title}` : 'Preencha os dados para criar uma nova notícia'}
           actions={
-            <ButtonLink href="/painel/noticias" variant="secondary">
-              <ArrowLeft className="w-4 h-4" />
-              Voltar
-            </ButtonLink>
+            <>
+              <ButtonLink href="/painel/noticias" variant="secondary">
+                <ArrowLeft className="w-4 h-4" />
+                Voltar
+              </ButtonLink>
+              <Button type="submit" form="news-form" loading={processing}>
+                {!processing && <Save className="w-4 h-4" />}
+                {processing ? 'Salvando...' : isEditing ? 'Atualizar' : 'Criar Notícia'}
+              </Button>
+            </>
           }
         />
 
@@ -233,8 +238,9 @@ export default function NewsForm({ news: existing, categories }: Props) {
             </aside>
           </div>
 
-          {/* Actions */}
-          <div className="flex flex-col sm:flex-row items-center justify-end gap-3 pt-2">
+          {/* Barra de ações sticky no rodapé — sempre acessível em forms longos
+              (antes ficava só no fim, obrigando a rolar tudo). */}
+          <div className="sticky bottom-4 z-20 flex flex-col sm:flex-row items-center justify-end gap-3 rounded-xl border border-border bg-card/95 backdrop-blur shadow-lg px-4 py-3">
             <ButtonLink href="/painel/noticias" variant="secondary" className="w-full sm:w-auto">
               Cancelar
             </ButtonLink>

@@ -42,6 +42,13 @@ export const InfiniteCarousel = ({
   // Largura de UMA volta cacheada (offsetLeft da 2ª cópia). Recalculada só no
   // mount, em resize e quando os filhos mudam — NUNCA dentro do loop rAF.
   const halfRef = useRef(0);
+  // Posição-alvo do auto-scroll em ponto flutuante. ESSENCIAL: o navegador
+  // ARREDONDA `scrollLeft` para o pixel (físico) mais próximo. Ler de volta um
+  // `scrollLeft += 0.18` devolve o valor arredondado, então o incremento some a
+  // cada frame e o carrossel NUNCA anda. Mantemos a posição num ref float e só
+  // escrevemos em `scrollLeft` — o acúmulo passa a ser correto e independente do
+  // arredondamento/DPR. Sincronizado com o scroll real só durante interação.
+  const posRef = useRef(0);
   // Pausa por interação manual (timestamp) — compartilhada entre o loop e os
   // botões de navegação (que ficam fora do container de scroll).
   const manualPausedUntilRef = useRef(0);
@@ -58,9 +65,14 @@ export const InfiniteCarousel = ({
     const secondCopy = secondCopyRef.current;
     if (!container || !track || !secondCopy) return;
 
+    // Largura de UMA volta = offsetLeft da 2ª cópia (inclui o gap entre as
+    // cópias, mantendo a emenda invisível). Mantém `posRef` dentro de [0, h).
     const measure = () => {
       halfRef.current = secondCopy.offsetLeft;
+      const h = halfRef.current;
+      if (h > 0) posRef.current = ((posRef.current % h) + h) % h;
     };
+    posRef.current = container.scrollLeft;
     measure();
 
     const onResize = () => measure();
@@ -68,14 +80,27 @@ export const InfiniteCarousel = ({
     const ro = typeof ResizeObserver !== "undefined" ? new ResizeObserver(measure) : null;
     ro?.observe(track);
 
-    let hoverPaused = false;
+    // Remede depois que imagens/fontes carregam: antes disso a largura das cópias
+    // (logo o offsetLeft) pode estar instável e gerar uma volta errada.
+    container.addEventListener("load", measure, true); // captura o load de <img>
+    window.addEventListener("load", measure);
+    document.fonts?.ready?.then(measure).catch(() => {});
 
-    // Mantém o wraparound coerente durante arrasto/scroll/clique nos botões.
+    let hoverPaused = false;
+    const isPaused = () => hoverPaused || performance.now() < manualPausedUntilRef.current;
+
+    // Mantém o wraparound coerente durante arrasto/scroll/clique nos botões e
+    // ressincroniza a posição-alvo do auto-scroll com o scroll real do usuário.
     const onScroll = () => {
       const h = halfRef.current;
-      if (h <= 0) return;
-      if (container.scrollLeft >= h) container.scrollLeft -= h;
-      else if (container.scrollLeft < 0) container.scrollLeft += h;
+      if (h > 0) {
+        if (container.scrollLeft >= h) container.scrollLeft -= h;
+        else if (container.scrollLeft < 0) container.scrollLeft += h;
+      }
+      // Só sincroniza quando o movimento é do usuário (em pausa). Durante o
+      // auto-scroll, é o próprio loop que escreve em scrollLeft (valor já
+      // arredondado), então NÃO devemos sobrescrever a posição float com ele.
+      if (isPaused()) posRef.current = container.scrollLeft;
     };
 
     const onEnter = () => {
@@ -108,11 +133,23 @@ export const InfiniteCarousel = ({
     let rafId = 0;
     if (!reduceMotion) {
       const step = () => {
-        const paused = hoverPaused || performance.now() < manualPausedUntilRef.current;
-        if (!paused) {
-          container.scrollLeft += speed;
-          const h = halfRef.current;
-          if (h > 0 && container.scrollLeft >= h) container.scrollLeft -= h;
+        if (!isPaused()) {
+          // Só rola se há overflow real (conteúdo mais largo que o container).
+          const maxScroll = container.scrollWidth - container.clientWidth;
+          if (maxScroll > 1) {
+            const h = halfRef.current;
+            // Loop perfeito quando uma volta cabe na faixa rolável (caso normal:
+            // 1 cópia já é mais larga que o container). Se houver poucos itens —
+            // 1 cópia mais estreita que o container, mas 2 cópias transbordam —
+            // o loop seamless é impossível com 2 cópias; cai para um loop simples
+            // em maxScroll só para não ficar parado.
+            const loopDist = h > 0 && h <= maxScroll ? h : maxScroll;
+            let pos = posRef.current + speed;
+            if (pos >= loopDist) pos -= loopDist;
+            posRef.current = pos;
+            // Acúmulo no ref float; aqui só projetamos para o scroll real.
+            container.scrollLeft = pos;
+          }
         }
         rafId = requestAnimationFrame(step);
       };
@@ -122,6 +159,8 @@ export const InfiniteCarousel = ({
     return () => {
       if (rafId) cancelAnimationFrame(rafId);
       window.removeEventListener("resize", onResize);
+      window.removeEventListener("load", measure);
+      container.removeEventListener("load", measure, true);
       ro?.disconnect();
       container.removeEventListener("pointerenter", onEnter);
       container.removeEventListener("pointerleave", onLeave);
