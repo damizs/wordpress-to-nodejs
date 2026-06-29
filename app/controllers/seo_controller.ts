@@ -16,16 +16,29 @@ export default class SeoController {
       await Promise.all([
         News.query()
           .where('status', 'published')
+          .whereNull('deleted_at')
           .whereNotIn('category_id', (sub) =>
             sub.from('news_categories').where('slug', 'getpublic').select('id')
           )
           .orderBy('published_at', 'desc')
           .select('slug', 'updated_at', 'published_at'),
         Councilor.query().where('is_active', true).select('slug', 'updated_at'),
-        Ata.query().where('is_published', true).select('slug', 'updated_at'),
-        Pauta.query().where('is_published', true).select('slug', 'updated_at'),
-        OfficialPublication.query().whereNotNull('slug').select('slug', 'updated_at'),
-        LegislativeActivity.query().whereNotNull('slug').select('slug', 'updated_at'),
+        Ata.query()
+          .where('is_published', true)
+          .whereNull('deleted_at')
+          .select('slug', 'updated_at'),
+        Pauta.query()
+          .where('is_published', true)
+          .whereNull('deleted_at')
+          .select('slug', 'updated_at'),
+        OfficialPublication.query()
+          .whereNull('deleted_at')
+          .whereNotNull('slug')
+          .select('slug', 'updated_at'),
+        LegislativeActivity.query()
+          .whereNull('deleted_at')
+          .whereNotNull('slug')
+          .select('slug', 'updated_at'),
         Licitacao.query().select('slug', 'updated_at'),
         Contract.query().where('is_active', true).whereNotNull('slug').select('slug', 'updated_at'),
       ])

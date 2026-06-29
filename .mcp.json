@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "playwright-server": {
+      "description": "Browser automation via Playwright MCP for local UI checks and accessibility snapshots.",
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"]
+    },
+    "chrome-devtools": {
+      "description": "Chrome DevTools MCP for local debugging and performance inspection.",
+      "command": "npx",
+      "args": ["-y", "chrome-devtools-mcp@latest"]
+    }
+  }
+}

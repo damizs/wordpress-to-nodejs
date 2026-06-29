@@ -25,7 +25,11 @@ export default class DynamicInfoController {
     if (!category) {
       // Permalink antigo do WordPress: notícias viviam na raiz (/slug-da-noticia/).
       // Preserva os links indexados/avaliados com redirect 301 (CLAUDE.md §11.4).
-      const news = await News.query().where('slug', slug).where('status', 'published').first()
+      const news = await News.query()
+        .where('slug', slug)
+        .where('status', 'published')
+        .whereNull('deleted_at')
+        .first()
       if (news) {
         return response.redirect().status(301).toPath(`/noticias/${news.slug}`)
       }
@@ -43,6 +47,7 @@ export default class DynamicInfoController {
     let query = InformationRecord.query()
       .where('category', slug)
       .where('is_active', true)
+      .whereNull('deleted_at')
       .orderBy('year', 'desc')
       .orderBy('created_at', 'desc')
     if (year) query = query.where('year', year)
@@ -55,6 +60,7 @@ export default class DynamicInfoController {
     const latestRecord = await InformationRecord.query()
       .where('category', slug)
       .where('is_active', true)
+      .whereNull('deleted_at')
       .where((builder) => {
         builder.whereNotNull('reference_date').orWhereNotNull('updated_at').orWhereNotNull('created_at')
       })
@@ -64,6 +70,7 @@ export default class DynamicInfoController {
     const yearRows = await InformationRecord.query()
       .where('category', slug)
       .where('is_active', true)
+      .whereNull('deleted_at')
       .distinct('year')
       .orderBy('year', 'desc')
 

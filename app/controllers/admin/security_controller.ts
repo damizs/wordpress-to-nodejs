@@ -4,7 +4,10 @@ import SiteSetting from '#models/site_setting'
 import SecurityEvent from '#models/security_event'
 import BackupRun from '#models/backup_run'
 import NotificationLog from '#models/notification_log'
+import ActivityLog from '#models/activity_log'
+import StorageSyncRun from '#models/storage_sync_run'
 import BackupService from '#services/backup_service'
+import StorageSyncService from '#services/storage_sync_service'
 import EvolutionAlertService from '#services/evolution_alert_service'
 
 function parseBooleanInput(value: unknown) {
@@ -27,23 +30,38 @@ export default class SecurityController {
   async index({ inertia }: HttpContext) {
     const settings = await SiteSetting.byGroup('security')
     const envStatus = BackupService.environmentStatus()
+    const storageSyncEnv = StorageSyncService.environmentStatus()
     let events: SecurityEvent[] = []
     let backups: BackupRun[] = []
+    let storageSyncRuns: StorageSyncRun[] = []
     let notifications: NotificationLog[] = []
+    let activityLogs: ActivityLog[] = []
     let eventCount = 0
     let blockedCount = 0
 
     try {
-      const [eventRows, backupRows, notificationRows, eventCountRow, blockedCountRow] = await Promise.all([
+      const [
+        eventRows,
+        backupRows,
+        storageSyncRows,
+        notificationRows,
+        activityRows,
+        eventCountRow,
+        blockedCountRow,
+      ] = await Promise.all([
         SecurityEvent.query().orderBy('created_at', 'desc').limit(30),
         BackupRun.query().orderBy('created_at', 'desc').limit(10),
+        StorageSyncRun.query().orderBy('created_at', 'desc').limit(10),
         NotificationLog.query().where('channel', 'evolution').orderBy('created_at', 'desc').limit(15),
+        ActivityLog.query().orderBy('created_at', 'desc').limit(30),
         SecurityEvent.query().count('* as total').first(),
         SecurityEvent.query().where('action', 'block').count('* as total').first(),
       ])
       events = eventRows
       backups = backupRows
+      storageSyncRuns = storageSyncRows
       notifications = notificationRows
+      activityLogs = activityRows
       eventCount = Number(eventCountRow?.$extras.total ?? 0)
       blockedCount = Number(blockedCountRow?.$extras.total ?? 0)
     } catch {
@@ -66,6 +84,7 @@ export default class SecurityController {
         blockedCount,
       },
       backupEnv: envStatus,
+      storageSyncEnv,
       evolution: evolutionSettings,
       evolutionState,
       backups: backups.map((backup) => ({
@@ -80,6 +99,19 @@ export default class SecurityController {
         sizeBytes: backup.sizeBytes,
         providers: backup.providers ?? [],
         error: backup.error,
+      })),
+      storageSyncRuns: storageSyncRuns.map((run) => ({
+        id: run.id,
+        status: run.status,
+        trigger: run.trigger,
+        localPath: run.localPath,
+        target: run.target,
+        startedAt: serializeDate(run.startedAt),
+        finishedAt: serializeDate(run.finishedAt),
+        filesScanned: run.filesScanned,
+        filesSynced: run.filesSynced,
+        bytesSynced: run.bytesSynced,
+        error: run.error,
       })),
       events: events.map((event) => ({
         id: event.id,
@@ -101,6 +133,19 @@ export default class SecurityController {
         error: notification.error,
         sentAt: serializeDate(notification.sentAt),
         createdAt: serializeDate(notification.createdAt),
+      })),
+      activityLogs: activityLogs.map((log) => ({
+        id: log.id,
+        userId: log.userId,
+        action: log.action,
+        resource: log.resource,
+        resourceId: log.resourceId,
+        method: log.method,
+        path: log.path,
+        ip: log.ip,
+        statusCode: log.statusCode,
+        message: log.message,
+        createdAt: serializeDate(log.createdAt),
       })),
     })
   }
@@ -161,6 +206,21 @@ export default class SecurityController {
       session.flash('error', 'Backup local concluido, mas algum envio externo falhou.')
     } else {
       session.flash('error', backup.error || 'Nao foi possivel gerar o backup.')
+    }
+
+    return response.redirect().toPath('/painel/seguranca')
+  }
+
+  async runStorageSync({ response, session }: HttpContext) {
+    const runs = await StorageSyncService.run({ trigger: 'manual' })
+    const failed = runs.filter((run) => run.status === 'failed')
+
+    if (failed.length === 0) {
+      session.flash('success', 'Sincronizacao de arquivos concluida com sucesso.')
+    } else if (failed.length === runs.length) {
+      session.flash('error', failed[0]?.error || 'Nao foi possivel sincronizar os arquivos.')
+    } else {
+      session.flash('error', 'Sincronizacao parcial: algum alvo R2/rclone falhou.')
     }
 
     return response.redirect().toPath('/painel/seguranca')

@@ -80,6 +80,7 @@ export default class CouncilorsController {
       // Matérias do vereador: vínculo direto (pivot) OU autor por nome (dados legados do WP)
       LegislativeActivity.query()
         .where('is_active', true)
+        .whereNull('deleted_at')
         .where((q) => {
           q.whereHas('authors', (sub) => sub.where('councilors.id', councilor.id))
           q.orWhere((sub) => {
@@ -91,7 +92,7 @@ export default class CouncilorsController {
         })
         .orderBy('year', 'desc')
         .orderBy('created_at', 'desc'),
-      LegislativeActivity.query().where('is_active', true).count('* as total'),
+      LegislativeActivity.query().where('is_active', true).whereNull('deleted_at').count('* as total'),
     ])
 
     const totalMateriasPortal = Number(totalGeral[0]?.$extras.total ?? 0)

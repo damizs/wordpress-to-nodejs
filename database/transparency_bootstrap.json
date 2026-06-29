@@ -14,56 +14,56 @@
       "slug": "despesas-anos-2019-ate-2022",
       "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/NbvH/despesas",
       "is_external": true,
-      "open_mode": "new_tab"
+      "open_mode": "modal"
     },
     {
       "title": "Despesas - (2023/2024) (2025/2026)",
       "slug": "despesas-2023-2024-2025-2026",
       "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/NbvH/despesas",
       "is_external": true,
-      "open_mode": "new_tab"
+      "open_mode": "modal"
     },
     {
       "title": "Despesas com COVID-19",
       "slug": "despesas-com-covid-19",
       "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/NbvH/despesas",
       "is_external": true,
-      "open_mode": "new_tab"
+      "open_mode": "modal"
     },
     {
       "title": "Documentos de Pagamentos",
       "slug": "documentos-de-pagamentos",
       "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/accessdirect.php?link=NbvH",
       "is_external": true,
-      "open_mode": "new_tab"
+      "open_mode": "modal"
     },
     {
       "title": "Despesas Extra Orçamentária - Transferências Financeiras",
       "slug": "despesas-extra-orcamentaria-transferencias-financeiras",
       "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/NbvH/despesas",
       "is_external": true,
-      "open_mode": "new_tab"
+      "open_mode": "modal"
     },
     {
       "title": "Despesas Extra-Orçamentárias",
       "slug": "despesas-extra-orcamentarias",
       "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/NbvH/despesas",
       "is_external": true,
-      "open_mode": "new_tab"
+      "open_mode": "modal"
     },
     {
       "title": "Despesas Orçamentarias",
       "slug": "despesas-orcamentarias",
       "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/NbvH/despesas",
       "is_external": true,
-      "open_mode": "new_tab"
+      "open_mode": "modal"
     },
     {
       "title": "Despesas com Diárias - Anos (2019 até 2022)",
       "slug": "despesas-com-diarias-anos-2019-ate-2022",
       "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/NbvH/despesas",
       "is_external": true,
-      "open_mode": "new_tab"
+      "open_mode": "modal"
     },
     {
       "title": "E-SIC",
@@ -77,7 +77,7 @@
       "slug": "servidores-cedidos",
       "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/accessdirect.php?link=NbvH#quadro-funcional",
       "is_external": true,
-      "open_mode": "new_tab"
+      "open_mode": "modal"
     },
     {
       "title": "RGF",
@@ -112,21 +112,21 @@
       "slug": "quadro-funcional",
       "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/accessdirect.php?link=NbvH#quadro-funcional",
       "is_external": true,
-      "open_mode": "new_tab"
+      "open_mode": "modal"
     },
     {
       "title": "PPA",
       "slug": "ppa",
       "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/accessdirect.php?link=NbvH",
       "is_external": true,
-      "open_mode": "new_tab"
+      "open_mode": "modal"
     },
     {
       "title": "RREO",
       "slug": "rreo",
       "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/views/page.php?url=Demonstrativos/RREO",
       "is_external": true,
-      "open_mode": "new_tab"
+      "open_mode": "modal"
     },
     {
       "title": "Licitações - Anos (2022 até 2026)",
@@ -154,7 +154,7 @@
       "slug": "frota-de-veiculos",
       "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/accessdirect.php?link=NbvH",
       "is_external": true,
-      "open_mode": "new_tab"
+      "open_mode": "modal"
     },
     {
       "title": "Folha de Pagamento - Anos (2014 até 2026)",
@@ -168,7 +168,7 @@
       "slug": "servidores-temporarios",
       "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/accessdirect.php?link=NbvH#quadro-funcional",
       "is_external": true,
-      "open_mode": "new_tab"
+      "open_mode": "modal"
     },
     {
       "title": "Receita Extra Orçamentária - Anos (2019 até 2022)",
@@ -217,35 +217,35 @@
       "slug": "demostrativos",
       "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/accessdirect.php?link=NbvH",
       "is_external": true,
-      "open_mode": "new_tab"
+      "open_mode": "modal"
     },
     {
       "title": "Demostrativo Financeiro Mensal",
       "slug": "demostrativo-financeiro-mensal",
       "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/accessdirect.php?link=NbvH",
       "is_external": true,
-      "open_mode": "new_tab"
+      "open_mode": "modal"
     },
     {
       "title": "COVID-19",
       "slug": "covid-19",
       "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/accessdirect.php?link=NbvH",
       "is_external": true,
-      "open_mode": "new_tab"
+      "open_mode": "modal"
     },
     {
       "title": "Doações com COVID-19",
       "slug": "doacoes-com-covid-19",
       "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/accessdirect.php?link=NbvH",
       "is_external": true,
-      "open_mode": "new_tab"
+      "open_mode": "modal"
     },
     {
       "title": "Despesas com Diárias - Anos (2023 até 2026)",
       "slug": "despesas-com-diarias-anos-2023-ate-2026",
       "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/NbvH/despesas",
       "is_external": true,
-      "open_mode": "new_tab"
+      "open_mode": "modal"
     },
     {
       "title": "Editais e Documentos de Licitações",
@@ -259,7 +259,7 @@
       "slug": "lei-federal-no-14-129-2021",
       "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/accessdirect.php?link=NbvH",
       "is_external": true,
-      "open_mode": "new_tab"
+      "open_mode": "modal"
     },
     {
       "title": "Dados Abertos",
@@ -273,14 +273,14 @@
       "slug": "farmacia",
       "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/accessdirect.php?link=NbvH",
       "is_external": true,
-      "open_mode": "new_tab"
+      "open_mode": "modal"
     },
     {
       "title": "Aviso de Licitação - Anos (2022 até 2026)",
       "slug": "aviso-de-licitacao-anos-2022-ate-2026",
       "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/accessdirect.php?link=NbvH",
       "is_external": true,
-      "open_mode": "new_tab"
+      "open_mode": "modal"
     },
     {
       "title": "Regimento Interno",
@@ -294,7 +294,7 @@
       "slug": "regulamentacao-do-padrao-remuneratorio-servidores",
       "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/accessdirect.php?link=NbvH#quadro-funcional",
       "is_external": true,
-      "open_mode": "new_tab"
+      "open_mode": "modal"
     },
     {
       "title": "Regulamentação do Padrão remuneratório - Vereadores",
@@ -308,7 +308,7 @@
       "slug": "tabela-do-padrao-remuneratorio-vereadores-e-servidores",
       "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/accessdirect.php?link=NbvH#quadro-funcional",
       "is_external": true,
-      "open_mode": "new_tab"
+      "open_mode": "modal"
     },
     {
       "title": "Regulamentação das diárias",
@@ -336,7 +336,7 @@
       "slug": "portal-contabilidade-publicsoft",
       "url": "https://portaldatransparencia.publicsoft.com.br/sistemas/ContabilidadePublica/accessdirect.php?link=NbvH",
       "is_external": true,
-      "open_mode": "new_tab",
+      "open_mode": "modal",
       "section": "Despesas e Receitas"
     },
     {

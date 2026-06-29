@@ -11,6 +11,7 @@ export default class NominalVotingsController {
 
     let query = NominalVoting.query()
       .where('is_published', true)
+      .whereNull('deleted_at')
       .preload('entries', (q) => q.orderBy('councilor_name', 'asc'))
       .preload('plenarySession')
       .preload('legislativeActivity')
@@ -25,6 +26,7 @@ export default class NominalVotingsController {
 
     const yearRows = await NominalVoting.query()
       .where('is_published', true)
+      .whereNull('deleted_at')
       .distinct('year')
       .orderBy('year', 'desc')
 

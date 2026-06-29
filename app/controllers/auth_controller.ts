@@ -1,4 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
+import { DateTime } from 'luxon'
 import User from '#models/user'
 import SiteSetting from '#models/site_setting'
 import { loginValidator } from '#validators/auth'
@@ -9,10 +10,25 @@ import {
 } from '#services/login_rate_limiter'
 import TwofaService from '#services/twofa_service'
 import EvolutionAlertService from '#services/evolution_alert_service'
+import ActivityLogService from '#services/activity_log_service'
 
 const TWOFA_PENDING_KEY = 'twofa_pending_user'
 
 export default class AuthController {
+  private async completeLogin(ctx: HttpContext, user: User, mode: 'password' | '2fa') {
+    await ctx.auth.use('web').login(user)
+    user.lastLoginAt = DateTime.now()
+    user.lastLoginIp = ctx.request.ip()
+    await user.save()
+    await ActivityLogService.log(ctx, {
+      action: 'login.success',
+      resource: 'auth',
+      resourceId: user.id,
+      message: mode === '2fa' ? 'Login concluído com 2FA' : 'Login concluído com senha',
+      metadata: { email: user.email, mode },
+    })
+  }
+
   async showLogin({ inertia, auth, response }: HttpContext) {
     if (auth.isAuthenticated) {
       return response.redirect('/painel')
@@ -21,7 +37,8 @@ export default class AuthController {
     return inertia.render('auth/login', { siteSettings })
   }
 
-  async login({ request, auth, response, session }: HttpContext) {
+  async login(ctx: HttpContext) {
+    const { request, response, session } = ctx
     const { email, password } = await request.validateUsing(loginValidator)
     const ip = request.ip()
 
@@ -60,14 +77,26 @@ export default class AuthController {
       if (user.twofaEnabled && user.twofaSecret) {
         clearFailedLogins(ip, email)
         session.put(TWOFA_PENDING_KEY, user.id)
+        await ActivityLogService.log(ctx, {
+          action: 'login.2fa_required',
+          resource: 'auth',
+          resourceId: user.id,
+          metadata: { email },
+        })
         return response.redirect('/login/2fa')
       }
 
-      await auth.use('web').login(user)
+      await this.completeLogin(ctx, user, 'password')
       clearFailedLogins(ip, email)
       return response.redirect('/painel')
     } catch {
       recordFailedLogin(ip, email)
+      await ActivityLogService.log(ctx, {
+        action: 'login.failed',
+        resource: 'auth',
+        statusCode: 401,
+        metadata: { email },
+      })
       if (isLoginRateLimited(ip, email)) {
         void EvolutionAlertService.sendAlert(
           'login',
@@ -96,7 +125,8 @@ export default class AuthController {
   }
 
   /** Verifica o código TOTP ou um código de backup e conclui o login. */
-  async verifyTwofa({ request, auth, response, session }: HttpContext) {
+  async verifyTwofa(ctx: HttpContext) {
+    const { request, response, session } = ctx
     const pendingId = session.get(TWOFA_PENDING_KEY)
     if (!pendingId) {
       return response.redirect('/login')
@@ -152,11 +182,18 @@ export default class AuthController {
 
     if (!authorized) {
       recordFailedLogin(ip, email)
+      await ActivityLogService.log(ctx, {
+        action: 'login.2fa_failed',
+        resource: 'auth',
+        resourceId: user.id,
+        statusCode: 401,
+        metadata: { email },
+      })
       session.flash('error', 'Código inválido. Tente o código do app ou um código de backup.')
       return response.redirect('/login/2fa')
     }
 
-    await auth.use('web').login(user)
+    await this.completeLogin(ctx, user, '2fa')
     session.forget(TWOFA_PENDING_KEY)
     clearFailedLogins(ip, email)
     return response.redirect('/painel')

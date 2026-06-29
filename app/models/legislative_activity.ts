@@ -45,6 +45,7 @@ export default class LegislativeActivity extends BaseModel {
   })
   declare tramitationSteps: TramitationStep[] | null
   @column.dateTime() declare syncedAt: DateTime | null
+  @column.dateTime() declare deletedAt: DateTime | null
   @column.dateTime({ autoCreate: true }) declare createdAt: DateTime
   @column.dateTime({ autoCreate: true, autoUpdate: true }) declare updatedAt: DateTime | null
 

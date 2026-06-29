@@ -26,7 +26,7 @@ export default class PublicationsController {
     const year = request.input('ano', '')
     const search = request.input('busca', '')
 
-    let query = OfficialPublication.query().orderBy('publication_date', 'desc')
+    let query = OfficialPublication.query().whereNull('deleted_at').orderBy('publication_date', 'desc')
     if (type) query = query.where('type', type)
     if (year) {
       query = query
@@ -44,7 +44,10 @@ export default class PublicationsController {
     const publications = await query.paginate(page, 20)
     const siteSettings = await SiteSetting.allAsObject()
 
-    const typeRows = await OfficialPublication.query().distinct('type').orderBy('type', 'asc')
+    const typeRows = await OfficialPublication.query()
+      .whereNull('deleted_at')
+      .distinct('type')
+      .orderBy('type', 'asc')
     // Extrai os anos NO BANCO (publication_date é coluna `date` e o driver a
     // retorna como objeto Date — fazer String(date).slice(0,4) dava "Wed " → NaN,
     // deixando o dropdown de anos VAZIO. EXTRACT é robusto à serialização.
@@ -52,6 +55,7 @@ export default class PublicationsController {
       `SELECT DISTINCT EXTRACT(YEAR FROM publication_date)::int AS year
        FROM official_publications
        WHERE publication_date IS NOT NULL
+         AND deleted_at IS NULL
        ORDER BY year DESC`
     )
     const years = (yearsResult.rows || [])
@@ -73,7 +77,10 @@ export default class PublicationsController {
   }
 
   async show({ params, inertia, response }: HttpContext) {
-    const publication = await OfficialPublication.query().where('slug', params.slug).first()
+    const publication = await OfficialPublication.query()
+      .where('slug', params.slug)
+      .whereNull('deleted_at')
+      .first()
     if (!publication) {
       const licitacao = await Licitacao.query().where('slug', params.slug).where('is_active', true).first()
       if (licitacao) {
@@ -106,7 +113,10 @@ export default class PublicationsController {
 
   /** Redireciona ao PDF nativo/GetPublic ou abre página para imprimir/salvar como PDF. */
   async export({ params, inertia, response }: HttpContext) {
-    const publication = await OfficialPublication.query().where('slug', params.slug).first()
+    const publication = await OfficialPublication.query()
+      .where('slug', params.slug)
+      .whereNull('deleted_at')
+      .first()
     if (!publication) return response.redirect().status(301).toPath('/publicacoes-oficiais')
 
     const fileUrl = resolveDocumentFileUrl(

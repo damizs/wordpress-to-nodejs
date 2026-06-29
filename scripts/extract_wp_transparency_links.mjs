@@ -142,6 +142,12 @@ for (const title of titles) {
   }
 
   if (url.startsWith('http')) isExternal = true
+  if (
+    url.includes('portaldatransparencia.publicsoft.com.br') ||
+    url.includes('transparencia.elmartecnologia.com.br')
+  ) {
+    openMode = 'modal'
+  }
 
   mappings.push({
     title,

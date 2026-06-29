@@ -42,7 +42,7 @@ export const VereadoresSection = ({
 
         {/* Carrossel infinito automático */}
         <div data-reveal>
-          <InfiniteCarousel ariaLabel="Vereadores" gapClass="gap-5" className="pb-1">
+          <InfiniteCarousel ariaLabel="Vereadores" gapClass="gap-5" speed={5} className="pb-1">
             {vereadores.map((vereador) => (
               <div key={vereador.id} className="shrink-0 w-[250px] min-[400px]:w-[270px] sm:w-[300px] lg:w-[320px]">
                 <Link href={`/vereadores/${vereador.slug}`} className="no-underline">

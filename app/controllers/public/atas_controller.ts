@@ -9,7 +9,10 @@ export default class AtasController {
     const type = request.input('tipo', '')
     const search = request.input('busca', '')
 
-    let query = Ata.query().where('is_published', true).orderBy('document_date', 'desc')
+    let query = Ata.query()
+      .where('is_published', true)
+      .whereNull('deleted_at')
+      .orderBy('document_date', 'desc')
     if (year) query = query.where('year', year)
     if (type) query = query.where('type', type)
     if (search) query = query.whereILike('title', `%${search}%`)
@@ -19,11 +22,13 @@ export default class AtasController {
 
     const yearRows = await Ata.query()
       .where('is_published', true)
+      .whereNull('deleted_at')
       .distinct('year')
       .orderBy('year', 'desc')
 
     const typeRows = await Ata.query()
       .where('is_published', true)
+      .whereNull('deleted_at')
       .whereNotNull('type')
       .distinct('type')
       .orderBy('type', 'asc')
@@ -49,7 +54,11 @@ export default class AtasController {
   }
 
   async show({ params, inertia, response }: HttpContext) {
-    const ata = await Ata.query().where('slug', params.slug).first()
+    const ata = await Ata.query()
+      .where('slug', params.slug)
+      .where('is_published', true)
+      .whereNull('deleted_at')
+      .first()
     // Slug antigo do WP sem correspondente: preserva o link com 301 para a listagem
     if (!ata) return response.redirect().status(301).toPath('/atas')
     const siteSettings = await SiteSetting.allAsObject()

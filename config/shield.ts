@@ -28,7 +28,6 @@ const shieldConfig = defineConfig({
       scriptSrc: [
         "'self'",
         "'unsafe-inline'",
-        "'unsafe-eval'",
         'https://cdn.jsdelivr.net',
         'https://vlibras.gov.br',
         'https://www.vlibras.gov.br',

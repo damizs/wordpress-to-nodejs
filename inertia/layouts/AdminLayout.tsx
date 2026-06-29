@@ -9,7 +9,7 @@ import {
   ScrollText, Settings, Monitor, HelpCircle, Info, Tags, Calendar, Users2,
   Gavel, ClipboardCheck, Image, Radar, Vote, ExternalLink, Award, Files,
   BookOpen, FolderOpen, Coins, FileSignature, FileBarChart, Search, X, HardDrive,
-  Moon, Sun,
+  Moon, Sun, Trash2,
 } from 'lucide-react'
 import { useState, useEffect, type ReactNode, type CSSProperties } from 'react'
 import { NotificationBell } from '~/components/admin/NotificationBell'
@@ -106,18 +106,27 @@ const navGroups: NavGroup[] = [
     items: [
       {
         label: 'Usuários',
+        href: '/painel/usuarios',
         icon: UserCog,
         permissions: ['usuario.gerenciar'],
-        children: [
-          { label: 'Todos os Usuários', href: '/painel/usuarios' },
-          { label: 'Papéis e Permissões', href: '/painel/papeis' },
-        ],
+      },
+      {
+        label: 'Papéis e Permissões',
+        href: '/painel/papeis',
+        icon: Shield,
+        permissions: ['papel.gerenciar'],
       },
       {
         label: 'Seguranca e Backups',
         href: '/painel/seguranca',
         icon: HardDrive,
-        permissions: ['usuario.gerenciar'],
+        permissions: ['seguranca.gerenciar'],
+      },
+      {
+        label: 'Lixeira',
+        href: '/painel/lixeira',
+        icon: Trash2,
+        permissions: ['seguranca.gerenciar'],
       },
     ],
   },
@@ -142,10 +151,10 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
   // escopo do painel via CSS vars no container. Definida em Aparência → Painel.
   const adminPreset = getThemePreset(siteSettings?.admin_palette)
   const paletteVars = adminPreset ? presetToCssVars(adminPreset) : {}
-  // Sininho de notificações só para quem gerencia segurança (usuario.gerenciar).
-  const canSeeNotifications = !!(auth?.permissions as string[] | undefined)?.includes(
-    'usuario.gerenciar'
-  )
+  // Sininho de notificações só para quem gerencia segurança.
+  const notificationPermissions = (auth?.permissions as string[] | undefined) ?? []
+  const canSeeNotifications =
+    notificationPermissions.includes('*') || notificationPermissions.includes('seguranca.gerenciar')
   // Alternância de modo escuro (lua/sol) — mesma convenção do site (classe .dark + localStorage).
   const [isDark, setIsDark] = useState(false)
   useEffect(() => {

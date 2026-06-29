@@ -15,6 +15,7 @@ export default class Ata extends BaseModel {
   @column() declare fileUrl: string | null
   @column() declare isPublished: boolean
   @column() declare displayOrder: number
+  @column.dateTime() declare deletedAt: DateTime | null
   @column.dateTime({ autoCreate: true }) declare createdAt: DateTime
   @column.dateTime({ autoCreate: true, autoUpdate: true }) declare updatedAt: DateTime | null
 }

@@ -11,6 +11,7 @@ export function normalizeSafeUrl(value: unknown, options: { allowRelative?: bool
 
   try {
     const url = new URL(input)
+    if (url.username || url.password) return null
     return ALLOWED_PROTOCOLS.has(url.protocol) ? url.toString() : null
   } catch {
     return null

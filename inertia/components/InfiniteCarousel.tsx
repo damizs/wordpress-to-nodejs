@@ -1,11 +1,11 @@
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface InfiniteCarouselProps {
   children: ReactNode;
   /** Classe de gap aplicada no trilho flex. Default: 'gap-6' */
   gapClass?: string;
-  /** Velocidade do auto-scroll em px por frame (~60fps). Default: 0.18 (suave) */
+  /** Velocidade do auto-scroll em px por segundo. Default: 6 (bem suave) */
   speed?: number;
   /** Mostra os botões prev/next (passador). Default: true */
   showArrows?: boolean;
@@ -19,27 +19,29 @@ interface InfiniteCarouselProps {
  * Carrossel "marquee" de loop infinito, com auto-scroll suave + botões de
  * navegação (passador).
  *
- * Renderiza os filhos DUAS vezes lado a lado dentro de um trilho flex `w-max`.
+ * Renderiza cópias de apoio lado a lado dentro de um trilho flex `w-max`.
  * A cada frame (requestAnimationFrame) incrementa `scrollLeft`; quando o scroll
- * passa da largura de UMA cópia (posição da segunda cópia), subtrai essa largura
+ * passa da largura de UMA volta (posição da segunda cópia), subtrai essa largura
  * — emenda imperceptível, loop infinito.
  *
  * Pausa: hover, foco interno e interação manual (arrasto/scroll/touch/wheel/
- * clique nos botões), retomando ~2,5s após a última interação. Respeita
+ * clique nos botões), retomando alguns segundos após a última interação. Respeita
  * prefers-reduced-motion (fica estático, mas ainda scrollável e navegável).
  */
 export const InfiniteCarousel = ({
   children,
   gapClass = "gap-6",
-  speed = 0.4,
+  speed = 6,
   showArrows = true,
   ariaLabel,
   className = "",
 }: InfiniteCarouselProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
-  const secondCopyRef = useRef<HTMLDivElement>(null);
-  // Largura de UMA volta cacheada (offsetLeft da 2ª cópia). Recalculada só no
+  const secondCopyRef = useRef<HTMLDivElement | null>(null);
+  const supportCopyRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const [copyCount, setCopyCount] = useState(3);
+  // Largura de uma volta cacheada (offsetLeft da segunda copia). Recalculada so no
   // mount, em resize e quando os filhos mudam — NUNCA dentro do loop rAF.
   const halfRef = useRef(0);
   // Posição-alvo do auto-scroll em ponto flutuante. ESSENCIAL: o navegador
@@ -49,15 +51,17 @@ export const InfiniteCarousel = ({
   // escrevemos em `scrollLeft` — o acúmulo passa a ser correto e independente do
   // arredondamento/DPR. Sincronizado com o scroll real só durante interação.
   const posRef = useRef(0);
+  const canLoopRef = useRef(false);
   // Pausa por interação manual (timestamp) — compartilhada entre o loop e os
   // botões de navegação (que ficam fora do container de scroll).
   const manualPausedUntilRef = useRef(0);
 
-  // Remove a 2ª cópia (clone) da ordem de foco/interação por teclado.
+  // Remove as copias de apoio da ordem de foco/interacao por teclado.
   useEffect(() => {
-    const secondCopy = secondCopyRef.current;
-    if (secondCopy) secondCopy.inert = true;
-  }, [children]);
+    supportCopyRefs.current.forEach((copy) => {
+      if (copy) copy.inert = true;
+    });
+  }, [children, copyCount]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -68,9 +72,28 @@ export const InfiniteCarousel = ({
     // Largura de UMA volta = offsetLeft da 2ª cópia (inclui o gap entre as
     // cópias, mantendo a emenda invisível). Mantém `posRef` dentro de [0, h).
     const measure = () => {
-      halfRef.current = secondCopy.offsetLeft;
-      const h = halfRef.current;
-      if (h > 0) posRef.current = ((posRef.current % h) + h) % h;
+      const lapWidth = secondCopy.offsetLeft;
+      halfRef.current = lapWidth;
+
+      if (lapWidth <= 0) {
+        canLoopRef.current = false;
+        return;
+      }
+
+      const neededCopies = Math.min(
+        8,
+        Math.max(3, Math.ceil(1 + container.clientWidth / lapWidth + 0.25))
+      );
+      if (neededCopies !== copyCount) {
+        setCopyCount(neededCopies);
+      }
+
+      const maxScroll = container.scrollWidth - container.clientWidth;
+      const loopDist = lapWidth <= maxScroll ? lapWidth : maxScroll;
+      canLoopRef.current = maxScroll > 1 && loopDist > 0;
+      if (canLoopRef.current) {
+        posRef.current = ((posRef.current % loopDist) + loopDist) % loopDist;
+      }
     };
     posRef.current = container.scrollLeft;
     measure();
@@ -93,9 +116,11 @@ export const InfiniteCarousel = ({
     // ressincroniza a posição-alvo do auto-scroll com o scroll real do usuário.
     const onScroll = () => {
       const h = halfRef.current;
-      if (h > 0) {
-        if (container.scrollLeft >= h) container.scrollLeft -= h;
-        else if (container.scrollLeft < 0) container.scrollLeft += h;
+      const maxScroll = container.scrollWidth - container.clientWidth;
+      const loopDist = h > 0 && h <= maxScroll ? h : maxScroll;
+      if (loopDist > 0) {
+        if (container.scrollLeft >= loopDist) container.scrollLeft -= loopDist;
+        else if (container.scrollLeft < 0) container.scrollLeft += loopDist;
       }
       // Só sincroniza quando o movimento é do usuário (em pausa). Durante o
       // auto-scroll, é o próprio loop que escreve em scrollLeft (valor já
@@ -116,7 +141,7 @@ export const InfiniteCarousel = ({
       if (!container.contains(document.activeElement)) hoverPaused = false;
     };
     const pauseForManual = () => {
-      manualPausedUntilRef.current = performance.now() + 2500;
+      manualPausedUntilRef.current = performance.now() + 5000;
     };
 
     container.addEventListener("pointerenter", onEnter);
@@ -132,8 +157,12 @@ export const InfiniteCarousel = ({
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let rafId = 0;
     if (!reduceMotion) {
-      const step = () => {
-        if (!isPaused()) {
+      let lastTime = 0;
+      const step = (now: number) => {
+        const elapsed = lastTime ? Math.min(now - lastTime, 64) : 0;
+        lastTime = now;
+        const paused = hoverPaused || document.hidden || now < manualPausedUntilRef.current;
+        if (!paused && canLoopRef.current && elapsed > 0) {
           // Só rola se há overflow real (conteúdo mais largo que o container).
           const maxScroll = container.scrollWidth - container.clientWidth;
           if (maxScroll > 1) {
@@ -144,7 +173,7 @@ export const InfiniteCarousel = ({
             // o loop seamless é impossível com 2 cópias; cai para um loop simples
             // em maxScroll só para não ficar parado.
             const loopDist = h > 0 && h <= maxScroll ? h : maxScroll;
-            let pos = posRef.current + speed;
+            let pos = posRef.current + (speed * elapsed) / 1000;
             if (pos >= loopDist) pos -= loopDist;
             posRef.current = pos;
             // Acúmulo no ref float; aqui só projetamos para o scroll real.
@@ -171,16 +200,25 @@ export const InfiniteCarousel = ({
       container.removeEventListener("pointerdown", pauseForManual);
       container.removeEventListener("scroll", onScroll);
     };
-  }, [speed, children]);
+  }, [speed, children, copyCount]);
 
   // Botões de navegação: rolam ~70% da largura visível e pausam o auto-scroll.
   const nudge = (dir: 1 | -1) => {
     const container = containerRef.current;
     if (!container) return;
-    manualPausedUntilRef.current = performance.now() + 4000;
+    manualPausedUntilRef.current = performance.now() + 7000;
     const amount = Math.max(260, container.clientWidth * 0.7);
     container.scrollBy({ left: dir * amount, behavior: "smooth" });
   };
+
+  const setSupportCopyRef = (index: number) => (node: HTMLDivElement | null) => {
+    supportCopyRefs.current[index] = node;
+    if (index === 0) {
+      secondCopyRef.current = node;
+    }
+  };
+
+  const supportCopies = Array.from({ length: Math.max(0, copyCount - 1) });
 
   return (
     <div className={`relative group max-w-full min-w-0 ${className}`}>
@@ -192,11 +230,18 @@ export const InfiniteCarousel = ({
       >
         <div ref={trackRef} className={`flex w-max ${gapClass}`}>
           {children}
-          {/* Segunda cópia idêntica para o loop; oculta para leitores de tela e
-              fora da ordem de foco/interação via `inert` (aplicado por ref). */}
-          <div ref={secondCopyRef} className={`flex w-max ${gapClass}`} aria-hidden="true">
-            {children}
-          </div>
+          {/* Copias de apoio para o loop; ocultas para leitores de tela e fora
+              da ordem de foco/interacao via `inert` (aplicado por ref). */}
+          {supportCopies.map((_, index) => (
+            <div
+              key={index}
+              ref={setSupportCopyRef(index)}
+              className={`flex w-max ${gapClass}`}
+              aria-hidden="true"
+            >
+              {children}
+            </div>
+          ))}
         </div>
       </div>
 

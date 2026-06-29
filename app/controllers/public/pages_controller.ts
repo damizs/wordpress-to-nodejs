@@ -7,7 +7,7 @@ import Page from '#models/page'
  * às páginas criadas no painel sobre as categorias dinâmicas.
  */
 export async function findPublishedPage(slug: string): Promise<Page | null> {
-  return Page.query().where('slug', slug).where('is_published', true).first()
+  return Page.query().where('slug', slug).where('is_published', true).whereNull('deleted_at').first()
 }
 
 /** Renderiza a página pública padrão de uma Página (mesma view para ambas as rotas). */

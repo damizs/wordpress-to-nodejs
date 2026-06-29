@@ -75,6 +75,7 @@ const InstagramProxyController = () => import('#controllers/admin/instagram_prox
 const AdminUsersController = () => import('#controllers/admin/users_controller')
 const AdminRolesController = () => import('#controllers/admin/roles_controller')
 const AdminSecurityController = () => import('#controllers/admin/security_controller')
+const AdminTrashController = () => import('#controllers/admin/trash_controller')
 const AccountSecurityController = () => import('#controllers/admin/account_security_controller')
 const AccountController = () => import('#controllers/admin/account_controller')
 const AdminNominalVotingsController = () =>
@@ -523,17 +524,26 @@ router
         router.put('/usuarios/:id', [AdminUsersController, 'update'])
         router.post('/usuarios/:id/desativar-2fa', [AdminUsersController, 'disableTwofa'])
         router.delete('/usuarios/:id', [AdminUsersController, 'destroy'])
+      })
+      .use(middleware.can(['usuario.gerenciar']))
 
+    router
+      .group(() => {
         router.get('/papeis', [AdminRolesController, 'index'])
         router.get('/papeis/criar', [AdminRolesController, 'create'])
         router.post('/papeis', [AdminRolesController, 'store'])
         router.get('/papeis/:id/editar', [AdminRolesController, 'edit'])
         router.put('/papeis/:id', [AdminRolesController, 'update'])
         router.delete('/papeis/:id', [AdminRolesController, 'destroy'])
+      })
+      .use(middleware.can(['papel.gerenciar']))
 
+    router
+      .group(() => {
         router.get('/seguranca', [AdminSecurityController, 'index'])
         router.post('/seguranca/firewall', [AdminSecurityController, 'updateFirewall'])
         router.post('/seguranca/backups/run', [AdminSecurityController, 'runBackup'])
+        router.post('/seguranca/storage-sync/run', [AdminSecurityController, 'runStorageSync'])
         router.post('/seguranca/evolution', [AdminSecurityController, 'updateEvolution'])
         router.post('/seguranca/evolution/test', [AdminSecurityController, 'testEvolution'])
         router.post('/seguranca/evolution/relatorio', [
@@ -541,8 +551,10 @@ router
           'sendEvolutionReport',
         ])
         router.get('/notificacoes/recentes', [AdminSecurityController, 'recentNotifications'])
+        router.get('/lixeira', [AdminTrashController, 'index'])
+        router.post('/lixeira/:id/restaurar', [AdminTrashController, 'restore'])
       })
-      .use(middleware.can(['usuario.gerenciar']))
+      .use(middleware.can(['seguranca.gerenciar']))
   })
   .prefix('/painel')
   .use(middleware.auth())

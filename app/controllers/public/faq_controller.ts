@@ -72,6 +72,7 @@ export default class FaqController {
   async index({ inertia }: HttpContext) {
     const items = await FaqItem.query()
       .where('is_active', true)
+      .whereNull('deleted_at')
       .orderBy('category')
       .orderBy('display_order')
     const categories = await SystemCategory.byType('faq')

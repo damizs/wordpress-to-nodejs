@@ -2,6 +2,8 @@ import type { HttpContext } from '@adonisjs/core/http'
 import TransparencySection from '#models/transparency_section'
 import TransparencyLink from '#models/transparency_link'
 import { generateSlug } from '#helpers/slug'
+import TrashService from '#services/trash_service'
+import { clearTransparencyAuditCache } from '#services/transparency_audit_service'
 
 export default class TransparencyController {
   /** Gera slug único (a partir do título) para o link, com sufixo -2, -3... */
@@ -10,7 +12,7 @@ export default class TransparencyController {
     let slug = base
     let suffix = 2
     while (true) {
-      const query = TransparencyLink.query().where('slug', slug)
+      const query = TransparencyLink.query().where('slug', slug).whereNull('deleted_at')
       if (ignoreId) query.whereNot('id', ignoreId)
       const exists = await query.first()
       if (!exists) return slug
@@ -19,10 +21,15 @@ export default class TransparencyController {
   }
 
   async index({ inertia }: HttpContext) {
-    const sections = await TransparencySection.query().orderBy('display_order', 'asc')
+    const sections = await TransparencySection.query()
+      .whereNull('deleted_at')
+      .orderBy('display_order', 'asc')
     const sectionIds = sections.map((s) => s.id)
     const links = sectionIds.length
-      ? await TransparencyLink.query().whereIn('section_id', sectionIds).orderBy('display_order')
+      ? await TransparencyLink.query()
+          .whereIn('section_id', sectionIds)
+          .whereNull('deleted_at')
+          .orderBy('display_order')
       : []
 
     const sectionsWithLinks = sections.map((section) => ({
@@ -66,6 +73,7 @@ export default class TransparencyController {
       displayOrder: data.display_order,
       isActive: data.is_active,
     })
+    clearTransparencyAuditCache()
     session.flash('success', 'Seção criada!')
     return response.redirect().toPath('/painel/transparencia')
   }
@@ -92,14 +100,27 @@ export default class TransparencyController {
     section.displayOrder = Number.parseInt(data.display_order) || 0
     section.isActive = data.is_active === 'true' || data.is_active === true
     await section.save()
+    clearTransparencyAuditCache()
     session.flash('success', 'Seção atualizada!')
     return response.redirect().toPath('/painel/transparencia')
   }
 
-  async destroySection({ params, response, session }: HttpContext) {
+  async destroySection(ctx: HttpContext) {
+    const { params, response, session } = ctx
     const section = await TransparencySection.findOrFail(params.id)
-    await TransparencyLink.query().where('section_id', section.id).delete()
-    await section.delete()
+    const links = await TransparencyLink.query().where('section_id', section.id).whereNull('deleted_at')
+    for (const link of links) {
+      await TrashService.moveToTrash(link, ctx, {
+        displayName: link.title,
+        resource: 'transparencia.link',
+        metadata: { sectionId: section.id },
+      })
+    }
+    await TrashService.moveToTrash(section, ctx, {
+      displayName: section.title,
+      resource: 'transparencia.secao',
+    })
+    clearTransparencyAuditCache()
     session.flash('success', 'Seção excluída!')
     return response.redirect().toPath('/painel/transparencia')
   }
@@ -134,6 +155,7 @@ export default class TransparencyController {
       openMode: data.open_mode === 'modal' ? 'modal' : 'nova_aba',
       hideChrome: !(data.hide_chrome === 'false' || data.hide_chrome === false || data.hide_chrome === '0'),
     })
+    clearTransparencyAuditCache()
     session.flash('success', 'Link adicionado!')
     return response.redirect().toPath('/painel/transparencia')
   }
@@ -169,13 +191,20 @@ export default class TransparencyController {
     link.openMode = data.open_mode === 'modal' ? 'modal' : 'nova_aba'
     link.hideChrome = !(data.hide_chrome === 'false' || data.hide_chrome === false || data.hide_chrome === '0')
     await link.save()
+    clearTransparencyAuditCache()
     session.flash('success', 'Link atualizado!')
     return response.redirect().toPath('/painel/transparencia')
   }
 
-  async destroyLink({ params, response, session }: HttpContext) {
+  async destroyLink(ctx: HttpContext) {
+    const { params, response, session } = ctx
     const link = await TransparencyLink.findOrFail(params.id)
-    await link.delete()
+    await TrashService.moveToTrash(link, ctx, {
+      displayName: link.title,
+      resource: 'transparencia.link',
+      metadata: { sectionId: link.sectionId },
+    })
+    clearTransparencyAuditCache()
     session.flash('success', 'Link excluído!')
     return response.redirect().toPath('/painel/transparencia')
   }

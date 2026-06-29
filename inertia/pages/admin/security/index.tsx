@@ -57,6 +57,20 @@ interface BackupItem {
   error: string | null
 }
 
+interface StorageSyncItem {
+  id: number
+  status: 'running' | 'success' | 'partial' | 'failed'
+  trigger: string
+  localPath: string
+  target: string
+  startedAt: string | null
+  finishedAt: string | null
+  filesScanned: number | null
+  filesSynced: number | null
+  bytesSynced: number | null
+  error: string | null
+}
+
 interface SecurityEvent {
   id: number
   level: 'info' | 'warning' | 'danger'
@@ -65,6 +79,20 @@ interface SecurityEvent {
   ip: string | null
   method: string | null
   path: string | null
+  message: string | null
+  createdAt: string | null
+}
+
+interface ActivityLogItem {
+  id: number
+  userId: number | null
+  action: string
+  resource: string
+  resourceId: string | null
+  method: string | null
+  path: string | null
+  ip: string | null
+  statusCode: number | null
   message: string | null
   createdAt: string | null
 }
@@ -116,10 +144,17 @@ interface Props {
     hasRcloneTargets: boolean
     pgDumpConfigured: boolean
   }
+  storageSyncEnv: {
+    localPath: string
+    targets: string[]
+    hasTargets: boolean
+  }
   evolution: EvolutionSettings
   evolutionState: EvolutionState
   backups: BackupItem[]
+  storageSyncRuns: StorageSyncItem[]
   events: SecurityEvent[]
+  activityLogs: ActivityLogItem[]
   notifications: NotificationItem[]
 }
 
@@ -229,13 +264,17 @@ function PasswordInput({
 export default function AdminSecurityIndex({
   firewall,
   backupEnv,
+  storageSyncEnv,
   evolution,
   evolutionState,
   backups,
+  storageSyncRuns,
   events,
+  activityLogs,
   notifications,
 }: Props) {
   const [runningBackup, setRunningBackup] = useState(false)
+  const [runningStorageSync, setRunningStorageSync] = useState(false)
   const [testingEvolution, setTestingEvolution] = useState(false)
   const [sendingReport, setSendingReport] = useState(false)
   const form = useForm({
@@ -275,6 +314,18 @@ export default function AdminSecurityIndex({
     )
   }
 
+  function runStorageSync() {
+    router.post(
+      '/painel/seguranca/storage-sync/run',
+      {},
+      {
+        preserveScroll: true,
+        onStart: () => setRunningStorageSync(true),
+        onFinish: () => setRunningStorageSync(false),
+      }
+    )
+  }
+
   function submitEvolution(event: FormEvent) {
     event.preventDefault()
     evolutionForm.post('/painel/seguranca/evolution', { preserveScroll: true })
@@ -305,6 +356,7 @@ export default function AdminSecurityIndex({
   }
 
   const lastBackup = backups[0]
+  const lastStorageSync = storageSyncRuns[0]
 
   return (
     <AdminLayout title="Seguranca e backups">
@@ -318,14 +370,20 @@ export default function AdminSecurityIndex({
           eyebrow="Sistema"
           variant="hero"
           actions={
-            <Button onClick={runBackup} loading={runningBackup} variant="gold">
-              <RefreshCw className="w-4 h-4" />
-              Gerar backup agora
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button onClick={runStorageSync} loading={runningStorageSync} variant="secondary">
+                <Cloud className="w-4 h-4" />
+                Sincronizar R2
+              </Button>
+              <Button onClick={runBackup} loading={runningBackup} variant="gold">
+                <RefreshCw className="w-4 h-4" />
+                Gerar backup agora
+              </Button>
+            </div>
           }
         />
 
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5 mb-6">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6 mb-6">
           <StatCard
             label="Firewall"
             value={form.data.enabled ? 'Ativo' : 'Inativo'}
@@ -349,6 +407,12 @@ export default function AdminSecurityIndex({
             value={backupEnv.hasRcloneTargets ? 'Configurada' : 'Pendente'}
             icon={Cloud}
             hint={backupEnv.rcloneTargets.length ? backupEnv.rcloneTargets.join(', ') : 'Drive/Dropbox via rclone'}
+          />
+          <StatCard
+            label="R2 uploads"
+            value={storageSyncEnv.hasTargets ? 'Configurado' : 'Pendente'}
+            icon={HardDrive}
+            hint={lastStorageSync ? formatDate(lastStorageSync.startedAt) : 'Sem sincronizacao ainda'}
           />
           <StatCard
             label="WhatsApp"
@@ -469,6 +533,50 @@ export default function AdminSecurityIndex({
                 <p className="font-semibold text-foreground">Agendamento recomendado</p>
                 <p className="mt-1 text-muted-foreground">
                   Rodar <code className="rounded bg-card px-1.5 py-0.5">node ace backup:run</code> diariamente.
+                </p>
+              </div>
+            </div>
+          </Card>
+
+          <Card>
+            <CardHeader
+              title="Sync de arquivos (R2)"
+              description="Espelha uploads e midias publicas em um bucket R2 via rclone, sem apagar remoto."
+              icon={Cloud}
+              actions={
+                <Button type="button" variant="secondary" onClick={runStorageSync} loading={runningStorageSync}>
+                  <RefreshCw className="w-4 h-4" />
+                  Rodar sync
+                </Button>
+              }
+            />
+
+            <div className="space-y-3 text-sm">
+              <div className="rounded-lg border border-border bg-muted/30 p-3">
+                <p className="font-semibold text-foreground">Origem local</p>
+                <p className="mt-1 break-all text-muted-foreground">{storageSyncEnv.localPath}</p>
+              </div>
+              <div className="rounded-lg border border-border bg-muted/30 p-3">
+                <p className="font-semibold text-foreground">Destino R2/rclone</p>
+                {storageSyncEnv.targets.length > 0 ? (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {storageSyncEnv.targets.map((target) => (
+                      <Badge key={target} tone="info">
+                        {target}
+                      </Badge>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="mt-1 text-muted-foreground">
+                    Configure STORAGE_RCLONE_TARGETS ou R2_RCLONE_TARGET no servidor.
+                  </p>
+                )}
+              </div>
+              <div className="rounded-lg border border-border bg-muted/30 p-3">
+                <p className="font-semibold text-foreground">Agendamento recomendado</p>
+                <p className="mt-1 text-muted-foreground">
+                  Rodar <code className="rounded bg-card px-1.5 py-0.5">node ace storage:sync</code> a cada 1h
+                  ou apos importacoes grandes de midia.
                 </p>
               </div>
             </div>
@@ -714,6 +822,97 @@ export default function AdminSecurityIndex({
                   <TR>
                     <TD colSpan={3} className="py-10 text-center text-muted-foreground">
                       Nenhum evento registrado.
+                    </TD>
+                  </TR>
+                )}
+              </TBody>
+            </Table>
+          </Card>
+
+          <Card padding={false}>
+            <div className="p-5 lg:p-6">
+              <CardHeader
+                title="Historico de sync R2"
+                description="Ultimos espelhamentos dos arquivos publicos."
+                icon={Cloud}
+              />
+            </div>
+            <Table className="border-0 rounded-none shadow-none" scrollLabel="Historico de sync R2">
+              <THead>
+                <TH>Status</TH>
+                <TH>Data</TH>
+                <TH>Arquivos</TH>
+                <TH>Destino</TH>
+              </THead>
+              <TBody>
+                {storageSyncRuns.map((run) => (
+                  <TR key={run.id}>
+                    <TD>
+                      <Badge tone={statusTone(run.status) as any}>{statusLabel(run.status)}</Badge>
+                    </TD>
+                    <TD>
+                      <p className="text-sm">{formatDate(run.startedAt)}</p>
+                      <p className="mt-1 max-w-[240px] truncate text-xs text-muted-foreground">
+                        {run.localPath}
+                      </p>
+                    </TD>
+                    <TD>
+                      <p className="text-sm">{run.filesScanned ?? 0}</p>
+                      <p className="text-xs text-muted-foreground">{formatBytes(run.bytesSynced ?? 0)}</p>
+                    </TD>
+                    <TD>
+                      <p className="max-w-[260px] truncate text-sm">{run.target || '-'}</p>
+                      {run.error && <p className="mt-1 text-xs text-destructive">{run.error}</p>}
+                    </TD>
+                  </TR>
+                ))}
+                {storageSyncRuns.length === 0 && (
+                  <TR>
+                    <TD colSpan={4} className="py-10 text-center text-muted-foreground">
+                      Nenhum sync executado ainda.
+                    </TD>
+                  </TR>
+                )}
+              </TBody>
+            </Table>
+          </Card>
+
+          <Card padding={false}>
+            <div className="p-5 lg:p-6">
+              <CardHeader
+                title="Atividade administrativa"
+                description="Ações recentes realizadas no painel."
+                icon={Activity}
+              />
+            </div>
+            <Table className="border-0 rounded-none shadow-none" scrollLabel="Logs administrativos">
+              <THead>
+                <TH>Ação</TH>
+                <TH>Origem</TH>
+                <TH>Quando</TH>
+              </THead>
+              <TBody>
+                {activityLogs.map((log) => (
+                  <TR key={log.id}>
+                    <TD>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge tone={log.statusCode && log.statusCode >= 400 ? 'danger' : 'info'}>
+                          {log.action}
+                        </Badge>
+                        <span className="font-medium">{log.resource}</span>
+                      </div>
+                      <p className="mt-1 max-w-[360px] truncate text-xs text-muted-foreground">
+                        {log.message || `${log.method || '-'} ${log.path || '-'}`}
+                      </p>
+                    </TD>
+                    <TD>{log.ip || '-'}</TD>
+                    <TD>{formatDate(log.createdAt)}</TD>
+                  </TR>
+                ))}
+                {activityLogs.length === 0 && (
+                  <TR>
+                    <TD colSpan={3} className="py-10 text-center text-muted-foreground">
+                      Nenhuma atividade registrada.
                     </TD>
                   </TR>
                 )}

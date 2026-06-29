@@ -94,6 +94,7 @@ export default class SearchController {
       // Notícias publicadas (exclui GetPublic — avisos/atos não são notícia)
       News.query()
         .where('status', 'published')
+        .whereNull('deleted_at')
         .whereNotIn('category_id', (sub) =>
           sub.from('news_categories').where('slug', 'getpublic').select('id')
         )
@@ -109,6 +110,7 @@ export default class SearchController {
       // Atas publicadas (título / conteúdo)
       Ata.query()
         .where('is_published', true)
+        .whereNull('deleted_at')
         .where((sub) => {
           sub.whereILike('title', term).orWhereILike('content', term)
         })
@@ -118,6 +120,7 @@ export default class SearchController {
       // Pautas publicadas (título / conteúdo)
       Pauta.query()
         .where('is_published', true)
+        .whereNull('deleted_at')
         .where((sub) => {
           sub.whereILike('title', term).orWhereILike('content', term)
         })
@@ -138,6 +141,7 @@ export default class SearchController {
 
       // Publicações oficiais
       OfficialPublication.query()
+        .whereNull('deleted_at')
         .where((sub) => {
           sub
             .whereILike('title', term)
@@ -150,6 +154,7 @@ export default class SearchController {
       // Atividades legislativas ativas
       LegislativeActivity.query()
         .where('is_active', true)
+        .whereNull('deleted_at')
         .where((sub) => {
           sub
             .whereILike('title', term)
@@ -174,6 +179,7 @@ export default class SearchController {
       // Páginas publicadas (módulo Páginas estilo WordPress)
       Page.query()
         .where('is_published', true)
+        .whereNull('deleted_at')
         .where((sub) => {
           sub.whereILike('title', term).orWhereILike('content', term)
         })
@@ -183,6 +189,7 @@ export default class SearchController {
       // FAQ ativo
       FaqItem.query()
         .where('is_active', true)
+        .whereNull('deleted_at')
         .where((sub) => {
           sub.whereILike('question', term).orWhereILike('answer', term)
         })

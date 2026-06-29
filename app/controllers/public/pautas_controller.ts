@@ -9,7 +9,10 @@ export default class PautasController {
     const type = request.input('tipo', '')
     const search = request.input('busca', '')
 
-    let query = Pauta.query().where('is_published', true).orderBy('document_date', 'desc')
+    let query = Pauta.query()
+      .where('is_published', true)
+      .whereNull('deleted_at')
+      .orderBy('document_date', 'desc')
     if (year) query = query.where('year', year)
     if (type) query = query.where('type', type)
     if (search) query = query.whereILike('title', `%${search}%`)
@@ -19,11 +22,13 @@ export default class PautasController {
 
     const yearRows = await Pauta.query()
       .where('is_published', true)
+      .whereNull('deleted_at')
       .distinct('year')
       .orderBy('year', 'desc')
 
     const typeRows = await Pauta.query()
       .where('is_published', true)
+      .whereNull('deleted_at')
       .whereNotNull('type')
       .distinct('type')
       .orderBy('type', 'asc')
@@ -49,7 +54,11 @@ export default class PautasController {
   }
 
   async show({ params, inertia, response }: HttpContext) {
-    const pauta = await Pauta.query().where('slug', params.slug).first()
+    const pauta = await Pauta.query()
+      .where('slug', params.slug)
+      .where('is_published', true)
+      .whereNull('deleted_at')
+      .first()
     if (!pauta) return response.redirect().status(301).toPath('/pautas')
     const siteSettings = await SiteSetting.allAsObject()
     return inertia.render('public/pautas/show', {

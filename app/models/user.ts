@@ -30,6 +30,9 @@ export default class User extends compose(BaseModel, AuthFinder) {
   /** JSON (string) com os códigos de backup HASHEADOS; nunca em claro. */
   @column({ serializeAs: null }) declare twofaBackupCodes: string | null
 
+  @column.dateTime() declare lastLoginAt: DateTime | null
+  @column() declare lastLoginIp: string | null
+
   @column.dateTime({ autoCreate: true }) declare createdAt: DateTime
   @column.dateTime({ autoCreate: true, autoUpdate: true }) declare updatedAt: DateTime | null
 

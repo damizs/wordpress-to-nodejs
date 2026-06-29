@@ -89,6 +89,7 @@ export default class HomeController {
       News.query()
         .select('id', 'title', 'slug', 'excerpt', 'cover_image_url', 'published_at', 'category_id')
         .where('status', 'published')
+        .whereNull('deleted_at')
         // Exclui GetPublic (avisos/atos) do feed de notícias da home.
         .whereNotIn('category_id', (sub) =>
           sub.from('news_categories').where('slug', 'getpublic').select('id')
@@ -114,10 +115,16 @@ export default class HomeController {
         QuickLink.query().where('is_active', true).orderBy('display_order', 'asc')
       ),
       RuntimeCache.getOrSet('home:transparency-sections:v1', 60_000, () =>
-        TransparencySection.query().where('is_active', true).orderBy('display_order', 'asc')
+        TransparencySection.query()
+          .where('is_active', true)
+          .whereNull('deleted_at')
+          .orderBy('display_order', 'asc')
       ),
       OfficialGazetteEntry.query().orderBy('publication_date', 'desc').first(),
-      OfficialPublication.query().orderBy('publication_date', 'desc').limit(6),
+      OfficialPublication.query()
+        .whereNull('deleted_at')
+        .orderBy('publication_date', 'desc')
+        .limit(6),
       Legislature.query().where('is_current', true).first(),
       SiteSetting.allAsObject(),
       SystemCategory.byType('information_record'),
@@ -138,11 +145,12 @@ export default class HomeController {
             'is_active'
           )
           .where('is_active', true)
+          .whereNull('deleted_at')
           .orderBy('created_at', 'desc')
           .limit(600)
       ),
       RuntimeCache.getOrSet('home:plenary-sessions:v1', 60_000, () =>
-        PlenarySession.query().select('id', 'session_date', 'year', 'status')
+        PlenarySession.query().whereNull('deleted_at').select('id', 'session_date', 'year', 'status')
       ),
     ])
 
@@ -186,7 +194,10 @@ export default class HomeController {
     const sectionIds = transparencySections.map((s) => s.id)
     const links = sectionIds.length
       ? await RuntimeCache.getOrSet(`home:transparency-links:${sectionIds.join(',')}:v1`, 60_000, () =>
-          TransparencyLink.query().whereIn('sectionId', sectionIds).orderBy('display_order')
+          TransparencyLink.query()
+            .whereIn('sectionId', sectionIds)
+            .whereNull('deleted_at')
+            .orderBy('display_order')
         )
       : []
 

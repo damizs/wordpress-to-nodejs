@@ -17,6 +17,7 @@ export default class News extends BaseModel {
   @column() declare categoryId: number | null
   @column() declare authorId: number | null
   @column() declare viewsCount: number
+  @column.dateTime() declare deletedAt: DateTime | null
   @column.dateTime({ autoCreate: true }) declare createdAt: DateTime
   @column.dateTime({ autoCreate: true, autoUpdate: true }) declare updatedAt: DateTime | null
   @belongsTo(() => NewsCategory, { foreignKey: 'categoryId' }) declare category: BelongsTo<

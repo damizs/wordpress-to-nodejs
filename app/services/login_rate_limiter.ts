@@ -1,6 +1,6 @@
 const WINDOW_MS = 15 * 60 * 1000
-const MAX_ATTEMPTS_PER_ACCOUNT = 10
-const MAX_ATTEMPTS_PER_IP = 50
+const MAX_ATTEMPTS_PER_ACCOUNT = 5
+const MAX_ATTEMPTS_PER_IP = 25
 const MAX_BUCKETS = 5_000
 
 interface AttemptBucket {

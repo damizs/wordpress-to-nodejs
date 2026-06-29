@@ -5,6 +5,7 @@ import AtriconStatus from '#models/atricon_status'
 import AtriconSnapshot from '#models/atricon_snapshot'
 import SiteSetting from '#models/site_setting'
 import TransparencyLink from '#models/transparency_link'
+import TransparencySection from '#models/transparency_section'
 import {
   ATRICON_CRITERIA,
   ATRICON_DIMENSIONS,
@@ -276,11 +277,14 @@ async function runAutoChecks(): Promise<Record<string, AutoCheckResult>> {
   const d15 = now.minus({ days: FRESHNESS_DAYS.biweekly }).toFormat('yyyy-MM-dd')
   const d90 = now.minus({ days: FRESHNESS_DAYS.quarterly }).toFormat('yyyy-MM-dd')
 
-  const [settings, links, infoCategories] = await Promise.all([
+  const [settings, activeSections, rawLinks, infoCategories] = await Promise.all([
     SiteSetting.allAsObject(),
-    TransparencyLink.query(),
+    TransparencySection.query().where('is_active', true).whereNull('deleted_at'),
+    TransparencyLink.query().whereNull('deleted_at'),
     loadInfoCategories(),
   ])
+  const activeSectionIds = new Set(activeSections.map((section) => section.id))
+  const links = rawLinks.filter((link) => activeSectionIds.has(link.sectionId))
   const linkTitles = links.map((l) => `${l.title}`.toLowerCase())
   // Verifica o DESTINO do botão Radar (URL oficial), não apenas o título do link.
   const radarByUrl = links.some((l) =>
@@ -791,11 +795,14 @@ function buildGap(
  * 3. Critério sem autoCheck → manual (ou padrão: externo/pendente).
  */
 async function buildMatrix() {
-  const [saved, auto, links] = await Promise.all([
+  const [saved, auto, rawLinks, activeSections] = await Promise.all([
     AtriconStatus.all(),
     runAutoChecks(),
-    TransparencyLink.query(),
+    TransparencyLink.query().whereNull('deleted_at'),
+    TransparencySection.query().where('is_active', true).whereNull('deleted_at'),
   ])
+  const sectionById = new Map(activeSections.map((section) => [section.id, section]))
+  const links = rawLinks.filter((link) => sectionById.has(link.sectionId))
   const statusByCode = new Map(saved.map((s) => [s.criterionCode, s]))
   const checkedAt = DateTime.now().toISO()
 
@@ -804,10 +811,11 @@ async function buildMatrix() {
     const matchedLinks = c.keywords
       ? links
           .filter((l) => {
-            const title = normalizeSearch(l.title)
-            return c.keywords!.some((k) => title.includes(normalizeSearch(k)))
+            const sectionTitle = sectionById.get(l.sectionId)?.title ?? ''
+            const haystack = normalizeSearch(`${l.title} ${l.url} ${sectionTitle}`)
+            return c.keywords!.some((k) => haystack.includes(normalizeSearch(k)))
           })
-          .map((l) => ({ title: l.title, url: l.url }))
+          .map((l) => ({ title: l.title, url: l.url, section: sectionById.get(l.sectionId)?.title ?? null }))
           .slice(0, 3)
       : []
     const keywordEvidence =
@@ -1526,7 +1534,11 @@ export default class AtriconController {
       }))
 
     if (request.input('format') === 'csv') {
-      const esc = (v: string) => `"${(v || '').replace(/"/g, '""')}"`
+      const esc = (value: string) => {
+        const raw = `${value || ''}`
+        const safe = /^[=+\-@]/.test(raw.trim()) ? `'${raw}` : raw
+        return `"${safe.replace(/"/g, '""')}"`
+      }
       const rows = [
         [
           'Critério',
@@ -1559,7 +1571,7 @@ export default class AtriconController {
         `attachment; filename="pendencias-pntp-${DateTime.now().toFormat('yyyy-MM-dd')}.csv"`
       )
       // BOM para o Excel reconhecer UTF-8
-      return response.send('﻿' + rows.join('\n'))
+      return response.send('\ufeff' + rows.join('\n'))
     }
 
     return inertia.render('admin/atricon/report', {

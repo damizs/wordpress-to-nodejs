@@ -143,6 +143,7 @@ const QUERIES: Record<string, () => Promise<Row[]>> = {
   async materias() {
     const rows = await LegislativeActivity.query()
       .where('is_active', true)
+      .whereNull('deleted_at')
       .orderBy('year', 'desc')
       .orderBy('id', 'desc')
     return rows.map((a) => ({
@@ -176,7 +177,9 @@ const QUERIES: Record<string, () => Promise<Row[]>> = {
     }))
   },
   async publicacoes() {
-    const rows = await OfficialPublication.query().orderBy('publication_date', 'desc')
+    const rows = await OfficialPublication.query()
+      .whereNull('deleted_at')
+      .orderBy('publication_date', 'desc')
     return rows.map((p) => ({
       id: p.id,
       titulo: p.title,
@@ -247,6 +250,7 @@ const QUERIES: Record<string, () => Promise<Row[]>> = {
   async votacoes() {
     const rows = await NominalVoting.query()
       .where('is_published', true)
+      .whereNull('deleted_at')
       .orderBy('voting_date', 'desc')
     return rows.map((v) => ({
       id: v.id,
@@ -259,7 +263,9 @@ const QUERIES: Record<string, () => Promise<Row[]>> = {
     }))
   },
   async sessoes() {
-    const rows = await PlenarySession.query().orderBy('session_date', 'desc')
+    const rows = await PlenarySession.query()
+      .whereNull('deleted_at')
+      .orderBy('session_date', 'desc')
     return rows.map((s) => ({
       id: s.id,
       titulo: s.title,
@@ -280,7 +286,10 @@ const QUERIES: Record<string, () => Promise<Row[]>> = {
 function toCsv(rows: Row[], fields: string[]): string {
   const escape = (value: unknown): string => {
     if (value === null || value === undefined) return ''
-    const text = String(value)
+    let text = String(value)
+    if (/^[=+\-@]/.test(text.trim())) {
+      text = `'${text}`
+    }
     return /[";\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text
   }
   const lines = [

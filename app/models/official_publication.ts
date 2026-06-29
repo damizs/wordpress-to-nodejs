@@ -12,5 +12,6 @@ export default class OfficialPublication extends BaseModel {
   @column() declare fileUrl: string | null
   @column() declare description: string | null
   @column.dateTime({ autoCreate: true }) declare createdAt: DateTime
+  @column.dateTime() declare deletedAt: DateTime | null
   @column.dateTime({ autoCreate: true, autoUpdate: true }) declare updatedAt: DateTime | null
 }

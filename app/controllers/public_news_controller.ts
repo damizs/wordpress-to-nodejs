@@ -18,6 +18,7 @@ export default class PublicNewsController {
 
     let query = News.query()
       .where('status', 'published')
+      .whereNull('deleted_at')
       .preload('category')
       .orderBy('published_at', 'desc')
 
@@ -67,6 +68,7 @@ export default class PublicNewsController {
     const news = await News.query()
       .where('slug', params.slug)
       .where('status', 'published')
+      .whereNull('deleted_at')
       .preload('category')
       .preload('author')
       .first()
@@ -88,6 +90,7 @@ export default class PublicNewsController {
     const related = news.categoryId
       ? await News.query()
           .where('status', 'published')
+          .whereNull('deleted_at')
           .where('category_id', news.categoryId)
           .whereNot('id', news.id)
           .orderBy('published_at', 'desc')

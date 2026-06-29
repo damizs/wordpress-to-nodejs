@@ -8,10 +8,14 @@ export default class TransparencyController {
   private async loadSections() {
     const sections = await TransparencySection.query()
       .where('is_active', true)
+      .whereNull('deleted_at')
       .orderBy('display_order', 'asc')
     const sectionIds = sections.map((s) => s.id)
     const links = sectionIds.length
-      ? await TransparencyLink.query().whereIn('sectionId', sectionIds).orderBy('display_order')
+      ? await TransparencyLink.query()
+          .whereIn('sectionId', sectionIds)
+          .whereNull('deleted_at')
+          .orderBy('display_order')
       : []
 
     return sections.map((section) => ({
@@ -34,8 +38,19 @@ export default class TransparencyController {
    * transparência com o link correspondente já aberto no modal (prop openLink).
    */
   async show({ params, inertia, response }: HttpContext) {
-    const link = await TransparencyLink.query().where('slug', params.slug).first()
+    const link = await TransparencyLink.query()
+      .where('slug', params.slug)
+      .whereNull('deleted_at')
+      .first()
     if (!link) {
+      return response.redirect().toPath('/transparencia')
+    }
+    const section = await TransparencySection.query()
+      .where('id', link.sectionId)
+      .where('is_active', true)
+      .whereNull('deleted_at')
+      .first()
+    if (!section) {
       return response.redirect().toPath('/transparencia')
     }
 

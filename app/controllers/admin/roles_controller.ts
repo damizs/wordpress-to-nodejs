@@ -87,6 +87,16 @@ const RESOURCE_GROUPS: Record<string, { label: string; description: string; modu
     description: 'Contas de acesso e permissões (RBAC).',
     module: 'Administração',
   },
+  papel: {
+    label: 'Papéis e Permissões',
+    description: 'Matriz de papéis e permissões do painel.',
+    module: 'Administração',
+  },
+  seguranca: {
+    label: 'Segurança e Backups',
+    description: 'Firewall, auditoria, lixeira, backups e alertas operacionais.',
+    module: 'Administração',
+  },
 }
 
 /** Rótulos amigáveis por AÇÃO (o sufixo depois do ponto). */
@@ -130,6 +140,8 @@ const RESOURCE_ORDER = [
   'site',
   // Administração
   'usuario',
+  'papel',
+  'seguranca',
 ]
 
 function capitalizeWord(value: string) {
@@ -208,7 +220,18 @@ function buildPermissionGroups(permissions: Permission[]): PermissionGroup[] {
 }
 
 export default class RolesController {
-  async index({ inertia }: HttpContext) {
+  private blockNonMaster(ctx: HttpContext): boolean {
+    if (ctx.auth.user?.role !== 'super_admin') {
+      ctx.session?.flash('error', 'Somente o super administrador pode gerenciar papéis e permissões.')
+      ctx.response.redirect().toPath('/painel')
+      return true
+    }
+    return false
+  }
+
+  async index(ctx: HttpContext) {
+    const { inertia } = ctx
+    if (this.blockNonMaster(ctx)) return
     const roles = await Role.query().preload('permissions').orderBy('name')
     return inertia.render('admin/roles/index', {
       roles: roles.map((r) => ({
@@ -221,7 +244,9 @@ export default class RolesController {
     })
   }
 
-  async create({ inertia }: HttpContext) {
+  async create(ctx: HttpContext) {
+    const { inertia } = ctx
+    if (this.blockNonMaster(ctx)) return
     const permissions = await Permission.query().orderBy('module').orderBy('label')
     return inertia.render('admin/roles/form', {
       role: null,
@@ -232,7 +257,9 @@ export default class RolesController {
     })
   }
 
-  async store({ request, response, session }: HttpContext) {
+  async store(ctx: HttpContext) {
+    const { request, response, session } = ctx
+    if (this.blockNonMaster(ctx)) return
     const data = request.only(['name', 'description', 'permission_ids'])
 
     if (!data.name) {
@@ -254,7 +281,9 @@ export default class RolesController {
     return response.redirect().toPath('/painel/papeis')
   }
 
-  async edit({ params, inertia }: HttpContext) {
+  async edit(ctx: HttpContext) {
+    const { params, inertia } = ctx
+    if (this.blockNonMaster(ctx)) return
     const role = await Role.query().where('id', params.id).preload('permissions').firstOrFail()
     const permissions = await Permission.query().orderBy('module').orderBy('label')
     return inertia.render('admin/roles/form', {
@@ -272,7 +301,9 @@ export default class RolesController {
     })
   }
 
-  async update({ params, request, response, session }: HttpContext) {
+  async update(ctx: HttpContext) {
+    const { params, request, response, session } = ctx
+    if (this.blockNonMaster(ctx)) return
     const role = await Role.findOrFail(params.id)
     const data = request.only(['name', 'description', 'permission_ids'])
 
@@ -294,7 +325,9 @@ export default class RolesController {
     return response.redirect().toPath('/painel/papeis')
   }
 
-  async destroy({ params, response, session }: HttpContext) {
+  async destroy(ctx: HttpContext) {
+    const { params, response, session } = ctx
+    if (this.blockNonMaster(ctx)) return
     const role = await Role.findOrFail(params.id)
     if (role.isSystem) {
       session.flash('error', 'O papel Administrador é do sistema e não pode ser excluído.')

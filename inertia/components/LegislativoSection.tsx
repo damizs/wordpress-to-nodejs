@@ -207,7 +207,7 @@ function MateriasTimeline({ materias }: { materias: LegislativoMateria[] }) {
       <InfiniteCarousel
         ariaLabel="Últimas matérias legislativas"
         gapClass="gap-4"
-        speed={0.2}
+        speed={6}
         className="pb-1 pt-2"
       >
         {items}

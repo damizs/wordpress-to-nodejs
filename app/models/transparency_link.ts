@@ -16,6 +16,7 @@ export default class TransparencyLink extends BaseModel {
   @column() declare openMode: string
   /** No modal, esconde cabeçalho/rodapé de páginas internas (?embed=1) */
   @column() declare hideChrome: boolean
+  @column.dateTime() declare deletedAt: DateTime | null
   @column.dateTime({ autoCreate: true }) declare createdAt: DateTime
   @column.dateTime({ autoCreate: true, autoUpdate: true }) declare updatedAt: DateTime | null
 }

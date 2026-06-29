@@ -4,12 +4,23 @@ import InstagramImportLog from '#models/instagram_import_log'
 import InstagramAutoImporterService from '#services/instagram_auto_importer_service'
 import NewsCategory from '#models/news_category'
 
+const SECRET_SETTING_KEYS = new Set(['instagram_sessionid', 'rapidapi_key', 'ai_api_key'])
+
 export default class InstagramController {
+  private redactSecrets(settings: Record<string, string | null>) {
+    const redacted = { ...settings }
+    for (const key of SECRET_SETTING_KEYS) {
+      redacted[key] = null
+      redacted[`${key}_set`] = settings[key] ? 'true' : 'false'
+    }
+    return redacted
+  }
+
   /**
    * Dashboard principal
    */
   async index({ inertia }: HttpContext) {
-    const settings = await InstagramSetting.getAll()
+    const settings = this.redactSecrets(await InstagramSetting.getAll())
     const logs = await InstagramImportLog.query()
       .orderBy('created_at', 'desc')
       .limit(10)
@@ -40,7 +51,7 @@ export default class InstagramController {
    * Página de configurações
    */
   async settings({ inertia }: HttpContext) {
-    const settings = await InstagramSetting.getAll()
+    const settings = this.redactSecrets(await InstagramSetting.getAll())
     const categories = await NewsCategory.query().orderBy('name', 'asc')
 
     return inertia.render('admin/news/instagram/settings', {
@@ -100,7 +111,11 @@ export default class InstagramController {
       'cron_minute',
     ])
 
-    await InstagramSetting.setMany(data as Record<string, string | null>)
+    for (const [key, value] of Object.entries(data)) {
+      const normalized = typeof value === 'string' ? value.trim() : value
+      if (SECRET_SETTING_KEYS.has(key) && !normalized) continue
+      await InstagramSetting.set(key, normalized as string | null)
+    }
 
     session.flash('success', 'Configurações salvas com sucesso!')
     return response.redirect().back()

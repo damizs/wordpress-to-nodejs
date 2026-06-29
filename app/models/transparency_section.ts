@@ -10,6 +10,7 @@ export default class TransparencySection extends BaseModel {
   @column() declare description: string | null
   @column() declare displayOrder: number
   @column() declare isActive: boolean
+  @column.dateTime() declare deletedAt: DateTime | null
   @column.dateTime({ autoCreate: true }) declare createdAt: DateTime
   @column.dateTime({ autoCreate: true, autoUpdate: true }) declare updatedAt: DateTime | null
 }

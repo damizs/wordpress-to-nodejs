@@ -38,7 +38,7 @@ export default class AgendaController {
     const status = request.input('situacao', '')
     const search = request.input('busca', '')
 
-    let query = PlenarySession.query().orderBy('session_date', 'desc')
+    let query = PlenarySession.query().whereNull('deleted_at').orderBy('session_date', 'desc')
     if (year) query = query.where('year', Number.parseInt(year))
     if (type) query = query.where('type', type)
     if (status) query = query.where('status', status)
@@ -50,8 +50,16 @@ export default class AgendaController {
 
     const [sessions, years, types] = await Promise.all([
       query.paginate(page, 20),
-      PlenarySession.query().distinct('year').whereNotNull('year').orderBy('year', 'desc'),
-      PlenarySession.query().distinct('type').whereNotNull('type').orderBy('type', 'asc'),
+      PlenarySession.query()
+        .whereNull('deleted_at')
+        .distinct('year')
+        .whereNotNull('year')
+        .orderBy('year', 'desc'),
+      PlenarySession.query()
+        .whereNull('deleted_at')
+        .distinct('type')
+        .whereNotNull('type')
+        .orderBy('type', 'asc'),
     ])
     const siteSettings = await SiteSetting.allAsObject()
 
@@ -86,7 +94,10 @@ export default class AgendaController {
   }
 
   async ics({ request, response }: HttpContext) {
-    const sessions = await PlenarySession.query().orderBy('session_date', 'asc').limit(500)
+    const sessions = await PlenarySession.query()
+      .whereNull('deleted_at')
+      .orderBy('session_date', 'asc')
+      .limit(500)
     const host = request.header('host') || 'camaradesume.pb.gov.br'
     const proto = request.header('x-forwarded-proto') || 'https'
     const baseUrl = `${proto}://${host}`
