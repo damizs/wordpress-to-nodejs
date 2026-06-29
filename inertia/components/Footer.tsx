@@ -10,6 +10,7 @@ import {
   Youtube,
 } from "lucide-react";
 import { useSiteSettings } from "~/hooks/use_site_settings";
+import { isPublicHrefBlocked } from "~/lib/public-access";
 
 interface FooterProps {
   logoUrl?: string | null;
@@ -73,11 +74,23 @@ function parseFooterColumns(raw: string | null | undefined): FooterColumn[] {
   }
 }
 
+function filterBlockedFooterColumns(
+  columns: FooterColumn[],
+  settings: Record<string, string | null | undefined>
+) {
+  return columns
+    .map((column) => ({
+      ...column,
+      links: column.links.filter((link) => !isPublicHrefBlocked(settings, link.href)),
+    }))
+    .filter((column) => column.links.length > 0);
+}
+
 export const Footer = ({ logoUrl }: FooterProps) => {
   const settings = useSiteSettings();
   const { url: currentUrl } = usePage();
   const isEmbed = /[?&]embed=1/.test(currentUrl);
-  const footerColumns = parseFooterColumns(settings.footer_columns);
+  const footerColumns = filterBlockedFooterColumns(parseFooterColumns(settings.footer_columns), settings);
 
   const resolvedLogo = logoUrl ?? settings.logo_url ?? null;
   const headerTitle = settings.header_title || "CÂMARA MUNICIPAL DE SUMÉ";

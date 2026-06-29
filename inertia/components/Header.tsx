@@ -10,6 +10,7 @@ import { BackToTop } from "~/components/BackToTop";
 import { AccessibilityBar, useDarkMode } from "~/components/AccessibilityBar";
 import CampaignBanner from "~/components/CampaignBanner";
 import { getSiteTemplate } from "~/lib/templates";
+import { isPublicHrefBlocked } from "~/lib/public-access";
 
 interface HeaderProps {
   logoUrl?: string | null;
@@ -171,6 +172,24 @@ function buildDesktopNavItems(items: NavItem[], limit: number): NavItem[] {
   ];
 }
 
+function filterBlockedNavItems(items: NavItem[], settings: Record<string, string | null | undefined>) {
+  return items
+    .map((item) => {
+      const subItems = (item.subItems || []).filter((sub) => !isPublicHrefBlocked(settings, sub.href));
+      const itemBlocked = isPublicHrefBlocked(settings, item.href);
+
+      if (itemBlocked && subItems.length === 0) return null;
+
+      return {
+        ...item,
+        href: itemBlocked ? subItems[0]?.href || item.href : item.href,
+        hasDropdown: subItems.length > 0,
+        subItems: subItems.length > 0 ? subItems : undefined,
+      };
+    })
+    .filter((item): item is NavItem => item !== null);
+}
+
 /** Menu editável no painel (/painel/menus); cai no padrão se a setting estiver vazia */
 function parseNavItems(raw: string | null | undefined): NavItem[] {
   if (!raw) return reorderPrimaryMenu(defaultNavItems);
@@ -204,7 +223,14 @@ export const Header = ({ logoUrl }: HeaderProps) => {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [dark, toggleDark] = useDarkMode();
   const settings = useSiteSettings();
-  const navItems = useMemo(() => parseNavItems(settings.header_menu), [settings.header_menu]);
+  const navItems = useMemo(
+    () => filterBlockedNavItems(parseNavItems(settings.header_menu), settings),
+    [
+      settings.header_menu,
+      settings.public_access_disabled_areas,
+      settings.public_access_blocked_paths,
+    ]
+  );
   const template = getSiteTemplate(settings.site_template).key;
   const desktopNavItems = useMemo(
     () =>

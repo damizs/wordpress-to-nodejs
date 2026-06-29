@@ -20,6 +20,7 @@ import LegislativeActivity from '#models/legislative_activity'
 import PlenarySession from '#models/plenary_session'
 import RuntimeCache from '#services/runtime_cache'
 import { fixGetpublicUrl } from '#helpers/document_file_url'
+import { getElectionModeState } from '#helpers/election_mode'
 
 export default class HomeController {
   async index({ inertia, request }: HttpContext) {
@@ -33,44 +34,50 @@ export default class HomeController {
       console.log('Seals table may not exist yet:', e.message)
     }
 
+    const siteSettings = await SiteSetting.allAsObject()
+    const electionMode = getElectionModeState(siteSettings)
+    const electionActive = electionMode.active
+
     let instagramLogs: InstagramImportLog[] = []
     let instagramProfileUrl: string | null = null
     let instagramProfilePic: string | null = null
     let instagramFeed: Awaited<ReturnType<typeof InstagramFeedService.getCached>>['items'] = []
     let instagramReels: Awaited<ReturnType<typeof InstagramFeedService.getCachedReels>>['items'] = []
-    try {
-      instagramLogs = await InstagramImportLog.query()
-        .where('status', 'published')
-        .whereNotNull('news_id')
-        .preload('news')
-        .orderBy('instagram_post_date', 'desc')
-        .limit(8)
-      instagramProfileUrl = await InstagramSetting.get('instagram_profile_url')
-      instagramProfilePic = await InstagramFeedService.getCachedProfilePic()
+    if (!electionActive) {
+      try {
+        instagramLogs = await InstagramImportLog.query()
+          .where('status', 'published')
+          .whereNotNull('news_id')
+          .preload('news')
+          .orderBy('instagram_post_date', 'desc')
+          .limit(8)
+        instagramProfileUrl = await InstagramSetting.get('instagram_profile_url')
+        instagramProfilePic = await InstagramFeedService.getCachedProfilePic()
 
-      // Feed ao vivo (cache). Atualiza em segundo plano se estiver velho/vazio,
-      // sem bloquear a renderização da página.
-      const cached = await InstagramFeedService.getCached()
-      instagramFeed = cached.items
-      if (instagramProfileUrl && (await InstagramFeedService.isStale())) {
-        InstagramFeedService.refresh().catch((err) =>
-          console.log('Instagram feed refresh falhou:', err?.message)
-        )
-      } else if (instagramProfileUrl && (await InstagramFeedService.isProfilePicStale())) {
-        InstagramFeedService.refreshProfilePic().catch((err) =>
-          console.log('Instagram profile pic refresh falhou:', err?.message)
-        )
-      }
+        // Feed ao vivo (cache). Atualiza em segundo plano se estiver velho/vazio,
+        // sem bloquear a renderização da página.
+        const cached = await InstagramFeedService.getCached()
+        instagramFeed = cached.items
+        if (instagramProfileUrl && (await InstagramFeedService.isStale())) {
+          InstagramFeedService.refresh().catch((err) =>
+            console.log('Instagram feed refresh falhou:', err?.message)
+          )
+        } else if (instagramProfileUrl && (await InstagramFeedService.isProfilePicStale())) {
+          InstagramFeedService.refreshProfilePic().catch((err) =>
+            console.log('Instagram profile pic refresh falhou:', err?.message)
+          )
+        }
 
-      const cachedReels = await InstagramFeedService.getCachedReels()
-      instagramReels = cachedReels.items
-      if (instagramProfileUrl && (await InstagramFeedService.isReelsStale())) {
-        InstagramFeedService.refreshReels().catch((err) =>
-          console.log('Instagram reels refresh falhou:', err?.message)
-        )
+        const cachedReels = await InstagramFeedService.getCachedReels()
+        instagramReels = cachedReels.items
+        if (instagramProfileUrl && (await InstagramFeedService.isReelsStale())) {
+          InstagramFeedService.refreshReels().catch((err) =>
+            console.log('Instagram reels refresh falhou:', err?.message)
+          )
+        }
+      } catch (e) {
+        console.log('Instagram unavailable:', e.message)
       }
-    } catch (e) {
-      console.log('Instagram unavailable:', e.message)
     }
 
     const [
@@ -81,22 +88,23 @@ export default class HomeController {
       latestGazette,
       publications,
       currentLegislature,
-      siteSettings,
       infoCategories,
       activities,
       sessions,
     ] = await Promise.all([
-      News.query()
-        .select('id', 'title', 'slug', 'excerpt', 'cover_image_url', 'published_at', 'category_id')
-        .where('status', 'published')
-        .whereNull('deleted_at')
-        // Exclui GetPublic (avisos/atos) do feed de notícias da home.
-        .whereNotIn('category_id', (sub) =>
-          sub.from('news_categories').where('slug', 'getpublic').select('id')
-        )
-        .orderBy('published_at', 'desc')
-        .limit(12)
-        .preload('category'),
+      electionActive
+        ? Promise.resolve([] as News[])
+        : News.query()
+            .select('id', 'title', 'slug', 'excerpt', 'cover_image_url', 'published_at', 'category_id')
+            .where('status', 'published')
+            .whereNull('deleted_at')
+            // Exclui GetPublic (avisos/atos) do feed de notícias da home.
+            .whereNotIn('category_id', (sub) =>
+              sub.from('news_categories').where('slug', 'getpublic').select('id')
+            )
+            .orderBy('published_at', 'desc')
+            .limit(12)
+            .preload('category'),
       Councilor.query()
         .select(
           'id',
@@ -126,7 +134,6 @@ export default class HomeController {
         .orderBy('publication_date', 'desc')
         .limit(6),
       Legislature.query().where('is_current', true).first(),
-      SiteSetting.allAsObject(),
       SystemCategory.byType('information_record'),
       RuntimeCache.getOrSet('home:legislative-activities:v1', 60_000, () =>
         LegislativeActivity.query()
@@ -216,6 +223,7 @@ export default class HomeController {
       slug: n.slug,
       featured: index === 0, // First news is featured
     }))
+    const safeMappedNews = electionActive ? [] : mappedNews
 
     // Datas vindas do Postgres podem chegar como Date (coluna date) ou string ISO
     const formatDate = (value: unknown) => {
@@ -380,15 +388,15 @@ export default class HomeController {
         : siteSettings
 
     return inertia.render('home', {
-      news: mappedNews,
+      news: safeMappedNews,
       vereadores,
       legislativo,
       mesaDiretora,
       publicacoes,
-      instagramPosts,
-      instagramReels,
-      instagramProfileUrl,
-      instagramProfilePic,
+      instagramPosts: electionActive ? [] : instagramPosts,
+      instagramReels: electionActive ? [] : instagramReels,
+      instagramProfileUrl: electionActive ? null : instagramProfileUrl,
+      instagramProfilePic: electionActive ? null : instagramProfilePic,
       legislatura,
       quickLinks: quickLinks.map((q) => q.serialize()),
       transparencySections: sectionsWithLinks,
@@ -417,8 +425,12 @@ export default class HomeController {
       })),
       siteSettings: siteSettingsView,
       infoCategories: infoCategories.map((c) => ({ id: c.id, name: c.name, slug: c.slug })),
-      newsBackgroundImage: siteSettingsView.news_background_image || null,
-      seals: seals.map((s) => ({
+      newsBackgroundImage: electionActive ? null : siteSettingsView.news_background_image || null,
+      electionMode: {
+        active: electionActive,
+        message: electionMode.message,
+      },
+      seals: electionActive ? [] : seals.map((s) => ({
         id: s.id,
         title: s.title,
         description: s.description,

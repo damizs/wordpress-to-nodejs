@@ -137,7 +137,8 @@ Acesso à Informação (categorias PNTP), **Radar ATRICON**, Pesquisa de Satisfa
 alterações e modelos prontos como Carta de Serviços/SIC/Transparência), Conteúdo Institucional,
 Biblioteca de Mídia, Aparência (**em abas**: Tema/Campanhas · Modelo & Layout ·
 Cores · Identidade/logos · **Notícias** (modelo de card: `news_layout` =
-mosaico/grade/lista/destaque) · Rodapé & Contato), Menus do Site,
+mosaico/grade/lista/destaque) · **Disponibilidade pública** (desativa áreas/rotas
+sem apagar conteúdo) · Rodapé & Contato), Menus do Site,
 Feriados, Selos, Links Rápidos, Categorias, Fotos da Cidade.
 **Sistema:** Usuários, Papéis e Permissões (RBAC; papel **Publicador** com
 Notícias/Publicações, Atas e Pautas, sem usuários/papéis/segurança/backups),
@@ -184,6 +185,12 @@ em Números, Diário, Instagram, Conheça Sumé, Certificações, Pesquisa) → 
   Vereadores, Mesa Diretora, Comissões) e use **Matérias** para produção
   legislativa/documentos (Atividades Legislativas, Atas, Pautas, Publicações
   Oficiais).
+- **Disponibilidade pública:** Aparência → Disponibilidade pública grava
+  `public_access_disabled_areas`, `public_access_blocked_paths` e
+  `public_unavailable_message`. O middleware público troca a página por aviso
+  temporário sem apagar/despublicar registros; busca, sitemap XML, mapa do site,
+  header e rodapé filtram links bloqueados. Use para pedidos temporários como
+  retirar `/atas`, `/pautas` ou uma página específica do ar.
 - **Páginas com editor de blocos:** heading, texto (markdown-lite seguro),
   imagem, documentos, acordeão, destaque, botões, vídeo. `BlockRenderer.tsx`.
   O painel de páginas tem prévia renderizada, modelos prontos e botão para
@@ -285,6 +292,19 @@ em Números, Diário, Instagram, Conheça Sumé, Certificações, Pesquisa) → 
       `/transparencia/#slug` resolvidos no frontend.
 - [x] **RBAC Publicador:** permissões granulares `ata.ver/criar/editar/excluir` e
       `pauta.ver/criar/editar/excluir`, papel Publicador sem permissões de sistema.
+- [x] **Upload PDF em Sessões e Duodécimos:** URL externa continua como fallback,
+      mas o painel aceita upload direto de PDF com validação por assinatura
+      (`assertSafeUpload`) e grava em `public/uploads/sessoes` e
+      `public/uploads/duodecimos`.
+- [x] **Modo eleitoral:** configurações `election_mode_enabled`, `election_start`,
+      `election_end`, `election_message` em Aparência. Quando ativo, a home troca
+      o banner por aviso legal e oculta notícias, Instagram/Reels, fotos da
+      cidade, selos/pesquisa e blocos promocionais; `/noticias` e detalhes exibem
+      aviso legal sem enviar notícia institucional.
+- [x] **Disponibilidade pública:** painel permite desativar áreas públicas
+      inteiras (Notícias, Atas, Pautas, Agenda, Atividades, Publicações, Votações,
+      FAQ e Vídeos) ou rotas específicas. Não apaga dados; renderiza aviso
+      temporário e remove links da busca/sitemap/menus.
 - [ ] **Transmissão ao vivo** das sessões (campo YouTube na sessão → banner "AO
       VIVO" + vídeo na ata). Integração com o **sistema de votação próprio** via
       **API** (a especificar).
@@ -313,11 +333,6 @@ em Números, Diário, Instagram, Conheça Sumé, Certificações, Pesquisa) → 
 - [ ] **Avisos de licitação** (definir formato com o cliente: mural de abertas /
       tipo de conteúdo novo / aba).
 - [ ] **QR Code** em páginas de detalhe (publicações, atas, vereador, transparência).
-- [ ] **Upload PDF restante:** sessões e duodécimos ainda precisam de campo de
-      upload direto onde hoje dependerem de URL; manter validação por assinatura.
-- [ ] **Modo eleitoral:** criar configuração `election_mode_enabled`,
-      `election_start`, `election_end`, `election_message` e ocultar conteúdo
-      institucional promocional no período, mantendo transparência/atos oficiais.
 - [ ] **PNTP/admin:** passar uma rodada visual dedicada no painel de Acesso à
       Informação para aproximar ainda mais do plugin PNTP original, com preview
       modal/exportações no painel se necessário.
@@ -331,7 +346,8 @@ em Números, Diário, Instagram, Conheça Sumé, Certificações, Pesquisa) → 
       telas) e de acessibilidade.
 - [x] Primeiros testes automatizados (Japa) para CSP, saneamento HTML/blocos,
       uploads (bloqueio SVG/falso PDF), rate limit de login, cache runtime,
-      Radar/frescor, fontes legais da Transparência e rotas públicas críticas.
+      Radar/frescor, fontes legais da Transparência, disponibilidade pública e
+      rotas públicas críticas.
 - [ ] Pipeline de otimização de imagem (sharp) nos uploads.
 
 ---

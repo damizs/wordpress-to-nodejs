@@ -1,13 +1,15 @@
 import { Film, Instagram } from "lucide-react";
 import { PageLayout } from "~/components/PageLayout";
 import { ReelsGallery, type ReelItem } from "~/components/ReelsGallery";
+import { ElectionModeNotice } from "~/components/ElectionModeNotice";
 
 interface Props {
   reels?: ReelItem[];
   instagramUrl?: string | null;
+  electionMode?: { active: boolean; message: string } | null;
 }
 
-export default function VideosIndex({ reels = [], instagramUrl = null }: Props) {
+export default function VideosIndex({ reels = [], instagramUrl = null, electionMode = null }: Props) {
   const profileUrl = instagramUrl || "https://www.instagram.com/camaradesume";
 
   return (
@@ -25,7 +27,9 @@ export default function VideosIndex({ reels = [], instagramUrl = null }: Props) 
         centered: true,
       }}
     >
-      {reels.length > 0 ? (
+      {electionMode?.active ? (
+        <ElectionModeNotice message={electionMode.message} />
+      ) : reels.length > 0 ? (
         <ReelsGallery reels={reels} />
       ) : (
         <div className="rounded-2xl border border-dashed border-border bg-card py-16 px-6 text-center">

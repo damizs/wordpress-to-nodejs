@@ -2,8 +2,14 @@ import type { HttpContext } from '@adonisjs/core/http'
 import PlenarySession from '#models/plenary_session'
 import SystemCategory from '#models/system_category'
 import { sessionSlug } from '#helpers/slug'
+import app from '@adonisjs/core/services/app'
+import { cuid } from '@adonisjs/core/helpers'
+import { mkdir } from 'node:fs/promises'
+import { join } from 'node:path'
+import { existsSync } from 'node:fs'
 import { sanitizeRichHtml } from '#helpers/sanitize_html'
 import { normalizeSafeWebUrl } from '#helpers/safe_url'
+import { assertSafeUpload } from '#helpers/upload_security'
 import TrashService from '#services/trash_service'
 
 export default class PlenarySessionsController {
@@ -47,7 +53,7 @@ export default class PlenarySessionsController {
       'voting_system_url',
     ])
 
-    await PlenarySession.create({
+    const plenarySession = await PlenarySession.create({
       title: data.title,
       slug: sessionSlug(data.title, data.session_date),
       type: data.type || 'ordinaria',
@@ -62,6 +68,7 @@ export default class PlenarySessionsController {
       votingSystemId: data.voting_system_id || null,
       votingSystemUrl: normalizeSafeWebUrl(data.voting_system_url),
     })
+    await this.saveFile(request, plenarySession)
 
     session.flash('success', 'Sessão cadastrada com sucesso!')
     return response.redirect().toPath('/painel/sessoes')
@@ -108,6 +115,7 @@ export default class PlenarySessionsController {
       votingSystemId: data.voting_system_id || null,
       votingSystemUrl: normalizeSafeWebUrl(data.voting_system_url),
     })
+    await this.saveFile(request, plenarySession)
     await plenarySession.save()
 
     session.flash('success', 'Sessão atualizada com sucesso!')
@@ -123,5 +131,21 @@ export default class PlenarySessionsController {
     })
     session.flash('success', 'Sessão movida para a lixeira.')
     return response.redirect().toPath('/painel/sessoes')
+  }
+
+  private async saveFile(request: HttpContext['request'], plenarySession: PlenarySession) {
+    const file = request.file('file', { size: '30mb', extnames: ['pdf'] })
+    if (!file) return
+
+    await assertSafeUpload(file, ['pdf'])
+    const uploadDir = join(app.publicPath(), 'uploads', 'sessoes')
+    if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true })
+
+    const fileName = `sessao-${cuid()}.${file.extname}`
+    await file.move(uploadDir, { name: fileName })
+    if (file.state === 'moved') {
+      plenarySession.fileUrl = `/uploads/sessoes/${fileName}`
+      await plenarySession.save()
+    }
   }
 }

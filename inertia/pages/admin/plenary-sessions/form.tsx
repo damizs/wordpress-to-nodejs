@@ -1,6 +1,7 @@
 import { Head, useForm, Link } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Save, ArrowLeft, FileText, Link2, Calendar } from 'lucide-react'
+import { Save, ArrowLeft, FileText, Link2, Calendar, Upload, Paperclip } from 'lucide-react'
+import { useRef } from 'react'
 import {
   Button,
   Card,
@@ -30,16 +31,19 @@ export default function PlenarySessionForm({ session, sessionTypes = [] }: Props
     minutes: session?.minutes || '',
     video_url: session?.video_url || '',
     file_url: session?.file_url || '',
+    file: null as File | null,
     voting_system_id: session?.voting_system_id || session?.votingSystemId || '',
     voting_system_url: session?.voting_system_url || session?.votingSystemUrl || '',
   })
 
+  const fileRef = useRef<HTMLInputElement>(null)
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (isEditing) {
-      post(`/painel/sessoes/${session.id}?_method=PUT`)
+      post(`/painel/sessoes/${session.id}?_method=PUT`, { forceFormData: true })
     } else {
-      post('/painel/sessoes')
+      post('/painel/sessoes', { forceFormData: true })
     }
   }
 
@@ -135,14 +139,50 @@ export default function PlenarySessionForm({ session, sessionTypes = [] }: Props
               </Field>
             </div>
 
-            <Field label="URL do PDF da sessão">
+            <Field label="URL do PDF da sessão" hint="Fallback opcional quando o arquivo estiver hospedado fora do portal.">
               <Input
-                type="url"
+                type="text"
                 value={data.file_url}
                 onChange={(e) => setData('file_url', e.target.value)}
-                placeholder="https://..."
+                placeholder="https://... ou /uploads/..."
               />
             </Field>
+
+            <div className="rounded-lg border border-border bg-muted/30 p-4">
+              <div className="flex items-start gap-3">
+                <Paperclip className="mt-0.5 h-4 w-4 text-primary" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-foreground">Upload do PDF da sessão</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Envie o PDF oficial diretamente pelo painel. O upload substitui a URL acima.
+                  </p>
+                  {session?.file_url && !data.file && (
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      Arquivo atual:{' '}
+                      <a href={session.file_url} target="_blank" rel="noopener noreferrer" className="text-navy dark:text-sky underline">
+                        {session.file_url.split('/').pop()}
+                      </a>
+                    </p>
+                  )}
+                  <div className="mt-3 flex flex-wrap items-center gap-3">
+                    <Button type="button" variant="secondary" onClick={() => fileRef.current?.click()}>
+                      <Upload className="w-4 h-4" />
+                      Selecionar PDF
+                    </Button>
+                    <span className="text-sm text-muted-foreground">
+                      {data.file?.name || 'Nenhum arquivo selecionado'}
+                    </span>
+                  </div>
+                  <input
+                    ref={fileRef}
+                    type="file"
+                    accept=".pdf,application/pdf"
+                    onChange={(e) => setData('file', e.target.files?.[0] || null)}
+                    className="hidden"
+                  />
+                </div>
+              </div>
+            </div>
 
             <Field label="Pauta / resumo da sessão">
               <RichTextEditor

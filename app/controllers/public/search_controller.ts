@@ -10,6 +10,7 @@ import Page from '#models/page'
 import FaqItem from '#models/faq_item'
 import SiteSetting from '#models/site_setting'
 import GetPublicMateria from '#models/getpublic_materia'
+import { getPublicAccessBlock } from '#helpers/public_access'
 
 type ResultType =
   | 'Notícia'
@@ -309,16 +310,21 @@ export default class SearchController {
       })
     }
 
+    const visibleResults = results.filter((result) => {
+      if (!result.url.startsWith('/')) return true
+      return !getPublicAccessBlock(siteSettings, result.url)
+    })
+
     // Contagem por tipo (preserva ordem de inserção/relevância dos grupos)
     const byType: Record<string, number> = {}
-    for (const r of results) {
+    for (const r of visibleResults) {
       byType[r.type] = (byType[r.type] || 0) + 1
     }
 
     return inertia.render('public/search/index', {
       q,
-      results,
-      total: results.length,
+      results: visibleResults,
+      total: visibleResults.length,
       byType,
       siteSettings,
     })

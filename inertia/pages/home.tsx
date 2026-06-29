@@ -27,6 +27,7 @@ import {
   getTemplateCustomConfig,
   parseTemplateConfig,
 } from "~/lib/template-config";
+import { ElectionModeNotice } from "~/components/ElectionModeNotice";
 
 interface NewsItem {
   id: number;
@@ -124,6 +125,7 @@ interface HomeProps {
   seals?: Seal[];
   infoCategories?: InfoCategory[];
   siteSettings?: Record<string, string | null>;
+  electionMode?: { active: boolean; message: string };
 }
 
 export default function Home({ 
@@ -143,7 +145,8 @@ export default function Home({
   newsBackgroundImage = null,
   seals = [],
   infoCategories = [],
-  siteSettings = {}
+  siteSettings = {},
+  electionMode = undefined,
 }: HomeProps) {
   const logoUrl = siteSettings?.logo_url || null;
   const template = getSiteTemplate(siteSettings?.site_template);
@@ -172,6 +175,9 @@ export default function Home({
   );
   const newsLayout = siteSettings?.news_layout || customConfig.newsLayout || "mosaico";
   const newsForHome = news.slice(0, newsLimit);
+  const electionActive = electionMode?.active ?? false;
+  const electionNotice = electionMode?.message ?? null;
+  const electionHiddenSections = new Set(["news", "instagram", "reels", "conheca", "seals", "survey"]);
 
   const hasGazetteContent = Boolean(latestGazette || gazetteEntries.length || gazetteDates.length);
 
@@ -179,6 +185,7 @@ export default function Home({
   // Sem configuração explícita ('false'), a seção fica visível. O Diário Oficial é
   // alimentado por importador próprio e deve voltar à home sempre que houver publicações.
   const visible = (section: string) => {
+    if (electionActive && electionHiddenSections.has(section)) return false;
     if (section === 'diario' && hasGazetteContent) return true;
     return siteSettings?.[`section_${section}_visible`] !== 'false';
   };
@@ -201,7 +208,7 @@ export default function Home({
         
         <main id="conteudo" tabIndex={-1} className="outline-none">
           <h1 className="sr-only">Câmara Municipal de Sumé — Portal Oficial</h1>
-          {template.homeHero && (
+          {template.homeHero && !electionActive && (
             <HomeHero
               template={template.key}
               quickLinks={quickLinks}
@@ -212,6 +219,13 @@ export default function Home({
             />
           )}
           <HolidaysStrip />
+          {electionActive && (
+            <section className="py-8">
+              <div className="container">
+                <ElectionModeNotice message={electionNotice} />
+              </div>
+            </section>
+          )}
           {homeOrder.map((key) => {
             if (!visible(key)) return null;
 

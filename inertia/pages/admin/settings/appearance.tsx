@@ -13,14 +13,23 @@ import {
   LayoutTemplate,
   Newspaper,
   FileText,
+  CalendarClock,
+  EyeOff,
   type LucideIcon,
 } from 'lucide-react'
 import { useState, useRef } from 'react'
-import { Button, Card, CardHeader, Field, Input, PageHeader, Select } from '~/components/admin/ui'
+import { Badge, Button, Card, CardHeader, Field, Input, PageHeader, Select, Textarea } from '~/components/admin/ui'
 import { CAMPAIGNS, THEME_PRESETS, getCampaign, resolveActiveCampaign } from '~/lib/campaigns'
 import { LAYOUT_STYLES, type LayoutStyle } from '~/lib/layouts'
 import { SITE_TEMPLATES, type SiteTemplate, type SiteTemplateKey } from '~/lib/templates'
 import { NEWS_LAYOUTS } from '~/lib/news-layouts'
+import { DEFAULT_ELECTION_MESSAGE, isElectionModeActive } from '~/lib/election-mode'
+import {
+  DEFAULT_PUBLIC_UNAVAILABLE_MESSAGE,
+  PUBLIC_ACCESS_AREAS,
+  parseDisabledPublicAreas,
+  togglePublicArea,
+} from '~/lib/public-access'
 import { TemplateCustomizeModal } from '~/components/admin/TemplateCustomizeModal'
 import {
   getTemplateCustomConfig,
@@ -43,6 +52,8 @@ interface Props {
     footer?: SettingItem[]
     social?: SettingItem[]
     esic?: SettingItem[]
+    election?: SettingItem[]
+    public_access?: SettingItem[]
   }
 }
 
@@ -51,12 +62,20 @@ function getVal(items: SettingItem[] | undefined, key: string): string {
 }
 
 export default function Appearance({ settings }: Props) {
-  const { appearance, footer, social, esic } = settings
+  const { appearance, footer, social, esic, election, public_access } = settings
 
   const { data, setData, post, processing } = useForm<Record<string, any>>({
     theme_preset: getVal(appearance, 'theme_preset') || 'navy',
     admin_palette: getVal(appearance, 'admin_palette') || 'navy',
     campaign_mode: getVal(appearance, 'campaign_mode') || 'auto',
+    election_mode_enabled: getVal(election, 'election_mode_enabled') || 'false',
+    election_start: getVal(election, 'election_start'),
+    election_end: getVal(election, 'election_end'),
+    election_message: getVal(election, 'election_message') || DEFAULT_ELECTION_MESSAGE,
+    public_access_disabled_areas: getVal(public_access, 'public_access_disabled_areas') || '[]',
+    public_access_blocked_paths: getVal(public_access, 'public_access_blocked_paths'),
+    public_unavailable_message:
+      getVal(public_access, 'public_unavailable_message') || DEFAULT_PUBLIC_UNAVAILABLE_MESSAGE,
     layout_style: getVal(appearance, 'layout_style') || 'institucional',
     site_template: getVal(appearance, 'site_template') || 'institucional',
     news_layout: getVal(appearance, 'news_layout') || 'mosaico',
@@ -159,6 +178,8 @@ export default function Appearance({ settings }: Props) {
 
   const TABS: { key: string; label: string; icon: LucideIcon }[] = [
     { key: 'tema', label: 'Tema & Campanhas', icon: Sparkles },
+    { key: 'eleitoral', label: 'Modo eleitoral', icon: CalendarClock },
+    { key: 'publico', label: 'Disponibilidade pública', icon: EyeOff },
     { key: 'modelo', label: 'Modelo & Layout', icon: LayoutTemplate },
     { key: 'cores', label: 'Cores', icon: Palette },
     { key: 'identidade', label: 'Identidade', icon: Type },
@@ -217,6 +238,37 @@ export default function Appearance({ settings }: Props) {
                 onThemeChange={(v) => setData('theme_preset', v)}
                 onCampaignChange={(v) => setData('campaign_mode', v)}
                 onAdminPaletteChange={(v) => setData('admin_palette', v)}
+              />
+            </Section>
+          )}
+
+          {tab === 'eleitoral' && (
+            <Section
+              icon={CalendarClock}
+              title="Modo eleitoral"
+              description="Controla a substituição temporária de conteúdos institucionais promocionais no site público."
+            >
+              <ElectionModeSettings
+                enabled={data.election_mode_enabled}
+                start={data.election_start}
+                end={data.election_end}
+                message={data.election_message}
+                onChange={(key, value) => setData(key, value)}
+              />
+            </Section>
+          )}
+
+          {tab === 'publico' && (
+            <Section
+              icon={EyeOff}
+              title="Disponibilidade pública"
+              description="Retira áreas ou rotas específicas do site público sem apagar registros nem despublicar conteúdo no painel."
+            >
+              <PublicAccessSettings
+                disabledAreas={data.public_access_disabled_areas}
+                blockedPaths={data.public_access_blocked_paths}
+                message={data.public_unavailable_message}
+                onChange={(key, value) => setData(key, value)}
               />
             </Section>
           )}
@@ -702,6 +754,166 @@ function ThemeAndCampaigns({
           </p>
         )
       )}
+    </div>
+  )
+}
+
+function ElectionModeSettings({
+  enabled,
+  start,
+  end,
+  message,
+  onChange,
+}: {
+  enabled: string
+  start: string
+  end: string
+  message: string
+  onChange: (key: string, value: string) => void
+}) {
+  const activeNow = isElectionModeActive({
+    election_mode_enabled: enabled,
+    election_start: start,
+    election_end: end,
+    election_message: message,
+  })
+
+  return (
+    <div className="space-y-5">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-muted/30 p-4">
+        <div>
+          <p className="text-sm font-semibold text-foreground">Status operacional</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Notícias, Instagram/Reels, fotos da cidade e seções promocionais da home ficam indisponíveis enquanto ativo.
+          </p>
+        </div>
+        <Badge tone={activeNow ? 'warning' : 'success'}>
+          {activeNow ? 'Ativo agora' : 'Inativo agora'}
+        </Badge>
+      </div>
+
+      <label className="flex items-start gap-3 rounded-lg border border-border bg-card p-4">
+        <input
+          type="checkbox"
+          checked={enabled === 'true'}
+          onChange={(e) => onChange('election_mode_enabled', e.target.checked ? 'true' : 'false')}
+          className="mt-1 rounded border-border accent-navy"
+        />
+        <span>
+          <span className="block text-sm font-semibold text-foreground">Habilitar modo eleitoral</span>
+          <span className="mt-1 block text-xs text-muted-foreground">
+            Se as datas ficarem vazias, a habilitação manual já coloca o modo em vigor.
+          </span>
+        </span>
+      </label>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <Field label="Início">
+          <Input type="date" value={start || ''} onChange={(e) => onChange('election_start', e.target.value)} />
+        </Field>
+        <Field label="Fim">
+          <Input type="date" value={end || ''} onChange={(e) => onChange('election_end', e.target.value)} />
+        </Field>
+      </div>
+
+      <Field label="Mensagem exibida no site">
+        <Textarea
+          value={message || DEFAULT_ELECTION_MESSAGE}
+          onChange={(e) => onChange('election_message', e.target.value)}
+          className="min-h-[150px]"
+        />
+      </Field>
+    </div>
+  )
+}
+
+function PublicAccessSettings({
+  disabledAreas,
+  blockedPaths,
+  message,
+  onChange,
+}: {
+  disabledAreas: string
+  blockedPaths: string
+  message: string
+  onChange: (key: string, value: string) => void
+}) {
+  const disabled = parseDisabledPublicAreas(disabledAreas)
+  const hasRouteBlocks = Boolean((blockedPaths || '').trim())
+  const hasBlocks = disabled.length > 0 || hasRouteBlocks
+
+  return (
+    <div className="space-y-5">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-muted/30 p-4">
+        <div>
+          <p className="text-sm font-semibold text-foreground">Status de publicação pública</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            O painel continua editando normalmente. No site, a área desativada mostra uma mensagem temporária e sai da busca e do sitemap.
+          </p>
+        </div>
+        <Badge tone={hasBlocks ? 'warning' : 'success'}>
+          {hasBlocks ? 'Há bloqueios ativos' : 'Tudo publicado'}
+        </Badge>
+      </div>
+
+      <Field
+        label="Áreas públicas"
+        hint="Marque somente quando precisar retirar uma área inteira do ar, como Atas ou Pautas."
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+          {PUBLIC_ACCESS_AREAS.map((area) => {
+            const checked = disabled.includes(area.key)
+            return (
+              <label
+                key={area.key}
+                className={`flex min-h-[96px] cursor-pointer items-start gap-3 rounded-lg border p-4 transition-colors ${
+                  checked
+                    ? 'border-amber-300 bg-amber-50 text-amber-950 dark:border-amber-700/70 dark:bg-amber-950/30 dark:text-amber-100'
+                    : 'border-border bg-card hover:border-navy/30'
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={checked}
+                  onChange={(e) =>
+                    onChange(
+                      'public_access_disabled_areas',
+                      togglePublicArea(disabledAreas, area.key, e.target.checked)
+                    )
+                  }
+                  className="mt-1 rounded border-border accent-navy"
+                />
+                <span className="min-w-0">
+                  <span className="block text-sm font-semibold">{area.label}</span>
+                  <span className={`mt-1 block text-xs leading-relaxed ${checked ? 'text-amber-900/80 dark:text-amber-100/75' : 'text-muted-foreground'}`}>
+                    {area.description}
+                  </span>
+                </span>
+              </label>
+            )
+          })}
+        </div>
+      </Field>
+
+      <Field
+        label="Rotas específicas"
+        hint="Uma por linha. Ex.: /historia-da-camara, /sobre ou /minha-pagina. Para subpáginas, use a rota principal."
+      >
+        <Textarea
+          value={blockedPaths || ''}
+          onChange={(e) => onChange('public_access_blocked_paths', e.target.value)}
+          placeholder="/historia-da-camara&#10;/minha-pagina"
+          className="min-h-[120px] font-mono text-xs"
+        />
+      </Field>
+
+      <Field label="Mensagem exibida ao cidadão">
+        <Textarea
+          value={message || DEFAULT_PUBLIC_UNAVAILABLE_MESSAGE}
+          onChange={(e) => onChange('public_unavailable_message', e.target.value)}
+          className="min-h-[130px]"
+        />
+      </Field>
     </div>
   )
 }

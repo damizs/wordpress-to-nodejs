@@ -8,6 +8,7 @@ import { PageHero } from "~/components/PageHero";
 import { Footer } from "~/components/Footer";
 import { Calendar, ArrowRight, ChevronLeft, ChevronRight, Search, X, Newspaper } from "lucide-react";
 import { FilterBar } from "~/components/FilterBar";
+import { ElectionModeNotice } from "~/components/ElectionModeNotice";
 
 interface NewsItem {
   id: number;
@@ -41,6 +42,7 @@ interface Props {
   };
   categories?: { id: number; name: string }[];
   filters?: Filters;
+  electionMode?: { active: boolean; message: string } | null;
 }
 
 const toParams = (filters: Filters): Record<string, string> => {
@@ -58,7 +60,7 @@ const pageUrl = (page: number, filters: Filters) => {
   return `/noticias${qs ? `?${qs}` : ""}`;
 };
 
-export default function NewsIndex({ news, categories = [], filters = {} }: Props) {
+export default function NewsIndex({ news, categories = [], filters = {}, electionMode = null }: Props) {
   const items = news?.data || [];
   const pagination = news?.meta ? {
     currentPage: news.meta.currentPage || news.meta.current_page || 1,
@@ -107,6 +109,10 @@ export default function NewsIndex({ news, categories = [], filters = {} }: Props
         <main id="conteudo" tabIndex={-1} role="main">
           <section className="py-10 lg:py-14">
             <div className="container">
+              {electionMode?.active ? (
+                <ElectionModeNotice message={electionMode.message} />
+              ) : (
+                <>
               <FilterBar>
                 <form className="filter-search" onSubmit={(e) => { e.preventDefault(); applyFilters({ search: searchTerm }); }}>
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -255,6 +261,8 @@ export default function NewsIndex({ news, categories = [], filters = {} }: Props
                     </Link>
                   )}
                 </div>
+              )}
+                </>
               )}
             </div>
           </section>

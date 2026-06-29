@@ -8,6 +8,7 @@ import { existsSync } from 'node:fs'
 import { saveOptimizedImage } from '#helpers/image_upload'
 import { assertSafeUpload } from '#helpers/upload_security'
 import { normalizeSafeWebUrl } from '#helpers/safe_url'
+import { DEFAULT_PUBLIC_UNAVAILABLE_MESSAGE } from '#helpers/public_access'
 
 /** All appearance keys with their defaults and groups */
 const APPEARANCE_KEYS: Record<
@@ -49,6 +50,49 @@ const APPEARANCE_KEYS: Record<
     defaultValue: 'auto',
     type: 'text',
     label: 'Campanha Sazonal (auto | off | chave da campanha)',
+  },
+  election_mode_enabled: {
+    group: 'election',
+    defaultValue: 'false',
+    type: 'boolean',
+    label: 'Modo eleitoral ativo',
+  },
+  election_start: {
+    group: 'election',
+    defaultValue: '',
+    type: 'text',
+    label: 'Início do período eleitoral',
+  },
+  election_end: {
+    group: 'election',
+    defaultValue: '',
+    type: 'text',
+    label: 'Fim do período eleitoral',
+  },
+  election_message: {
+    group: 'election',
+    defaultValue:
+      'Em atendimento à legislação eleitoral, este conteúdo institucional está temporariamente indisponível durante o período eleitoral. Permanecem acessíveis os serviços essenciais, atos oficiais, transparência pública, licitações, contratos, dados abertos e canais de atendimento ao cidadão.',
+    type: 'text',
+    label: 'Mensagem do modo eleitoral',
+  },
+  public_access_disabled_areas: {
+    group: 'public_access',
+    defaultValue: '[]',
+    type: 'json',
+    label: 'Áreas públicas temporariamente desativadas',
+  },
+  public_access_blocked_paths: {
+    group: 'public_access',
+    defaultValue: '',
+    type: 'text',
+    label: 'Rotas públicas temporariamente desativadas',
+  },
+  public_unavailable_message: {
+    group: 'public_access',
+    defaultValue: DEFAULT_PUBLIC_UNAVAILABLE_MESSAGE,
+    type: 'text',
+    label: 'Mensagem de indisponibilidade pública',
   },
   layout_style: {
     group: 'appearance',
@@ -204,10 +248,18 @@ export default class SettingsController {
   /** Ensure all settings exist in DB, creating missing ones with defaults */
   private async ensureAllSettings() {
     const existing = await SiteSetting.query().whereIn('key', Object.keys(APPEARANCE_KEYS))
-    const existingKeys = new Set(existing.map((s) => s.key))
+    const existingByKey = new Map(existing.map((s) => [s.key, s]))
 
     for (const [key, def] of Object.entries(APPEARANCE_KEYS)) {
-      if (!existingKeys.has(key)) {
+      const current = existingByKey.get(key)
+      if (current) {
+        if (current.group !== def.group || current.type !== def.type || current.label !== def.label) {
+          current.group = def.group
+          current.type = def.type as any
+          current.label = def.label
+          await current.save()
+        }
+      } else {
         await SiteSetting.create({
           group: def.group,
           key,
@@ -226,6 +278,8 @@ export default class SettingsController {
 
     const settings = await SiteSetting.query().whereIn('group', [
       'appearance',
+      'election',
+      'public_access',
       'footer',
       'social',
       'esic',

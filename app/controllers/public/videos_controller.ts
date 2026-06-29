@@ -1,9 +1,22 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import InstagramSetting from '#models/instagram_setting'
 import InstagramFeedService from '#services/instagram_feed_service'
+import SiteSetting from '#models/site_setting'
+import { getElectionModeState } from '#helpers/election_mode'
 
 export default class VideosController {
   async index({ inertia }: HttpContext) {
+    const siteSettings = await SiteSetting.allAsObject()
+    const electionMode = getElectionModeState(siteSettings)
+    if (electionMode.active) {
+      return inertia.render('public/videos/index', {
+        reels: [],
+        instagramUrl: null,
+        electionMode,
+        siteSettings,
+      })
+    }
+
     let reels: Awaited<ReturnType<typeof InstagramFeedService.getCachedReels>>['items'] = []
     let instagramProfileUrl: string | null = null
     try {
@@ -23,6 +36,7 @@ export default class VideosController {
     return inertia.render('public/videos/index', {
       reels,
       instagramUrl: instagramProfileUrl,
+      siteSettings,
     })
   }
 }

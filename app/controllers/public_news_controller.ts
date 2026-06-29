@@ -2,10 +2,20 @@ import type { HttpContext } from '@adonisjs/core/http'
 import News from '#models/news'
 import NewsCategory from '#models/news_category'
 import SiteSetting from '#models/site_setting'
+import { getElectionModeState } from '#helpers/election_mode'
 
 export default class PublicNewsController {
   /** List published news with pagination and filters */
   async index({ inertia, request }: HttpContext) {
+    const siteSettings = await SiteSetting.allAsObject()
+    const electionMode = getElectionModeState(siteSettings)
+    if (electionMode.active) {
+      return inertia.render('public/news/election', {
+        siteSettings,
+        message: electionMode.message,
+      })
+    }
+
     const page = request.input('page', 1)
     const category = request.input('categoria', '')
     const year = request.input('ano', '')
@@ -53,8 +63,6 @@ export default class PublicNewsController {
       )
       .paginate(page, 12)
     const categories = await NewsCategory.query().orderBy('name', 'asc')
-    const siteSettings = await SiteSetting.allAsObject()
-
     return inertia.render('public/news/index', {
       news: news.serialize(),
       categories: categories.map((c) => c.serialize()),
@@ -65,6 +73,15 @@ export default class PublicNewsController {
 
   /** Show single news article */
   async show({ inertia, params, response }: HttpContext) {
+    const siteSettings = await SiteSetting.allAsObject()
+    const electionMode = getElectionModeState(siteSettings)
+    if (electionMode.active) {
+      return inertia.render('public/news/election', {
+        siteSettings,
+        message: electionMode.message,
+      })
+    }
+
     const news = await News.query()
       .where('slug', params.slug)
       .where('status', 'published')
@@ -97,8 +114,6 @@ export default class PublicNewsController {
           .limit(3)
           .preload('category')
       : []
-
-    const siteSettings = await SiteSetting.allAsObject()
 
     return inertia.render('public/news/show', {
       news: news.serialize(),

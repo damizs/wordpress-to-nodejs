@@ -5,6 +5,7 @@ import {
   DEFAULT_FOOTER_COLUMNS,
   type MenuItem,
 } from '#controllers/admin/menus_controller'
+import { getPublicAccessBlock } from '#helpers/public_access'
 
 interface SitemapLink {
   label: string
@@ -79,13 +80,19 @@ const KNOWN_GROUPS: SitemapGroup[] = [
 
 export default class SitemapPageController {
   async index({ inertia }: HttpContext) {
-    const menu = parseMenu(await SiteSetting.getValue('header_menu'))
+    const settings = await SiteSetting.allAsObject()
+    const menu = parseMenu(settings.header_menu)
 
     const groups: SitemapGroup[] = []
     const seen = new Set<string>()
+    const isAvailable = (href: string) => {
+      if (!href.startsWith('/')) return true
+      return !getPublicAccessBlock(settings, href)
+    }
 
     const addGroup = (title: string, links: SitemapLink[]) => {
       const fresh = links.filter((l) => {
+        if (!isAvailable(l.href)) return false
         if (seen.has(l.href)) return false
         seen.add(l.href)
         return true

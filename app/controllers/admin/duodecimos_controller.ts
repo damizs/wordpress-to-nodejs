@@ -1,6 +1,12 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import Duodecimo from '#models/duodecimo'
 import { normalizeSafeWebUrl } from '#helpers/safe_url'
+import app from '@adonisjs/core/services/app'
+import { cuid } from '@adonisjs/core/helpers'
+import { mkdir } from 'node:fs/promises'
+import { join } from 'node:path'
+import { existsSync } from 'node:fs'
+import { assertSafeUpload } from '#helpers/upload_security'
 
 /** Normaliza valor monetário ("1.234,56" ou "1234.56") para number */
 function parseMoney(raw: unknown): number | null {
@@ -48,7 +54,7 @@ export default class DuodecimosController {
       return response.redirect().back()
     }
 
-    await Duodecimo.updateOrCreate(
+    const duodecimo = await Duodecimo.updateOrCreate(
       { year, month },
       {
         year,
@@ -60,6 +66,7 @@ export default class DuodecimosController {
         notes: request.input('notes') || null,
       }
     )
+    await this.saveDocument(request, duodecimo)
 
     session.flash('success', 'Lançamento salvo com sucesso!')
     return response.redirect().toPath(`/painel/duodecimos?ano=${year}`)
@@ -81,6 +88,7 @@ export default class DuodecimosController {
       documentUrl: normalizeSafeWebUrl(request.input('document_url')),
       notes: request.input('notes') || null,
     })
+    await this.saveDocument(request, duodecimo)
     await duodecimo.save()
 
     session.flash('success', 'Lançamento atualizado!')
@@ -118,5 +126,21 @@ export default class DuodecimosController {
 
     session.flash('success', `Os 12 meses de ${year} foram gerados.`)
     return response.redirect().toPath(`/painel/duodecimos?ano=${year}`)
+  }
+
+  private async saveDocument(request: HttpContext['request'], duodecimo: Duodecimo) {
+    const file = request.file('document_file', { size: '30mb', extnames: ['pdf'] })
+    if (!file) return
+
+    await assertSafeUpload(file, ['pdf'])
+    const uploadDir = join(app.publicPath(), 'uploads', 'duodecimos')
+    if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true })
+
+    const fileName = `duodecimo-${duodecimo.year}-${duodecimo.month}-${cuid()}.${file.extname}`
+    await file.move(uploadDir, { name: fileName })
+    if (file.state === 'moved') {
+      duodecimo.documentUrl = `/uploads/duodecimos/${fileName}`
+      await duodecimo.save()
+    }
   }
 }

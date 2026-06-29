@@ -7,11 +7,16 @@ import OfficialPublication from '#models/official_publication'
 import LegislativeActivity from '#models/legislative_activity'
 import Licitacao from '#models/licitacao'
 import Contract from '#models/contract'
+import SiteSetting from '#models/site_setting'
+import { getPublicAccessBlock } from '#helpers/public_access'
 
 const BASE_URL = 'https://node.camaradesume.pb.gov.br'
 
 export default class SeoController {
   async sitemap({ response }: HttpContext) {
+    const siteSettings = await SiteSetting.allAsObject()
+    const shouldInclude = (path: string) => !getPublicAccessBlock(siteSettings, path)
+
     const [news, councilors, atas, pautas, publications, activities, licitacoes, contracts] =
       await Promise.all([
         News.query()
@@ -66,7 +71,7 @@ export default class SeoController {
       { url: '/perguntas-frequentes', priority: '0.5', changefreq: 'monthly' },
       { url: '/pesquisa-de-satisfacao', priority: '0.4', changefreq: 'monthly' },
       { url: '/politica-de-privacidade', priority: '0.3', changefreq: 'yearly' },
-    ]
+    ].filter((page) => shouldInclude(page.url))
 
     let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`
     xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"\n`
@@ -84,6 +89,7 @@ export default class SeoController {
 
     // News articles
     for (const item of news) {
+      if (!shouldInclude(`/noticias/${item.slug}`)) continue
       xml += `  <url>\n`
       xml += `    <loc>${BASE_URL}/noticias/${item.slug}</loc>\n`
       xml += `    <lastmod>${(item.updatedAt || item.publishedAt)?.toISO()}</lastmod>\n`
@@ -104,6 +110,7 @@ export default class SeoController {
 
     // Atas
     for (const item of atas) {
+      if (!shouldInclude(`/atas/${item.slug}`)) continue
       xml += `  <url>\n`
       xml += `    <loc>${BASE_URL}/atas/${item.slug}</loc>\n`
       xml += `    <lastmod>${item.updatedAt?.toISO()}</lastmod>\n`
@@ -114,6 +121,7 @@ export default class SeoController {
 
     // Pautas
     for (const item of pautas) {
+      if (!shouldInclude(`/pautas/${item.slug}`)) continue
       xml += `  <url>\n`
       xml += `    <loc>${BASE_URL}/pautas/${item.slug}</loc>\n`
       xml += `    <lastmod>${item.updatedAt?.toISO()}</lastmod>\n`
@@ -124,6 +132,7 @@ export default class SeoController {
 
     // Publications
     for (const item of publications) {
+      if (!shouldInclude(`/publicacoes-oficiais/${item.slug}`)) continue
       xml += `  <url>\n`
       xml += `    <loc>${BASE_URL}/publicacoes-oficiais/${item.slug}</loc>\n`
       xml += `    <lastmod>${item.updatedAt?.toISO()}</lastmod>\n`
@@ -134,6 +143,7 @@ export default class SeoController {
 
     // Activities
     for (const item of activities) {
+      if (!shouldInclude(`/atividades-legislativas/${item.slug}`)) continue
       xml += `  <url>\n`
       xml += `    <loc>${BASE_URL}/atividades-legislativas/${item.slug}</loc>\n`
       xml += `    <lastmod>${item.updatedAt?.toISO()}</lastmod>\n`
