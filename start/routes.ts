@@ -236,6 +236,7 @@ router
 
         router.get('/midia', [AdminMediaController, 'index'])
         router.post('/midia/upload', [AdminMediaController, 'upload'])
+        router.post('/midia/arquivos/excluir', [AdminMediaController, 'destroyByPath'])
         router.delete('/midia/:id', [AdminMediaController, 'destroy'])
 
         router.get('/institucional', [AdminInstitutionalController, 'index'])
@@ -254,6 +255,9 @@ router
         router.post('/noticias', [AdminNewsController, 'store'])
         router.get('/noticias/:id/editar', [AdminNewsController, 'edit'])
         router.put('/noticias/:id', [AdminNewsController, 'update'])
+        // Alias POST p/ update: à prova de cache do bundle antigo (que postava
+        // sem ?_method=PUT) e de qualquer falha de method spoofing → sem mais 404.
+        router.post('/noticias/:id', [AdminNewsController, 'update'])
       })
       .use(middleware.can(['noticia.criar', 'noticia.editar']))
     router

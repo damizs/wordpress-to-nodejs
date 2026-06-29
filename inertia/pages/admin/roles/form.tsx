@@ -1,8 +1,9 @@
 import { Head, useForm } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { ArrowLeft, Lock, Save, ShieldCheck } from 'lucide-react'
-import type { FormEvent } from 'react'
+import { ArrowLeft, Info, Lock, Save, ShieldCheck } from 'lucide-react'
+import { useEffect, useRef, type FormEvent } from 'react'
 import {
+  Badge,
   Button,
   ButtonLink,
   Card,
@@ -20,6 +21,22 @@ interface PermissionItem {
   module: string
 }
 
+interface GroupedPermission {
+  id: number
+  name: string
+  action: string
+  actionLabel: string
+  label: string
+}
+
+interface PermissionGroup {
+  resource: string
+  label: string
+  description: string | null
+  module: string
+  permissions: GroupedPermission[]
+}
+
 interface RoleData {
   id: number
   name: string
@@ -28,12 +45,71 @@ interface RoleData {
   permissionIds: number[]
 }
 
+/**
+ * Fallback: se por algum motivo a view receber só a lista plana de permissões
+ * (sem `permissionGroups`), monta um agrupamento simples por recurso para não
+ * quebrar a tela. Em uso normal o controller já envia `permissionGroups`.
+ */
+function deriveGroupsFromFlat(permissions: PermissionItem[]): PermissionGroup[] {
+  const groups = new Map<string, PermissionGroup>()
+  for (const p of permissions) {
+    const [resource, action = 'gerenciar'] = p.name.split('.')
+    if (!groups.has(resource)) {
+      groups.set(resource, {
+        resource,
+        label: p.module || resource,
+        description: null,
+        module: p.module || 'Outros',
+        permissions: [],
+      })
+    }
+    groups.get(resource)!.permissions.push({
+      id: p.id,
+      name: p.name,
+      action,
+      actionLabel: action.charAt(0).toUpperCase() + action.slice(1),
+      label: p.label,
+    })
+  }
+  return [...groups.values()]
+}
+
+/** Checkbox "marcar todos do grupo" com suporte ao estado indeterminado. */
+function GroupCheckbox({
+  checked,
+  indeterminate,
+  disabled,
+  onChange,
+}: {
+  checked: boolean
+  indeterminate: boolean
+  disabled?: boolean
+  onChange: () => void
+}) {
+  const ref = useRef<HTMLInputElement>(null)
+  useEffect(() => {
+    if (ref.current) ref.current.indeterminate = indeterminate
+  }, [indeterminate])
+  return (
+    <input
+      ref={ref}
+      type="checkbox"
+      checked={checked}
+      disabled={disabled}
+      onChange={onChange}
+      className="w-4 h-4 mt-0.5 rounded border-border accent-[hsl(var(--navy))]"
+    />
+  )
+}
+
 export default function RoleForm({
   role,
   permissions,
+  permissionGroups,
 }: {
   role: RoleData | null
-  permissions: PermissionItem[]
+  permissions?: PermissionItem[]
+  permissionGroups?: PermissionGroup[]
 }) {
   const isEdit = !!role
   const readonly = role?.isSystem ?? false
@@ -44,34 +120,40 @@ export default function RoleForm({
     permission_ids: role?.permissionIds ?? ([] as number[]),
   })
 
-  const grouped = permissions.reduce(
-    (acc, p) => {
-      if (!acc[p.module]) acc[p.module] = []
-      acc[p.module].push(p)
-      return acc
-    },
-    {} as Record<string, PermissionItem[]>
-  )
+  // Fonte agrupada por recurso (vinda do controller); fallback defensivo.
+  const groups: PermissionGroup[] =
+    permissionGroups ?? deriveGroupsFromFlat(permissions ?? [])
+
+  // Seções de alto nível: agrupa os recursos pelo seu módulo, preservando a
+  // ordem em que vieram do controller.
+  const sections: { module: string; groups: PermissionGroup[] }[] = []
+  for (const group of groups) {
+    let section = sections.find((s) => s.module === group.module)
+    if (!section) {
+      section = { module: group.module, groups: [] }
+      sections.push(section)
+    }
+    section.groups.push(group)
+  }
+
+  const selected = data.permission_ids
 
   function togglePermission(id: number) {
     if (readonly) return
     setData(
       'permission_ids',
-      data.permission_ids.includes(id)
-        ? data.permission_ids.filter((p) => p !== id)
-        : [...data.permission_ids, id]
+      selected.includes(id) ? selected.filter((p) => p !== id) : [...selected, id]
     )
   }
 
-  function toggleModule(items: PermissionItem[]) {
+  function toggleGroup(ids: number[]) {
     if (readonly) return
-    const ids = items.map((p) => p.id)
-    const allChecked = ids.every((id) => data.permission_ids.includes(id))
+    const allChecked = ids.every((id) => selected.includes(id))
     setData(
       'permission_ids',
       allChecked
-        ? data.permission_ids.filter((id) => !ids.includes(id))
-        : [...new Set([...data.permission_ids, ...ids])]
+        ? selected.filter((id) => !ids.includes(id))
+        : [...new Set([...selected, ...ids])]
     )
   }
 
@@ -84,6 +166,10 @@ export default function RoleForm({
       post('/painel/papeis')
     }
   }
+
+  const totalSelected = readonly
+    ? groups.reduce((n, g) => n + g.permissions.length, 0)
+    : selected.length
 
   return (
     <AdminLayout title={isEdit ? 'Editar Papel' : 'Novo Papel'}>
@@ -141,57 +227,121 @@ export default function RoleForm({
         <Card>
           <CardHeader
             title="Permissões"
-            description="Marque o que este papel pode gerenciar no painel."
+            description="Escolha de forma granular o que este papel pode gerenciar — recurso por recurso."
+            icon={ShieldCheck}
+            actions={
+              <Badge tone="navy">
+                {totalSelected}{' '}
+                {totalSelected === 1 ? 'permissão' : 'permissões'}
+              </Badge>
+            }
           />
 
-          <div className="space-y-5">
-            {Object.entries(grouped).map(([module, items]) => {
-              const allChecked = items.every((p) => data.permission_ids.includes(p.id))
-              return (
-                <div key={module}>
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="text-xs font-semibold text-muted-foreground uppercase">
-                      {module}
-                    </h4>
-                    {!readonly && (
-                      <button
-                        type="button"
-                        onClick={() => toggleModule(items)}
-                        className="text-xs text-navy hover:underline"
-                      >
-                        {allChecked ? 'Desmarcar todos' : 'Marcar todos'}
-                      </button>
-                    )}
-                  </div>
-                  <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                    {items.map((p) => (
-                      <label
-                        key={p.id}
-                        className={`flex items-start gap-2 p-2.5 rounded-lg border transition-colors ${
-                          readonly ? 'cursor-default' : 'cursor-pointer'
-                        } ${
-                          data.permission_ids.includes(p.id) || readonly
+          {!readonly && (
+            <div className="mb-6 flex items-start gap-2.5 px-4 py-3 rounded-xl bg-sky/10 text-sm text-foreground">
+              <Info className="w-4 h-4 mt-0.5 flex-shrink-0 text-sky" />
+              <p className="text-[13px] text-muted-foreground">
+                Cada bloco é um recurso independente. Você pode, por exemplo, liberar{' '}
+                <strong className="text-foreground">Notícias</strong> (criar/editar) sem
+                liberar a <strong className="text-foreground">Automação de Notícias
+                (Instagram)</strong> nem a{' '}
+                <strong className="text-foreground">Aparência e Site</strong>. Use “Marcar
+                todos” para incluir/excluir o recurso inteiro.
+              </p>
+            </div>
+          )}
+
+          <div className="space-y-8">
+            {sections.map((section) => (
+              <div key={section.module}>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">
+                  {section.module}
+                </h3>
+
+                <div className="grid gap-4 lg:grid-cols-2">
+                  {section.groups.map((group) => {
+                    const ids = group.permissions.map((p) => p.id)
+                    const selectedCount = ids.filter((id) => selected.includes(id)).length
+                    const allChecked = readonly || selectedCount === ids.length
+                    const isIndeterminate = !readonly && selectedCount > 0 && !allChecked
+
+                    return (
+                      <fieldset
+                        key={group.resource}
+                        className={`rounded-xl border p-4 transition-colors ${
+                          allChecked || isIndeterminate
                             ? 'border-navy/30 bg-navy/5'
-                            : 'border-border hover:bg-muted/40'
+                            : 'border-border bg-muted/20'
                         }`}
                       >
-                        <input
-                          type="checkbox"
-                          checked={readonly || data.permission_ids.includes(p.id)}
-                          onChange={() => togglePermission(p.id)}
-                          disabled={readonly}
-                          className="w-4 h-4 mt-0.5 rounded border-border accent-[hsl(var(--navy))]"
-                        />
-                        <div className="min-w-0">
-                          <p className="text-sm text-foreground">{p.label}</p>
-                          <p className="text-[10px] text-muted-foreground font-mono">{p.name}</p>
+                        <div className="flex items-start justify-between gap-3 mb-3">
+                          <label
+                            className={`flex items-start gap-2.5 min-w-0 ${
+                              readonly ? 'cursor-default' : 'cursor-pointer'
+                            }`}
+                          >
+                            <GroupCheckbox
+                              checked={allChecked}
+                              indeterminate={isIndeterminate}
+                              disabled={readonly}
+                              onChange={() => toggleGroup(ids)}
+                            />
+                            <span className="min-w-0">
+                              <span className="block text-sm font-semibold text-foreground leading-tight">
+                                {group.label}
+                              </span>
+                              {group.description && (
+                                <span className="block text-xs text-muted-foreground mt-0.5">
+                                  {group.description}
+                                </span>
+                              )}
+                            </span>
+                          </label>
+                          <span className="shrink-0 text-[11px] font-medium text-muted-foreground tabular-nums">
+                            {selectedCount}/{ids.length}
+                          </span>
                         </div>
-                      </label>
-                    ))}
-                  </div>
+
+                        <div className="grid gap-2 sm:grid-cols-2">
+                          {group.permissions.map((p) => {
+                            const checked = readonly || selected.includes(p.id)
+                            return (
+                              <label
+                                key={p.id}
+                                title={p.label}
+                                className={`flex items-center gap-2 px-2.5 py-2 rounded-lg border transition-colors ${
+                                  readonly ? 'cursor-default' : 'cursor-pointer'
+                                } ${
+                                  checked
+                                    ? 'border-navy/30 bg-card'
+                                    : 'border-border bg-card hover:bg-muted/40'
+                                }`}
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={checked}
+                                  onChange={() => togglePermission(p.id)}
+                                  disabled={readonly}
+                                  className="w-4 h-4 rounded border-border accent-[hsl(var(--navy))]"
+                                />
+                                <span className="min-w-0">
+                                  <span className="block text-[13px] text-foreground leading-tight">
+                                    {p.actionLabel}
+                                  </span>
+                                  <span className="block text-[10px] text-muted-foreground font-mono truncate">
+                                    {p.name}
+                                  </span>
+                                </span>
+                              </label>
+                            )
+                          })}
+                        </div>
+                      </fieldset>
+                    )
+                  })}
                 </div>
-              )
-            })}
+              </div>
+            ))}
           </div>
         </Card>
 
