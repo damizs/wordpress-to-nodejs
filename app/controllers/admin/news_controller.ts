@@ -1,4 +1,5 @@
 import type { HttpContext } from '@adonisjs/core/http'
+import { DateTime } from 'luxon'
 import News from '#models/news'
 import NewsCategory from '#models/news_category'
 import app from '@adonisjs/core/services/app'
@@ -67,9 +68,9 @@ export default class NewsController {
     // Handle published_at
     let publishedAt = null
     if (data.published_at) {
-      publishedAt = new Date(data.published_at) as any
+      publishedAt = DateTime.fromJSDate(new Date(data.published_at)) as any
     } else if (status === 'published') {
-      publishedAt = new Date() as any
+      publishedAt = DateTime.now() as any
     }
 
     const news = await News.create({
@@ -141,9 +142,9 @@ export default class NewsController {
 
     // Handle published_at
     if (data.published_at) {
-      news.publishedAt = new Date(data.published_at) as any
+      news.publishedAt = DateTime.fromJSDate(new Date(data.published_at))
     } else if (status === 'published' && !news.publishedAt) {
-      news.publishedAt = new Date() as any
+      news.publishedAt = DateTime.now()
     }
 
     // Handle cover image

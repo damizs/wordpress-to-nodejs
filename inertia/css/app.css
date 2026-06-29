@@ -996,7 +996,7 @@ html.dark .rich-content a:hover {
 /* ===========================================================================
    feat:animacao — reveal refinado + aurora sóbria do hero
    Append-only: não altera as regras acima. Tudo dark-safe via tokens
-   (--navy*/--gold/--sky) e pausado quando o usuário pede redução de movimento.
+   (navy, gold, sky) e pausado quando o usuário pede redução de movimento.
    =========================================================================== */
 
 @media (prefers-reduced-motion: no-preference) {
