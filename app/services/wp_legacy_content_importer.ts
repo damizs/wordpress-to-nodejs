@@ -252,12 +252,12 @@ async function importNewsItem(item: WpItem, fallbackCategory: NewsCategory, auth
   const slug = normalizeSlug(item.slug, item.title || `wp-${item.wpId}`)
   const publishedAt = toDateTime(item.date) || toDateTime(item.modified) || DateTime.now()
   const content = sanitizeRichHtml(rewriteUploadUrls(item.content || ''))
+  const localCover = localUploadExists(item.coverPath) ? localUploadUrl(item.coverPath) : null
   const fields = {
     title: sanitizePlainText(item.title) || `Noticia WordPress ${item.wpId}`,
     slug,
     excerpt: shortExcerpt(item),
     content: content || '<p>Conteudo legado importado do WordPress.</p>',
-    coverImageUrl: localUploadExists(item.coverPath) ? localUploadUrl(item.coverPath) : null,
     status: 'published' as const,
     publishedAt,
     categoryId: category.id,
@@ -267,11 +267,15 @@ async function importNewsItem(item: WpItem, fallbackCategory: NewsCategory, auth
   const existing = await News.findBy('slug', slug)
   if (existing) {
     existing.merge(fields)
+    // NÃO zera a capa de uma notícia já existente: o `wp:migrate` define a capa
+    // a partir do bundle `wp-migration` (caminho que o legacy não enxerga). Só
+    // sobrescreve quando a própria legacy localizou um arquivo de capa.
+    if (localCover) existing.coverImageUrl = localCover
     await existing.save()
     return 'updated' as const
   }
 
-  await News.create({ ...fields, viewsCount: 0 })
+  await News.create({ ...fields, coverImageUrl: localCover, viewsCount: 0 })
   return 'created' as const
 }
 
