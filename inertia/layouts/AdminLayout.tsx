@@ -9,7 +9,7 @@ import {
   ScrollText, Settings, Monitor, HelpCircle, Info, Tags, Calendar, Users2,
   Gavel, ClipboardCheck, Image, Radar, Vote, ExternalLink, Award, Files,
   BookOpen, FolderOpen, Coins, FileSignature, FileBarChart, Search, X, HardDrive,
-  Moon, Sun, Trash2,
+  Moon, Sun, Trash2, BookA,
 } from 'lucide-react'
 import { useState, useEffect, type ReactNode, type CSSProperties } from 'react'
 import { NotificationBell } from '~/components/admin/NotificationBell'
@@ -53,6 +53,7 @@ const navGroups: NavGroup[] = [
       },
       { label: 'Publicações', href: '/painel/publicacoes', icon: FileText, permissions: ['publicacao.gerenciar'] },
       { label: 'FAQ', href: '/painel/faq', icon: HelpCircle, permissions: ['faq.gerenciar'] },
+      { label: 'Glossário', href: '/painel/glossario', icon: BookA, permissions: ['site.gerenciar'] },
     ],
   },
   {

@@ -41,7 +41,9 @@ const cptToListing: Record<string, string> = {
   historia: '/historia-da-camara',
   satisfacao: '/pesquisa-de-satisfacao',
   legislatura: '/vereadores',
-  glossario: '/perguntas-frequentes',
+  // /glossario/<letra>/ do WP antigo → módulo nativo de Glossário (rota real /glossario).
+  // GET /glossario (sem slug) é rota real; aqui só o /glossario/:slug das letras antigas.
+  glossario: '/glossario',
   perguntas: '/perguntas-frequentes',
   // 'transparencia' removido: GET /transparencia/:slug agora é rota real
   // (deep-link do modal); o controller redireciona slugs desconhecidos.

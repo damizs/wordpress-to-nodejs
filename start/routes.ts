@@ -12,6 +12,7 @@ const PublicAtasController = () => import('#controllers/public/atas_controller')
 const PublicPautasController = () => import('#controllers/public/pautas_controller')
 const PublicPublicationsController = () => import('#controllers/public/publications_controller')
 const PublicFaqController = () => import('#controllers/public/faq_controller')
+const PublicGlossaryController = () => import('#controllers/public/glossary_controller')
 const PublicDynamicInfoController = () => import('#controllers/public/dynamic_info_controller')
 const PublicActivitiesController = () => import('#controllers/public/activities_controller')
 const PublicCommitteesController = () => import('#controllers/public/committees_controller')
@@ -55,6 +56,7 @@ const AdminPautasController = () => import('#controllers/admin/pautas_controller
 const AdminPublicationsController = () =>
   import('#controllers/admin/official_publications_controller')
 const AdminFaqController = () => import('#controllers/admin/faq_controller')
+const AdminGlossaryController = () => import('#controllers/admin/glossary_controller')
 const AdminInformationRecordsController = () =>
   import('#controllers/admin/information_records_controller')
 const AdminInformationCategoriesController = () =>
@@ -127,6 +129,7 @@ router.get('/licitacoes/:slug', [PublicLicitacoesController, 'show'])
 router.get('/contratos', [PublicContractsController, 'index'])
 router.get('/contratos/:slug', [PublicContractsController, 'show'])
 router.get('/perguntas-frequentes', [PublicFaqController, 'index'])
+router.get('/glossario', [PublicGlossaryController, 'index'])
 router.get('/pesquisa-de-satisfacao', [PublicSatisfactionSurveyController, 'index'])
 router.post('/pesquisa-de-satisfacao', [PublicSatisfactionSurveyController, 'store'])
 router.get('/pesquisa-de-satisfacao/relatorio', [PublicSatisfactionSurveyController, 'report'])
@@ -164,7 +167,7 @@ router
     'slug',
     // Anclado com $: bloqueia só o slug exato reservado, não slugs que começam igual
     // (ex.: notícia antiga "vereadores-acompanham-..." deve passar pelo catch-all)
-    /^(?!(?:login|painel|api|health|noticias|vereadores|transparencia|mesa-diretora|comissoes|atas|pautas|atividades-legislativa|atividades-legislativas|publicacoes-oficiais|licitacoes|contratos|perguntas-frequentes|pesquisa-de-satisfacao|politica-de-privacidade|historia-da-camara|sobre|ouvidoria|acesso-a-informacao|esic|diario-oficial|votacoes|leis|mapa-do-site|duodecimos|relatorios-fiscais|videos|agenda|dados-abertos|busca)$).+$/
+    /^(?!(?:login|painel|api|health|noticias|vereadores|transparencia|mesa-diretora|comissoes|atas|pautas|atividades-legislativa|atividades-legislativas|publicacoes-oficiais|licitacoes|contratos|perguntas-frequentes|glossario|pesquisa-de-satisfacao|politica-de-privacidade|historia-da-camara|sobre|ouvidoria|acesso-a-informacao|esic|diario-oficial|votacoes|leis|mapa-do-site|duodecimos|relatorios-fiscais|videos|agenda|dados-abertos|busca)$).+$/
   )
 
 // ========= API =========
@@ -421,6 +424,18 @@ router
         router.delete('/faq/:id', [AdminFaqController, 'destroy'])
       })
       .use(middleware.can(['faq.gerenciar']))
+
+    // Glossário Legislativo
+    router
+      .group(() => {
+        router.get('/glossario', [AdminGlossaryController, 'index'])
+        router.get('/glossario/criar', [AdminGlossaryController, 'create'])
+        router.post('/glossario', [AdminGlossaryController, 'store'])
+        router.get('/glossario/:id/editar', [AdminGlossaryController, 'edit'])
+        router.put('/glossario/:id', [AdminGlossaryController, 'update'])
+        router.delete('/glossario/:id', [AdminGlossaryController, 'destroy'])
+      })
+      .use(middleware.can(['site.gerenciar']))
 
     // Radar ATRICON (PNTP)
     router
