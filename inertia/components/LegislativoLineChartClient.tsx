@@ -84,7 +84,9 @@ export function LegislativoLineChartClient({ weekly }: Props) {
         size: 4,
         strokeWidth: 2,
         strokeColors: theme.card,
-        colors: [theme.gold],
+        // NÃO usar theme.gold aqui: o gold do tema é branco (#fff), some no fundo
+        // branco do card. theme.navy (cor da linha) + anel branco = marcador visível.
+        colors: [theme.navy],
         hover: { size: 7, sizeOffset: 2 },
       },
       dataLabels: { enabled: false },
@@ -107,7 +109,7 @@ export function LegislativoLineChartClient({ weekly }: Props) {
         axisBorder: { show: true, color: theme.border },
         axisTicks: { show: true, color: theme.border },
         crosshairs: {
-          stroke: { color: theme.gold, width: 1, dashArray: 4 },
+          stroke: { color: theme.navy, width: 1, dashArray: 4 },
         },
       },
       yaxis: {
