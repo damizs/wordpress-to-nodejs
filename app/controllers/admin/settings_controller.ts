@@ -8,7 +8,11 @@ import { existsSync } from 'node:fs'
 import { saveOptimizedImage } from '#helpers/image_upload'
 import { assertSafeUpload } from '#helpers/upload_security'
 import { normalizeSafeWebUrl } from '#helpers/safe_url'
-import { DEFAULT_PUBLIC_UNAVAILABLE_MESSAGE } from '#helpers/public_access'
+import {
+  DEFAULT_PUBLIC_UNAVAILABLE_MESSAGE,
+  DEFAULT_MAINTENANCE_TITLE,
+  DEFAULT_MAINTENANCE_MESSAGE,
+} from '#helpers/public_access'
 
 /** All appearance keys with their defaults and groups */
 const APPEARANCE_KEYS: Record<
@@ -75,6 +79,24 @@ const APPEARANCE_KEYS: Record<
       'Em atendimento à legislação eleitoral, este conteúdo institucional está temporariamente indisponível durante o período eleitoral. Permanecem acessíveis os serviços essenciais, atos oficiais, transparência pública, licitações, contratos, dados abertos e canais de atendimento ao cidadão.',
     type: 'text',
     label: 'Mensagem do modo eleitoral',
+  },
+  maintenance_mode: {
+    group: 'public_access',
+    defaultValue: 'false',
+    type: 'boolean',
+    label: 'Modo de manutenção (site público indisponível)',
+  },
+  maintenance_title: {
+    group: 'public_access',
+    defaultValue: DEFAULT_MAINTENANCE_TITLE,
+    type: 'text',
+    label: 'Título da página de manutenção',
+  },
+  maintenance_message: {
+    group: 'public_access',
+    defaultValue: DEFAULT_MAINTENANCE_MESSAGE,
+    type: 'text',
+    label: 'Mensagem da página de manutenção',
   },
   public_access_disabled_areas: {
     group: 'public_access',

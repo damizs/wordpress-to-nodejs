@@ -1,6 +1,37 @@
 export const DEFAULT_PUBLIC_UNAVAILABLE_MESSAGE =
   'Este conteúdo está temporariamente indisponível para acesso público por decisão administrativa da Câmara Municipal. Permanecem acessíveis os serviços essenciais, transparência pública e canais de atendimento ao cidadão.'
 
+/**
+ * Modo de manutenção global — interruptor único que tira TODO o site público do
+ * ar (mostrando a página `public/maintenance`), mantendo painel/login no ar e
+ * permitindo que usuários autenticados continuem vendo o site real. É uma
+ * EXTENSÃO da feature de disponibilidade pública (settings `maintenance_*`) e tem
+ * PRECEDÊNCIA sobre os bloqueios granulares de área (`getPublicAccessBlock`).
+ */
+export const DEFAULT_MAINTENANCE_TITLE = 'Site em manutenção'
+export const DEFAULT_MAINTENANCE_MESSAGE =
+  'Estamos realizando melhorias e voltamos em breve. Obrigado pela compreensão.'
+
+export interface MaintenanceBlock {
+  title: string
+  message: string
+}
+
+/** O modo de manutenção está ligado? (setting boolean 'true'/'false'). */
+export function isMaintenanceModeOn(settings: Record<string, string | null | undefined>) {
+  return settings.maintenance_mode === 'true'
+}
+
+/** Título + mensagem de manutenção, com os defaults institucionais. */
+export function getMaintenanceBlock(
+  settings: Record<string, string | null | undefined>
+): MaintenanceBlock {
+  return {
+    title: settings.maintenance_title?.trim() || DEFAULT_MAINTENANCE_TITLE,
+    message: settings.maintenance_message?.trim() || DEFAULT_MAINTENANCE_MESSAGE,
+  }
+}
+
 export const PUBLIC_ACCESS_AREAS = [
   {
     key: 'news',

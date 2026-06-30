@@ -1,6 +1,14 @@
 export const DEFAULT_PUBLIC_UNAVAILABLE_MESSAGE =
   "Este conteúdo está temporariamente indisponível para acesso público por decisão administrativa da Câmara Municipal. Permanecem acessíveis os serviços essenciais, transparência pública e canais de atendimento ao cidadão.";
 
+/**
+ * Defaults do MODO DE MANUTENÇÃO global (espelham app/helpers/public_access.ts).
+ * Usados na página `public/maintenance` e na aba "Disponibilidade pública".
+ */
+export const DEFAULT_MAINTENANCE_TITLE = "Site em manutenção";
+export const DEFAULT_MAINTENANCE_MESSAGE =
+  "Estamos realizando melhorias e voltamos em breve. Obrigado pela compreensão.";
+
 export const PUBLIC_ACCESS_AREAS = [
   {
     key: "news",

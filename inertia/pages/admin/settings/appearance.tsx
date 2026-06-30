@@ -15,6 +15,8 @@ import {
   FileText,
   CalendarClock,
   EyeOff,
+  Wrench,
+  AlertTriangle,
   type LucideIcon,
 } from 'lucide-react'
 import { useState, useRef } from 'react'
@@ -26,6 +28,8 @@ import { NEWS_LAYOUTS } from '~/lib/news-layouts'
 import { DEFAULT_ELECTION_MESSAGE, isElectionModeActive } from '~/lib/election-mode'
 import {
   DEFAULT_PUBLIC_UNAVAILABLE_MESSAGE,
+  DEFAULT_MAINTENANCE_TITLE,
+  DEFAULT_MAINTENANCE_MESSAGE,
   PUBLIC_ACCESS_AREAS,
   parseDisabledPublicAreas,
   togglePublicArea,
@@ -72,6 +76,10 @@ export default function Appearance({ settings }: Props) {
     election_start: getVal(election, 'election_start'),
     election_end: getVal(election, 'election_end'),
     election_message: getVal(election, 'election_message') || DEFAULT_ELECTION_MESSAGE,
+    maintenance_mode: getVal(public_access, 'maintenance_mode') || 'false',
+    maintenance_title: getVal(public_access, 'maintenance_title') || DEFAULT_MAINTENANCE_TITLE,
+    maintenance_message:
+      getVal(public_access, 'maintenance_message') || DEFAULT_MAINTENANCE_MESSAGE,
     public_access_disabled_areas: getVal(public_access, 'public_access_disabled_areas') || '[]',
     public_access_blocked_paths: getVal(public_access, 'public_access_blocked_paths'),
     public_unavailable_message:
@@ -259,18 +267,33 @@ export default function Appearance({ settings }: Props) {
           )}
 
           {tab === 'publico' && (
-            <Section
-              icon={EyeOff}
-              title="Disponibilidade pública"
-              description="Retira áreas ou rotas específicas do site público sem apagar registros nem despublicar conteúdo no painel."
-            >
-              <PublicAccessSettings
-                disabledAreas={data.public_access_disabled_areas}
-                blockedPaths={data.public_access_blocked_paths}
-                message={data.public_unavailable_message}
-                onChange={(key, value) => setData(key, value)}
-              />
-            </Section>
+            <>
+              <Section
+                icon={Wrench}
+                title="Modo de manutenção"
+                description="Interruptor único que tira TODO o site público do ar com uma página de manutenção. O painel e o login continuam funcionando normalmente."
+              >
+                <MaintenanceModeSettings
+                  enabled={data.maintenance_mode}
+                  title={data.maintenance_title}
+                  message={data.maintenance_message}
+                  onChange={(key, value) => setData(key, value)}
+                />
+              </Section>
+
+              <Section
+                icon={EyeOff}
+                title="Disponibilidade pública"
+                description="Retira áreas ou rotas específicas do site público sem apagar registros nem despublicar conteúdo no painel."
+              >
+                <PublicAccessSettings
+                  disabledAreas={data.public_access_disabled_areas}
+                  blockedPaths={data.public_access_blocked_paths}
+                  message={data.public_unavailable_message}
+                  onChange={(key, value) => setData(key, value)}
+                />
+              </Section>
+            </>
           )}
 
           {tab === 'modelo' && (
@@ -821,6 +844,88 @@ function ElectionModeSettings({
           value={message || DEFAULT_ELECTION_MESSAGE}
           onChange={(e) => onChange('election_message', e.target.value)}
           className="min-h-[150px]"
+        />
+      </Field>
+    </div>
+  )
+}
+
+function MaintenanceModeSettings({
+  enabled,
+  title,
+  message,
+  onChange,
+}: {
+  enabled: string
+  title: string
+  message: string
+  onChange: (key: string, value: string) => void
+}) {
+  const isOn = enabled === 'true'
+
+  return (
+    <div className="space-y-5">
+      {/* Interruptor principal */}
+      <div
+        className={`flex flex-wrap items-center justify-between gap-4 rounded-lg border p-4 transition-colors ${
+          isOn
+            ? 'border-amber-300 bg-amber-50 dark:border-amber-700/70 dark:bg-amber-950/30'
+            : 'border-border bg-muted/30'
+        }`}
+      >
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-foreground">Site público</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {isOn
+              ? 'Manutenção LIGADA — visitantes veem a página de manutenção (HTTP 503).'
+              : 'No ar normalmente para todos os visitantes.'}
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Badge tone={isOn ? 'warning' : 'success'}>{isOn ? 'Em manutenção' : 'No ar'}</Badge>
+          <button
+            type="button"
+            role="switch"
+            aria-checked={isOn}
+            aria-label="Ligar/desligar modo de manutenção"
+            onClick={() => onChange('maintenance_mode', isOn ? 'false' : 'true')}
+            className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-navy/40 ${
+              isOn ? 'bg-amber-500' : 'bg-muted-foreground/30'
+            }`}
+          >
+            <span
+              className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+                isOn ? 'translate-x-6' : 'translate-x-1'
+              }`}
+            />
+          </button>
+        </div>
+      </div>
+
+      {/* Aviso explicativo */}
+      <div className="flex items-start gap-3 rounded-lg border border-amber-300 bg-amber-50 p-4 text-amber-950 dark:border-amber-700/70 dark:bg-amber-950/30 dark:text-amber-100">
+        <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden="true" />
+        <p className="text-sm leading-relaxed">
+          Quando ligado, o site público fica indisponível para visitantes (você, logado, continua
+          vendo o site normalmente para revisar). O painel e a tela de login seguem acessíveis. Tem
+          precedência sobre os bloqueios de área abaixo.
+        </p>
+      </div>
+
+      <Field label="Título da página de manutenção">
+        <Input
+          type="text"
+          value={title}
+          onChange={(e) => onChange('maintenance_title', e.target.value)}
+          placeholder={DEFAULT_MAINTENANCE_TITLE}
+        />
+      </Field>
+
+      <Field label="Mensagem exibida ao visitante">
+        <Textarea
+          value={message || DEFAULT_MAINTENANCE_MESSAGE}
+          onChange={(e) => onChange('maintenance_message', e.target.value)}
+          className="min-h-[110px]"
         />
       </Field>
     </div>
