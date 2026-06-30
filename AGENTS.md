@@ -217,6 +217,19 @@ em Números, Diário, Instagram, Conheça Sumé, Certificações, Pesquisa) → 
   14 dias; R2 diário 90 dias; semanal 12 meses; mensal 5 anos para acervo crítico.
   A retenção longa deve ser feita por lifecycle no Cloudflare R2, não por exclusão
   automática agressiva no app.
+- **R2 em produção (validado em 30/06/2026 UTC):** bucket `camara-sume`, com
+  credenciais gravadas como variáveis criptografadas no Coolify da aplicação
+  principal, nunca em arquivo versionado ou URL de remote. O `rclone` usa remote
+  `r2:` por variáveis `RCLONE_CONFIG_R2_*` injetadas no container; não depende de
+  `/root/.config/rclone/rclone.conf`. Prefixos ativos no bucket:
+  `uploads/` (espelho de `public/uploads`, validado com 3.587 arquivos e
+  1.382.712.903 bytes) e `backups/` (execuções de `backup:run`; primeira execução
+  validada em `backups/20260629-210936-run2/` com `database.dump`, `site.tar.gz`
+  e `manifest.json`). Scheduled tasks do Coolify: `uploads-r2-horario`
+  (`node ace storage:sync`, `25 * * * *`, timeout 7200s) e `backup-r2-diario`
+  (`node ace backup:run`, `40 2 * * *`, timeout 10800s). Ambos usam `rclone copy`,
+  sem delete remoto. A raiz do bucket ainda pode conter `_teste/` de validação de
+  conexão; remover manualmente se quiser deixar o bucket totalmente limpo.
 - **Alertas WhatsApp (Evolution API):** `/painel/seguranca` configura URL da
   Evolution, instancia, API key, numeros destinatarios, mensagem do relatorio e
   gatilhos (login suspeito, bloqueio de firewall e falha/parcial de backup). O
