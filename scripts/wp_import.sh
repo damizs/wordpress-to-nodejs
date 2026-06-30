@@ -7,6 +7,15 @@
 # Reimportar só uma etapa: FORCE_WP_MIGRATE, FORCE_ACTIVITIES_IMPORT,
 # FORCE_PNTP_IMPORT, FORCE_DIARIO_IMPORT, FORCE_QUICK_LINKS_IMPORT,
 # FORCE_PORTAL_BOOTSTRAP, FORCE_LEGACY_CONTENT_IMPORT, FORCE_IMAGE_OPTIMIZE.
+#
+# MULTI-CÂMARA: este pipeline roda os COMANDOS ace (wp:migrate, wp:activities,
+# wp:pntp, wp:diario, wp:quick-links, wp:legacy-content), que leem os JSON já
+# gerados em database/ e resolvem domínio/entidade via config/camara.ts (env:
+# WP_SOURCE_DOMAIN, GETPUBLIC_ENTITY, WP_TABLE_PREFIX — defaults = Sumé). Logo,
+# NÃO é preciso passar prefixo/entidade aqui. A geração dos JSON a partir do
+# database.sql de um backup NOVO é feita à parte pelos scripts/extract_wp_*.mjs,
+# que AUTO-DETECTAM o prefixo das tabelas e aceitam GETPUBLIC_ENTITY/argv.
+# DEFAULT = Sumé: sem nenhuma env/arg, o resultado é idêntico ao de hoje.
 
 UPLOADS="/app/public/uploads"
 mkdir -p "$UPLOADS"

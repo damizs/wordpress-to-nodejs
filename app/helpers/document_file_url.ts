@@ -1,9 +1,20 @@
-const GETPUBLIC_CONVERT_RE = /getpublic\.inf\.br\/uploads\/CMSU\/convert\/(\d{14})\//
+import { camara } from '#config/camara'
+
+/**
+ * Identificador da entidade no GetPublic (Sumé = CMSU). Parametrizado via
+ * config/camara (env GETPUBLIC_ENTITY) com DEFAULT = 'CMSU'. Declarado ANTES do
+ * regex abaixo porque este o usa (evita temporal dead zone do `const`).
+ */
+export const GETPUBLIC_ENTITY = camara.getpublicEntity
+
+// Construído a partir de GETPUBLIC_ENTITY — antes era /uploads/CMSU/convert/
+// chumbado. O código da entidade é alfanumérico (sem metacaracteres de regex),
+// então é seguro interpolar direto.
+const GETPUBLIC_CONVERT_RE = new RegExp(
+  `getpublic\\.inf\\.br/uploads/${GETPUBLIC_ENTITY}/convert/(\\d{14})/`
+)
 const GETPUBLIC_CODIGO_RE = /^\d{14}$/
 const PDF_HREF_RE = /href=["']([^"']+\.pdf(?:[^"']*)?)["']/i
-
-/** Identificador da entidade no GetPublic (Câmara Municipal de Sumé). */
-export const GETPUBLIC_ENTITY = 'CMSU'
 
 /**
  * URL pública da matéria no GetPublic — o visualizador oficial usado pelo site

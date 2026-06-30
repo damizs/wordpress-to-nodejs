@@ -8,29 +8,32 @@
   {{-- SEO Base --}}
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
   <meta name="googlebot" content="index, follow">
+  {{-- Identidade (nome/domínio) vem de `camara` compartilhado pelo
+       share_view_data_middleware (config/camara) — DEFAULT = Sumé. A descrição/
+       keywords abaixo (prosa com cidade/UF por extenso) seguem fixas por ora. --}}
   <meta name="description" content="Portal oficial da Câmara Municipal de Sumé - PB. Transparência, notícias, atividades legislativas, vereadores e serviços ao cidadão.">
   <meta name="keywords" content="Câmara Municipal, Sumé, Paraíba, vereadores, legislativo, transparência, licitações, atas, sessões plenárias">
-  <meta name="author" content="Câmara Municipal de Sumé">
+  <meta name="author" content="{{ camara.nome }}">
 
   {{-- Open Graph --}}
   <meta property="og:type" content="website">
   <meta property="og:locale" content="pt_BR">
-  <meta property="og:site_name" content="Câmara Municipal de Sumé">
-  <meta property="og:title" content="Câmara Municipal de Sumé - Portal Oficial">
+  <meta property="og:site_name" content="{{ camara.nome }}">
+  <meta property="og:title" content="{{ camara.nome }} - Portal Oficial">
   <meta property="og:description" content="Portal oficial da Câmara Municipal de Sumé - PB. Transparência, notícias, atividades legislativas e serviços ao cidadão.">
-  <meta property="og:url" content="https://node.camaradesume.pb.gov.br">
-  <meta property="og:image" content="https://node.camaradesume.pb.gov.br/og-image.jpg">
+  <meta property="og:url" content="{{ camara.baseUrl }}">
+  <meta property="og:image" content="{{ camara.baseUrl }}/og-image.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
 
   {{-- Twitter Card --}}
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Câmara Municipal de Sumé - Portal Oficial">
+  <meta name="twitter:title" content="{{ camara.nome }} - Portal Oficial">
   <meta name="twitter:description" content="Portal oficial da Câmara Municipal de Sumé - PB. Transparência, notícias e serviços ao cidadão.">
-  <meta name="twitter:image" content="https://node.camaradesume.pb.gov.br/og-image.jpg">
+  <meta name="twitter:image" content="{{ camara.baseUrl }}/og-image.jpg">
 
   {{-- Canonical --}}
-  <link rel="canonical" href="https://node.camaradesume.pb.gov.br{{ request.url() }}">
+  <link rel="canonical" href="{{ camara.baseUrl }}{{ request.url() }}">
 
   {{-- Favicon --}}
   {{-- Favicon enviado no painel (Aparência) renderizado já no 1º paint via
@@ -82,22 +85,22 @@
   {
     "@context": "https://schema.org",
     "@type": "GovernmentOrganization",
-    "name": "Câmara Municipal de Sumé",
+    "name": "{{ camara.nome }}",
     "alternateName": "Câmara de Vereadores de Sumé",
-    "url": "https://node.camaradesume.pb.gov.br",
-    "logo": "https://node.camaradesume.pb.gov.br/uploads/logo-camara-sume.png",
+    "url": "{{ camara.baseUrl }}",
+    "logo": "{{ camara.baseUrl }}/uploads/logo-camara-sume.png",
     "description": "Câmara Municipal de Sumé, Paraíba. Casa Vereador Cícero Soares. Poder Legislativo Municipal.",
     "address": {
       "@type": "PostalAddress",
       "streetAddress": "Centro",
-      "addressLocality": "Sumé",
-      "addressRegion": "PB",
+      "addressLocality": "{{ camara.cidade }}",
+      "addressRegion": "{{ camara.uf }}",
       "postalCode": "58540-000",
       "addressCountry": "BR"
     },
     "areaServed": {
       "@type": "City",
-      "name": "Sumé",
+      "name": "{{ camara.cidade }}",
       "containedInPlace": {
         "@type": "State",
         "name": "Paraíba"
@@ -112,11 +115,11 @@
   {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "Câmara Municipal de Sumé",
-    "url": "https://node.camaradesume.pb.gov.br",
+    "name": "{{ camara.nome }}",
+    "url": "{{ camara.baseUrl }}",
     "potentialAction": {
       "@type": "SearchAction",
-      "target": "https://node.camaradesume.pb.gov.br/noticias?busca={search_term_string}",
+      "target": "{{ camara.baseUrl }}/noticias?busca={search_term_string}",
       "query-input": "required name=search_term_string"
     }
   }

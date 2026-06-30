@@ -8,6 +8,11 @@ import Page, { type PageBlock } from '#models/page'
 import User from '#models/user'
 import { sanitizePlainText, sanitizeRichHtml } from '#helpers/sanitize_html'
 import { generateSlug } from '#helpers/slug'
+import { camara } from '#config/camara'
+
+// Autor padrão das notícias/legado importados: o usuário admin semeado.
+// Parametrizável p/ outras câmaras via env; default = admin de Sumé (sem mudança).
+const IMPORT_ADMIN_EMAIL = process.env.WP_IMPORT_ADMIN_EMAIL || 'admin@camaradesume.pb.gov.br'
 
 interface WpCategory {
   name: string
@@ -148,7 +153,7 @@ function rewriteUploadUrls(html: string): string {
       /(["'(])\/?wp-content\/uploads\/([^"'()\s<>]+)/gi,
       (_full, quote, path) => {
         const clean = path.split(/[?#]/)[0]
-        const fallback = `https://camaradesume.pb.gov.br/wp-content/uploads/${clean}`
+        const fallback = `https://${camara.wpSourceDomain}/wp-content/uploads/${clean}`
         return `${quote}${localUploadExists(clean) ? localUploadUrl(clean) || fallback : fallback}`
       }
     )
@@ -353,7 +358,7 @@ export async function importWpLegacyContent(
     { slug: 'noticias' },
     { name: 'Noticias', slug: 'noticias' }
   )
-  const admin = await User.findBy('email', 'admin@camaradesume.pb.gov.br')
+  const admin = await User.findBy('email', IMPORT_ADMIN_EMAIL)
 
   let newsCreated = 0
   let newsUpdated = 0

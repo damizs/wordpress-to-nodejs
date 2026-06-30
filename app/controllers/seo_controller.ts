@@ -9,8 +9,11 @@ import Licitacao from '#models/licitacao'
 import Contract from '#models/contract'
 import SiteSetting from '#models/site_setting'
 import { getPublicAccessBlock } from '#helpers/public_access'
+import { camara } from '#config/camara'
 
-const BASE_URL = 'https://node.camaradesume.pb.gov.br'
+// URL do app Node (canonical/sitemap/robots). Parametrizado via config/camara
+// (env CAMARA_BASE_URL) com DEFAULT = domínio de Sumé → nada muda para Sumé.
+const BASE_URL = camara.baseUrl
 
 export default class SeoController {
   async sitemap({ response }: HttpContext) {

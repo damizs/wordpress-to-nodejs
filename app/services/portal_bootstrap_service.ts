@@ -7,6 +7,7 @@ import SiteSetting from '#models/site_setting'
 import AtriconStatus from '#models/atricon_status'
 import Page from '#models/page'
 import { ATRICON_CRITERIA } from '#helpers/atricon_matrix'
+import { camara } from '#config/camara'
 import {
   DEFAULT_FOOTER_COLUMNS,
   DEFAULT_HEADER_MENU,
@@ -329,7 +330,8 @@ async function ensureSicPage(logger: Logger) {
       },
       {
         type: 'text',
-        text: 'A Câmara Municipal de Sumé observa a Lei Federal nº 12.527/2011 (Lei de Acesso à Informação — LAI). Os atos normativos locais que regulamentam o acesso à informação nesta Casa estão disponíveis nas Publicações Oficiais e nas perguntas frequentes sobre LAI.',
+        // Nome da câmara parametrizado (default = Sumé → texto idêntico ao atual).
+        text: `A ${camara.nome} observa a Lei Federal nº 12.527/2011 (Lei de Acesso à Informação — LAI). Os atos normativos locais que regulamentam o acesso à informação nesta Casa estão disponíveis nas Publicações Oficiais e nas perguntas frequentes sobre LAI.`,
       },
       {
         type: 'buttons',
@@ -340,8 +342,7 @@ async function ensureSicPage(logger: Logger) {
         ],
       },
     ],
-    metaDescription:
-      'Regulamentação local da Lei de Acesso à Informação (LAI) na Câmara Municipal de Sumé.',
+    metaDescription: `Regulamentação local da Lei de Acesso à Informação (LAI) na ${camara.nome}.`,
     heroSubtitle: 'Lei nº 12.527/2011 — transparência e acesso à informação pública',
     isPublished: true,
     publishedAt: DateTime.now(),

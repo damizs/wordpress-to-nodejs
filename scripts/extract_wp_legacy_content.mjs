@@ -7,8 +7,37 @@ import fs from 'node:fs'
 import readline from 'node:readline'
 
 const SQL = process.argv[2] || 'tmp_wp/database.sql'
-const PREFIX = process.argv[3] || 'sql_camarasume'
 const OUT = process.argv[4] || 'database/wp_legacy_content.json'
+
+// Prefixo das tabelas do dump — generalizado para QUALQUER câmara.
+// Precedência: 1) argv[3] (override explícito) · 2) env WP_TABLE_PREFIX (mesma
+// chave lida por config/camara.ts) · 3) AUTO-DETECT escaneando o dump por uma
+// tabela `<prefixo>posts` · 4) fallback no default de Sumé ('sql_camarasume').
+// DEFAULT = Sumé: sem arg/env, o auto-detect encontra `sql_camarasumeposts` e
+// devolve 'sql_camarasume' — saída idêntica ao comportamento atual.
+async function detectTablePrefix(sqlPath, fallback) {
+  try {
+    const rl = readline.createInterface({
+      input: fs.createReadStream(sqlPath, 'utf8'),
+      crlfDelay: Infinity,
+    })
+    for await (const line of rl) {
+      // Captura tudo ANTES de `posts` (o dump de Sumé não usa '_' antes de posts;
+      // um dump WP padrão `wp_posts` devolve o prefixo 'wp_').
+      const m = line.match(/^CREATE TABLE `?([a-z0-9_]*)posts`?/i)
+      if (m) {
+        rl.close()
+        return m[1]
+      }
+    }
+  } catch {
+    /* dump ilegível/ausente: usa o fallback */
+  }
+  return fallback
+}
+
+const PREFIX =
+  process.argv[3] || process.env.WP_TABLE_PREFIX || (await detectTablePrefix(SQL, 'sql_camarasume'))
 
 function parseRows(payload) {
   const rows = []

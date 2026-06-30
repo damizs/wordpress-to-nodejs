@@ -8,6 +8,7 @@ import Councilor from '#models/councilor'
 import LegislativeActivity from '#models/legislative_activity'
 import { buildActivitySummary } from '#helpers/text_excerpt'
 import { inferLegislativeOrigin } from '#helpers/legislative_origin'
+import { camara } from '#config/camara'
 /**
  * Importa as Atividades Legislativas (CPT `a-legislativa`) com a AUTORIA dos
  * vereadores, a partir de `database/wp_activities.json` (gerado por
@@ -103,7 +104,9 @@ function mapStatus(situacao: string | null): DbStatus {
   return 'tramitando'
 }
 
-const LIVE_SITE = 'https://camaradesume.pb.gov.br'
+// Domínio do site WP de origem (download dos PDFs de anexos). Parametrizado via
+// config/camara (env WP_SOURCE_DOMAIN); default = Sumé ('camaradesume.pb.gov.br').
+const LIVE_SITE = `https://${camara.wpSourceDomain}`
 
 /** Resolve PDF da matéria: arquivo local da migração WP ou download do site ao vivo. */
 async function resolvePdfUrl(

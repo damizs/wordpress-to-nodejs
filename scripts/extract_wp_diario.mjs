@@ -15,6 +15,11 @@ const sqlPath = process.argv[2] || 'tmp/wp_backup_sume_20260615/database.sql'
 const sql = readFileSync(sqlPath, 'utf-8')
 const TICK = String.fromCharCode(96)
 
+// Entidade GetPublic usada no link do visualizador público (`&link=`).
+// Generalizado para qualquer câmara: argv[4] (override) > env GETPUBLIC_ENTITY
+// (mesma chave lida por config/camara.ts) > 'CMSU' (default = Sumé).
+const ENTITY = process.argv[4] || process.env.GETPUBLIC_ENTITY || 'CMSU'
+
 function findTable(suffix) {
   const re = new RegExp('CREATE TABLE ' + TICK + '([a-z0-9_]*' + suffix + ')' + TICK)
   const match = sql.match(re)
@@ -201,7 +206,7 @@ function dateOnly(value) {
 function getpublicPdfUrl(code) {
   // Visualizador público da matéria (mesmo link do site). NÃO usar /api/document/<id>/pdf.
   return /^\d{14}$/.test(code || '')
-    ? `https://getpublic.inf.br/system/visualizar-materia?materia=${code}&link=CMSU`
+    ? `https://getpublic.inf.br/system/visualizar-materia?materia=${code}&link=${ENTITY}`
     : null
 }
 

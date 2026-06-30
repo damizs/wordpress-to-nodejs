@@ -88,12 +88,18 @@ function filterBlockedFooterColumns(
 
 export const Footer = ({ logoUrl }: FooterProps) => {
   const settings = useSiteSettings();
-  const { url: currentUrl } = usePage();
+  const page = usePage();
+  const currentUrl = page.url;
   const isEmbed = /[?&]embed=1/.test(currentUrl);
   const footerColumns = filterBlockedFooterColumns(parseFooterColumns(settings.footer_columns), settings);
 
   const resolvedLogo = logoUrl ?? settings.logo_url ?? null;
-  const headerTitle = settings.header_title || "CÂMARA MUNICIPAL DE SUMÉ";
+  // Nome institucional: prioriza o setting editável (Aparência); o fallback vem
+  // da identidade compartilhada (config/camara), em MAIÚSCULAS como o chrome usa.
+  // DEFAULT de camara.nome = "Câmara Municipal de Sumé" → "CÂMARA MUNICIPAL DE SUMÉ".
+  const camaraNome =
+    (page.props as { camara?: { nome: string } }).camara?.nome || "Câmara Municipal de Sumé";
+  const headerTitle = settings.header_title || camaraNome.toUpperCase();
   const [titleFirstWord, ...titleRest] = headerTitle.split(" ");
   const description =
     settings.footer_description ||

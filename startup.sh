@@ -18,6 +18,21 @@ timeout "${MIGRATION_TIMEOUT:-300}" node ace migration:run --force \
 echo "=== Running database seeds ==="
 timeout "${SEED_TIMEOUT:-180}" node ace db:seed || true
 
+# ── Câmara NOVA (base reutilizável): bootstrap ESTRUTURAL sem o acervo de Sumé ──
+# Liga com CAMARA_INIT=true no Coolify. O portal de SUMÉ NÃO define essa flag, então
+# este passo é NO-OP para Sumé (o boot atual de Sumé permanece intocado).
+# Cobre: RBAC/permissões, categorias e tipos do sistema, categorias de notícias e
+# atalhos internos padrão, 1 admin (ADMIN_INITIAL_EMAIL/ADMIN_INITIAL_PASSWORD) e a
+# identidade da câmara (CAMARA_NOME/CAMARA_CIDADE/CAMARA_UF/CAMARA_EMAIL — config/camara).
+# NÃO importa conteúdo de Sumé. Idempotente: pode rodar a cada deploy.
+# Recomendação para câmara nova: CAMARA_INIT=true + SKIP_CONTENT_BOOTSTRAP=true
+# (este último já pula o wp_import.sh abaixo).
+if [ "$CAMARA_INIT" = "true" ]; then
+  echo "=== Câmara init (estrutura + admin + identidade, sem conteúdo de Sumé) ==="
+  timeout "${SEED_TIMEOUT:-180}" node ace camara:init \
+    || echo "camara:init warnings/timeout (non-fatal)"
+fi
+
 # Bootstrap completo do acervo WordPress (idempotente — só roda o que falta).
 # RODA EM 2º PLANO para o servidor HTTP subir imediatamente após migrations+seed.
 # O import é pesado (download de imagens/PDFs + getpublic:sync chama API externa);

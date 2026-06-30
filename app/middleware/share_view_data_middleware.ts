@@ -1,6 +1,7 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import type { NextFn } from '@adonisjs/core/types/http'
 import SiteSetting from '#models/site_setting'
+import { camara } from '#config/camara'
 
 /**
  * Compartilha dados do servidor com o template edge raiz (rootView do Inertia)
@@ -65,6 +66,24 @@ export default class ShareViewDataMiddleware {
     // healthcheck do deploy) e nem renderizam edge — passa direto.
     if (path === '/health' || path.startsWith('/assets/') || path.startsWith('/uploads/')) {
       return next()
+    }
+
+    // Identidade da câmara (config/camara) disponível no edge raiz para SEO/OG/
+    // structured data já no 1º paint. É config pura (sem DB), então compartilha
+    // SEMPRE — DEFAULT = Sumé, logo o HTML de Sumé fica idêntico.
+    try {
+      ctx.view?.share({
+        camara: {
+          nome: camara.nome,
+          nomeCurto: camara.nomeCurto,
+          cidade: camara.cidade,
+          uf: camara.uf,
+          baseUrl: camara.baseUrl,
+          siteUrl: camara.siteUrl,
+        },
+      })
+    } catch {
+      // Nunca derrubar a request por causa da identidade compartilhada.
     }
 
     try {

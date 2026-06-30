@@ -27,6 +27,11 @@ import Licitacao from '#models/licitacao'
 import SurveyQuestion from '#models/survey_question'
 import { importActivitiesWithAuthors } from '#services/wp_activities_importer'
 import { seedAtasPautasFromSessions } from '#services/seed_atas_pautas_service'
+import { camara } from '#config/camara'
+
+// Autor padrão das notícias importadas: o usuário admin semeado.
+// Parametrizável p/ outras câmaras via env; default = admin de Sumé (sem mudança).
+const IMPORT_ADMIN_EMAIL = process.env.WP_IMPORT_ADMIN_EMAIL || 'admin@camaradesume.pb.gov.br'
 
 export default class WpMigrate extends BaseCommand {
   static commandName = 'wp:migrate'
@@ -209,7 +214,7 @@ export default class WpMigrate extends BaseCommand {
       { slug: 'noticias' },
       { name: 'Notícias', slug: 'noticias' }
     )
-    const admin = await User.findBy('email', 'admin@camaradesume.pb.gov.br')
+    const admin = await User.findBy('email', IMPORT_ADMIN_EMAIL)
     if (this.force) {
       await News.query().delete()
       this.logger.info('  Cleared')
@@ -499,9 +504,10 @@ export default class WpMigrate extends BaseCommand {
     let skip = 0
     for (const [i, l] of legislative.entries()) {
       if (!l.active) continue
+      // Domínio do site WP de origem parametrizado via config/camara (default = Sumé).
       let url = l.url
-        .replace('https://camaradesume.pb.gov.br/', '/')
-        .replace('http://camaradesume.pb.gov.br/', '/')
+        .replace(`https://${camara.wpSourceDomain}/`, '/')
+        .replace(`http://${camara.wpSourceDomain}/`, '/')
       // Dedupe by natural key (title + url) — table has no unique constraint
       const existing = await QuickLink.query().where('title', l.title).where('url', url).first()
       if (existing) {

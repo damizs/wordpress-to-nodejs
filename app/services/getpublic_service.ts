@@ -16,10 +16,13 @@
  * NÃO são armazenados: guardamos metadados + o link do visualizador/PDF.
  */
 import env from '#start/env'
+import { camara } from '#config/camara'
 
 const BASE = 'https://getpublic.inf.br'
 const API = `${BASE}/api/v1`
-const ENTITY = 'CMSU'
+// Código da entidade no GetPublic (Sumé = CMSU). Parametrizado via config/camara
+// (env GETPUBLIC_ENTITY) com DEFAULT = 'CMSU' → comportamento de Sumé inalterado.
+const ENTITY = camara.getpublicEntity
 
 export interface GetPublicMateria {
   codigo: string

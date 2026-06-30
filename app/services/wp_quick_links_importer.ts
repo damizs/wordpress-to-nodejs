@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs'
 import app from '@adonisjs/core/services/app'
 import QuickLink from '#models/quick_link'
+import { camara } from '#config/camara'
 
 interface WpQuickLink {
   secao_id: string
@@ -55,9 +56,11 @@ const iconMap: Record<string, string> = {
 }
 
 function normalizeUrl(url: string): string {
+  // Converte URLs absolutas do site WP de origem em caminhos relativos.
+  // Domínio parametrizado via config/camara (default = Sumé).
   return url
-    .replace('https://camaradesume.pb.gov.br/', '/')
-    .replace('http://camaradesume.pb.gov.br/', '/')
+    .replace(`https://${camara.wpSourceDomain}/`, '/')
+    .replace(`http://${camara.wpSourceDomain}/`, '/')
 }
 
 export async function importWpQuickLinks(

@@ -1,4 +1,4 @@
-import { Head } from "@inertiajs/react";
+import { Head, usePage } from "@inertiajs/react";
 
 interface SeoHeadProps {
   title: string;
@@ -13,19 +13,39 @@ interface SeoHeadProps {
   section?: string;
 }
 
+/** Identidade compartilhada por config/inertia.ts (config/camara). */
+interface CamaraIdentity {
+  nome: string;
+  nomeCurto: string;
+  cidade: string;
+  uf: string;
+  baseUrl: string;
+  siteUrl: string;
+}
+
 export const SeoHead = ({
   title,
   description = "Câmara Municipal de Sumé - Portal oficial do Poder Legislativo de Sumé, Paraíba. Transparência, notícias, vereadores e serviços ao cidadão.",
   keywords = "câmara municipal, sumé, paraíba, vereadores, transparência, legislativo",
-  image = "https://node.camaradesume.pb.gov.br/og-image.jpg",
-  url = "https://node.camaradesume.pb.gov.br",
+  image,
+  url,
   type = "website",
   publishedTime,
   modifiedTime,
   author,
   section,
 }: SeoHeadProps) => {
-  const ORG = "Câmara Municipal de Sumé";
+  // Identidade (nome/domínio) vem dos shared props do Inertia (config/camara),
+  // com FALLBACK nos valores de Sumé → produção atual inalterada. A descrição/
+  // keywords padrão (prosa com cidade/UF) seguem fixas por ora.
+  const camara = (usePage().props as { camara?: CamaraIdentity }).camara;
+  const ORG = camara?.nome || "Câmara Municipal de Sumé";
+  const BASE = camara?.baseUrl || "https://node.camaradesume.pb.gov.br";
+
+  // Defaults derivados do domínio base (resolvidos aqui porque dependem de `BASE`).
+  const resolvedUrl = url ?? BASE;
+  const resolvedImage = image ?? `${BASE}/og-image.jpg`;
+
   // Evita duplicar o nome do órgão: várias páginas já passam o sufixo
   // (" - Câmara Municipal de Sumé") no próprio title. Só anexamos se ainda
   // não estiver presente.
@@ -34,8 +54,9 @@ export const SeoHead = ({
   // og:image/twitter:image devem ser URLs absolutas. Se a página passou uma
   // imagem relativa, prefixamos o host base. (Sem acesso a window aqui — usamos
   // o host base derivado do default da prop `url`, seguro em SSR.)
-  const BASE = "https://node.camaradesume.pb.gov.br";
-  const absoluteImage = image.startsWith("http") ? image : `${BASE}${image.startsWith("/") ? "" : "/"}${image}`;
+  const absoluteImage = resolvedImage.startsWith("http")
+    ? resolvedImage
+    : `${BASE}${resolvedImage.startsWith("/") ? "" : "/"}${resolvedImage}`;
 
   return (
     <Head>
@@ -47,9 +68,9 @@ export const SeoHead = ({
       <meta property="og:title" content={fullTitle} />
       <meta property="og:description" content={description} />
       <meta property="og:image" content={absoluteImage} />
-      <meta property="og:url" content={url} />
+      <meta property="og:url" content={resolvedUrl} />
       <meta property="og:type" content={type} />
-      <meta property="og:site_name" content="Câmara Municipal de Sumé" />
+      <meta property="og:site_name" content={ORG} />
 
       {/* Article (somente quando type === "article") */}
       {type === "article" && publishedTime && (

@@ -251,13 +251,19 @@ export const Header = ({ logoUrl }: HeaderProps) => {
     [navItems, template]
   );
   // Modo embed (?embed=1): página renderizada dentro de um modal/iframe — sem cabeçalho
-  const { url: currentUrl } = usePage();
+  const page = usePage();
+  const currentUrl = page.url;
   const isEmbed = /[?&]embed=1/.test(currentUrl);
   const currentPath = currentUrl.split("?")[0] || "/";
   const isHomePage = currentPath === "/";
 
   const resolvedLogo = logoUrl ?? settings.logo_url ?? null;
-  const headerTitle = settings.header_title || "CÂMARA MUNICIPAL DE SUMÉ";
+  // Nome institucional: setting editável (Aparência) com fallback na identidade
+  // compartilhada (config/camara), em MAIÚSCULAS como o chrome exibe. DEFAULT de
+  // camara.nome = "Câmara Municipal de Sumé" → "CÂMARA MUNICIPAL DE SUMÉ".
+  const camaraNome =
+    (page.props as { camara?: { nome: string } }).camara?.nome || "Câmara Municipal de Sumé";
+  const headerTitle = settings.header_title || camaraNome.toUpperCase();
   const headerSubtitle = settings.header_subtitle || "Estado da Paraíba";
   const [titleFirstWord, ...titleRest] = headerTitle.split(" ");
 

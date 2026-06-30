@@ -1,5 +1,19 @@
 import { BaseSeeder } from '@adonisjs/lucid/seeders'
 import QuickLink from '#models/quick_link'
+import { camara } from '#config/camara'
+
+/**
+ * Câmara é Sumé (ou ambiente não parametrizado)? Default = Sumé → comportamento
+ * intocado. Em câmara nova (CAMARA_CIDADE != "Sumé") o canal do YouTube de Sumé
+ * é trocado por um atalho interno genérico (/sessoes), sem URL específica de Sumé.
+ * Override: SEED_SUME_CONTENT=true|false.
+ */
+function shouldSeedSumeContent(): boolean {
+  const flag = (process.env.SEED_SUME_CONTENT || '').trim().toLowerCase()
+  if (flag === 'true') return true
+  if (flag === 'false') return false
+  return camara.cidade.trim().toLowerCase() === 'sumé'
+}
 
 export default class extends BaseSeeder {
   async run() {
@@ -11,16 +25,30 @@ export default class extends BaseSeeder {
       return
     }
 
+    // Atalho "Sessões Plenárias": canal do YouTube de Sumé (default) ou rota
+    // interna genérica em câmara nova (sem vazar a URL específica de Sumé).
+    const isSume = shouldSeedSumeContent()
+    const sessionsLink = isSume
+      ? {
+          title: 'Sessões Plenárias',
+          url: 'https://www.youtube.com/@camaramunicipaldeSume',
+          icon: 'Youtube',
+          color: 'red',
+          displayOrder: 1,
+          isActive: true,
+        }
+      : {
+          title: 'Sessões Plenárias',
+          url: '/sessoes',
+          icon: 'Youtube',
+          color: 'red',
+          displayOrder: 1,
+          isActive: true,
+        }
+
     // Links rápidos padrão para câmara municipal
     const links = [
-      {
-        title: 'Sessões Plenárias',
-        url: 'https://www.youtube.com/@camaramunicipaldeSume',
-        icon: 'Youtube',
-        color: 'red',
-        displayOrder: 1,
-        isActive: true,
-      },
+      sessionsLink,
       {
         title: 'Leis Municipais',
         url: '/leis',

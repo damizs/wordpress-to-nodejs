@@ -1,5 +1,6 @@
 import { defineConfig } from '@adonisjs/inertia'
 import type { InferSharedProps } from '@adonisjs/inertia/types'
+import { camara as camaraConfig } from '#config/camara'
 
 const inertiaConfig = defineConfig({
   rootView: 'inertia_layout',
@@ -46,6 +47,18 @@ const inertiaConfig = defineConfig({
         return {}
       }
     },
+    // Identidade da câmara (config/camara) disponível em TODAS as páginas Inertia
+    // via `usePage().props.camara` — substitui "Sumé" chumbado no frontend. É
+    // config pura (env com DEFAULT = Sumé), então para Sumé nada muda. Apenas os
+    // campos públicos de identidade (sem e-mail/integrações).
+    camara: () => ({
+      nome: camaraConfig.nome,
+      nomeCurto: camaraConfig.nomeCurto,
+      cidade: camaraConfig.cidade,
+      uf: camaraConfig.uf,
+      baseUrl: camaraConfig.baseUrl,
+      siteUrl: camaraConfig.siteUrl,
+    }),
   },
 
   ssr: {
