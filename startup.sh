@@ -31,6 +31,9 @@ if [ "$CAMARA_INIT" = "true" ]; then
   echo "=== Câmara init (estrutura + admin + identidade, sem conteúdo de Sumé) ==="
   timeout "${SEED_TIMEOUT:-180}" node ace camara:init \
     || echo "camara:init warnings/timeout (non-fatal)"
+  echo "=== Câmara de-Sumé (normaliza settings de tenant) ==="
+  timeout "${SEED_TIMEOUT:-180}" node ace camara:desume \
+    || echo "camara:desume warnings/timeout (non-fatal)"
 fi
 
 # Bootstrap completo do acervo WordPress (idempotente — só roda o que falta).

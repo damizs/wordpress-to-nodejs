@@ -10,6 +10,7 @@ import QuickLink from '#models/quick_link'
 import SiteSetting from '#models/site_setting'
 import RbacSeeder from '#database/seeders/rbac_seeder'
 import SystemCategoriesSeeder from '#database/seeders/03_system_categories_seeder'
+import { runCamaraDesume } from './camara_desume.js'
 
 /**
  * Mapeia a UF para o subtítulo institucional padrão ("Estado da Paraíba", etc.).
@@ -98,6 +99,7 @@ export default class CamaraInit extends BaseCommand {
     this.logger.info('6/6 Usuário admin (env) + identidade (config/camara)…')
     await this.seedAdminUser()
     await this.seedIdentitySettings()
+    await runCamaraDesume(this.logger)
 
     this.logger.success(`camara:init concluído para "${camara.nome}".`)
   }

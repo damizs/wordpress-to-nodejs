@@ -400,6 +400,17 @@ Fontes de referência neste servidor:
 - **Seeders idempotentes:** nunca `delete()`+recria no boot (o `quick_links_seeder`
   apagava edições a cada deploy — corrigido para semear só se vazio). Migrations de
   dados: aplicar só se ausente/igual ao default.
+- **Multi-câmara / de-Sumé:** câmara nova deve usar `CAMARA_INIT=true` +
+  `SKIP_CONTENT_BOOTSTRAP=true`. O comando `node ace camara:desume` roda no fim de
+  `camara:init` e também no `startup.sh` dentro do bloco `CAMARA_INIT=true`; ele é
+  no-op para Sumé e, para outras câmaras, normaliza `site_settings` com
+  `config/camara`, limpa links/contatos específicos de Sumé, desativa FAQs
+  residuais de Sumé, reescreve a Carta de Serviços padrão para a câmara atual,
+  oculta registros PNTP que ainda apontem para `camaradesume` e remove notas de
+  duodécimos com `SUME`. Após deploy nas bases Junco/Frei/Serra, rodar/revalidar
+  esse comando antes de apontar IP em produção; a auditoria local de 30/06/2026
+  indicou conteúdo principal migrado, mas resíduos de Sumé ainda presentes nos
+  bancos já criados até que o comando seja aplicado.
 - **Tokens sempre** (dark-safe). **UI kit** no painel. **SectionHeading/PageHero**
   no público. Máximo 1–2 efeitos por elemento (a "dieta de efeitos" removeu
   shine/glow/mesh/ken-burns).
