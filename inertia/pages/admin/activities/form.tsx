@@ -1,7 +1,6 @@
 import { Head, useForm, Link } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Save, ArrowLeft, Users, ScrollText, Upload } from 'lucide-react'
-import { useRef } from 'react'
+import { Save, ArrowLeft, Users, ScrollText } from 'lucide-react'
 import {
   Button,
   Card,
@@ -12,6 +11,7 @@ import {
   Select,
   Textarea,
 } from '~/components/admin/ui'
+import FileField from '~/components/admin/FileField'
 import RichTextEditor from '~/components/admin/RichTextEditor'
 
 interface CouncilorOption {
@@ -67,7 +67,6 @@ export default function ActivityForm({
   origins = [],
 }: Props) {
   const isEditing = !!activity
-  const fileRef = useRef<HTMLInputElement>(null)
   const { data, setData, post, processing } = useForm({
     type: activity?.type || 'Projeto de Lei',
     origin: activity?.origin || 'nao_informado',
@@ -209,37 +208,14 @@ export default function ActivityForm({
               </Field>
             </div>
 
-            <Field label="Arquivo (PDF/DOC)">
-              <div>
-                {activity?.file_url && (
-                  <p className="text-xs text-muted-foreground mb-1.5">
-                    Atual:{' '}
-                    <a
-                      href={activity.file_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-navy underline"
-                    >
-                      Ver arquivo
-                    </a>
-                  </p>
-                )}
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => fileRef.current?.click()}
-                >
-                  <Upload className="w-4 h-4" /> {data.file ? data.file.name : 'Selecionar arquivo'}
-                </Button>
-                <input
-                  ref={fileRef}
-                  type="file"
-                  accept=".pdf,.doc,.docx"
-                  onChange={(e) => setData('file', e.target.files?.[0] || null)}
-                  className="hidden"
-                />
-              </div>
-            </Field>
+            <FileField
+              label="Arquivo (PDF/DOC)"
+              name="file"
+              accept=".pdf,.doc,.docx"
+              currentUrl={activity?.file_url}
+              hint="PDF, DOC ou DOCX (máx. 15 MB)."
+              onChange={(file) => setData('file', file)}
+            />
           </div>
         </Card>
 

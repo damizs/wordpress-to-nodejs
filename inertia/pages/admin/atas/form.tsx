@@ -1,8 +1,8 @@
 import { Head, useForm, Link } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Save, ArrowLeft, Upload, FileText, Paperclip, BookOpen, Info } from 'lucide-react'
+import { Save, ArrowLeft, Upload, FileText, Paperclip, BookOpen, Info, Eye } from 'lucide-react'
 import { useRef } from 'react'
-import { Button, Card, CardHeader, Field, Input, PageHeader, Select } from '~/components/admin/ui'
+import { Button, ButtonLink, Card, CardHeader, Field, Input, PageHeader, Select } from '~/components/admin/ui'
 import RichTextEditor from '~/components/admin/RichTextEditor'
 
 interface Props {
@@ -54,6 +54,13 @@ export default function AtaForm({ ata, sessionTypes = [] }: Props) {
         }
         icon={BookOpen}
         eyebrow="Atas das Sessões"
+        actions={
+          isEditing && ata?.slug ? (
+            <ButtonLink href={`/atas/${ata.slug}`} target="_blank" variant="secondary" size="sm">
+              <Eye className="w-4 h-4" /> Pré-visualizar
+            </ButtonLink>
+          ) : undefined
+        }
       />
 
       <div className="flex items-start gap-2.5 mb-5 rounded-lg border border-sky/30 bg-sky/10 p-3 text-sm text-foreground">

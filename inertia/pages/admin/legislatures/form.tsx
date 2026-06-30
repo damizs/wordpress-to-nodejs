@@ -1,6 +1,6 @@
 import { Head, useForm, Link } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Save, ArrowLeft, Landmark } from 'lucide-react'
+import { Save, ArrowLeft, Landmark, AlertTriangle } from 'lucide-react'
 import { Button, Card, CardHeader, Field, FormGrid, Input, PageHeader } from '~/components/admin/ui'
 
 interface Props {
@@ -16,6 +16,9 @@ export default function LegislatureForm({ legislature }: Props) {
     end_date: legislature?.end_date || '',
     is_current: legislature?.is_current ?? false,
   })
+
+  // Aviso inline (não bloqueia): datas são campos `date`, então a comparação ISO é segura.
+  const endBeforeStart = !!data.start_date && !!data.end_date && data.end_date < data.start_date
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -89,6 +92,14 @@ export default function LegislatureForm({ legislature }: Props) {
                 />
               </Field>
             </FormGrid>
+
+            {endBeforeStart && (
+              <p className="flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-300">
+                <AlertTriangle className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+                A <strong>Data Fim</strong> é anterior à <strong>Data Início</strong>. Verifique as
+                datas.
+              </p>
+            )}
 
             <label className="flex items-center gap-2 cursor-pointer">
               <input

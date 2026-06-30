@@ -1,6 +1,6 @@
 import { Head, useForm, router } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Save, ArrowLeft, Upload, Image, X, Newspaper } from 'lucide-react'
+import { Save, ArrowLeft, Upload, Image, X, Newspaper, Eye } from 'lucide-react'
 import { useState, useRef } from 'react'
 import {
   Button,
@@ -13,6 +13,7 @@ import {
   Textarea,
 } from '~/components/admin/ui'
 import RichTextEditor from '~/components/admin/RichTextEditor'
+import { useUnsavedChanges } from '~/hooks/use_unsaved_changes'
 
 interface NewsItem {
   id: number
@@ -53,6 +54,12 @@ export default function NewsForm({ news: existing, categories }: Props) {
 
   const [coverPreview, setCoverPreview] = useState<string | null>(existing?.cover_image_url || null)
   const fileRef = useRef<HTMLInputElement>(null)
+
+  // Alterações não salvas: campos (sem o arquivo) + imagem de capa selecionada.
+  const snapshot = () => JSON.stringify({ ...data, cover_image: null })
+  const initialSnapshot = useRef(snapshot())
+  const dirty = (snapshot() !== initialSnapshot.current || data.cover_image !== null) && !processing
+  useUnsavedChanges(dirty)
 
   function handleCoverChange(file: File | null) {
     setData('cover_image', file)
@@ -107,6 +114,16 @@ export default function NewsForm({ news: existing, categories }: Props) {
                 <ArrowLeft className="w-4 h-4" />
                 Voltar
               </ButtonLink>
+              {isEditing && existing?.slug && (
+                <ButtonLink
+                  href={`/noticias/${existing.slug}`}
+                  target="_blank"
+                  variant="secondary"
+                >
+                  <Eye className="w-4 h-4" />
+                  Pré-visualizar
+                </ButtonLink>
+              )}
               <Button type="submit" form="news-form" loading={processing}>
                 {!processing && <Save className="w-4 h-4" />}
                 {processing ? 'Salvando...' : isEditing ? 'Atualizar' : 'Criar Notícia'}

@@ -1,8 +1,8 @@
 import { Head, useForm, Link } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Save, ArrowLeft, Upload, BookOpen } from 'lucide-react'
+import { Save, ArrowLeft, Upload, BookOpen, Eye } from 'lucide-react'
 import { useRef } from 'react'
-import { Button, Field, Input, Select, PageHeader, FormSection, FormGrid } from '~/components/admin/ui'
+import { Button, ButtonLink, Field, Input, Select, PageHeader, FormSection, FormGrid } from '~/components/admin/ui'
 import RichTextEditor from '~/components/admin/RichTextEditor'
 
 interface Props {
@@ -46,12 +46,24 @@ export default function PublicationForm({ publication, types = [] }: Props) {
           icon={BookOpen}
           eyebrow="Publicações Oficiais"
           actions={
-            <Link
-              href="/painel/publicacoes"
-              className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
-            >
-              <ArrowLeft className="w-4 h-4" /> Voltar
-            </Link>
+            <>
+              {isEditing && publication?.slug && (
+                <ButtonLink
+                  href={`/publicacoes-oficiais/${publication.slug}`}
+                  target="_blank"
+                  variant="secondary"
+                  size="sm"
+                >
+                  <Eye className="w-4 h-4" /> Pré-visualizar
+                </ButtonLink>
+              )}
+              <Link
+                href="/painel/publicacoes"
+                className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+              >
+                <ArrowLeft className="w-4 h-4" /> Voltar
+              </Link>
+            </>
           }
         />
 

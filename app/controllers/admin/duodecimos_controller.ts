@@ -85,9 +85,13 @@ export default class DuodecimosController {
       previsto,
       recebido: parseMoney(request.input('recebido')),
       repasseDate: request.input('repasse_date') || null,
-      documentUrl: normalizeSafeWebUrl(request.input('document_url')),
       notes: request.input('notes') || null,
     })
+    // URL externa opcional só substitui quando informada; sem URL nem arquivo
+    // novo, o documento atual é preservado.
+    const externalUrl = normalizeSafeWebUrl(request.input('document_url'))
+    if (externalUrl) duodecimo.documentUrl = externalUrl
+    // Upload de arquivo novo (request.file('document_file')) tem prioridade.
     await this.saveDocument(request, duodecimo)
     await duodecimo.save()
 

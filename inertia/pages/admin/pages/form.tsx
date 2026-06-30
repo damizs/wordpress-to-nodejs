@@ -59,6 +59,7 @@ import {
   arrayMove,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
+import { useUnsavedChanges } from '~/hooks/use_unsaved_changes'
 
 let __blockUidSeq = 0
 const nextBlockUid = () => `blk-${__blockUidSeq++}-${Math.round(performance.now())}`
@@ -803,6 +804,17 @@ export default function PageForm({ page }: Props) {
     blocks: (d.blocks as EditorBlock[]).map(({ __uid, ...rest }) => rest),
   }))
 
+  // Alterações não salvas: ignora o __uid efêmero dos blocos para não acusar
+  // diferença após "Redefinir alterações".
+  const serializeForm = (d: typeof initialData) =>
+    JSON.stringify({
+      ...d,
+      blocks: (d.blocks as EditorBlock[]).map(({ __uid, ...rest }) => rest),
+    })
+  const initialSnapshot = useRef(serializeForm(initialData))
+  const dirty = serializeForm(data) !== initialSnapshot.current && !processing
+  useUnsavedChanges(dirty)
+
   const handleTitleChange = (title: string) => {
     setData((d) => ({ ...d, title, slug: slugEdited ? d.slug : slugify(title) }))
   }
@@ -897,7 +909,7 @@ export default function PageForm({ page }: Props) {
             <div className="flex flex-wrap gap-2">
               {isEditing && data.slug && (
                 <ButtonLink href={`/${data.slug}`} target="_blank" variant="secondary">
-                  <Eye className="w-4 h-4" /> Ver no site
+                  <Eye className="w-4 h-4" /> Pré-visualizar
                 </ButtonLink>
               )}
               <Button type="button" variant="secondary" onClick={resetChanges}>

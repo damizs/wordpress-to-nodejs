@@ -1,4 +1,5 @@
 import { Head, useForm } from '@inertiajs/react'
+import { useState } from 'react'
 import AdminLayout from '~/layouts/AdminLayout'
 import { Save, ArrowLeft, HelpCircle } from 'lucide-react'
 import {
@@ -12,6 +13,7 @@ import {
   Select,
 } from '~/components/admin/ui'
 import RichTextEditor from '~/components/admin/RichTextEditor'
+import InlineCategoryCreate from '~/components/admin/InlineCategoryCreate'
 
 interface Props {
   item: any | null
@@ -20,6 +22,8 @@ interface Props {
 
 export default function FaqForm({ item, categories = [] }: Props) {
   const isEditing = !!item
+  // Lista local para acrescentar categorias criadas inline sem recarregar a página.
+  const [cats, setCats] = useState<any[]>(categories)
   const { data, setData, post, processing } = useForm({
     question: item?.question || '',
     answer: item?.answer || '',
@@ -63,11 +67,22 @@ export default function FaqForm({ item, categories = [] }: Props) {
             columns={1}
           >
             <FormGrid cols={2}>
-              <Field label="Categoria" required>
-                <Select value={data.category} onChange={(e) => setData('category', e.target.value)}>
-                  {categories.map((c: any) => <option key={c.slug} value={c.slug}>{c.name}</option>)}
-                </Select>
-              </Field>
+              <div>
+                <Field label="Categoria" required>
+                  <Select value={data.category} onChange={(e) => setData('category', e.target.value)}>
+                    {cats.map((c: any) => <option key={c.slug} value={c.slug}>{c.name}</option>)}
+                  </Select>
+                </Field>
+                <div className="mt-2">
+                  <InlineCategoryCreate
+                    type="faq"
+                    onCreated={(list, created) => {
+                      setCats(list)
+                      if (created) setData('category', created.slug)
+                    }}
+                  />
+                </div>
+              </div>
               <Field label="Ordem de exibição">
                 <Input
                   type="number"

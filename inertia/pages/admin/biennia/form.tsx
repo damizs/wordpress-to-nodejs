@@ -1,6 +1,6 @@
 import { Head, useForm, Link } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Save, ArrowLeft, Landmark } from 'lucide-react'
+import { Save, ArrowLeft, Landmark, AlertTriangle } from 'lucide-react'
 import { Button, Card, CardHeader, Field, FormGrid, Input, PageHeader, Select } from '~/components/admin/ui'
 
 interface Props {
@@ -18,6 +18,9 @@ export default function BienniumForm({ biennium, legislatures }: Props) {
     end_date: biennium?.end_date || '',
     is_current: biennium?.is_current ?? false,
   })
+
+  // Aviso inline (não bloqueia): datas são campos `date`, comparação ISO segura.
+  const endBeforeStart = !!data.start_date && !!data.end_date && data.end_date < data.start_date
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -93,6 +96,14 @@ export default function BienniumForm({ biennium, legislatures }: Props) {
                 />
               </Field>
             </FormGrid>
+
+            {endBeforeStart && (
+              <p className="flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-300">
+                <AlertTriangle className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+                A <strong>Data Fim</strong> é anterior à <strong>Data Início</strong>. Verifique as
+                datas.
+              </p>
+            )}
 
             <label className="flex items-center gap-2 cursor-pointer">
               <input

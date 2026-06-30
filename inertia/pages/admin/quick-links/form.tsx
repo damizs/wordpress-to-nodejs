@@ -2,12 +2,7 @@ import { Head, useForm } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
 import { Save, ArrowLeft, Link2 } from 'lucide-react'
 import { Button, ButtonLink, Card, CardHeader, Field, Input, PageHeader, Select } from '~/components/admin/ui'
-
-const ICONS = [
-  'Scale', 'Users', 'Play', 'BookOpen', 'Shield', 'FileText', 'Phone', 'Building2',
-  'Gavel', 'ScrollText', 'MessageCircle', 'Eye', 'Calendar', 'UserCheck', 'Search',
-  'Download', 'ExternalLink', 'Globe', 'Mail', 'MapPin',
-]
+import IconPicker from '~/components/admin/IconPicker'
 
 // Valores = chaves entendidas pelo colorMap público (mapeadas para a paleta
 // institucional navy/gold/sky/emerald). Os rótulos indicam a cor escolhida.
@@ -72,10 +67,8 @@ export default function QuickLinkForm({ link }: { link: any | null }) {
                 placeholder="/vereadores ou https://..."
               />
             </Field>
-            <Field label="Ícone">
-              <Select value={data.icon} onChange={(e) => setData('icon', e.target.value)}>
-                {ICONS.map((i) => <option key={i} value={i}>{i}</option>)}
-              </Select>
+            <Field label="Ícone" hint="Busque e clique no ícone do atalho.">
+              <IconPicker value={data.icon} onChange={(name) => setData('icon', name)} />
             </Field>
             <Field label="Cor do Gradiente">
               <Select value={data.color} onChange={(e) => setData('color', e.target.value)}>

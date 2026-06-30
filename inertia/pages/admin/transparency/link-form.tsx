@@ -2,6 +2,7 @@ import { Head, useForm, Link } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
 import { Save, ArrowLeft, Link2 } from 'lucide-react'
 import { Button, Field, FormSection, Input, PageHeader, Select } from '~/components/admin/ui'
+import IconPicker from '~/components/admin/IconPicker'
 
 interface Props {
   section: any
@@ -51,8 +52,8 @@ export default function LinkForm({ section, link }: Props) {
           <Field label="URL" required>
             <Input type="text" value={data.url} onChange={(e) => setData('url', e.target.value)} required placeholder="https://..." />
           </Field>
-          <Field label="Ícone">
-            <Input type="text" value={data.icon} onChange={(e) => setData('icon', e.target.value)} placeholder="Ex: FileText" />
+          <Field label="Ícone" hint="Busque e clique no ícone do link.">
+            <IconPicker value={data.icon} onChange={(name) => setData('icon', name)} />
           </Field>
           <Field label="Ordem">
             <Input type="number" value={data.display_order} onChange={(e) => setData('display_order', parseInt(e.target.value) || 0)} />

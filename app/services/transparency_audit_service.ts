@@ -193,9 +193,23 @@ const moduleCache = new Map<string, ModuleSnapshot>()
 const AUDIT_TTL_MS = 30 * 60 * 1000
 const auditCache = new Map<string, { at: number; report: TransparencyAuditReport }>()
 
-/** Invalida o cache da auditoria (use após editar links/seções da transparência). */
+/**
+ * Invalida o cache da auditoria. Deve ser chamado SEMPRE que links/seções da
+ * transparência forem criados/editados/excluídos/restaurados.
+ *
+ * Pontos de chamada atuais (TransparencyController): storeSection, updateSection,
+ * destroySection, storeLink, updateLink, destroyLink — todos já invalidam aqui.
+ *
+ * Ponto que AINDA deveria chamar esta função (de outro agente — não editado aqui):
+ *   - TrashService.restore() ao restaurar um link/seção de transparência da Lixeira
+ *     (resource 'transparencia.link' / 'transparencia.secao'). Até lá, o TTL de
+ *     {@link AUDIT_TTL_MS} (30 min) garante que o relatório não fique velho indefinidamente.
+ *
+ * Limpa também o cache de módulos para reavaliar o conteúdo interno na próxima auditoria.
+ */
 export function clearTransparencyAuditCache(): void {
   auditCache.clear()
+  moduleCache.clear()
 }
 
 function toDateTime(value: unknown): DateTime | null {

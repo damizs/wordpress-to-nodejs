@@ -111,10 +111,13 @@ export default class PlenarySessionsController {
       agenda: sanitizeRichHtml(data.agenda) || null,
       minutes: sanitizeRichHtml(data.minutes) || null,
       videoUrl: normalizeSafeWebUrl(data.video_url),
-      fileUrl: normalizeSafeWebUrl(data.file_url),
       votingSystemId: data.voting_system_id || null,
       votingSystemUrl: normalizeSafeWebUrl(data.voting_system_url),
     })
+    // PDF: URL externa textual só substitui quando enviada; o upload novo
+    // (request.file('file')) tem prioridade; sem nenhum dos dois, mantém o PDF atual.
+    const externalFileUrl = normalizeSafeWebUrl(data.file_url)
+    if (externalFileUrl) plenarySession.fileUrl = externalFileUrl
     await this.saveFile(request, plenarySession)
     await plenarySession.save()
 

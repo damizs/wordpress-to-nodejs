@@ -32,6 +32,14 @@ const VALID_STATUSES: AtriconStatusValue[] = [
   'nao_ocorre',
 ]
 
+/**
+ * Validade de um override manual divergente: passados N dias em que o override
+ * ainda contradiz a verificação automática, o critério é sinalizado como "revisar"
+ * (GAP de confiabilidade). NÃO apaga o override — apenas pede reconferência, pois
+ * uma divergência antiga costuma indicar que a auto-checagem mudou desde a edição.
+ */
+const OVERRIDE_REVIEW_DAYS = 90
+
 /* ============================== Utilitários de data/consulta ============================== */
 
 function toDateTime(value: unknown): DateTime | null {
@@ -601,7 +609,14 @@ async function runAutoChecks(): Promise<Record<string, AutoCheckResult>> {
           ? parcial(`e-SIC configurado, mas falta explicitar: ${sicContactMissing.join(', ')}`)
           : falha('Configure o e-SIC e os dados da unidade responsável pelo SIC físico'),
 
-    openData: ok('Dados abertos nativos disponíveis em JSON e CSV, com licença CC BY 4.0 e dicionário de campos'),
+    // Checagem REAL (antes era sempre "ok"): a página /dados-abertos é nativa (JSON/CSV
+    // + licença CC BY 4.0 + dicionário), mas o critério 15.4 exige pelo menos um
+    // conjunto legível por máquina COM dados. Confirmamos isso contra o banco usando
+    // contagens já carregadas (vereadores/publicações/atas) — sem consulta extra.
+    openData:
+      councilors > 0 || publications.total > 0 || atas.total > 0
+        ? ok('Dados abertos nativos em JSON e CSV (licença CC BY 4.0 + dicionário de campos), com pelo menos um conjunto de dados preenchido e legível por máquina')
+        : parcial('Página de dados abertos disponível (JSON/CSV + licença + dicionário), mas ainda sem registros para exportar — publique conteúdo para gerar conjuntos legíveis por máquina'),
 
     liveSessions:
       liveSessions > 0
@@ -663,16 +678,20 @@ function creditOf(
 ): number | null {
   const base = STATUS_CREDIT[status]
   if (base === null) return null
-  if (source === 'auto' && subdimensions) {
-    const measurable = subdimensions.filter((s) => s.status !== 'manual')
-    if (measurable.length > 0) {
-      const wsum = measurable.reduce((s, sd) => s + SUBDIM_WEIGHT[sd.key], 0)
-      const earned = measurable.reduce(
-        (s, sd) => s + SUBDIM_WEIGHT[sd.key] * VERDICT_CREDIT[sd.status as AutoVerdict],
-        0
-      )
-      if (wsum > 0) return Math.round((earned / wsum) * 1000) / 1000
-    }
+  if (source === 'auto' && subdimensions && subdimensions.length > 0) {
+    // Pondera TODAS as subdimensões exigidas pelo critério (D30/A30/H20/G10/F10),
+    // não apenas as auto-detectáveis. As medíveis (D/A/H) usam o veredito real do
+    // auto-check; Gravação (G) e Filtro (F) — que não são auto-detectáveis — herdam
+    // o crédito do veredito GERAL do critério (base do status efetivo).
+    // Assim o peso de G/F ENTRA no índice em vez de ser descartado: critérios
+    // plenamente atendidos seguem 1,0 (G/F = base = 1) e critérios parciais deixam
+    // de ignorar 20% do peso — evita inflar a nota com export/filtro não verificados.
+    const wsum = subdimensions.reduce((s, sd) => s + SUBDIM_WEIGHT[sd.key], 0)
+    const earned = subdimensions.reduce((s, sd) => {
+      const credit = sd.status === 'manual' ? base : VERDICT_CREDIT[sd.status as AutoVerdict]
+      return s + SUBDIM_WEIGHT[sd.key] * credit
+    }, 0)
+    if (wsum > 0) return Math.round((earned / wsum) * 1000) / 1000
   }
   return base
 }
@@ -843,7 +862,25 @@ async function buildMatrix() {
       status = record?.status ?? (c.external ? 'externo' : 'pendente')
       source = record ? 'manual' : 'padrao'
     }
+
+    // GUARDRAIL de obrigação legal: "não ocorre" não pode creditar um critério de
+    // publicação obrigatória por lei. A UI já bloqueia novos registros assim; este
+    // clamp protege dados legados — força o status efetivo a "pendente" para não
+    // inflar o índice nem a regra dos essenciais (honestidade > pontuação).
+    const legalNonOccurrenceBlocked = status === 'nao_ocorre' && Boolean(c.legalObligation)
+    if (legalNonOccurrenceBlocked) status = 'pendente'
+
     const divergent = source === 'manual' && autoStatus !== null && status !== autoStatus
+
+    // VALIDADE do override manual: override que diverge da auto-checagem há mais de
+    // OVERRIDE_REVIEW_DAYS dias entra em "revisar". Não apagamos o dado — só sinalizamos
+    // (uma divergência antiga geralmente significa que a auto-checagem mudou depois).
+    const overrideAgeDays =
+      source === 'manual' && record?.updatedAt
+        ? Math.floor(DateTime.now().diff(record.updatedAt, 'days').days)
+        : null
+    const overrideStale =
+      divergent && overrideAgeDays !== null && overrideAgeDays > OVERRIDE_REVIEW_DAYS
 
     // Detalhamento por subdimensão (D/A/H auto; G/F sempre para conferência manual)
     const autoSubs = autoResult?.subchecks
@@ -853,7 +890,8 @@ async function buildMatrix() {
       status: (autoSubs?.[sd] ?? 'manual') as AutoVerdict | 'manual',
     }))
 
-    // Crédito ponderado por subdimensão (D30/A30/H20) para auto-verificados.
+    // Crédito ponderado por TODAS as subdimensões exigidas (D30/A30/H20/G10/F10)
+    // para auto-verificados; G/F herdam o veredito geral (ver creditOf).
     const credit = creditOf(status, source, subdimensions)
 
     // Onde resolver + explicação "o que falta" (exigência/motivo/como resolver/link).
@@ -867,6 +905,11 @@ async function buildMatrix() {
       source,
       autoStatus,
       divergent,
+      // Sinalizações de confiabilidade (não alteram crédito além do clamp legal):
+      legalNonOccurrenceBlocked,
+      overrideAgeDays,
+      overrideStale,
+      needsReview: overrideStale,
       subdimensions,
       credit,
       // Ganho real em pontos do índice ao concluir o critério (preenchido em attachIndexGain).
@@ -916,13 +959,23 @@ function buildEvidencePack({
       actionHref: c.actionHref,
       autoDetail: c.auto?.detail ?? null,
       divergent: c.divergent,
+      // Override manual divergente e vencido (pede reconferência) e obrigação legal
+      // que teve "não ocorre" rebaixado a pendente — entram na leitura periódica da IA.
+      overrideStale: c.overrideStale,
+      overrideAgeDays: c.overrideAgeDays,
+      legalNonOccurrenceBlocked: c.legalNonOccurrenceBlocked,
       // Ganho real em pontos do índice ao concluir o critério — base da priorização.
       indexGain: c.indexGain,
       hint: c.hint,
       notes: c.notes,
     }))
-    // Maior impacto no índice primeiro (depois divergências, depois código).
-    .sort((a, b) => b.indexGain - a.indexGain || Number(b.divergent) - Number(a.divergent))
+    // Overrides a revisar primeiro, depois maior impacto no índice, depois divergências.
+    .sort(
+      (a, b) =>
+        Number(b.overrideStale) - Number(a.overrideStale) ||
+        b.indexGain - a.indexGain ||
+        Number(b.divergent) - Number(a.divergent)
+    )
 
   const contentGaps = contentMap
     .filter((m) => m.freshness !== 'em_dia')
@@ -1081,6 +1134,10 @@ function computeScores(matrix: MatrixItem[]) {
       autoChecked: matrix.filter((c) => c.auto !== null).length,
       manualOverrides: matrix.filter((c) => c.source === 'manual' && c.autoStatus !== null).length,
       divergent: matrix.filter((c) => c.divergent).length,
+      // Overrides manuais divergentes e vencidos (pedem reconferência) e critérios
+      // de obrigação legal que tinham "não ocorre" rebaixado a pendente.
+      staleOverrides: matrix.filter((c) => c.overrideStale).length,
+      legalNonOccurrenceBlocked: matrix.filter((c) => c.legalNonOccurrenceBlocked).length,
     },
   }
 }

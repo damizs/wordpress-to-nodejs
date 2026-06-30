@@ -15,6 +15,8 @@ import {
   Textarea,
 } from '~/components/admin/ui'
 import RichTextEditor from '~/components/admin/RichTextEditor'
+import { maskPhone } from '~/lib/masks'
+import { useUnsavedChanges } from '~/hooks/use_unsaved_changes'
 
 interface Props {
   councilor: any | null
@@ -67,6 +69,13 @@ export default function CouncilorForm({ councilor, legislatures, biennia }: Prop
 
   const photoRef = useRef<HTMLInputElement>(null)
   const [photoPreview, setPhotoPreview] = useState<string | null>(councilor?.photo_url || null)
+
+  // Alterações não salvas: compara os campos (normalizando o arquivo) com o estado
+  // inicial, e considera "sujo" se uma nova foto foi selecionada.
+  const snapshot = () => JSON.stringify({ ...data, photo: null })
+  const initialSnapshot = useRef(snapshot())
+  const dirty = (snapshot() !== initialSnapshot.current || data.photo !== null) && !processing
+  useUnsavedChanges(dirty)
 
   function handlePhotoChange(file: File | null) {
     setData('photo', file)
@@ -203,11 +212,13 @@ export default function CouncilorForm({ councilor, legislatures, biennia }: Prop
                   onChange={(e) => setData('email', e.target.value)}
                 />
               </Field>
-              <Field label="Telefone">
+              <Field label="Telefone" hint="Formato automático: (DD) número.">
                 <Input
                   type="text"
+                  inputMode="tel"
                   value={data.phone}
-                  onChange={(e) => setData('phone', e.target.value)}
+                  onChange={(e) => setData('phone', maskPhone(e.target.value))}
+                  placeholder="(83) 99999-9999"
                 />
               </Field>
             </FormGrid>

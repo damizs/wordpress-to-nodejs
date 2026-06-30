@@ -1,7 +1,7 @@
 import { Head, router, useForm } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Pencil, Trash2, Plus, X, CalendarClock, Upload, Paperclip } from 'lucide-react'
-import { useRef, useState } from 'react'
+import { Pencil, Trash2, Plus, X, CalendarClock } from 'lucide-react'
+import { useState } from 'react'
 import {
   Button,
   Card,
@@ -23,6 +23,7 @@ import {
   Badge,
   PageHeader,
 } from '~/components/admin/ui'
+import FileField from '~/components/admin/FileField'
 
 interface Record {
   id: number
@@ -80,11 +81,10 @@ function MonthFormModal({
     previsto: record ? String(record.previsto ?? '') : '',
     recebido: record?.recebido != null ? String(record.recebido) : '',
     repasse_date: record?.repasseDate ? String(record.repasseDate).slice(0, 10) : '',
-    document_url: record?.documentUrl ?? '',
+    document_url: '',
     document_file: null as File | null,
     notes: record?.notes ?? '',
   })
-  const fileRef = useRef<HTMLInputElement>(null)
 
   if (!open) return null
 
@@ -148,49 +148,25 @@ function MonthFormModal({
               onChange={(e) => setData('repasse_date', e.target.value)}
             />
           </Field>
-          <Field label="URL do documento" hint="Fallback opcional para comprovante/PDF hospedado fora do portal">
+          <FileField
+            label="Comprovante / documento (PDF)"
+            name="document_file"
+            accept="application/pdf"
+            currentUrl={record?.documentUrl}
+            hint="Envie o comprovante do repasse em PDF (máx. 30 MB)."
+            onChange={(file) => setData('document_file', file)}
+          />
+          <Field
+            label="Ou informe uma URL externa (opcional)"
+            hint="Use apenas se o documento estiver hospedado fora do portal. O upload acima tem prioridade."
+          >
             <Input
               type="text"
               value={data.document_url}
               onChange={(e) => setData('document_url', e.target.value)}
-              placeholder="https://... ou /uploads/..."
+              placeholder="https://..."
             />
           </Field>
-          <div className="rounded-lg border border-border bg-muted/30 p-4">
-            <div className="flex items-start gap-3">
-              <Paperclip className="mt-0.5 h-4 w-4 text-primary" />
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold text-foreground">Upload do comprovante em PDF</p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Envie o comprovante diretamente pelo painel. O upload substitui a URL acima.
-                </p>
-                {record?.documentUrl && !data.document_file && (
-                  <p className="mt-2 text-xs text-muted-foreground">
-                    Documento atual:{' '}
-                    <a href={record.documentUrl} target="_blank" rel="noopener noreferrer" className="text-navy dark:text-sky underline">
-                      {record.documentUrl.split('/').pop()}
-                    </a>
-                  </p>
-                )}
-                <div className="mt-3 flex flex-wrap items-center gap-3">
-                  <Button type="button" variant="secondary" onClick={() => fileRef.current?.click()}>
-                    <Upload className="w-4 h-4" />
-                    Selecionar PDF
-                  </Button>
-                  <span className="text-sm text-muted-foreground">
-                    {data.document_file?.name || 'Nenhum arquivo selecionado'}
-                  </span>
-                </div>
-                <input
-                  ref={fileRef}
-                  type="file"
-                  accept=".pdf,application/pdf"
-                  onChange={(e) => setData('document_file', e.target.files?.[0] || null)}
-                  className="hidden"
-                />
-              </div>
-            </div>
-          </div>
           <Field label="Observações">
             <Input value={data.notes} onChange={(e) => setData('notes', e.target.value)} />
           </Field>

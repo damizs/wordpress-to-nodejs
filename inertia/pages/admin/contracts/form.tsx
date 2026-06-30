@@ -1,8 +1,18 @@
 import { Head, useForm, Link, router } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Save, ArrowLeft, Upload, FileText, UserCheck, BriefcaseBusiness } from 'lucide-react'
-import { useState } from 'react'
+import {
+  Save,
+  ArrowLeft,
+  Upload,
+  FileText,
+  UserCheck,
+  BriefcaseBusiness,
+  AlertTriangle,
+} from 'lucide-react'
+import { useRef, useState } from 'react'
 import { Button, Card, CardHeader, Field, Input, PageHeader, Select, Textarea } from '~/components/admin/ui'
+import { maskCpfCnpj } from '~/lib/masks'
+import { useUnsavedChanges } from '~/hooks/use_unsaved_changes'
 
 interface LicitacaoOption {
   id: number
@@ -63,6 +73,16 @@ export default function ContractForm({ contract, licitacoes }: Props) {
     notes: contract?.notes || '',
     is_active: contract?.is_active ?? true,
   })
+
+  // Aviso inline (não bloqueia): só compara quando as duas são datas reais.
+  const endBeforeStart =
+    !!data.start_date && !!data.end_date && data.end_date < data.start_date
+
+  // Alterações não salvas: campos (sem o arquivo) + arquivo selecionado.
+  const snapshot = () => JSON.stringify(data)
+  const initialSnapshot = useRef(snapshot())
+  const dirty = (snapshot() !== initialSnapshot.current || file !== null) && !submitting
+  useUnsavedChanges(dirty)
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -172,8 +192,14 @@ export default function ContractForm({ contract, licitacoes }: Props) {
             <Field label="Contratado (empresa/pessoa)">
               <Input type="text" value={data.contractor_name} onChange={(e) => setData('contractor_name', e.target.value)} />
             </Field>
-            <Field label="CNPJ / CPF">
-              <Input type="text" value={data.contractor_document} onChange={(e) => setData('contractor_document', e.target.value)} />
+            <Field label="CNPJ / CPF" hint="Formato automático conforme a quantidade de dígitos.">
+              <Input
+                type="text"
+                inputMode="numeric"
+                value={data.contractor_document}
+                onChange={(e) => setData('contractor_document', maskCpfCnpj(e.target.value))}
+                placeholder="00.000.000/0000-00"
+              />
             </Field>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
@@ -190,6 +216,13 @@ export default function ContractForm({ contract, licitacoes }: Props) {
               <Input type="text" value={data.term} onChange={(e) => setData('term', e.target.value)} placeholder="12 meses" />
             </Field>
           </div>
+          {endBeforeStart && (
+            <p className="flex items-center gap-1.5 text-xs text-amber-700 dark:text-amber-300">
+              <AlertTriangle className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
+              O <strong>Fim da vigência</strong> é anterior ao <strong>Início da vigência</strong>.
+              Verifique as datas (ou use o campo de texto livre).
+            </p>
+          )}
         </Card>
 
         {/* Gestor + Fiscal */}

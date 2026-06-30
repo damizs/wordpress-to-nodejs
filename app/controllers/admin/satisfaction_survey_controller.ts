@@ -1,6 +1,9 @@
 import type { HttpContext } from '@adonisjs/core/http'
 import SatisfactionSurvey from '#models/satisfaction_survey'
 import db from '@adonisjs/lucid/services/db'
+import { DateTime } from 'luxon'
+
+const MESES_PT = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
 
 export default class AdminSatisfactionSurveyController {
   async index({ inertia, request }: HttpContext) {
@@ -27,6 +30,35 @@ export default class AdminSatisfactionSurveyController {
       )
       .first()
 
+    // Relatório por período (quantitativo por ano + por mês — como no plugin)
+    const yearRows = await db
+      .from('satisfaction_surveys')
+      .select(db.raw('EXTRACT(YEAR FROM created_at)::int as year'), db.raw('COUNT(*) as total'))
+      .groupByRaw('EXTRACT(YEAR FROM created_at)')
+      .orderBy('year', 'desc')
+    const years = yearRows.map((r: any) => ({ year: Number(r.year), total: Number(r.total) }))
+    const selectedYear = Number(request.input('ano', years[0]?.year || DateTime.now().year))
+
+    const monthRows = await db
+      .from('satisfaction_surveys')
+      .select(
+        db.raw('EXTRACT(MONTH FROM created_at)::int as month'),
+        db.raw('COUNT(*) as total'),
+        db.raw('COALESCE(ROUND(AVG(rating_geral), 1), 0) as avg')
+      )
+      .whereRaw('EXTRACT(YEAR FROM created_at) = ?', [selectedYear])
+      .groupByRaw('EXTRACT(MONTH FROM created_at)')
+    const monthMap = new Map<number, { total: number; avg: number }>(
+      monthRows.map((r: any) => [Number(r.month), { total: Number(r.total), avg: Number(r.avg) }])
+    )
+    const monthly = MESES_PT.map((label, i) => {
+      const d = monthMap.get(i + 1)
+      return { month: i + 1, label, total: d?.total || 0, avg: d?.avg || 0 }
+    })
+    const yearTotal = monthly.reduce((s, m) => s + m.total, 0)
+    const weighted = monthly.reduce((s, m) => s + m.avg * m.total, 0)
+    const yearAvg = yearTotal > 0 ? Number((weighted / yearTotal).toFixed(1)) : 0
+
     return inertia.render('admin/pesquisa-satisfacao/index', {
       surveys: surveys.serialize(),
       stats: {
@@ -38,6 +70,7 @@ export default class AdminSatisfactionSurveyController {
         avg_legislativo: Number(Number(stats?.avg_legislativo || 0).toFixed(1)),
         avg_infraestrutura: Number(Number(stats?.avg_infraestrutura || 0).toFixed(1)),
       },
+      report: { years, selectedYear, monthly, yearTotal, yearAvg },
       filters: { isRead },
     })
   }
