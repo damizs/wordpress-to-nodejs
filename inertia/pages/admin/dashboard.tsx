@@ -5,6 +5,7 @@ import {
   Newspaper, FileText, Users, ArrowUpRight, Clock, Gavel, ScrollText,
   ShoppingCart, FolderOpen, MessageSquare, CalendarDays, Radar,
   BarChart3, PieChart, Activity, CheckCircle2, AlertTriangle, ListChecks,
+  BellRing, BellOff,
 } from 'lucide-react'
 
 interface Props {
@@ -27,10 +28,16 @@ interface Props {
     status: 'em_dia' | 'desatualizado' | 'vazio'
     detail: string
   }>
+  freshnessAlert?: {
+    enabled: boolean
+    configured: boolean
+    usingEvolutionFallback: boolean
+    lastRun: string | null
+  }
   userName: string
 }
 
-export default function Dashboard({ stats, recentNews, upcomingSessions, contentHealth, userName }: Props) {
+export default function Dashboard({ stats, recentNews, upcomingSessions, contentHealth, freshnessAlert, userName }: Props) {
   const { auth } = usePage().props as any
   const permissions: string[] = auth?.permissions || []
   const can = (p: string) => permissions.includes(p) || permissions.includes('*')
@@ -325,12 +332,33 @@ export default function Dashboard({ stats, recentNews, upcomingSessions, content
               <div>
                 <div className="inline-flex items-center gap-2 rounded-full bg-navy/10 px-3 py-1 text-xs font-bold uppercase tracking-wide text-navy">
                   <Radar className="h-3.5 w-3.5" />
-                  Radar de atualização
+                  Frescor / Pendências
                 </div>
                 <h2 className="mt-3 text-xl font-bold text-foreground">O que precisa de ação agora</h2>
                 <p className="text-sm text-muted-foreground">
                   Atas, pautas e votações usam meta quinzenal; os demais módulos seguem a janela definida no Radar.
                 </p>
+                {freshnessAlert && (
+                  freshnessAlert.enabled ? (
+                    freshnessAlert.configured ? (
+                      <p className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-300">
+                        <BellRing className="h-3.5 w-3.5" />
+                        Alerta diário por WhatsApp ativo
+                        {freshnessAlert.usingEvolutionFallback ? ' (contatos da Segurança)' : ''}.
+                      </p>
+                    ) : (
+                      <p className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-amber-700 dark:text-amber-300">
+                        <AlertTriangle className="h-3.5 w-3.5" />
+                        Alerta ligado, mas sem destinatário configurado.
+                      </p>
+                    )
+                  ) : (
+                    <p className="mt-2 inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                      <BellOff className="h-3.5 w-3.5" />
+                      Alerta diário de frescor desativado.
+                    </p>
+                  )
+                )}
               </div>
               <Link
                 href="/painel/atricon"

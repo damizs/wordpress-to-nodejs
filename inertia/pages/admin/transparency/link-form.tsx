@@ -1,4 +1,5 @@
 import { Head, useForm, Link } from '@inertiajs/react'
+import { useState } from 'react'
 import AdminLayout from '~/layouts/AdminLayout'
 import { Save, ArrowLeft, Link2 } from 'lucide-react'
 import { Button, Field, FormSection, Input, PageHeader, Select } from '~/components/admin/ui'
@@ -9,8 +10,25 @@ interface Props {
   link: any | null
 }
 
+/**
+ * Valida URL absoluta de link EXTERNO (http/https). Para link interno/modal a URL
+ * pode ser um caminho relativo (ex.: "/transparencia/folha"), então a checagem
+ * absoluta não se aplica.
+ */
+function isValidExternalUrl(value: string): boolean {
+  if (!value.trim()) return false
+  try {
+    const u = new URL(value.trim())
+    return u.protocol === 'http:' || u.protocol === 'https:'
+  } catch {
+    return false
+  }
+}
+
 export default function LinkForm({ section, link }: Props) {
   const isEditing = !!link
+  const [urlTouched, setUrlTouched] = useState(false)
+  const [submitAttempted, setSubmitAttempted] = useState(false)
   const { data, setData, post, put, processing } = useForm({
     title: link?.title || '',
     url: link?.url || '',
@@ -21,8 +39,18 @@ export default function LinkForm({ section, link }: Props) {
     hide_chrome: link?.hide_chrome ?? true,
   })
 
+  // Link externo exige URL absoluta válida; interno/modal pode ser caminho relativo.
+  const isExternal = data.is_external === true || data.is_external === 'true'
+  const urlInvalid = isExternal && !isValidExternalUrl(String(data.url))
+  const showUrlError = urlInvalid && (urlTouched || submitAttempted)
+
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+    // Barra na entrada: link externo com URL inválida/vazia não envia.
+    if (urlInvalid) {
+      setSubmitAttempted(true)
+      return
+    }
     if (isEditing) {
       put(`/painel/transparencia/links/${link.id}`)
     } else {
@@ -49,8 +77,25 @@ export default function LinkForm({ section, link }: Props) {
           <Field label="Título" required>
             <Input type="text" value={data.title} onChange={(e) => setData('title', e.target.value)} required />
           </Field>
-          <Field label="URL" required>
-            <Input type="text" value={data.url} onChange={(e) => setData('url', e.target.value)} required placeholder="https://..." />
+          <Field
+            label="URL"
+            required
+            error={showUrlError ? 'Informe uma URL válida, ex.: https://...' : undefined}
+            hint={
+              isExternal
+                ? 'Link externo: use o endereço completo (https://...).'
+                : 'Link interno: pode ser um caminho do portal (ex.: /transparencia/folha).'
+            }
+          >
+            <Input
+              type={isExternal ? 'url' : 'text'}
+              inputMode="url"
+              value={data.url}
+              onChange={(e) => setData('url', e.target.value)}
+              onBlur={() => setUrlTouched(true)}
+              required
+              placeholder={isExternal ? 'https://...' : '/transparencia/...'}
+            />
           </Field>
           <Field label="Ícone" hint="Busque e clique no ícone do link.">
             <IconPicker value={data.icon} onChange={(name) => setData('icon', name)} />

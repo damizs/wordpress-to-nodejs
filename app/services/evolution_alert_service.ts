@@ -214,6 +214,29 @@ export default class EvolutionAlertService {
     metadata: Record<string, unknown> = {},
     dedupeKey: string | null = null
   ): Promise<SendSummary> {
+    // Delega para sendToList (sem destinatários explícitos => usa os configurados).
+    return this.sendToList(message, { type, metadata, dedupeKey })
+  }
+
+  /**
+   * Envia uma mensagem para uma lista EXPLÍCITA de destinatários (ou, se vazia,
+   * cai para os destinatários configurados da Evolution). Reutiliza a mesma
+   * conexão (baseUrl/instância/apiKey) e registra cada envio em NotificationLog.
+   *
+   * Base compartilhada por `sendToRecipients` (Segurança) e pelo alerta de
+   * frescor (FreshnessAlertService) — um único loop de envio, sem duplicar.
+   * Degrada graciosamente: se a Evolution estiver desligada/incompleta ou não
+   * houver destinatários, retorna `skipped` sem lançar.
+   */
+  static async sendToList(
+    message: string,
+    options: {
+      recipients?: string[]
+      type?: NotificationLog['type']
+      metadata?: Record<string, unknown>
+      dedupeKey?: string | null
+    } = {}
+  ): Promise<SendSummary> {
     const settings = await this.settings()
     if (!settings.enabled) {
       return { success: 0, failed: 0, skipped: 1, message: 'Evolution desativada.' }
@@ -221,12 +244,21 @@ export default class EvolutionAlertService {
     if (!settings.baseUrl || !settings.instance || !settings.apiKey) {
       return { success: 0, failed: 0, skipped: 1, message: 'Configuracao incompleta.' }
     }
-    if (settings.recipients.length === 0) {
+
+    const recipients =
+      options.recipients && options.recipients.length > 0
+        ? options.recipients
+        : settings.recipients
+    if (recipients.length === 0) {
       return { success: 0, failed: 0, skipped: 1, message: 'Nenhum destinatario configurado.' }
     }
 
+    const type = options.type ?? 'test'
+    const metadata = options.metadata ?? {}
+    const dedupeKey = options.dedupeKey ?? null
+
     const summary: SendSummary = { success: 0, failed: 0, skipped: 0, message: '' }
-    for (const recipient of settings.recipients) {
+    for (const recipient of recipients) {
       const log = await NotificationLog.create({
         channel: 'evolution',
         type,

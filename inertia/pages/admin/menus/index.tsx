@@ -1,4 +1,5 @@
 import { Head, useForm, router } from '@inertiajs/react'
+import { useState, type ReactNode } from 'react'
 import AdminLayout from '~/layouts/AdminLayout'
 import {
   Button,
@@ -9,15 +10,31 @@ import {
   PageHeader,
 } from '~/components/admin/ui'
 import {
-  ArrowDown,
-  ArrowUp,
   CornerDownRight,
+  GripVertical,
   Link2,
   Menu as MenuIcon,
   Plus,
   RotateCcw,
   Trash2,
 } from 'lucide-react'
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core'
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  useSortable,
+  sortableKeyboardCoordinates,
+  arrayMove,
+} from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 
 interface MenuChild {
   label: string
@@ -38,45 +55,145 @@ interface FooterColumn {
 interface Props {
   headerMenu: MenuItem[]
   footerColumns: FooterColumn[]
+  /** Agrupamento automático de Matérias/Licitações ligado? (setting menu_auto_group) */
+  menuAutoGroup: boolean
 }
 
-function move<T>(arr: T[], from: number, to: number): T[] {
-  if (to < 0 || to >= arr.length) return arr
-  const copy = [...arr]
-  const [item] = copy.splice(from, 1)
-  copy.splice(to, 0, item)
-  return copy
+/* IDs estáveis no cliente para o drag-and-drop (o servidor ignora `_id`). */
+let _uid = 0
+const nextId = () => `m${++_uid}`
+
+interface IChild extends MenuChild {
+  _id: string
+}
+interface IItem {
+  _id: string
+  label: string
+  href: string
+  children?: IChild[]
+}
+interface ILink extends MenuChild {
+  _id: string
+}
+interface IColumn {
+  _id: string
+  title: string
+  links: ILink[]
 }
 
-export default function MenusIndex({ headerMenu, footerColumns }: Props) {
-  const { data, setData, post, processing } = useForm<{
-    header_menu: MenuItem[]
-    footer_columns: FooterColumn[]
-  }>({
-    header_menu: headerMenu,
-    footer_columns: footerColumns,
+function toItems(items: MenuItem[]): IItem[] {
+  return items.map((it) => ({
+    _id: nextId(),
+    label: it.label,
+    href: it.href,
+    children: it.children?.map((c) => ({ _id: nextId(), label: c.label, href: c.href })),
+  }))
+}
+
+function toColumns(cols: FooterColumn[]): IColumn[] {
+  return cols.map((c) => ({
+    _id: nextId(),
+    title: c.title,
+    links: c.links.map((l) => ({ _id: nextId(), label: l.label, href: l.href })),
+  }))
+}
+
+/** Linha arrastável: entrega a "alça" (handle) ao filho via render-prop. */
+function SortableRow({
+  id,
+  children,
+}: {
+  id: string
+  children: (handle: ReactNode) => ReactNode
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id,
   })
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    zIndex: isDragging ? 20 : undefined,
+    position: isDragging ? 'relative' : undefined,
+  }
+  const handle = (
+    <button
+      type="button"
+      {...attributes}
+      {...listeners}
+      title="Arraste para reordenar"
+      aria-label="Arraste para reordenar"
+      className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground touch-none shrink-0 p-1"
+    >
+      <GripVertical className="w-4 h-4" />
+    </button>
+  )
+  return (
+    <div ref={setNodeRef} style={style}>
+      {children(handle)}
+    </div>
+  )
+}
+
+export default function MenusIndex({ headerMenu, footerColumns, menuAutoGroup }: Props) {
+  const [initial] = useState(() => ({
+    header_menu: toItems(headerMenu),
+    footer_columns: toColumns(footerColumns),
+    menu_auto_group: menuAutoGroup,
+  }))
+  const { data, setData, post, processing } = useForm(initial)
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  )
 
   /* ---------- header menu helpers ---------- */
-  const setItem = (i: number, patch: Partial<MenuItem>) =>
+  const setItem = (i: number, patch: Partial<IItem>) =>
     setData(
       'header_menu',
       data.header_menu.map((it, idx) => (idx === i ? { ...it, ...patch } : it))
     )
 
-  const setChild = (i: number, ci: number, patch: Partial<MenuChild>) =>
+  const setChild = (i: number, ci: number, patch: Partial<IChild>) =>
     setItem(i, {
       children: (data.header_menu[i].children ?? []).map((c, idx) =>
         idx === ci ? { ...c, ...patch } : c
       ),
     })
 
+  function onDragEndHeader(e: DragEndEvent) {
+    const { active, over } = e
+    if (!over || active.id === over.id) return
+    const oldI = data.header_menu.findIndex((x) => x._id === active.id)
+    const newI = data.header_menu.findIndex((x) => x._id === over.id)
+    if (oldI !== -1 && newI !== -1) setData('header_menu', arrayMove(data.header_menu, oldI, newI))
+  }
+
+  function onDragEndChildren(i: number, e: DragEndEvent) {
+    const { active, over } = e
+    if (!over || active.id === over.id) return
+    const children = data.header_menu[i].children ?? []
+    const oldI = children.findIndex((x) => x._id === active.id)
+    const newI = children.findIndex((x) => x._id === over.id)
+    if (oldI !== -1 && newI !== -1) setItem(i, { children: arrayMove(children, oldI, newI) })
+  }
+
   /* ---------- footer helpers ---------- */
-  const setColumn = (i: number, patch: Partial<FooterColumn>) =>
+  const setColumn = (i: number, patch: Partial<IColumn>) =>
     setData(
       'footer_columns',
       data.footer_columns.map((c, idx) => (idx === i ? { ...c, ...patch } : c))
     )
+
+  function onDragEndLinks(i: number, e: DragEndEvent) {
+    const { active, over } = e
+    if (!over || active.id === over.id) return
+    const links = data.footer_columns[i].links
+    const oldI = links.findIndex((x) => x._id === active.id)
+    const newI = links.findIndex((x) => x._id === over.id)
+    if (oldI !== -1 && newI !== -1) setColumn(i, { links: arrayMove(links, oldI, newI) })
+  }
 
   function submit() {
     post('/painel/menus', { preserveScroll: true })
@@ -115,13 +232,16 @@ export default function MenusIndex({ headerMenu, footerColumns }: Props) {
         <CardHeader
           icon={MenuIcon}
           title="Menu principal (header)"
-          description="Itens com subitens viram dropdown. A ordem aqui é a ordem no site."
+          description="Arraste pela alça (à esquerda) para reordenar. Itens com subitens viram dropdown — a ordem aqui é a ordem no site."
           actions={
             <Button
               variant="secondary"
               size="sm"
               onClick={() =>
-                setData('header_menu', [...data.header_menu, { label: '', href: '/' }])
+                setData('header_menu', [
+                  ...data.header_menu,
+                  { _id: nextId(), label: '', href: '/' },
+                ])
               }
             >
               <Plus className="w-4 h-4" />
@@ -130,117 +250,149 @@ export default function MenusIndex({ headerMenu, footerColumns }: Props) {
           }
         />
 
-        <div className="space-y-3">
-          {data.header_menu.map((item, i) => (
-            <div key={i} className="border border-border rounded-lg p-4 bg-muted/30">
-              <div className="flex flex-col sm:flex-row gap-2">
-                <Input
-                  value={item.label}
-                  onChange={(e) => setItem(i, { label: e.target.value })}
-                  placeholder="Nome do item (ex.: Transparência)"
-                  className="sm:flex-1"
-                />
-                <Input
-                  value={item.href}
-                  onChange={(e) => setItem(i, { href: e.target.value })}
-                  placeholder="/transparencia"
-                  title={urlHint}
-                  className="sm:flex-1"
-                />
-                <div className="flex items-center gap-0.5 shrink-0">
-                  <IconButton
-                    tone="neutral"
-                    title="Mover para cima"
-                    onClick={() => setData('header_menu', move(data.header_menu, i, i - 1))}
-                  >
-                    <ArrowUp className="w-4 h-4" />
-                  </IconButton>
-                  <IconButton
-                    tone="neutral"
-                    title="Mover para baixo"
-                    onClick={() => setData('header_menu', move(data.header_menu, i, i + 1))}
-                  >
-                    <ArrowDown className="w-4 h-4" />
-                  </IconButton>
-                  <IconButton
-                    tone="success"
-                    title="Adicionar subitem (dropdown)"
-                    onClick={() =>
-                      setItem(i, { children: [...(item.children ?? []), { label: '', href: '/' }] })
-                    }
-                  >
-                    <CornerDownRight className="w-4 h-4" />
-                  </IconButton>
-                  <IconButton
-                    tone="delete"
-                    title="Remover item"
-                    onClick={() =>
-                      setData(
-                        'header_menu',
-                        data.header_menu.filter((_, idx) => idx !== i)
-                      )
-                    }
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </IconButton>
-                </div>
-              </div>
+        {/* Agrupamento automático (Matérias/Licitações) — opcional */}
+        <label className="mb-4 flex items-start gap-3 rounded-lg border border-border bg-muted/40 p-4 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={data.menu_auto_group}
+            onChange={(e) => setData('menu_auto_group', e.target.checked)}
+            className="mt-0.5 w-4 h-4 rounded border-border accent-navy"
+          />
+          <span className="min-w-0">
+            <span className="text-sm font-semibold text-foreground">
+              Agrupar “Matérias” e “Licitações” automaticamente
+            </span>
+            <span className="mt-1 block text-[13px] text-muted-foreground">
+              Quando ligado, o site reúne os itens de Matérias (Atividades Legislativas, Atas,
+              Pautas, Publicações Oficiais) em um único menu suspenso “Matérias” e posiciona
+              “Licitações” logo antes de “Transparência”. Isso mantém o padrão institucional, mas
+              pode reposicionar itens que você arrastou aqui.{' '}
+              <strong className="text-foreground">Desligue</strong> para que o site respeite
+              exatamente a ordem que você definir abaixo.
+            </span>
+          </span>
+        </label>
 
-              {(item.children ?? []).length > 0 && (
-                <div className="mt-3 ml-4 pl-4 border-l-2 border-navy/20 space-y-2">
-                  {(item.children ?? []).map((child, ci) => (
-                    <div key={ci} className="flex flex-col sm:flex-row gap-2">
-                      <Input
-                        value={child.label}
-                        onChange={(e) => setChild(i, ci, { label: e.target.value })}
-                        placeholder="Nome do subitem"
-                        className="sm:flex-1"
-                      />
-                      <Input
-                        value={child.href}
-                        onChange={(e) => setChild(i, ci, { href: e.target.value })}
-                        placeholder="/pagina"
-                        title={urlHint}
-                        className="sm:flex-1"
-                      />
-                      <div className="flex items-center gap-0.5 shrink-0">
-                        <IconButton
-                          tone="neutral"
-                          title="Mover para cima"
-                          onClick={() =>
-                            setItem(i, { children: move(item.children ?? [], ci, ci - 1) })
-                          }
-                        >
-                          <ArrowUp className="w-4 h-4" />
-                        </IconButton>
-                        <IconButton
-                          tone="neutral"
-                          title="Mover para baixo"
-                          onClick={() =>
-                            setItem(i, { children: move(item.children ?? [], ci, ci + 1) })
-                          }
-                        >
-                          <ArrowDown className="w-4 h-4" />
-                        </IconButton>
-                        <IconButton
-                          tone="delete"
-                          title="Remover subitem"
-                          onClick={() =>
-                            setItem(i, {
-                              children: (item.children ?? []).filter((_, idx) => idx !== ci),
-                            })
-                          }
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </IconButton>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEndHeader}>
+          <SortableContext
+            items={data.header_menu.map((it) => it._id)}
+            strategy={verticalListSortingStrategy}
+          >
+            <div className="space-y-3">
+              {data.header_menu.map((item, i) => (
+                <SortableRow key={item._id} id={item._id}>
+                  {(handle) => (
+                    <div className="border border-border rounded-lg p-4 bg-muted/30">
+                      <div className="flex items-center gap-2">
+                        {handle}
+                        <div className="flex flex-col sm:flex-row gap-2 flex-1 min-w-0">
+                          <Input
+                            value={item.label}
+                            onChange={(e) => setItem(i, { label: e.target.value })}
+                            placeholder="Nome do item (ex.: Transparência)"
+                            className="sm:flex-1"
+                          />
+                          <Input
+                            value={item.href}
+                            onChange={(e) => setItem(i, { href: e.target.value })}
+                            placeholder="/transparencia"
+                            title={urlHint}
+                            className="sm:flex-1"
+                          />
+                        </div>
+                        <div className="flex items-center gap-0.5 shrink-0">
+                          <IconButton
+                            tone="success"
+                            title="Adicionar subitem (dropdown)"
+                            onClick={() =>
+                              setItem(i, {
+                                children: [
+                                  ...(item.children ?? []),
+                                  { _id: nextId(), label: '', href: '/' },
+                                ],
+                              })
+                            }
+                          >
+                            <CornerDownRight className="w-4 h-4" />
+                          </IconButton>
+                          <IconButton
+                            tone="delete"
+                            title="Remover item"
+                            onClick={() =>
+                              setData(
+                                'header_menu',
+                                data.header_menu.filter((_, idx) => idx !== i)
+                              )
+                            }
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </IconButton>
+                        </div>
                       </div>
+
+                      {(item.children ?? []).length > 0 && (
+                        <div className="mt-3 ml-4 pl-4 border-l-2 border-navy/20 space-y-2">
+                          <DndContext
+                            sensors={sensors}
+                            collisionDetection={closestCenter}
+                            onDragEnd={(e) => onDragEndChildren(i, e)}
+                          >
+                            <SortableContext
+                              items={(item.children ?? []).map((c) => c._id)}
+                              strategy={verticalListSortingStrategy}
+                            >
+                              {(item.children ?? []).map((child, ci) => (
+                                <SortableRow key={child._id} id={child._id}>
+                                  {(childHandle) => (
+                                    <div className="flex items-center gap-2">
+                                      {childHandle}
+                                      <div className="flex flex-col sm:flex-row gap-2 flex-1 min-w-0">
+                                        <Input
+                                          value={child.label}
+                                          onChange={(e) =>
+                                            setChild(i, ci, { label: e.target.value })
+                                          }
+                                          placeholder="Nome do subitem"
+                                          className="sm:flex-1"
+                                        />
+                                        <Input
+                                          value={child.href}
+                                          onChange={(e) =>
+                                            setChild(i, ci, { href: e.target.value })
+                                          }
+                                          placeholder="/pagina"
+                                          title={urlHint}
+                                          className="sm:flex-1"
+                                        />
+                                      </div>
+                                      <IconButton
+                                        tone="delete"
+                                        title="Remover subitem"
+                                        onClick={() =>
+                                          setItem(i, {
+                                            children: (item.children ?? []).filter(
+                                              (_, idx) => idx !== ci
+                                            ),
+                                          })
+                                        }
+                                      >
+                                        <Trash2 className="w-4 h-4" />
+                                      </IconButton>
+                                    </div>
+                                  )}
+                                </SortableRow>
+                              ))}
+                            </SortableContext>
+                          </DndContext>
+                        </div>
+                      )}
                     </div>
-                  ))}
-                </div>
-              )}
+                  )}
+                </SortableRow>
+              ))}
             </div>
-          ))}
-        </div>
+          </SortableContext>
+        </DndContext>
       </Card>
 
       {/* ===================== Rodapé ===================== */}
@@ -248,7 +400,7 @@ export default function MenusIndex({ headerMenu, footerColumns }: Props) {
         <CardHeader
           icon={Link2}
           title="Colunas de links do rodapé"
-          description="As colunas aparecem entre a logo e o bloco de contato."
+          description="As colunas aparecem entre a logo e o bloco de contato. Arraste os links pela alça para reordenar."
           actions={
             <Button
               variant="secondary"
@@ -256,7 +408,7 @@ export default function MenusIndex({ headerMenu, footerColumns }: Props) {
               onClick={() =>
                 setData('footer_columns', [
                   ...data.footer_columns,
-                  { title: 'Nova coluna', links: [] },
+                  { _id: nextId(), title: 'Nova coluna', links: [] },
                 ])
               }
             >
@@ -268,7 +420,7 @@ export default function MenusIndex({ headerMenu, footerColumns }: Props) {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {data.footer_columns.map((col, i) => (
-            <div key={i} className="border border-border rounded-lg p-4 bg-muted/30">
+            <div key={col._id} className="border border-border rounded-lg p-4 bg-muted/30">
               <div className="flex items-center gap-2 mb-3">
                 <Input
                   value={col.title}
@@ -280,7 +432,9 @@ export default function MenusIndex({ headerMenu, footerColumns }: Props) {
                   tone="success"
                   title="Adicionar link"
                   onClick={() =>
-                    setColumn(i, { links: [...col.links, { label: '', href: '/' }] })
+                    setColumn(i, {
+                      links: [...col.links, { _id: nextId(), label: '', href: '/' }],
+                    })
                   }
                 >
                   <Plus className="w-4 h-4" />
@@ -300,51 +454,62 @@ export default function MenusIndex({ headerMenu, footerColumns }: Props) {
               </div>
 
               <div className="space-y-2">
-                {col.links.map((link, li) => (
-                  <div key={li} className="flex gap-2">
-                    <Input
-                      value={link.label}
-                      onChange={(e) =>
-                        setColumn(i, {
-                          links: col.links.map((l, idx) =>
-                            idx === li ? { ...l, label: e.target.value } : l
-                          ),
-                        })
-                      }
-                      placeholder="Nome do link"
-                    />
-                    <Input
-                      value={link.href}
-                      onChange={(e) =>
-                        setColumn(i, {
-                          links: col.links.map((l, idx) =>
-                            idx === li ? { ...l, href: e.target.value } : l
-                          ),
-                        })
-                      }
-                      placeholder="/pagina"
-                      title={urlHint}
-                    />
-                    <div className="flex items-center gap-0.5 shrink-0">
-                      <IconButton
-                        tone="neutral"
-                        title="Mover para cima"
-                        onClick={() => setColumn(i, { links: move(col.links, li, li - 1) })}
-                      >
-                        <ArrowUp className="w-4 h-4" />
-                      </IconButton>
-                      <IconButton
-                        tone="delete"
-                        title="Remover link"
-                        onClick={() =>
-                          setColumn(i, { links: col.links.filter((_, idx) => idx !== li) })
-                        }
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </IconButton>
-                    </div>
-                  </div>
-                ))}
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={(e) => onDragEndLinks(i, e)}
+                >
+                  <SortableContext
+                    items={col.links.map((l) => l._id)}
+                    strategy={verticalListSortingStrategy}
+                  >
+                    {col.links.map((link, li) => (
+                      <SortableRow key={link._id} id={link._id}>
+                        {(linkHandle) => (
+                          <div className="flex items-center gap-2">
+                            {linkHandle}
+                            <div className="flex gap-2 flex-1 min-w-0">
+                              <Input
+                                value={link.label}
+                                onChange={(e) =>
+                                  setColumn(i, {
+                                    links: col.links.map((l, idx) =>
+                                      idx === li ? { ...l, label: e.target.value } : l
+                                    ),
+                                  })
+                                }
+                                placeholder="Nome do link"
+                              />
+                              <Input
+                                value={link.href}
+                                onChange={(e) =>
+                                  setColumn(i, {
+                                    links: col.links.map((l, idx) =>
+                                      idx === li ? { ...l, href: e.target.value } : l
+                                    ),
+                                  })
+                                }
+                                placeholder="/pagina"
+                                title={urlHint}
+                              />
+                            </div>
+                            <IconButton
+                              tone="delete"
+                              title="Remover link"
+                              onClick={() =>
+                                setColumn(i, {
+                                  links: col.links.filter((_, idx) => idx !== li),
+                                })
+                              }
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </IconButton>
+                          </div>
+                        )}
+                      </SortableRow>
+                    ))}
+                  </SortableContext>
+                </DndContext>
                 {col.links.length === 0 && (
                   <p className="text-xs text-muted-foreground py-2">
                     Nenhum link nesta coluna ainda.

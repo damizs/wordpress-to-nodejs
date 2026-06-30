@@ -78,6 +78,13 @@ export default function ContractForm({ contract, licitacoes }: Props) {
   const endBeforeStart =
     !!data.start_date && !!data.end_date && data.end_date < data.start_date
 
+  // Campos recomendados pela ATRICON/PNTP (9.1/9.3) — aviso suave, NÃO bloqueia o salvar.
+  const missingAtricon = [
+    !String(data.manager_name).trim() && 'Gestor',
+    !String(data.fiscal_name).trim() && 'Fiscal técnico',
+    !String(data.fiscal_act).trim() && 'Ato de designação (portaria)',
+  ].filter(Boolean) as string[]
+
   // Alterações não salvas: campos (sem o arquivo) + arquivo selecionado.
   const snapshot = () => JSON.stringify(data)
   const initialSnapshot = useRef(snapshot())
@@ -116,6 +123,24 @@ export default function ContractForm({ contract, licitacoes }: Props) {
       />
 
       <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Aviso suave (não bloqueante): campos recomendados pela ATRICON/PNTP em branco. */}
+        {missingAtricon.length > 0 && (
+          <div
+            role="status"
+            className="rounded-lg border border-l-4 border-l-amber-500 bg-amber-500/10 p-4 text-sm"
+          >
+            <p className="flex items-start gap-2 text-amber-800 dark:text-amber-200">
+              <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" aria-hidden="true" />
+              <span>
+                <strong>Atenção — campos exigidos pela ATRICON em branco:</strong>{' '}
+                {missingAtricon.join(' / ')}. Você pode salvar assim mesmo e preencher
+                depois, mas a matriz PNTP (itens 9.1/9.3) recomenda informar gestor,
+                fiscal e o ato de designação.
+              </span>
+            </p>
+          </div>
+        )}
+
         {/* Identificação */}
         <Card className="space-y-4">
           <CardHeader title="Identificação do contrato" icon={FileText} />
@@ -235,7 +260,7 @@ export default function ContractForm({ contract, licitacoes }: Props) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field
               label="Gestor (nome)"
-              hint="Responsável pela gestão administrativa do contrato (prazos, aditivos, pagamentos)."
+              hint="Recomendado pela ATRICON/PNTP 9.3 — fiscalização do contrato. Responsável pela gestão administrativa (prazos, aditivos, pagamentos)."
             >
               <Input type="text" value={data.manager_name} onChange={(e) => setData('manager_name', e.target.value)} placeholder="José Ribeiro de Oliveira Júnior" />
             </Field>
@@ -246,7 +271,7 @@ export default function ContractForm({ contract, licitacoes }: Props) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <Field
               label="Fiscal técnico (nome)"
-              hint="Quem acompanha a execução técnica do objeto e atesta a entrega (diferente do gestor)."
+              hint="Recomendado pela ATRICON/PNTP 9.3 — fiscalização do contrato. Acompanha a execução técnica e atesta a entrega (diferente do gestor)."
             >
               <Input type="text" value={data.fiscal_name} onChange={(e) => setData('fiscal_name', e.target.value)} placeholder="Maria Verônica Irineu de Assis" />
             </Field>
@@ -256,7 +281,7 @@ export default function ContractForm({ contract, licitacoes }: Props) {
           </div>
           <Field
             label="Ato de designação (portaria nº/data)"
-            hint="Portaria/ato que nomeou o gestor e o fiscal. Exigência PNTP 9.3."
+            hint="Recomendado pela ATRICON/PNTP 9.3 — portaria/ato que nomeou o gestor e o fiscal."
           >
             <Input type="text" value={data.fiscal_act} onChange={(e) => setData('fiscal_act', e.target.value)} placeholder="Portaria DV 00001/2025-03" />
           </Field>

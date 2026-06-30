@@ -213,22 +213,44 @@ function cleanColumns(cols: any[]): FooterColumn[] {
     }))
 }
 
+/**
+ * Agrupamento automático do menu (Matérias/Licitações) é OPCIONAL.
+ * Setting `menu_auto_group` (default = ligado, comportamento histórico). Quando
+ * DESLIGADO ('false'), respeita a ordem exata definida pelo cliente no painel.
+ */
+function isAutoGroupEnabled(raw: string | null | undefined): boolean {
+  return raw !== 'false'
+}
+
 export default class MenusController {
   async index({ inertia }: HttpContext) {
-    const headerMenu = normalizeHeaderMenu(parseJson<MenuItem[]>(
+    const autoGroup = isAutoGroupEnabled(await SiteSetting.getValue('menu_auto_group'))
+    const storedHeader = parseJson<MenuItem[]>(
       await SiteSetting.getValue('header_menu'),
       DEFAULT_HEADER_MENU
-    ))
+    )
+    const headerMenu = autoGroup ? normalizeHeaderMenu(storedHeader) : storedHeader
     const footerColumns = parseJson<FooterColumn[]>(
       await SiteSetting.getValue('footer_columns'),
       DEFAULT_FOOTER_COLUMNS
     )
-    return inertia.render('admin/menus/index', { headerMenu, footerColumns })
+    return inertia.render('admin/menus/index', {
+      headerMenu,
+      footerColumns,
+      menuAutoGroup: autoGroup,
+    })
   }
 
   async update({ request, response, session }: HttpContext) {
     try {
-      const headerMenu = normalizeHeaderMenu(cleanMenu(request.input('header_menu', [])))
+      // Aceita boolean (true/false) ou string ('true'/'false') vinda do formulário.
+      const toggle = request.input('menu_auto_group', true)
+      const autoGroup = toggle !== false && toggle !== 'false'
+
+      const cleaned = cleanMenu(request.input('header_menu', []))
+      // Só reagrupa quando o agrupamento automático está ligado; caso contrário,
+      // grava exatamente a ordem que o cliente montou (arrastando) no painel.
+      const headerMenu = autoGroup ? normalizeHeaderMenu(cleaned) : cleaned
       const footerColumns = cleanColumns(request.input('footer_columns', []))
 
       if (headerMenu.length === 0) {
@@ -238,6 +260,7 @@ export default class MenusController {
 
       await SiteSetting.setValue('header_menu', JSON.stringify(headerMenu), 'menus', 'json')
       await SiteSetting.setValue('footer_columns', JSON.stringify(footerColumns), 'menus', 'json')
+      await SiteSetting.setValue('menu_auto_group', autoGroup ? 'true' : 'false', 'menus', 'boolean')
 
       session.flash('success', 'Menus atualizados com sucesso!')
     } catch (error) {
@@ -247,10 +270,11 @@ export default class MenusController {
     return response.redirect().back()
   }
 
-  /** Restaura os menus padrão */
+  /** Restaura os menus padrão (e o agrupamento automático ligado). */
   async reset({ response, session }: HttpContext) {
     await SiteSetting.setValue('header_menu', null, 'menus', 'json')
     await SiteSetting.setValue('footer_columns', null, 'menus', 'json')
+    await SiteSetting.setValue('menu_auto_group', null, 'menus', 'boolean')
     session.flash('success', 'Menus restaurados para o padrão.')
     return response.redirect().back()
   }

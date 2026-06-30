@@ -1,6 +1,4 @@
 import type { HttpContext } from '@adonisjs/core/http'
-import db from '@adonisjs/lucid/services/db'
-import { DateTime } from 'luxon'
 import News from '#models/news'
 import Councilor from '#models/councilor'
 import PlenarySession from '#models/plenary_session'
@@ -8,89 +6,15 @@ import Licitacao from '#models/licitacao'
 import InformationRecord from '#models/information_record'
 import OfficialPublication from '#models/official_publication'
 import SurveyResponse from '#models/survey_response'
+import FreshnessAlertService, {
+  computeFreshnessItem,
+  type FreshnessItem,
+  type FreshnessStatus,
+} from '#services/freshness_alert_service'
 
 async function count(query: any): Promise<number> {
   const row = await query.count('* as total').first()
   return Number(row?.$extras.total ?? 0)
-}
-
-type ContentHealthStatus = 'em_dia' | 'desatualizado' | 'vazio'
-
-interface ContentHealthItem {
-  key: string
-  label: string
-  href: string
-  total: number
-  latest: string | null
-  daysSince: number | null
-  status: ContentHealthStatus
-  detail: string
-}
-
-function parseDbDate(value: unknown): DateTime | null {
-  if (!value) return null
-  if (value instanceof Date) return DateTime.fromJSDate(value)
-  const text = String(value)
-  const iso = DateTime.fromISO(text)
-  if (iso.isValid) return iso
-  const sql = DateTime.fromSQL(text)
-  return sql.isValid ? sql : null
-}
-
-async function contentHealthStat({
-  key,
-  label,
-  href,
-  table,
-  dateColumn,
-  thresholdDays,
-  apply,
-}: {
-  key: string
-  label: string
-  href: string
-  table: string
-  dateColumn: string
-  thresholdDays: number
-  apply?: (query: any) => any
-}): Promise<ContentHealthItem> {
-  const base = () => {
-    const query = db.from(table)
-    return apply ? apply(query) : query
-  }
-
-  const [totalRow, latestRow] = await Promise.all([
-    base().count('* as total').first(),
-    base().max(`${dateColumn} as latest`).first(),
-  ])
-
-  const total = Number(totalRow?.total ?? 0)
-  const latest = parseDbDate(latestRow?.latest)
-  const daysSince = latest ? Math.max(0, Math.floor(DateTime.now().diff(latest, 'days').days)) : null
-  const status: ContentHealthStatus =
-    total === 0
-      ? 'vazio'
-      : latest && latest >= DateTime.now().minus({ days: thresholdDays })
-        ? 'em_dia'
-        : 'desatualizado'
-
-  const detail =
-    status === 'vazio'
-      ? `Nenhum registro publicado. Cadastre o primeiro item em ${label}.`
-      : status === 'desatualizado'
-        ? `Última atualização há ${daysSince} dia(s). Meta: até ${thresholdDays} dia(s).`
-        : `Atualizado dentro da meta de ${thresholdDays} dia(s).`
-
-  return {
-    key,
-    label,
-    href,
-    total,
-    latest: latest?.toISODate() ?? null,
-    daysSince,
-    status,
-    detail,
-  }
 }
 
 export default class DashboardController {
@@ -103,7 +27,7 @@ export default class DashboardController {
     const stats: Record<string, number> = {}
     let recentNews: any[] = []
     let upcomingSessions: any[] = []
-    const contentHealth: ContentHealthItem[] = []
+    const contentHealth: FreshnessItem[] = []
 
     if (can('noticia.criar') || can('noticia.editar') || can('noticia.publicar')) {
       const [published, drafts] = await Promise.all([
@@ -116,7 +40,7 @@ export default class DashboardController {
         await News.query().orderBy('created_at', 'desc').limit(5).preload('category')
       ).map((n) => n.serialize())
       contentHealth.push(
-        await contentHealthStat({
+        await computeFreshnessItem({
           key: 'noticias',
           label: 'Notícias',
           href: '/painel/noticias',
@@ -141,7 +65,7 @@ export default class DashboardController {
           .limit(5)
       ).map((s) => ({ id: s.id, title: s.title, date: s.sessionDate }))
       contentHealth.push(
-        await contentHealthStat({
+        await computeFreshnessItem({
           key: 'atas',
           label: 'Atas',
           href: '/painel/atas',
@@ -150,7 +74,7 @@ export default class DashboardController {
           thresholdDays: 15,
           apply: (q) => q.where('is_published', true),
         }),
-        await contentHealthStat({
+        await computeFreshnessItem({
           key: 'pautas',
           label: 'Pautas',
           href: '/painel/pautas',
@@ -167,7 +91,7 @@ export default class DashboardController {
         Licitacao.query().where('is_active', true).whereIn('status', ['aberta', 'em_andamento'])
       )
       contentHealth.push(
-        await contentHealthStat({
+        await computeFreshnessItem({
           key: 'licitacoes',
           label: 'Licitações',
           href: '/painel/licitacoes',
@@ -194,7 +118,7 @@ export default class DashboardController {
         (c) => !okCodes.has(c.code) && !c.external
       ).length
       contentHealth.push(
-        await contentHealthStat({
+        await computeFreshnessItem({
           key: 'acesso-informacao',
           label: 'Acesso à Informação',
           href: '/painel/acesso-informacao',
@@ -209,7 +133,7 @@ export default class DashboardController {
     if (can('publicacao.gerenciar')) {
       stats.publications = await count(OfficialPublication.query())
       contentHealth.push(
-        await contentHealthStat({
+        await computeFreshnessItem({
           key: 'publicacoes',
           label: 'Publicações oficiais',
           href: '/painel/publicacoes',
@@ -222,7 +146,7 @@ export default class DashboardController {
 
     if (can('votacao.gerenciar')) {
       contentHealth.push(
-        await contentHealthStat({
+        await computeFreshnessItem({
           key: 'votacoes',
           label: 'Votações nominais',
           href: '/painel/votacoes',
@@ -239,16 +163,26 @@ export default class DashboardController {
     }
 
     contentHealth.sort((a, b) => {
-      const weight: Record<ContentHealthStatus, number> = { vazio: 0, desatualizado: 1, em_dia: 2 }
+      const weight: Record<FreshnessStatus, number> = { vazio: 0, desatualizado: 1, em_dia: 2 }
       if (weight[a.status] !== weight[b.status]) return weight[a.status] - weight[b.status]
       return (b.daysSince ?? -1) - (a.daysSince ?? -1)
     })
+
+    // Status do alerta diário de frescor (proativo). Só flags — sem expor números.
+    const freshnessAlertSettings = await FreshnessAlertService.publicSettings()
+    const freshnessAlert = {
+      enabled: freshnessAlertSettings.enabled,
+      configured: freshnessAlertSettings.hasRecipients,
+      usingEvolutionFallback: freshnessAlertSettings.usingEvolutionFallback,
+      lastRun: freshnessAlertSettings.lastRun,
+    }
 
     return inertia.render('admin/dashboard', {
       stats,
       recentNews,
       upcomingSessions,
       contentHealth,
+      freshnessAlert,
       userName: user.fullName,
     })
   }

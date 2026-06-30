@@ -190,12 +190,17 @@ function filterBlockedNavItems(items: NavItem[], settings: Record<string, string
     .filter((item): item is NavItem => item !== null);
 }
 
-/** Menu editável no painel (/painel/menus); cai no padrão se a setting estiver vazia */
-function parseNavItems(raw: string | null | undefined): NavItem[] {
-  if (!raw) return reorderPrimaryMenu(defaultNavItems);
+/**
+ * Menu editável no painel (/painel/menus); cai no padrão se a setting estiver vazia.
+ * `autoGroup` (setting menu_auto_group, default ligado) reagrupa Matérias/Licitações;
+ * quando desligado, respeita a ordem EXATA definida pelo cliente no painel.
+ */
+function parseNavItems(raw: string | null | undefined, autoGroup = true): NavItem[] {
+  const fallback = () => (autoGroup ? reorderPrimaryMenu(defaultNavItems) : defaultNavItems);
+  if (!raw) return fallback();
   try {
     const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed) || parsed.length === 0) return reorderPrimaryMenu(defaultNavItems);
+    if (!Array.isArray(parsed) || parsed.length === 0) return fallback();
     const items = parsed
       .filter((i: any) => i && i.label && i.href)
       .map((i: any) => ({
@@ -208,9 +213,9 @@ function parseNavItems(raw: string | null | undefined): NavItem[] {
               .map((c: any) => ({ label: String(c.label), href: String(c.href) }))
           : undefined,
       }));
-    return reorderPrimaryMenu(normalizeHeaderMenu(items));
+    return autoGroup ? reorderPrimaryMenu(normalizeHeaderMenu(items)) : items;
   } catch {
-    return reorderPrimaryMenu(defaultNavItems);
+    return fallback();
   }
 }
 
@@ -224,9 +229,14 @@ export const Header = ({ logoUrl }: HeaderProps) => {
   const [dark, toggleDark] = useDarkMode();
   const settings = useSiteSettings();
   const navItems = useMemo(
-    () => filterBlockedNavItems(parseNavItems(settings.header_menu), settings),
+    () =>
+      filterBlockedNavItems(
+        parseNavItems(settings.header_menu, settings.menu_auto_group !== 'false'),
+        settings
+      ),
     [
       settings.header_menu,
+      settings.menu_auto_group,
       settings.public_access_disabled_areas,
       settings.public_access_blocked_paths,
     ]
