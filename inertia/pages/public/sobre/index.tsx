@@ -1,3 +1,4 @@
+import { usePage } from "@inertiajs/react";
 import { PageLayout } from "~/components/PageLayout";
 import { RichText } from "~/lib/rich_text";
 import { Target, Eye, Heart } from "lucide-react";
@@ -6,13 +7,15 @@ interface InstitutionalEntry { title: string; content: string; }
 interface Props { institutional?: Record<string, InstitutionalEntry>; }
 
 export default function SobreIndex({ institutional }: Props) {
+  const camara = (usePage().props as { camara?: { nome: string } }).camara;
+  const orgNome = camara?.nome || "Câmara Municipal";
   const entry = (key: string) => {
     const e = institutional?.[key];
     return e && e.content?.trim() ? e : undefined;
   };
   return (
     <PageLayout
-      seo={{ title: "Sobre - Câmara Municipal de Sumé", description: "Conheça a Câmara Municipal de Sumé, sua missão, visão e valores.", url: "/sobre" }}
+      seo={{ title: `Sobre - ${orgNome}`, description: `Conheça a ${orgNome}, sua missão, visão e valores.`, url: "/sobre" }}
       breadcrumb={[{ label: "Sobre" }]}
       hero={{ badge: "Institucional", title: "Sobre a Câmara", subtitle: "Conheça a história, a estrutura e o papel do Poder Legislativo Municipal", centered: true }}
       width="reading"
@@ -48,7 +51,7 @@ export default function SobreIndex({ institutional }: Props) {
           {entry("sobre_intro") ? (
             <RichText text={entry("sobre_intro")!.content} />
           ) : (
-            <p>A Câmara Municipal de Sumé é o órgão do Poder Legislativo do município, responsável por elaborar leis, fiscalizar o Poder Executivo e representar os interesses da população sumeense.</p>
+            <p>{`A ${orgNome} é o órgão do Poder Legislativo do município, responsável por elaborar leis, fiscalizar o Poder Executivo e representar os interesses da população.`}</p>
           )}
           <h2>{entry("sobre_atribuicoes")?.title || "Atribuições"}</h2>
           {entry("sobre_atribuicoes") ? (

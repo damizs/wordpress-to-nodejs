@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, router } from "@inertiajs/react";
+import { Link, router, usePage } from "@inertiajs/react";
 import {
   ArrowRight,
   CalendarClock,
@@ -55,6 +55,8 @@ export default function AgendaIndex({
   statuses = [],
   filters = {},
 }: Props) {
+  const camara = (usePage().props as { camara?: { nome: string } }).camara;
+  const orgNome = camara?.nome || "Câmara Municipal";
   const [searchTerm, setSearchTerm] = useState(filters.search || "");
 
   function applyFilters(patch: Record<string, string>) {
@@ -76,8 +78,8 @@ export default function AgendaIndex({
   return (
     <PageLayout
       seo={{
-        title: "Agenda de Sessões - Câmara Municipal de Sumé",
-        description: "Agenda pública das sessões plenárias da Câmara Municipal de Sumé.",
+        title: `Agenda de Sessões - ${orgNome}`,
+        description: `Agenda pública das sessões plenárias da ${orgNome}.`,
         url: "/agenda",
       }}
       breadcrumb={[{ label: "Agenda de Sessões" }]}

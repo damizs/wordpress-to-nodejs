@@ -1,3 +1,4 @@
+import { usePage } from "@inertiajs/react";
 import { PageLayout } from "~/components/PageLayout";
 import { RichText } from "~/lib/rich_text";
 import { Building2, Calendar, Users, Award } from "lucide-react";
@@ -6,15 +7,18 @@ interface InstitutionalEntry { title: string; content: string; }
 interface Props { institutional?: Record<string, InstitutionalEntry>; }
 
 export default function HistoriaIndex({ institutional }: Props) {
+  const camara = (usePage().props as { camara?: { nome: string; cidade: string } }).camara;
+  const orgNome = camara?.nome || "Câmara Municipal";
+  const cidade = camara?.cidade || "o município";
   const entry = (key: string) => {
     const e = institutional?.[key];
     return e && e.content?.trim() ? e : undefined;
   };
   return (
     <PageLayout
-      seo={{ title: "História da Câmara - Câmara Municipal de Sumé", description: "Conheça a história da Câmara Municipal de Sumé e sua trajetória no Poder Legislativo.", url: "/historia-da-camara" }}
+      seo={{ title: `História da Câmara - ${orgNome}`, description: `Conheça a história da ${orgNome} e sua trajetória no Poder Legislativo.`, url: "/historia-da-camara" }}
       breadcrumb={[{ label: "História da Câmara" }]}
-      hero={{ badge: "Institucional", title: "História da Câmara", subtitle: "A trajetória do Poder Legislativo de Sumé ao longo dos anos", centered: true }}
+      hero={{ badge: "Institucional", title: "História da Câmara", subtitle: `A trajetória do Poder Legislativo de ${cidade} ao longo dos anos`, centered: true }}
     >
       {/* Stats */}
       <div data-reveal="up" className="grid grid-cols-1 min-[400px]:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-10 sm:mb-12">
@@ -45,13 +49,13 @@ export default function HistoriaIndex({ institutional }: Props) {
                   {entry("historia_intro") ? (
                     <RichText className="lead" text={entry("historia_intro")!.content} />
                   ) : (
-                    <p className="lead">A Câmara Municipal de Sumé tem uma rica história que se confunde com o desenvolvimento do próprio município no Cariri Paraibano.</p>
+                    <p className="lead">{`A ${orgNome} tem uma rica história que se confunde com o desenvolvimento do próprio município.`}</p>
                   )}
                   <h2>{entry("historia_trajetoria")?.title || "Nossa Trajetória"}</h2>
                   {entry("historia_trajetoria") ? (
                     <RichText text={entry("historia_trajetoria")!.content} />
                   ) : (
-                    <p>Desde sua instalação em 1951, ano da emancipação política de Sumé, a Câmara Municipal tem sido palco de importantes decisões que moldaram o desenvolvimento do município.</p>
+                    <p>{`Desde sua instalação, ano da emancipação política de ${cidade}, a Câmara Municipal tem sido palco de importantes decisões que moldaram o desenvolvimento do município.`}</p>
                   )}
                   <h2>{entry("historia_poder_legislativo")?.title || "O Poder Legislativo"}</h2>
                   {entry("historia_poder_legislativo") ? (
@@ -63,7 +67,7 @@ export default function HistoriaIndex({ institutional }: Props) {
                   {entry("historia_transparencia") ? (
                     <RichText text={entry("historia_transparencia")!.content} />
                   ) : (
-                    <p>A Câmara Municipal de Sumé preza pela transparência em todas as suas ações, disponibilizando informações sobre suas atividades legislativas, gastos públicos e decisões através deste Portal.</p>
+                    <p>{`A ${orgNome} preza pela transparência em todas as suas ações, disponibilizando informações sobre suas atividades legislativas, gastos públicos e decisões através deste Portal.`}</p>
                   )}
                 </div>
               </article>

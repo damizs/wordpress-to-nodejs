@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { usePage } from "@inertiajs/react";
 import { SeoHead } from "~/components/SeoHead";
 import { TopBar } from "~/components/TopBar";
 import { Header } from "~/components/Header";
@@ -46,6 +47,8 @@ function stripHtml(html: string) {
 }
 
 export default function FaqIndex({ faqs = [], categories = [] }: Props) {
+  const camara = (usePage().props as { camara?: { nome: string } }).camara;
+  const orgNome = camara?.nome || "Câmara Municipal";
   const [openId, setOpenId] = useState<number | null>(null);
   const [activeCategory, setActiveCategory] = useState<string>("");
   const [query, setQuery] = useState("");
@@ -80,7 +83,7 @@ export default function FaqIndex({ faqs = [], categories = [] }: Props) {
 
   return (
     <>
-      <SeoHead title="Perguntas Frequentes - Câmara Municipal de Sumé" description="Encontre respostas para as dúvidas mais comuns sobre a Câmara Municipal de Sumé." url="/perguntas-frequentes" />
+      <SeoHead title={`Perguntas Frequentes - ${orgNome}`} description={`Encontre respostas para as dúvidas mais comuns sobre a ${orgNome}.`} url="/perguntas-frequentes" />
       <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar /><Header /><Breadcrumb items={[{ label: "Perguntas Frequentes" }]} />
         <PageHero badge="Ajuda" title="Perguntas Frequentes" subtitle="Encontre respostas para as dúvidas mais comuns" centered />

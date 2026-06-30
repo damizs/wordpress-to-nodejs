@@ -1,6 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
+import { usePage } from "@inertiajs/react";
 import { MapPin, Users, Mountain, History, ChevronLeft, ChevronRight, X, ArrowRight } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { SectionHeading } from "~/components/SectionHeading";
+import { useSiteSettings } from "~/hooks/use_site_settings";
 import { useFocusTrap } from "~/hooks/useFocusTrap";
 
 interface ConhecaSumeSectionProps {
@@ -10,6 +13,11 @@ interface ConhecaSumeSectionProps {
 }
 
 export const ConhecaSumeSection = ({ images, title, subtitle }: ConhecaSumeSectionProps) => {
+  const settings = useSiteSettings();
+  const camara = (usePage().props as { camara?: { cidade?: string; uf?: string } }).camara;
+  const cidade = (camara?.cidade || "").trim();
+  const uf = (camara?.uf || "").trim();
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -19,9 +27,26 @@ export const ConhecaSumeSection = ({ images, title, subtitle }: ConhecaSumeSecti
   const closeLightbox = useCallback(() => setLightboxOpen(false), []);
   const lightboxRef = useFocusTrap(lightboxOpen, closeLightbox);
 
-  const defaultImages = ["/images/sume-cidade.jpg"];
-  const carouselImages = images && images.length > 0 ? images : defaultImages;
+  // Sem imagem padrão de tenant: o carrossel só aparece quando há fotos da cidade
+  // (Painel → Fotos da Cidade). Sem fotos, a coluna de imagem some.
+  const carouselImages = images && images.length > 0 ? images : [];
+  const hasImages = carouselImages.length > 0;
   const hasMultipleImages = carouselImages.length > 1;
+
+  // Dados da cidade vêm de settings (Painel) — cada card some quando vazio.
+  const cityLabel = cidade || "a cidade";
+  const region = (settings.city_region || "").trim();
+  const cityStats: { icon: LucideIcon; value: string; label: string; tone: "primary" | "gold" }[] = [
+    { icon: MapPin, value: (settings.city_area || "").trim(), label: "Área territorial", tone: "primary" },
+    { icon: Users, value: (settings.city_population || "").trim(), label: "Habitantes", tone: "primary" },
+    { icon: Mountain, value: (settings.city_altitude || "").trim(), label: "Altitude média", tone: "gold" },
+    { icon: History, value: (settings.city_founded || "").trim(), label: "Emancipação", tone: "gold" },
+  ].filter((stat) => stat.value !== "");
+
+  const defaultTitle = cidade || "Nossa cidade";
+  const defaultSubtitle = cidade
+    ? `Conheça um pouco mais sobre ${cidade}${uf ? ` - ${uf}` : ""}: sua história, sua cultura e o que torna o município especial.`
+    : "Conheça um pouco mais sobre o nosso município: sua história, sua cultura e o que o torna especial.";
 
   // Auto-play do crossfade (5 segundos); pausa no hover/lightbox e respeita prefers-reduced-motion
   useEffect(() => {
@@ -62,8 +87,13 @@ export const ConhecaSumeSection = ({ images, title, subtitle }: ConhecaSumeSecti
     <>
       <section className="section-block bg-muted/40">
         <div className="container">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+          <div
+            className={`grid grid-cols-1 gap-8 lg:gap-12 items-center ${
+              hasImages ? "lg:grid-cols-2" : ""
+            }`}
+          >
             {/* Image Carousel */}
+            {hasImages && (
             <div
               className="relative"
               data-reveal="left"
@@ -80,7 +110,7 @@ export const ConhecaSumeSection = ({ images, title, subtitle }: ConhecaSumeSecti
                   <img
                     key={index}
                     src={src}
-                    alt={`Sumé - Imagem ${index + 1}`}
+                    alt={`${cityLabel} - Imagem ${index + 1}`}
                     loading="lazy"
                     decoding="async"
                     className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
@@ -95,11 +125,13 @@ export const ConhecaSumeSection = ({ images, title, subtitle }: ConhecaSumeSecti
                 {/* Gradiente inferior para profundidade e legibilidade */}
                 <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/55 via-black/20 to-transparent pointer-events-none" />
 
-                {/* Selo/legenda discreta */}
+                {/* Selo/legenda discreta — só quando há região definida no painel */}
+                {region && (
                 <div className="absolute top-3 left-3 flex items-center gap-1.5 rounded-full bg-black/45 backdrop-blur-sm px-3 py-1.5 text-[0.7rem] font-medium text-white/90 ring-1 ring-white/15">
                   <MapPin className="w-3.5 h-3.5 text-gold" />
-                  Cariri Ocidental — Paraíba
+                  {region}
                 </div>
+                )}
 
                 {/* Overlay com hint de clique */}
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/25 transition-all duration-300 flex items-center justify-center">
@@ -150,64 +182,39 @@ export const ConhecaSumeSection = ({ images, title, subtitle }: ConhecaSumeSecti
                 )}
               </div>
             </div>
+            )}
 
             {/* Content */}
             <div data-reveal="right" data-reveal-delay={120}>
               <SectionHeading
                 align="left"
                 badge="Conheça Nossa Cidade"
-                title={
-                  title || (
-                    <>
-                      Sumé<br />
-                      <span className="text-gradient-gold">Cariri Paraibano</span>
-                    </>
-                  )
-                }
-                subtitle={
-                  subtitle ||
-                  "Sumé, localizada no Cariri Ocidental da Paraíba, é uma cidade rica em história e cultura. Conhecida por sua hospitalidade e tradições, é um importante polo regional."
-                }
+                title={title || defaultTitle}
+                subtitle={subtitle || defaultSubtitle}
               />
 
+              {cityStats.length > 0 && (
               <div className="grid grid-cols-2 gap-4">
-                <div className="card-modern hover-lift flex items-center gap-3 p-4">
-                  <span className="flex-shrink-0 grid place-items-center w-11 h-11 rounded-xl bg-primary/10 text-primary">
-                    <MapPin className="w-5 h-5" />
-                  </span>
-                  <div>
-                    <p className="text-2xl font-bold text-foreground leading-tight">838 km²</p>
-                    <p className="text-xs text-muted-foreground">Área territorial</p>
-                  </div>
-                </div>
-                <div className="card-modern hover-lift flex items-center gap-3 p-4">
-                  <span className="flex-shrink-0 grid place-items-center w-11 h-11 rounded-xl bg-primary/10 text-primary">
-                    <Users className="w-5 h-5" />
-                  </span>
-                  <div>
-                    <p className="text-2xl font-bold text-foreground leading-tight">~16 mil</p>
-                    <p className="text-xs text-muted-foreground">Habitantes</p>
-                  </div>
-                </div>
-                <div className="card-modern hover-lift flex items-center gap-3 p-4">
-                  <span className="flex-shrink-0 grid place-items-center w-11 h-11 rounded-xl bg-gold/10 text-gold">
-                    <Mountain className="w-5 h-5" />
-                  </span>
-                  <div>
-                    <p className="text-2xl font-bold text-foreground leading-tight">533m</p>
-                    <p className="text-xs text-muted-foreground">Altitude média</p>
-                  </div>
-                </div>
-                <div className="card-modern hover-lift flex items-center gap-3 p-4">
-                  <span className="flex-shrink-0 grid place-items-center w-11 h-11 rounded-xl bg-gold/10 text-gold">
-                    <History className="w-5 h-5" />
-                  </span>
-                  <div>
-                    <p className="text-2xl font-bold text-foreground leading-tight">1951</p>
-                    <p className="text-xs text-muted-foreground">Emancipação</p>
-                  </div>
-                </div>
+                {cityStats.map((stat) => {
+                  const Icon = stat.icon;
+                  const iconClass =
+                    stat.tone === "gold"
+                      ? "bg-gold/10 text-gold"
+                      : "bg-primary/10 text-primary";
+                  return (
+                    <div key={stat.label} className="card-modern hover-lift flex items-center gap-3 p-4">
+                      <span className={`flex-shrink-0 grid place-items-center w-11 h-11 rounded-xl ${iconClass}`}>
+                        <Icon className="w-5 h-5" />
+                      </span>
+                      <div>
+                        <p className="text-2xl font-bold text-foreground leading-tight">{stat.value}</p>
+                        <p className="text-xs text-muted-foreground">{stat.label}</p>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
+              )}
 
               {/* CTA discreto */}
               <a
@@ -228,7 +235,7 @@ export const ConhecaSumeSection = ({ images, title, subtitle }: ConhecaSumeSecti
           ref={lightboxRef}
           role="dialog"
           aria-modal="true"
-          aria-label="Galeria de imagens de Sumé"
+          aria-label={`Galeria de imagens de ${cityLabel}`}
           className="fixed inset-0 z-[9999] bg-black/95 flex items-center justify-center"
           onClick={() => setLightboxOpen(false)}
         >
@@ -254,8 +261,8 @@ export const ConhecaSumeSection = ({ images, title, subtitle }: ConhecaSumeSecti
               src={carouselImages[currentIndex]}
               alt={
                 hasMultipleImages
-                  ? `Foto de Sumé ${currentIndex + 1} de ${carouselImages.length}`
-                  : "Foto de Sumé"
+                  ? `Foto de ${cityLabel} ${currentIndex + 1} de ${carouselImages.length}`
+                  : `Foto de ${cityLabel}`
               }
               loading="lazy"
               decoding="async"

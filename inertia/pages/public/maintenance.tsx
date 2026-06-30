@@ -35,7 +35,7 @@ export default function Maintenance({
     siteSettings?: Record<string, string | null>;
   };
 
-  const camaraNome = props.camara?.nome || "Câmara Municipal de Sumé";
+  const camaraNome = props.camara?.nome || "Câmara Municipal";
   const settings = props.siteSettings || {};
   const logo = settings.logo_url || null;
   const email = settings.footer_email || null;

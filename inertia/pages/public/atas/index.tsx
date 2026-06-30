@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, router } from "@inertiajs/react";
+import { Link, router, usePage } from "@inertiajs/react";
 import { SeoHead } from "~/components/SeoHead";
 import { TopBar } from "~/components/TopBar";
 import { Header } from "~/components/Header";
@@ -27,6 +27,7 @@ const TYPE_LABELS: Record<string, string> = {
 };
 
 export default function AtasIndex({ atas = [], pagination, years = [], types = [], filters = {} }: Props) {
+  const org = (usePage().props as { camara?: { nome?: string } }).camara?.nome || "Câmara Municipal";
   const [searchTerm, setSearchTerm] = useState(filters.search || "");
 
   function applyFilters(patch: Record<string, string>) {
@@ -45,7 +46,7 @@ export default function AtasIndex({ atas = [], pagination, years = [], types = [
 
   return (
     <>
-      <SeoHead title="Atas das Sessões - Câmara Municipal de Sumé" description="Acesse as atas das sessões plenárias da Câmara Municipal de Sumé." url="/atas" />
+      <SeoHead title="Atas das Sessões" description={`Acesse as atas das sessões plenárias da ${org}.`} url="/atas" />
       <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar /><Header /><Breadcrumb items={[{ label: "Atas das Sessões" }]} />
         <PageHero badge="Documentos Oficiais" title="Atas das Sessões" subtitle="Registros oficiais das sessões plenárias realizadas pela Câmara Municipal" />

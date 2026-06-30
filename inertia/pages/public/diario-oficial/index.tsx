@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from "react";
-import { Link, router } from "@inertiajs/react";
+import { Link, router, usePage } from "@inertiajs/react";
 import { SeoHead } from "~/components/SeoHead";
 import { TopBar } from "~/components/TopBar";
 import { Header } from "~/components/Header";
@@ -164,6 +164,7 @@ export default function DiarioOficialIndex({
 }: Props) {
   const [busca, setBusca] = useState(filters.search || "");
   const [previewEntry, setPreviewEntry] = useState<GazetteEntry | null>(null);
+  const org = (usePage().props as { camara?: { nome?: string } }).camara?.nome || "Câmara Municipal";
 
   const submitBusca = () => {
     const params: Record<string, string | number> = { page: 1 };
@@ -183,8 +184,8 @@ export default function DiarioOficialIndex({
   return (
     <>
       <SeoHead
-        title="Diário Oficial - Câmara Municipal de Sumé"
-        description="Acesse as edições do Diário Oficial da Câmara Municipal de Sumé."
+        title="Diário Oficial"
+        description={`Acesse as edições do Diário Oficial da ${org}.`}
         url="/diario-oficial"
       />
       <div className="min-h-screen bg-background overflow-x-clip">

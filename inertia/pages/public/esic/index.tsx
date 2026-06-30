@@ -5,18 +5,21 @@ import { Breadcrumb } from "~/components/Breadcrumb";
 import { Footer } from "~/components/Footer";
 import { ESicSection } from "~/components/ESicSection";
 import { useSiteSettings } from "~/hooks/use_site_settings";
+import { usePage } from "@inertiajs/react";
 
 export default function EsicPage() {
   const settings = useSiteSettings();
+  const camara = (usePage().props as { camara?: { nome: string } }).camara;
+  const orgNome = camara?.nome || "Câmara Municipal";
   const title = settings.homepage_esic_title || "E-SIC - Sistema Eletrônico de Informações";
   const subtitle =
     settings.homepage_esic_subtitle ||
-    "Acesse informações públicas e solicite dados da Câmara Municipal de Sumé";
+    `Acesse informações públicas e solicite dados da ${orgNome}`;
 
   return (
     <>
       <SeoHead
-        title={`${title} - Câmara Municipal de Sumé`}
+        title={`${title} - ${orgNome}`}
         description={subtitle}
         url="/esic"
       />

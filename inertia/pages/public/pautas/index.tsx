@@ -45,7 +45,7 @@ export default function PautasIndex({ pautas = [], pagination, years = [], types
 
   return (
     <>
-      <SeoHead title="Pautas - Câmara Municipal de Sumé" description="Confira as pautas das sessões plenárias." url="/pautas" />
+      <SeoHead title="Pautas" description="Confira as pautas das sessões plenárias." url="/pautas" />
       <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar /><Header /><Breadcrumb items={[{ label: "Pautas" }]} />
         <PageHero badge="Sessões Plenárias" title="Pautas das Sessões" subtitle="Ordem do dia e matérias em discussão nas sessões da Câmara Municipal" />

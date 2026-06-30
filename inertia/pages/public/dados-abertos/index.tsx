@@ -1,3 +1,4 @@
+import { usePage } from "@inertiajs/react";
 import { SeoHead } from "~/components/SeoHead";
 import { TopBar } from "~/components/TopBar";
 import { Header } from "~/components/Header";
@@ -40,11 +41,13 @@ const DATASET_ICONS: Record<string, LucideIcon> = {
 };
 
 export default function DadosAbertos({ datasets = [] }: Props) {
+  const camara = (usePage().props as { camara?: { nome?: string; uf?: string } }).camara;
+  const org = camara?.nome || "Câmara Municipal";
   return (
     <>
       <SeoHead
-        title="Dados Abertos - Câmara Municipal de Sumé"
-        description="Baixe os dados públicos da Câmara Municipal de Sumé em formato aberto (JSON e CSV): vereadores, matérias legislativas, licitações, publicações, votações e sessões."
+        title="Dados Abertos"
+        description={`Baixe os dados públicos da ${org} em formato aberto (JSON e CSV): vereadores, matérias legislativas, licitações, publicações, votações e sessões.`}
         url="/dados-abertos"
       />
       <div className="min-h-screen bg-background overflow-x-clip">
@@ -129,7 +132,7 @@ export default function DadosAbertos({ datasets = [] }: Props) {
                     Os conjuntos de dados deste portal são disponibilizados sob a licença{" "}
                     <strong className="text-foreground">Creative Commons Atribuição 4.0 Internacional (CC BY 4.0)</strong>.
                     Você pode copiar, redistribuir e adaptar os dados, desde que cite a fonte:{" "}
-                    <strong className="text-foreground">Câmara Municipal de Sumé — PB</strong>.
+                    <strong className="text-foreground">{org}{camara?.uf ? ` — ${camara.uf}` : ""}</strong>.
                   </p>
                   <a
                     href="https://creativecommons.org/licenses/by/4.0/deed.pt"

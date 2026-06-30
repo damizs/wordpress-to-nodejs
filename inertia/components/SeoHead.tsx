@@ -25,8 +25,8 @@ interface CamaraIdentity {
 
 export const SeoHead = ({
   title,
-  description = "Câmara Municipal de Sumé - Portal oficial do Poder Legislativo de Sumé, Paraíba. Transparência, notícias, vereadores e serviços ao cidadão.",
-  keywords = "câmara municipal, sumé, paraíba, vereadores, transparência, legislativo",
+  description,
+  keywords,
   image,
   url,
   type = "website",
@@ -35,20 +35,33 @@ export const SeoHead = ({
   author,
   section,
 }: SeoHeadProps) => {
-  // Identidade (nome/domínio) vem dos shared props do Inertia (config/camara),
-  // com FALLBACK nos valores de Sumé → produção atual inalterada. A descrição/
-  // keywords padrão (prosa com cidade/UF) seguem fixas por ora.
+  // Identidade (nome/domínio/cidade/UF) vem dos shared props do Inertia
+  // (config/camara). A descrição/keywords padrão são MONTADAS a partir dessa
+  // identidade (sem literal de tenant chumbado).
   const camara = (usePage().props as { camara?: CamaraIdentity }).camara;
-  const ORG = camara?.nome || "Câmara Municipal de Sumé";
-  const BASE = camara?.baseUrl || "https://node.camaradesume.pb.gov.br";
+  const ORG = camara?.nome || "Câmara Municipal";
+  const BASE = camara?.baseUrl || "";
+  const cidade = camara?.cidade || "";
+  const uf = camara?.uf || "";
+  const local = [cidade, uf].filter(Boolean).join(" - ");
+
+  const resolvedDescription =
+    description ??
+    `Portal oficial da ${ORG}${local ? `, ${local}` : ""}. Transparência, notícias, vereadores e serviços ao cidadão.`;
+  const resolvedKeywords =
+    keywords ??
+    ["câmara municipal", cidade, uf, "vereadores", "transparência", "legislativo"]
+      .filter(Boolean)
+      .join(", ")
+      .toLowerCase();
 
   // Defaults derivados do domínio base (resolvidos aqui porque dependem de `BASE`).
   const resolvedUrl = url ?? BASE;
   const resolvedImage = image ?? `${BASE}/og-image.jpg`;
 
-  // Evita duplicar o nome do órgão: várias páginas já passam o sufixo
-  // (" - Câmara Municipal de Sumé") no próprio title. Só anexamos se ainda
-  // não estiver presente.
+  // Evita duplicar o nome do órgão: várias páginas já passam o sufixo com o
+  // nome da câmara (ex.: " - {camara.nome}") no próprio title. Só anexamos se
+  // ainda não estiver presente.
   const fullTitle = title.includes(ORG) ? title : `${title} | ${ORG}`;
 
   // og:image/twitter:image devem ser URLs absolutas. Se a página passou uma
@@ -61,12 +74,12 @@ export const SeoHead = ({
   return (
     <Head>
       <title>{fullTitle}</title>
-      <meta name="description" content={description} />
-      <meta name="keywords" content={keywords} />
-      
+      <meta name="description" content={resolvedDescription} />
+      <meta name="keywords" content={resolvedKeywords} />
+
       {/* Open Graph */}
       <meta property="og:title" content={fullTitle} />
-      <meta property="og:description" content={description} />
+      <meta property="og:description" content={resolvedDescription} />
       <meta property="og:image" content={absoluteImage} />
       <meta property="og:url" content={resolvedUrl} />
       <meta property="og:type" content={type} />
@@ -89,7 +102,7 @@ export const SeoHead = ({
       {/* Twitter */}
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={fullTitle} />
-      <meta name="twitter:description" content={description} />
+      <meta name="twitter:description" content={resolvedDescription} />
       <meta name="twitter:image" content={absoluteImage} />
     </Head>
   );

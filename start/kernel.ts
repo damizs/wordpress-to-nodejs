@@ -30,8 +30,12 @@ server.use([
   () => import('@adonisjs/cors/cors_middleware'),
   () => import('@adonisjs/vite/vite_middleware'),
   () => import('@adonisjs/inertia/inertia_middleware'),
-  () => import('#middleware/public_access_middleware'),
+  // share_view_data ANTES de public_access: o middleware de disponibilidade/
+  // manutenção pode renderizar uma página (503/bloqueio) cujo layout Edge usa
+  // `camara.*` no <head>. Compartilhar `camara` primeiro evita 500 ("camara
+  // undefined") nesse caminho de erro.
   () => import('#middleware/share_view_data_middleware'),
+  () => import('#middleware/public_access_middleware'),
 ])
 
 /**

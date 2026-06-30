@@ -61,7 +61,7 @@ function PreviewHeading({
     diario: 'Diário Oficial',
     instagram: 'Instagram',
     reels: 'Vídeos',
-    conheca: 'Conheça Sumé',
+    conheca: 'Conheça a Cidade',
     seals: 'Certificações',
     survey: 'Pesquisa',
   }

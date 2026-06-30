@@ -1,4 +1,4 @@
-import { Link } from "@inertiajs/react";
+import { Link, usePage } from "@inertiajs/react";
 import { SeoHead } from "~/components/SeoHead";
 import { TopBar } from "~/components/TopBar";
 import { Header } from "~/components/Header";
@@ -24,11 +24,12 @@ interface Props {
 }
 
 export default function VereadoresIndex({ vereadores = [], legislature }: Props) {
+  const org = (usePage().props as { camara?: { nome?: string } }).camara?.nome || "Câmara Municipal";
   return (
     <>
       <SeoHead
-        title="Vereadores - Câmara Municipal de Sumé"
-        description="Conheça os vereadores da Câmara Municipal de Sumé. Veja informações de contato, partido e atividades parlamentares."
+        title="Vereadores"
+        description={`Conheça os vereadores da ${org}. Veja informações de contato, partido e atividades parlamentares.`}
         url="/vereadores"
       />
       <div className="min-h-screen bg-background overflow-x-clip">
@@ -69,7 +70,7 @@ export default function VereadoresIndex({ vereadores = [], legislature }: Props)
                             src={vereador.photo}
                             alt={`Foto de ${vereador.name}`}
                             loading="lazy"
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover object-top"
                           />
                         ) : (
                           <div

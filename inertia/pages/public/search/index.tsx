@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { router } from "@inertiajs/react";
+import { router, usePage } from "@inertiajs/react";
 import { SeoHead } from "~/components/SeoHead";
 import { TopBar } from "~/components/TopBar";
 import { Header } from "~/components/Header";
@@ -84,6 +84,8 @@ function formatDate(iso?: string | null) {
 }
 
 export default function SearchIndex({ q = "", results = [], total = 0 }: Props) {
+  const camara = (usePage().props as { camara?: { nome: string } }).camara;
+  const orgNome = camara?.nome || "Câmara Municipal";
   const [query, setQuery] = useState(q);
   const hasQuery = q.trim().length >= 2;
 
@@ -103,8 +105,8 @@ export default function SearchIndex({ q = "", results = [], total = 0 }: Props) 
   return (
     <>
       <SeoHead
-        title="Busca - Câmara Municipal de Sumé"
-        description="Pesquise notícias, atas, pautas, licitações, publicações e mais no portal da Câmara Municipal de Sumé."
+        title={`Busca - ${orgNome}`}
+        description={`Pesquise notícias, atas, pautas, licitações, publicações e mais no portal da ${orgNome}.`}
         url="/busca"
       />
       <div className="min-h-screen bg-background overflow-x-clip">

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, router } from "@inertiajs/react";
+import { Link, router, usePage } from "@inertiajs/react";
 import { SeoHead } from "~/components/SeoHead";
 import { TopBar } from "~/components/TopBar";
 import { Header } from "~/components/Header";
@@ -62,6 +62,7 @@ const pageUrl = (page: number, filters: Filters) => {
 };
 
 export default function LicitacoesIndex({ licitacoes = [], pagination, filters = {}, years = [], modalities = [], statuses = [] }: Props) {
+  const org = (usePage().props as { camara?: { nome?: string } }).camara?.nome || "Câmara Municipal";
   const [searchTerm, setSearchTerm] = useState(filters.search || "");
 
   function applyFilters(patch: Partial<Filters>) {
@@ -72,7 +73,7 @@ export default function LicitacoesIndex({ licitacoes = [], pagination, filters =
 
   return (
     <>
-      <SeoHead title="Licitações - Câmara Municipal de Sumé" description="Consulte os processos licitatórios da Câmara Municipal de Sumé." url="/licitacoes" />
+      <SeoHead title="Licitações" description={`Consulte os processos licitatórios da ${org}.`} url="/licitacoes" />
       <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar /><Header /><Breadcrumb items={[{ label: "Licitações" }]} />
         <PageHero badge="Transparência" title="Licitações" subtitle="Processos licitatórios e contratações da Câmara Municipal, com documentos por fase do processo" centered />

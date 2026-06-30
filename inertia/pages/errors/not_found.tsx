@@ -2,23 +2,25 @@ import { Link, usePage } from "@inertiajs/react";
 import { SeoHead } from "../../components/SeoHead";
 
 export default function NotFound() {
-  const { siteSettings } = usePage().props as {
+  const { siteSettings, camara } = usePage().props as {
     siteSettings?: Record<string, string | null>;
+    camara?: { nome?: string };
   };
   const brasao = siteSettings?.document_brasao_url || siteSettings?.logo_url;
+  const org = camara?.nome || "Câmara Municipal";
 
   return (
     <>
       <SeoHead
         title="Página não encontrada"
-        description="A página que você procura não foi encontrada no Portal da Câmara Municipal de Sumé."
+        description={`A página que você procura não foi encontrada no Portal da ${org}.`}
       />
       <main className="min-h-screen bg-background text-foreground flex items-center">
         <div className="container py-16 lg:py-24 text-center">
           {brasao && (
             <img
               src={brasao}
-              alt="Brasão da Câmara Municipal de Sumé"
+              alt={`Brasão da ${org}`}
               className="mx-auto mb-8 h-24 w-auto object-contain sm:h-28"
             />
           )}

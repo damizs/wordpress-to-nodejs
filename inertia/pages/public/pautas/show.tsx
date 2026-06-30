@@ -13,7 +13,7 @@ export default function PautaShow({ pauta }: Props) {
 
   return (
     <PageLayout
-      seo={{ title: `${pauta.title} - Câmara Municipal de Sumé`, url: `/pautas/${pauta.slug}` }}
+      seo={{ title: pauta.title, url: `/pautas/${pauta.slug}` }}
       breadcrumb={[{ label: "Pautas", href: "/pautas" }, { label: pauta.title }]}
       width="reading"
     >

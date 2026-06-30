@@ -18,8 +18,9 @@ export const TopBar = () => {
 
   // e-SIC e Ouvidoria são sistemas EXTERNOS (configuráveis no painel) — devem
   // abrir o sistema do fornecedor em nova aba, não uma âncora/página interna.
-  const esicUrl = settings.esic_new_url?.trim() || "https://doc3.inf.br/cmsu2516300/esic";
-  const ouvidoriaUrl = settings.ouvidoria_url?.trim() || "https://atendimento.camaradesume.pb.gov.br/";
+  // Sem URL configurada no painel, o atalho é omitido (sem chumbar tenant).
+  const esicUrl = settings.esic_new_url?.trim() || "";
+  const ouvidoriaUrl = settings.ouvidoria_url?.trim() || "";
 
   const topLinks = [
     { icon: Search, label: "Portal da Transparência", shortLabel: "Transparência", href: "/transparencia", external: false },
@@ -29,7 +30,7 @@ export const TopBar = () => {
     { icon: Shield, label: "Política de Privacidade", shortLabel: "Privacidade", href: "/politica-de-privacidade", external: false },
     { icon: Map, label: "Mapa do Site", shortLabel: "Mapa", href: "/mapa-do-site", external: false },
     { icon: Database, label: "Dados Abertos", shortLabel: "Dados", href: "/dados-abertos", external: false },
-  ];
+  ].filter((link) => !link.external || (link.href && link.href.trim() !== ""));
 
   const primaryMobileLinks = topLinks.slice(0, 2);
   const tabletLinks = topLinks.slice(0, 5);

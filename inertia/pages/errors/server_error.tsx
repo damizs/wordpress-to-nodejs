@@ -1,12 +1,13 @@
-import { Link } from '@inertiajs/react'
+import { Link, usePage } from '@inertiajs/react'
 import { SeoHead } from '~/components/SeoHead'
 
 export default function ServerError() {
+  const org = (usePage().props as { camara?: { nome?: string } }).camara?.nome || 'Câmara Municipal'
   return (
     <>
       <SeoHead
         title="Erro interno"
-        description="Ocorreu um erro inesperado no Portal da Câmara Municipal de Sumé."
+        description={`Ocorreu um erro inesperado no Portal da ${org}.`}
       />
       <main className="min-h-screen bg-background text-foreground flex items-center">
         <div className="container py-16 lg:py-24 text-center">

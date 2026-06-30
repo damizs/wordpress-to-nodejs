@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link, router } from "@inertiajs/react";
+import { Link, router, usePage } from "@inertiajs/react";
 import { SeoHead } from "~/components/SeoHead";
 import { TopBar } from "~/components/TopBar";
 import { Header } from "~/components/Header";
@@ -178,6 +178,7 @@ function CardLink({
 }
 
 export default function TransparenciaIndex({ sections = [], openLink = null }: Props) {
+  const org = (usePage().props as { camara?: { nome?: string } }).camara?.nome || "Câmara Municipal";
   const [query, setQuery] = useState("");
   const displaySections = useMemo(() => splitRevenueAndExpenseSections(sections), [sections]);
   // openLink inicial = acesso direto a /transparencia/<slug>: modal já aberto no mount
@@ -330,8 +331,8 @@ export default function TransparenciaIndex({ sections = [], openLink = null }: P
   return (
     <>
       <SeoHead
-        title="Portal da Transparência - Câmara Municipal de Sumé"
-        description="Acesse informações sobre a gestão dos recursos públicos da Câmara Municipal de Sumé. Transparência e acesso à informação."
+        title="Portal da Transparência"
+        description={`Acesse informações sobre a gestão dos recursos públicos da ${org}. Transparência e acesso à informação.`}
         url="/transparencia"
       />
       <div className="min-h-screen bg-background overflow-x-clip">

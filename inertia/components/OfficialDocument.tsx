@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { usePage } from "@inertiajs/react";
 import { QRCodeSVG } from "qrcode.react";
 import { Download, ExternalLink, Printer, Link2, Check, Mail } from "lucide-react";
 import { useSiteSettings } from "~/hooks/use_site_settings";
@@ -27,9 +28,10 @@ interface OfficialDocumentProps {
 
 function Letterhead() {
   const settings = useSiteSettings();
+  const orgName = (usePage().props as { camara?: { nome?: string } }).camara?.nome || "";
   const logo = settings.document_brasao_url || settings.logo_url || null;
   const line1 = (settings.header_subtitle || "Estado da Paraíba").toUpperCase();
-  const line2 = (settings.header_title || "Câmara Municipal de Sumé").toUpperCase();
+  const line2 = (settings.header_title || orgName).toUpperCase();
   const address = settings.footer_address || "";
 
   return (

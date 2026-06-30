@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { usePage } from "@inertiajs/react";
 import { SeoHead } from "~/components/SeoHead";
 import { TopBar } from "~/components/TopBar";
 import { Header } from "~/components/Header";
@@ -34,6 +35,7 @@ function letterOf(t: GlossaryTerm) {
 }
 
 export default function GlossaryIndex({ terms = [] }: Props) {
+  const org = (usePage().props as { camara?: { nome?: string } }).camara?.nome || "Câmara Municipal";
   const [query, setQuery] = useState("");
 
   const filtered = useMemo(() => {
@@ -59,8 +61,8 @@ export default function GlossaryIndex({ terms = [] }: Props) {
   return (
     <>
       <SeoHead
-        title="Glossário Legislativo - Câmara Municipal de Sumé"
-        description="Significado de termos jurídicos, orçamentários e legislativos usados no dia a dia da Câmara Municipal de Sumé."
+        title="Glossário Legislativo"
+        description={`Significado de termos jurídicos, orçamentários e legislativos usados no dia a dia da ${org}.`}
         url="/glossario"
       />
       <div className="min-h-screen bg-background overflow-x-clip">

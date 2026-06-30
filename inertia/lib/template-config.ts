@@ -34,7 +34,7 @@ export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
   diario: 'Diário Oficial',
   instagram: 'Instagram',
   reels: 'Vídeos (Reels)',
-  conheca: 'Conheça Sumé',
+  conheca: 'Conheça a Cidade',
   seals: 'Selos e Certificações',
   survey: 'Pesquisa de Satisfação',
 }

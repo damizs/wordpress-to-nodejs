@@ -50,7 +50,7 @@ export default function ActivityShow({ activity, authors = [], exportUrl }: Prop
 
   return (
     <PageLayout
-      seo={{ title: `${title} - Câmara Municipal de Sumé`, url: `/atividades-legislativas/${activity.slug}` }}
+      seo={{ title, url: `/atividades-legislativas/${activity.slug}` }}
       breadcrumb={[{ label: "Atividades Legislativas", href: "/atividades-legislativas" }, { label: title }]}
     >
       <Link href="/atividades-legislativas" className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-6 no-underline">

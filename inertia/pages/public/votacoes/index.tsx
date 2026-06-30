@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, router } from "@inertiajs/react";
+import { Link, router, usePage } from "@inertiajs/react";
 import { SeoHead } from "~/components/SeoHead";
 import { TopBar } from "~/components/TopBar";
 import { Header } from "~/components/Header";
@@ -144,6 +144,7 @@ function VotacaoCard({ votacao, index }: { votacao: Votacao; index: number }) {
 }
 
 export default function VotacoesIndex({ votacoes = [], pagination, years = [], filters = {} }: Props) {
+  const org = (usePage().props as { camara?: { nome?: string } }).camara?.nome || "Câmara Municipal";
   const [searchTerm, setSearchTerm] = useState(filters.search || "");
 
   function applyFilters(patch: Record<string, string>) {
@@ -162,7 +163,7 @@ export default function VotacoesIndex({ votacoes = [], pagination, years = [], f
 
   return (
     <>
-      <SeoHead title="Votações Nominais - Câmara Municipal de Sumé" description="Acompanhe como cada vereador votou nas matérias apreciadas pela Câmara Municipal de Sumé." url="/votacoes" />
+      <SeoHead title="Votações Nominais" description={`Acompanhe como cada vereador votou nas matérias apreciadas pela ${org}.`} url="/votacoes" />
       <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar /><Header /><Breadcrumb items={[{ label: "Votações Nominais" }]} />
         <PageHero badge="Atividade Legislativa" title="Votações Nominais" subtitle="Veja como cada vereador votou nas matérias apreciadas em Plenário" />

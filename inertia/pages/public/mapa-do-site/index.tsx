@@ -1,4 +1,4 @@
-import { Link } from "@inertiajs/react";
+import { Link, usePage } from "@inertiajs/react";
 import { SeoHead } from "~/components/SeoHead";
 import { TopBar } from "~/components/TopBar";
 import { Header } from "~/components/Header";
@@ -44,11 +44,12 @@ const GROUP_ICONS: Record<string, LucideIcon> = {
 };
 
 export default function MapaDoSite({ groups = [] }: Props) {
+  const org = (usePage().props as { camara?: { nome?: string } }).camara?.nome || "Câmara Municipal";
   return (
     <>
       <SeoHead
-        title="Mapa do Site - Câmara Municipal de Sumé"
-        description="Encontre rapidamente todas as seções e páginas do portal da Câmara Municipal de Sumé."
+        title="Mapa do Site"
+        description={`Encontre rapidamente todas as seções e páginas do portal da ${org}.`}
         url="/mapa-do-site"
       />
       <div className="min-h-screen bg-background overflow-x-clip">

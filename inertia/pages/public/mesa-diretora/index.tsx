@@ -4,7 +4,7 @@ import { Header } from "~/components/Header";
 import { Breadcrumb } from "~/components/Breadcrumb";
 import { PageHero } from "~/components/PageHero";
 import { Footer } from "~/components/Footer";
-import { Link } from "@inertiajs/react";
+import { Link, usePage } from "@inertiajs/react";
 import { Gavel, CalendarRange } from "lucide-react";
 
 const COMPETENCIAS = [
@@ -70,14 +70,15 @@ const RoleBadge = ({ role }: { role: string }) => (
 );
 
 export default function MesaDiretoraIndex({ members = [], biennium }: Props) {
+  const org = (usePage().props as { camara?: { nome?: string } }).camara?.nome || "Câmara Municipal";
   const president = members.find((m) => isPresident(m.role));
   const others = members.filter((m) => !president || m.id !== president.id);
 
   return (
     <>
       <SeoHead
-        title="Mesa Diretora - Câmara Municipal de Sumé"
-        description="Conheça a Mesa Diretora da Câmara Municipal de Sumé."
+        title="Mesa Diretora"
+        description={`Conheça a Mesa Diretora da ${org}.`}
         url="/mesa-diretora"
       />
       <div className="min-h-screen bg-background overflow-x-clip">

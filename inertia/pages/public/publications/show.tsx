@@ -25,7 +25,7 @@ export default function PublicationShow({ publication, exportUrl }: Props) {
 
   return (
     <PageLayout
-      seo={{ title: `${publication.title} - Câmara Municipal de Sumé`, url: `/publicacoes-oficiais/${publication.slug}` }}
+      seo={{ title: publication.title, url: `/publicacoes-oficiais/${publication.slug}` }}
       breadcrumb={[{ label: "Publicações Oficiais", href: "/publicacoes-oficiais" }, { label: publication.title }]}
       width="reading"
     >

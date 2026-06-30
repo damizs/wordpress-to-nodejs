@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, router } from "@inertiajs/react";
+import { Link, router, usePage } from "@inertiajs/react";
 import { SeoHead } from "~/components/SeoHead";
 import { TopBar } from "~/components/TopBar";
 import { Header } from "~/components/Header";
@@ -31,6 +31,7 @@ const pageUrl = (page: number, filters?: Filters) => {
 };
 
 export default function PublicationsIndex({ publications = [], pagination, filters = {}, types = [], years = [] }: Props) {
+  const org = (usePage().props as { camara?: { nome?: string } }).camara?.nome || "Câmara Municipal";
   const [searchTerm, setSearchTerm] = useState(filters.search || "");
 
   function applyFilters(patch: Partial<Filters>) {
@@ -46,7 +47,7 @@ export default function PublicationsIndex({ publications = [], pagination, filte
 
   return (
     <>
-      <SeoHead title="Publicações Oficiais - Câmara Municipal de Sumé" description="Acesse as publicações oficiais da Câmara Municipal de Sumé." url="/publicacoes-oficiais" />
+      <SeoHead title="Publicações Oficiais" description={`Acesse as publicações oficiais da ${org}.`} url="/publicacoes-oficiais" />
       <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar /><Header /><Breadcrumb items={[{ label: "Publicações Oficiais" }]} />
         <PageHero badge="Documentos" title="Publicações Oficiais" subtitle="Leis, decretos, portarias e demais atos oficiais da Câmara Municipal" centered />

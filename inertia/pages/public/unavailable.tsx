@@ -25,7 +25,7 @@ export default function PublicUnavailable({
   return (
     <PageLayout
       seo={{
-        title: `${title} - Câmara Municipal de Sumé`,
+        title,
         description: message,
         url: path || undefined,
       }}

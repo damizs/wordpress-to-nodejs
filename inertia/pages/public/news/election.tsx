@@ -1,3 +1,4 @@
+import { usePage } from "@inertiajs/react";
 import { SeoHead } from "~/components/SeoHead";
 import { TopBar } from "~/components/TopBar";
 import { Header } from "~/components/Header";
@@ -12,10 +13,12 @@ interface Props {
 }
 
 export default function NewsElection({ message = DEFAULT_ELECTION_MESSAGE }: Props) {
+  const camara = (usePage().props as { camara?: { nome: string } }).camara;
+  const orgNome = camara?.nome || "Câmara Municipal";
   return (
     <>
       <SeoHead
-        title="Notícias temporariamente indisponíveis - Câmara Municipal de Sumé"
+        title={`Notícias temporariamente indisponíveis - ${orgNome}`}
         description="Conteúdo institucional temporariamente indisponível durante o período eleitoral."
         url="/noticias"
       />

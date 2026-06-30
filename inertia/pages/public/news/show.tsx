@@ -27,8 +27,12 @@ interface Props {
 }
 
 export default function NewsShow({ news, related = [] }: Props) {
-  const { url } = usePage();
-  const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://node.camaradesume.pb.gov.br';
+  const page = usePage();
+  const { url } = page;
+  const camara = (page.props as { camara?: { nome: string; baseUrl: string } }).camara;
+  const orgNome = camara?.nome || "Câmara Municipal";
+  // Host base (SEO/canonical/og): client usa a origem real; SSR usa camara.baseUrl (config/camara via env).
+  const baseUrl = typeof window !== 'undefined' ? window.location.origin : (camara?.baseUrl || '');
   const fullUrl = `${baseUrl}${url}`;
   const [copied, setCopied] = useState(false);
   
@@ -39,7 +43,7 @@ export default function NewsShow({ news, related = [] }: Props) {
   // og:image precisa ser URL ABSOLUTA (Facebook/WhatsApp não resolvem caminhos
   // relativos). Host base fixo (sem window) para SSR estável; se vazio, deixa o
   // SeoHead cair no default (já absoluto).
-  const SEO_BASE = 'https://node.camaradesume.pb.gov.br';
+  const SEO_BASE = camara?.baseUrl || '';
   const ogImage = featuredImage
     ? (featuredImage.startsWith('http')
         ? featuredImage
@@ -56,7 +60,7 @@ export default function NewsShow({ news, related = [] }: Props) {
   return (
     <>
       <SeoHead
-        title={`${news.title} - Câmara Municipal de Sumé`}
+        title={`${news.title} - ${orgNome}`}
         description={news.excerpt || news.title}
         url={`/noticias/${news.slug}`}
         image={ogImage}

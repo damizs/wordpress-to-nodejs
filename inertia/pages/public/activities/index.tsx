@@ -75,7 +75,7 @@ export default function ActivitiesIndex({ activities = [], pagination, filters =
 
   return (
     <>
-      <SeoHead title="Atividades Legislativas - Câmara Municipal de Sumé" description="Acompanhe as atividades legislativas: projetos de lei, requerimentos, indicações e moções." url="/atividades-legislativas" />
+      <SeoHead title="Atividades Legislativas" description="Acompanhe as atividades legislativas: projetos de lei, requerimentos, indicações e moções." url="/atividades-legislativas" />
       <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar /><Header /><Breadcrumb items={[{ label: "Atividades Legislativas" }]} />
         <PageHero badge="Legislativo" title="Atividades Legislativas" subtitle="Projetos de Lei, Requerimentos, Indicações e Moções" centered />

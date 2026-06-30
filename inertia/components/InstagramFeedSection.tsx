@@ -20,7 +20,8 @@ interface InstagramFeedSectionProps {
   profileImageUrl?: string | null;
 }
 
-const DEFAULT_PROFILE = "https://www.instagram.com/camaradesume";
+/** Sem perfil configurado no painel, não chumbamos o Instagram de nenhum tenant. */
+const DEFAULT_PROFILE = "";
 
 function ProfileAvatar({
   profileImageUrl,

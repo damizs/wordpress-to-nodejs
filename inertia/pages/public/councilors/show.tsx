@@ -606,7 +606,7 @@ export default function VereadorShow({
   return (
     <>
       <SeoHead
-        title={`${vereador.name} - Câmara Municipal de Sumé`}
+        title={vereador.name}
         description={`Perfil e produção legislativa de ${vereador.name}. ${vereador.party || ""}`}
         url={`/vereadores/${vereador.slug}`}
         image={vereador.photo}
@@ -639,7 +639,7 @@ export default function VereadorShow({
                   <img
                     src={vereador.photo}
                     alt={`Foto de ${vereador.name}`}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover object-top"
                   />
                 ) : (
                   <div

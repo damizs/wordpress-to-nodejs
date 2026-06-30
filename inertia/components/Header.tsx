@@ -259,13 +259,13 @@ export const Header = ({ logoUrl }: HeaderProps) => {
 
   const resolvedLogo = logoUrl ?? settings.logo_url ?? null;
   // Nome institucional: setting editável (Aparência) com fallback na identidade
-  // compartilhada (config/camara), em MAIÚSCULAS como o chrome exibe. DEFAULT de
-  // camara.nome = "Câmara Municipal de Sumé" → "CÂMARA MUNICIPAL DE SUMÉ".
+  // compartilhada (config/camara via props), em MAIÚSCULAS como o chrome exibe.
+  // Sem literal de tenant — se a identidade não vier, fica vazio.
   const camaraNome =
-    (page.props as { camara?: { nome: string } }).camara?.nome || "Câmara Municipal de Sumé";
+    (page.props as { camara?: { nome: string } }).camara?.nome || "";
   const headerTitle = settings.header_title || camaraNome.toUpperCase();
   const headerSubtitle = settings.header_subtitle || "Estado da Paraíba";
-  const [titleFirstWord, ...titleRest] = headerTitle.split(" ");
+  const [titleFirstWord = "", ...titleRest] = headerTitle.split(" ");
 
   // Barra de navegação compacta que aparece ao rolar a página
   useEffect(() => {

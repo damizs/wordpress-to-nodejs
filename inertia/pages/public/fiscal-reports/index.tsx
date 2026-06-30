@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { router } from "@inertiajs/react";
+import { router, usePage } from "@inertiajs/react";
 import { SeoHead } from "~/components/SeoHead";
 import { TopBar } from "~/components/TopBar";
 import { Header } from "~/components/Header";
@@ -45,6 +45,7 @@ const TYPE_FULL: Record<string, string> = {
 };
 
 export default function FiscalReportsIndex({ reports = [], filters = {}, years = [], types = [] }: Props) {
+  const org = (usePage().props as { camara?: { nome?: string } }).camara?.nome || "Câmara Municipal";
   const [searchTerm, setSearchTerm] = useState(filters.search || "");
 
   // Ramificação: Ano → Tipo → Períodos
@@ -123,8 +124,8 @@ export default function FiscalReportsIndex({ reports = [], filters = {}, years =
   return (
     <>
       <SeoHead
-        title="Relatórios Fiscais (RGF / RREO) - Câmara Municipal de Sumé"
-        description="Relatórios de Gestão Fiscal (RGF) e demais relatórios fiscais da Câmara Municipal de Sumé, organizados por ano e período."
+        title="Relatórios Fiscais (RGF / RREO)"
+        description={`Relatórios de Gestão Fiscal (RGF) e demais relatórios fiscais da ${org}, organizados por ano e período.`}
         url="/relatorios-fiscais"
       />
       <div className="min-h-screen bg-background overflow-x-clip">

@@ -4,7 +4,7 @@ import { Header } from "~/components/Header";
 import { Breadcrumb } from "~/components/Breadcrumb";
 import { PageHero } from "~/components/PageHero";
 import { Footer } from "~/components/Footer";
-import { Link } from "@inertiajs/react";
+import { Link, usePage } from "@inertiajs/react";
 import {
   Users,
   Gavel,
@@ -118,11 +118,12 @@ function committeeVisual(name: string): { icon: LucideIcon; className: string } 
 }
 
 export default function CommitteesIndex({ committees = [] }: Props) {
+  const org = (usePage().props as { camara?: { nome?: string } }).camara?.nome || "Câmara Municipal";
   return (
     <>
       <SeoHead
-        title="Comissões Permanentes - Câmara Municipal de Sumé"
-        description="Conheça as Comissões Permanentes da Câmara Municipal de Sumé, seus membros e atribuições."
+        title="Comissões Permanentes"
+        description={`Conheça as Comissões Permanentes da ${org}, seus membros e atribuições.`}
         url="/comissoes"
       />
       <div className="min-h-screen bg-background overflow-x-clip">

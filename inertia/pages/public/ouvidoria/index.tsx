@@ -16,6 +16,7 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { useSiteSettings } from "~/hooks/use_site_settings";
+import { usePage } from "@inertiajs/react";
 
 const channels = [
   {
@@ -44,21 +45,27 @@ const channels = [
   },
 ];
 
-const DEFAULT_OUVIDORIA_URL = "https://atendimento.camaradesume.pb.gov.br/";
-
 export default function OuvidoriaIndex() {
   const settings = useSiteSettings();
+  const camara = (usePage().props as { camara?: { nome: string } }).camara;
+  const orgNome = camara?.nome || "Câmara Municipal";
+  // URL do sistema de Ouvidoria vem de settings (siteSettings) — sem default chumbado.
   const ouvidoriaUrl =
     settings.ouvidoria_url && settings.ouvidoria_url !== "#"
       ? settings.ouvidoria_url
-      : DEFAULT_OUVIDORIA_URL;
+      : "";
+  const hasOuvidoriaUrl = ouvidoriaUrl.trim() !== "";
   const isExternal = ouvidoriaUrl.startsWith("http");
+  // Contato da Ouvidoria: settings próprios → fallback no contato do rodapé → vazio (esconde).
+  const ouvidoriaPhone = settings.ouvidoria_phone || settings.footer_phone || "";
+  const ouvidoriaEmail = settings.ouvidoria_email || settings.footer_email || "";
+  const ouvidoriaAddress = settings.ouvidoria_address || settings.footer_address || "";
 
   return (
     <>
       <SeoHead
-        title="Ouvidoria - Câmara Municipal de Sumé"
-        description="Canal de Ouvidoria da Câmara Municipal de Sumé. Denúncias, reclamações, sugestões e elogios."
+        title={`Ouvidoria - ${orgNome}`}
+        description={`Canal de Ouvidoria da ${orgNome}. Denúncias, reclamações, sugestões e elogios.`}
         url="/ouvidoria"
       />
       <div className="min-h-screen bg-background overflow-x-clip">
@@ -95,14 +102,20 @@ export default function OuvidoriaIndex() {
                     As manifestações são registradas no sistema oficial de Ouvidoria da Câmara.
                     Você receberá protocolo e poderá acompanhar o andamento online.
                   </p>
-                  <a
-                    href={ouvidoriaUrl}
-                    {...(isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-                    className="btn-modern inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold no-underline mb-4"
-                  >
-                    Acessar sistema de Ouvidoria
-                    {isExternal && <ExternalLink className="w-4 h-4 opacity-80" />}
-                  </a>
+                  {hasOuvidoriaUrl ? (
+                    <a
+                      href={ouvidoriaUrl}
+                      {...(isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                      className="btn-modern inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-primary text-primary-foreground font-semibold no-underline mb-4"
+                    >
+                      Acessar sistema de Ouvidoria
+                      {isExternal && <ExternalLink className="w-4 h-4 opacity-80" />}
+                    </a>
+                  ) : (
+                    <p className="text-sm text-muted-foreground mb-4">
+                      O link do sistema de Ouvidoria será disponibilizado em breve.
+                    </p>
+                  )}
                   <p className="text-xs text-muted-foreground mt-auto">
                     Prazo de resposta: até 20 dias, prorrogáveis por mais 10 mediante
                     justificativa (Lei nº 13.460/2017).
@@ -113,42 +126,42 @@ export default function OuvidoriaIndex() {
                   <div className="card-modern p-6">
                     <h2 className="font-bold text-foreground mb-4">Atendimento presencial</h2>
                     <ul className="space-y-4">
-                      <li className="flex items-start gap-3">
-                        <Phone className="w-5 h-5 text-primary flex-shrink-0" />
-                        <div>
-                          <p className="font-medium text-foreground">(83) 3353-1185</p>
-                          <p className="text-sm text-muted-foreground">Telefone</p>
-                        </div>
-                      </li>
-                      <li className="flex items-start gap-3">
-                        <Mail className="w-5 h-5 text-primary flex-shrink-0" />
-                        <div>
-                          <p className="font-medium text-foreground">
-                            ouvidoria@camaradesume.pb.gov.br
-                          </p>
-                          <p className="text-sm text-muted-foreground">E-mail</p>
-                        </div>
-                      </li>
+                      {ouvidoriaPhone && (
+                        <li className="flex items-start gap-3">
+                          <Phone className="w-5 h-5 text-primary flex-shrink-0" />
+                          <div>
+                            <p className="font-medium text-foreground">{ouvidoriaPhone}</p>
+                            <p className="text-sm text-muted-foreground">Telefone</p>
+                          </div>
+                        </li>
+                      )}
+                      {ouvidoriaEmail && (
+                        <li className="flex items-start gap-3">
+                          <Mail className="w-5 h-5 text-primary flex-shrink-0" />
+                          <div>
+                            <p className="font-medium text-foreground">{ouvidoriaEmail}</p>
+                            <p className="text-sm text-muted-foreground">E-mail</p>
+                          </div>
+                        </li>
+                      )}
                       <li className="flex items-start gap-3">
                         <Clock className="w-5 h-5 text-primary flex-shrink-0" />
                         <div>
                           <p className="font-medium text-foreground">
-                            Segunda a Sexta: 08h às 14h
+                            {settings.ouvidoria_hours || settings.footer_hours || "Segunda a Sexta: 08h às 14h"}
                           </p>
                           <p className="text-sm text-muted-foreground">Horário de atendimento</p>
                         </div>
                       </li>
-                      <li className="flex items-start gap-3">
-                        <MapPin className="w-5 h-5 text-primary flex-shrink-0" />
-                        <div>
-                          <p className="font-medium text-foreground">
-                            Praça Luiz Gaudêncio, S/N - Centro
-                          </p>
-                          <p className="text-sm text-muted-foreground">
-                            Sumé - PB, CEP: 58540-000
-                          </p>
-                        </div>
-                      </li>
+                      {ouvidoriaAddress && (
+                        <li className="flex items-start gap-3">
+                          <MapPin className="w-5 h-5 text-primary flex-shrink-0" />
+                          <div>
+                            <p className="font-medium text-foreground">{ouvidoriaAddress}</p>
+                            <p className="text-sm text-muted-foreground">Endereço</p>
+                          </div>
+                        </li>
+                      )}
                     </ul>
                   </div>
                 </div>

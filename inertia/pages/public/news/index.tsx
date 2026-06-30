@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, router } from "@inertiajs/react";
+import { Link, router, usePage } from "@inertiajs/react";
 import { SeoHead } from "~/components/SeoHead";
 import { TopBar } from "~/components/TopBar";
 import { Header } from "~/components/Header";
@@ -61,6 +61,9 @@ const pageUrl = (page: number, filters: Filters) => {
 };
 
 export default function NewsIndex({ news, categories = [], filters = {}, electionMode = null }: Props) {
+  const camara = (usePage().props as { camara?: { nome: string; nomeCurto: string } }).camara;
+  const orgNome = camara?.nome || "Câmara Municipal";
+  const orgCurto = camara?.nomeCurto || "Câmara Municipal";
   const items = news?.data || [];
   const pagination = news?.meta ? {
     currentPage: news.meta.currentPage || news.meta.current_page || 1,
@@ -92,8 +95,8 @@ export default function NewsIndex({ news, categories = [], filters = {}, electio
   return (
     <>
       <SeoHead
-        title="Notícias - Câmara Municipal de Sumé"
-        description="Acompanhe as últimas notícias e acontecimentos da Câmara Municipal de Sumé."
+        title={`Notícias - ${orgNome}`}
+        description={`Acompanhe as últimas notícias e acontecimentos da ${orgNome}.`}
         url="/noticias"
       />
       <div className="min-h-screen bg-background overflow-x-clip">
@@ -187,7 +190,7 @@ export default function NewsIndex({ news, categories = [], filters = {}, electio
                                 <Newspaper className="w-6 h-6 text-primary/60" aria-hidden="true" />
                               </div>
                               <span className="text-[11px] font-semibold uppercase tracking-wider text-primary/50">
-                                Câmara de Sumé
+                                {orgCurto}
                               </span>
                             </div>
                           )}

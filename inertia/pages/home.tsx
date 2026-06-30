@@ -1,4 +1,5 @@
 import { Fragment, type ReactNode } from "react";
+import { usePage } from "@inertiajs/react";
 import { GlobalEffects } from "~/components/GlobalEffects";
 import { TopBar } from "~/components/TopBar";
 import { Header } from "~/components/Header";
@@ -148,6 +149,14 @@ export default function Home({
   siteSettings = {},
   electionMode = undefined,
 }: HomeProps) {
+  // Identidade da câmara vem dos shared props do Inertia (config/camara).
+  // Usada para montar SEO/H1 sem chumbar nome/cidade/UF de nenhuma câmara.
+  const camara = (usePage().props as {
+    camara?: { nome: string; cidade: string; uf: string };
+  }).camara;
+  const camaraNome = camara?.nome ?? "";
+  const camaraCidade = camara?.cidade ?? "";
+  const camaraUf = camara?.uf ?? "";
   const logoUrl = siteSettings?.logo_url || null;
   const template = getSiteTemplate(siteSettings?.site_template);
   const templateConfig = parseTemplateConfig(siteSettings?.template_config);
@@ -197,9 +206,9 @@ export default function Home({
   return (
     <>
       <GlobalEffects />
-      <SeoHead 
+      <SeoHead
         title="Início"
-        description="Portal oficial da Câmara Municipal de Sumé, Paraíba. Acesse informações sobre vereadores, transparência, notícias e serviços ao cidadão."
+        description={`Portal oficial da ${camaraNome}, ${camaraCidade} - ${camaraUf}. Transparência, notícias, vereadores e serviços ao cidadão.`}
       />
       
       <div className="min-h-screen bg-background overflow-x-clip">
@@ -207,7 +216,7 @@ export default function Home({
         <Header logoUrl={logoUrl} />
         
         <main id="conteudo" tabIndex={-1} className="outline-none">
-          <h1 className="sr-only">Câmara Municipal de Sumé — Portal Oficial</h1>
+          <h1 className="sr-only">{camaraNome} — Portal Oficial</h1>
           {template.homeHero && !electionActive && (
             <HomeHero
               template={template.key}

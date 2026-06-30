@@ -1,4 +1,4 @@
-import { router } from "@inertiajs/react";
+import { router, usePage } from "@inertiajs/react";
 import { SeoHead } from "~/components/SeoHead";
 import { TopBar } from "~/components/TopBar";
 import { Header } from "~/components/Header";
@@ -211,6 +211,7 @@ export default function DuodecimosIndex({
   lastUpdate,
 }: Props) {
   const hasRows = rows.length > 0;
+  const org = (usePage().props as { camara?: { nome?: string } }).camara?.nome || "Câmara Municipal";
 
   function exportData(format: "csv" | "json") {
     const dataRows = rows.map((r) => ({
@@ -272,8 +273,8 @@ export default function DuodecimosIndex({
   return (
     <>
       <SeoHead
-        title="Duodécimos - Câmara Municipal de Sumé"
-        description="Repasses mensais de duodécimos (1/12 do orçamento) do Poder Executivo à Câmara Municipal de Sumé."
+        title="Duodécimos"
+        description={`Repasses mensais de duodécimos (1/12 do orçamento) do Poder Executivo à ${org}.`}
         url="/duodecimos"
       />
       <div className="min-h-screen bg-background overflow-x-clip">
@@ -509,7 +510,7 @@ export default function DuodecimosIndex({
                   Informação publicada em cumprimento ao dever de transparência ativa (Lei nº
                   12.527/2011 — Lei de Acesso à Informação) e ao art. 168 da Constituição Federal.
                   Os valores referem-se aos repasses do duodécimo do Poder Executivo Municipal à
-                  Câmara Municipal de Sumé.
+                  {" "}{org}.
                 </p>
               </div>
             </div>

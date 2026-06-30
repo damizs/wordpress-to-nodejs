@@ -1,16 +1,23 @@
 import { MapPin, Clock, Search, Send, Phone, Mail, ArrowRight } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { usePage } from "@inertiajs/react";
 import { useSiteSettings } from "~/hooks/use_site_settings";
 
-/** Sistema e-SIC contratado (doc3.inf.br) — Sumé */
-export const DEFAULT_ESIC_URL = "https://doc3.inf.br/cmsu2516300/esic";
+/**
+ * URL do sistema e-SIC: vem 100% do painel (esic_new_url). Sem URL configurada,
+ * fica vazio e os botões do sistema são omitidos (sem chumbar tenant).
+ */
+export const DEFAULT_ESIC_URL = "";
 
-/** Contatos padrão da seção (Painel → Homepage → E-SIC). Não usa footer. */
-const SUME_ESIC_CONTACT = {
-  address: "Rua Luiz Grande, s/n - Centro\nCEP: 58540-000\nSumé - PB",
-  hours: "Segunda à Sexta-feira\ndas 8h às 14h",
-  phone: "(83) 3353-1191",
-  email: "contato@camaradesume.pb.gov.br",
+/**
+ * Contatos padrão da seção (Painel → Homepage → E-SIC). Fallback VAZIO — o
+ * endereço/horário/telefone/e-mail vêm do painel; cada item some quando vazio.
+ */
+const DEFAULT_ESIC_CONTACT = {
+  address: "",
+  hours: "",
+  phone: "",
+  email: "",
 };
 
 interface ESicSectionProps {
@@ -33,29 +40,30 @@ function pickSetting(...values: (string | null | undefined)[]): string {
  */
 export const ESicSection = ({ title, subtitle, hideHeading = false }: ESicSectionProps) => {
   const settings = useSiteSettings();
+  const orgName = (usePage().props as { camara?: { nome?: string } }).camara?.nome || "";
 
   const newUrl = pickSetting(settings.esic_new_url, DEFAULT_ESIC_URL);
   const consultUrl = pickSetting(settings.esic_consult_url, newUrl);
 
-  const address = pickSetting(settings.homepage_esic_address, SUME_ESIC_CONTACT.address);
-  const hours = pickSetting(settings.homepage_esic_hours, SUME_ESIC_CONTACT.hours);
+  const address = pickSetting(settings.homepage_esic_address, DEFAULT_ESIC_CONTACT.address);
+  const hours = pickSetting(settings.homepage_esic_hours, DEFAULT_ESIC_CONTACT.hours);
   const phone = pickSetting(
     settings.homepage_esic_phone,
     settings.esic_phone,
-    SUME_ESIC_CONTACT.phone
+    DEFAULT_ESIC_CONTACT.phone
   );
   const email = pickSetting(
     settings.homepage_esic_email,
     settings.esic_email,
-    SUME_ESIC_CONTACT.email
+    DEFAULT_ESIC_CONTACT.email
   );
   const sicUnit = pickSetting(
     settings.sic_unit,
-    "Serviço de Informação ao Cidadão (SIC) da Câmara Municipal de Sumé"
+    orgName ? `Serviço de Informação ao Cidadão (SIC) da ${orgName}` : ""
   );
   const monitoringAuthority = pickSetting(
     settings.sic_monitoring_authority,
-    "Presidência da Câmara Municipal de Sumé"
+    orgName ? `Presidência da ${orgName}` : ""
   );
 
   const linkProps = (url: string) =>
@@ -67,22 +75,23 @@ export const ESicSection = ({ title, subtitle, hideHeading = false }: ESicSectio
     subtitle ||
     "Acesse informações públicas e solicite dados da administração municipal de forma transparente";
 
+  // Cada linha de contato só entra quando o painel tem o dado (fallback vazio).
   const contactItems: { icon: LucideIcon; title: string; content: string; href?: string }[] = [
-    { icon: MapPin, title: "Endereço", content: address },
-    { icon: Clock, title: "Horário de Atendimento", content: hours },
-    {
+    address && { icon: MapPin, title: "Endereço", content: address },
+    hours && { icon: Clock, title: "Horário de Atendimento", content: hours },
+    phone && {
       icon: Phone,
       title: "Telefone",
       content: phone,
       href: `tel:${phone.replace(/[^\d+]/g, "")}`,
     },
-    {
+    email && {
       icon: Mail,
       title: "E-mail",
       content: email,
       href: `mailto:${email}`,
     },
-  ];
+  ].filter(Boolean) as { icon: LucideIcon; title: string; content: string; href?: string }[];
 
   const steps = [
     "Cadastre sua solicitação de informação",
@@ -117,6 +126,7 @@ export const ESicSection = ({ title, subtitle, hideHeading = false }: ESicSectio
           <div data-reveal="left" className="card-modern p-5 sm:p-8 flex flex-col bg-card shadow-lg">
             <h3 className="text-xl font-bold text-foreground mb-8">Sistema E-SIC</h3>
 
+            {newUrl && (
             <div className="flex flex-col sm:flex-row gap-4 mb-10">
               <a
                 href={newUrl}
@@ -136,6 +146,7 @@ export const ESicSection = ({ title, subtitle, hideHeading = false }: ESicSectio
                 Consultar Demanda
               </a>
             </div>
+            )}
 
             <div className="mt-auto rounded-2xl border border-border/50 bg-gradient-to-br from-muted to-muted/50 p-6">
               <h4 className="font-bold text-foreground mb-5 flex items-center gap-3">
@@ -200,18 +211,22 @@ export const ESicSection = ({ title, subtitle, hideHeading = false }: ESicSectio
 
         <div className="mt-6 sm:mt-8 max-w-6xl mx-auto rounded-2xl border border-primary-foreground/15 bg-card/95 p-5 sm:p-6 shadow-lg" data-reveal>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 text-sm">
+            {sicUnit && (
             <div>
               <span className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
                 Unidade responsável
               </span>
               <p className="font-semibold text-foreground leading-relaxed">{sicUnit}</p>
             </div>
+            )}
+            {monitoringAuthority && (
             <div>
               <span className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
                 Autoridade de monitoramento
               </span>
               <p className="font-semibold text-foreground leading-relaxed">{monitoringAuthority}</p>
             </div>
+            )}
             <div>
               <span className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
                 Prazos da LAI

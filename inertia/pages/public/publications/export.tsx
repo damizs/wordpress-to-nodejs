@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { usePage } from "@inertiajs/react";
 import { useSiteSettings } from "~/hooks/use_site_settings";
 import { RichText } from "~/lib/rich_text";
 import { Printer } from "lucide-react";
@@ -18,8 +19,9 @@ interface Props {
 export default function PublicationExport({ publication }: Props) {
   const settings = useSiteSettings();
   const logo = settings.document_brasao_url || settings.logo_url || null;
-  const line1 = (settings.header_subtitle || "Estado da Paraíba").toUpperCase();
-  const line2 = (settings.header_title || "Câmara Municipal de Sumé").toUpperCase();
+  const camara = (usePage().props as { camara?: { nome?: string } }).camara;
+  const line1 = (settings.header_subtitle || "").toUpperCase();
+  const line2 = (settings.header_title || camara?.nome || "Câmara Municipal").toUpperCase();
   const dateLabel = formatDocumentDate(publication.publicationDate, true);
 
   useEffect(() => {
@@ -54,7 +56,7 @@ export default function PublicationExport({ publication }: Props) {
           {logo && (
             <img src={logo} alt="" className="h-16 w-auto object-contain mx-auto mb-3" />
           )}
-          <p className="text-[11px] tracking-[0.2em] text-black/60">{line1}</p>
+          {line1 && <p className="text-[11px] tracking-[0.2em] text-black/60">{line1}</p>}
           <p className="text-base font-bold tracking-wide">{line2}</p>
           <p className="text-xs text-black/50 mt-4 uppercase tracking-wide">Publicação Oficial</p>
         </header>

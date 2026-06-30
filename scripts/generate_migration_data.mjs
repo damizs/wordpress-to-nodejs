@@ -209,6 +209,8 @@ const VEREADOR_META = {
   '_estado-civil': 'estado_civil',
   '_grau-de-instrucao': 'grau_instrucao',
   '_e-mail': 'email',
+  _historia: 'bio',
+  _descricao: 'descricao',
 }
 // Tabelas "planas" coletadas como objetos {coluna: valor}
 const FLAT_TABLES = new Set([
@@ -413,6 +415,7 @@ const vereadores = [...posts.entries()]
       marital_status: (meta.estado_civil || '').trim(),
       education: (meta.grau_instrucao || '').trim(),
       gender: (meta.genero || '').trim(),
+      bio: (meta.bio || meta.descricao || '').trim(),
     }
   })
 

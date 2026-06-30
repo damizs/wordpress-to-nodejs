@@ -13,7 +13,7 @@ export default function AtaShow({ ata }: Props) {
 
   return (
     <PageLayout
-      seo={{ title: `${ata.title} - Câmara Municipal de Sumé`, url: `/atas/${ata.slug}` }}
+      seo={{ title: ata.title, url: `/atas/${ata.slug}` }}
       breadcrumb={[{ label: "Atas das Sessões", href: "/atas" }, { label: ata.title }]}
       width="reading"
     >

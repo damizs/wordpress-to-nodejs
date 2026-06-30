@@ -1,7 +1,9 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { usePage } from "@inertiajs/react";
 import { Headset, Send, UserRound, X } from "lucide-react";
 import { RichText } from "~/lib/rich_text";
 import { useFocusTrap } from "~/hooks/useFocusTrap";
+import { useSiteSettings } from "~/hooks/use_site_settings";
 
 interface Message {
   id: number;
@@ -25,156 +27,210 @@ const quickOptions: QuickOption[] = [
   { label: "Falar com atendente", action: "atendente" },
 ];
 
-const responses: Record<string, { text: string; options?: QuickOption[] }> = {
-  // Saudações
-  greeting: {
-    text: "Olá! 👋 Bem-vindo(a) à Câmara Municipal de Sumé. Como posso ajudar você hoje?\n\nEscolha um dos assuntos abaixo ou descreva a sua dúvida.",
-    options: [
-      { label: "Transparência", action: "transparencia" },
-      { label: "Acesso à Informação (e-SIC)", action: "link_esic" },
-      { label: "Ouvidoria", action: "ouvidoria" },
-      { label: "Vereadores", action: "vereadores" },
-    ],
-  },
+interface ResponseEntry {
+  text: string;
+  options?: QuickOption[];
+}
 
-  // Prazos LAI
-  prazos_lai: {
-    text: "📋 **Prazos da Lei de Acesso à Informação (LAI):**\n\n- Resposta ao pedido: **até 20 dias**, prorrogáveis por mais **10 dias** mediante justificativa\n- Recurso (1ª instância): **10 dias** após a resposta\n- Recurso (2ª instância): **10 dias** após a decisão do recurso\n\nA LAI **não exige justificativa** para solicitar informações públicas. Faça o seu pedido pelo [e-SIC](/esic).",
-    options: [
-      { label: "Como pedir informação", action: "fazer_pedido" },
-      { label: "Interpor recurso", action: "recurso_esic" },
-    ],
-  },
+/** Dados de contato derivados de settings/camara (sem literal de tenant). */
+interface ContactCtx {
+  orgName: string;
+  generalPhone: string;
+  generalEmail: string;
+  esicPhone: string;
+  esicEmail: string;
+  address: string;
+}
 
-  // Recurso e-SIC
-  recurso_esic: {
-    text: "📝 **Como interpor recurso no e-SIC:**\n\n- Acesse o sistema pelo [e-SIC](/esic) e localize o seu pedido pelo número de protocolo\n- Abra a opção de **recurso** e descreva os motivos\n- Acompanhe a resposta pelo próprio sistema, dentro dos prazos da LAI\n\nO recurso pode ser apresentado em até **10 dias** após receber a resposta.",
-    options: [
-      { label: "Acessar o e-SIC", action: "link_esic" },
-      { label: "Prazos da LAI", action: "prazos_lai" },
-    ],
-  },
+/**
+ * Monta as respostas do assistente. Os textos institucionais são fixos, mas os
+ * contatos (telefone/e-mail/endereço/nome do órgão) vêm de settings/camara — cada
+ * linha de contato só aparece quando o dado existe no painel.
+ */
+function buildResponses(ctx: ContactCtx): Record<string, ResponseEntry> {
+  const { orgName, generalPhone, generalEmail, esicPhone, esicEmail, address } = ctx;
+  const orgLabel = orgName || "Câmara Municipal";
 
-  // Consultar protocolo
-  consultar_protocolo: {
-    text: "🔍 **Consultar o andamento de um pedido:**\n\n- Acesse o [e-SIC](/esic)\n- Use a opção de **consulta** e informe o seu número de protocolo\n- Caso não lembre os dados de acesso, utilize a recuperação disponível no próprio sistema\n\nEm caso de dúvida, fale com o SIC pelo telefone **(83) 3353-1191**.",
-    options: [
-      { label: "Acessar o e-SIC", action: "link_esic" },
-      { label: "Fazer novo pedido", action: "fazer_pedido" },
-    ],
-  },
+  // Linhas de contato da Ouvidoria/atendimento (omitidas quando vazias).
+  const ouvidoriaLines = [
+    "- Site: [Ouvidoria](/ouvidoria)",
+    generalEmail && `- E-mail: ${generalEmail}`,
+    generalPhone && `- Telefone: ${generalPhone}`,
+    address && `- Presencial: ${address}`,
+  ]
+    .filter(Boolean)
+    .join("\n");
 
-  // Transparência
-  transparencia: {
-    text: "🏛️ **Portal da Transparência:**\n\nNo portal você encontra receitas e despesas, contratos e licitações, folha de pagamento, diárias e relatórios de gestão.\n\nAcesse o [Portal da Transparência](/transparencia).",
-    options: [
-      { label: "Licitações", action: "licitacoes" },
-      { label: "Acesso à Informação (e-SIC)", action: "link_esic" },
-    ],
-  },
+  const phoneBits = [
+    generalPhone,
+    esicPhone && esicPhone !== generalPhone ? `${esicPhone} (e-SIC)` : "",
+  ]
+    .filter(Boolean)
+    .join(" · ");
+  const atendenteLines = [
+    phoneBits && `- Telefone: ${phoneBits}`,
+    generalEmail && `- E-mail: ${generalEmail}`,
+    address && `- Presencial: ${address}`,
+    "- Site: [Ouvidoria](/ouvidoria)",
+  ]
+    .filter(Boolean)
+    .join("\n");
 
-  // Ouvidoria
-  ouvidoria: {
-    text: "📞 **Ouvidoria da Câmara:**\n\nCanais de atendimento:\n\n- Site: [Ouvidoria](/ouvidoria)\n- E-mail: ouvidoria@camaradesume.pb.gov.br\n- Telefone: (83) 3353-1185\n- Presencial: Rua Luiz Grande, s/n - Centro, Sumé - PB\n\nHorário: segunda a sexta, das 8h às 14h. O prazo de resposta é de até **20 dias**, prorrogáveis por mais **10**.",
-    options: [
-      { label: "Fazer denúncia", action: "denuncia" },
-      { label: "Fazer sugestão", action: "sugestao" },
-    ],
-  },
+  const esicContactBits = [esicPhone && `SIC: ${esicPhone}`, esicEmail].filter(Boolean).join(" · ");
+  const esicContactLine = esicContactBits ? `\n\nDúvidas? ${esicContactBits}` : "";
+  const sicHelpLine = esicPhone ? `\n\nEm caso de dúvida, fale com o SIC pelo telefone **${esicPhone}**.` : "";
 
-  // Vereadores
-  vereadores: {
-    text: "👥 **Vereadores:**\n\nConheça os parlamentares da legislatura atual, suas comissões e contatos na página de [Vereadores](/vereadores).",
-    options: [
-      { label: "Mesa Diretora", action: "mesa_diretora" },
-      { label: "Comissões", action: "comissoes" },
-    ],
-  },
+  return {
+    // Saudações
+    greeting: {
+      text: `Olá! 👋 Bem-vindo(a) à ${orgLabel}. Como posso ajudar você hoje?\n\nEscolha um dos assuntos abaixo ou descreva a sua dúvida.`,
+      options: [
+        { label: "Transparência", action: "transparencia" },
+        { label: "Acesso à Informação (e-SIC)", action: "link_esic" },
+        { label: "Ouvidoria", action: "ouvidoria" },
+        { label: "Vereadores", action: "vereadores" },
+      ],
+    },
 
-  // Sessões
-  sessoes: {
-    text: "📅 **Sessões da Câmara:**\n\nAs sessões são abertas ao público. Você pode consultar as pautas das próximas sessões e as atas das sessões já realizadas.\n\n- [Pautas das sessões](/pautas)\n- [Atas das sessões](/atas)",
-    options: [
-      { label: "Ver pautas", action: "pautas" },
-      { label: "Ver atas", action: "atas" },
-    ],
-  },
+    // Prazos LAI
+    prazos_lai: {
+      text: "📋 **Prazos da Lei de Acesso à Informação (LAI):**\n\n- Resposta ao pedido: **até 20 dias**, prorrogáveis por mais **10 dias** mediante justificativa\n- Recurso (1ª instância): **10 dias** após a resposta\n- Recurso (2ª instância): **10 dias** após a decisão do recurso\n\nA LAI **não exige justificativa** para solicitar informações públicas. Faça o seu pedido pelo [e-SIC](/esic).",
+      options: [
+        { label: "Como pedir informação", action: "fazer_pedido" },
+        { label: "Interpor recurso", action: "recurso_esic" },
+      ],
+    },
 
-  // Licitações
-  licitacoes: {
-    text: "📄 **Licitações e contratos:**\n\nConsulte os editais, resultados e contratos firmados pela Câmara:\n\n- [Licitações](/licitacoes)\n- [Contratos](/contratos)\n\nMais informações financeiras no [Portal da Transparência](/transparencia).",
-  },
+    // Recurso e-SIC
+    recurso_esic: {
+      text: "📝 **Como interpor recurso no e-SIC:**\n\n- Acesse o sistema pelo [e-SIC](/esic) e localize o seu pedido pelo número de protocolo\n- Abra a opção de **recurso** e descreva os motivos\n- Acompanhe a resposta pelo próprio sistema, dentro dos prazos da LAI\n\nO recurso pode ser apresentado em até **10 dias** após receber a resposta.",
+      options: [
+        { label: "Acessar o e-SIC", action: "link_esic" },
+        { label: "Prazos da LAI", action: "prazos_lai" },
+      ],
+    },
 
-  // Fazer pedido
-  fazer_pedido: {
-    text: "📝 **Como fazer um pedido de informação (LAI):**\n\n- Acesse o [e-SIC](/esic) e abra um **novo pedido**\n- Preencha os seus dados e descreva com clareza a informação desejada\n- Guarde o **número de protocolo** para acompanhar a resposta\n\nVocê receberá a resposta em até **20 dias**. Não é preciso justificar o pedido.",
-    options: [
-      { label: "Acessar o e-SIC", action: "link_esic" },
-      { label: "Prazos da LAI", action: "prazos_lai" },
-    ],
-  },
+    // Consultar protocolo
+    consultar_protocolo: {
+      text: `🔍 **Consultar o andamento de um pedido:**\n\n- Acesse o [e-SIC](/esic)\n- Use a opção de **consulta** e informe o seu número de protocolo\n- Caso não lembre os dados de acesso, utilize a recuperação disponível no próprio sistema${sicHelpLine}`,
+      options: [
+        { label: "Acessar o e-SIC", action: "link_esic" },
+        { label: "Fazer novo pedido", action: "fazer_pedido" },
+      ],
+    },
 
-  // Acesso ao e-SIC
-  link_esic: {
-    text: "🔗 **Acesso à Informação (e-SIC):**\n\nUse a página de [Acesso à Informação / e-SIC](/esic) para fazer pedidos, consultar protocolos e interpor recursos.\n\nDúvidas? SIC: (83) 3353-1191 · contato@camaradesume.pb.gov.br",
-    options: [
-      { label: "Como pedir informação", action: "fazer_pedido" },
-      { label: "Prazos da LAI", action: "prazos_lai" },
-    ],
-  },
+    // Transparência
+    transparencia: {
+      text: "🏛️ **Portal da Transparência:**\n\nNo portal você encontra receitas e despesas, contratos e licitações, folha de pagamento, diárias e relatórios de gestão.\n\nAcesse o [Portal da Transparência](/transparencia).",
+      options: [
+        { label: "Licitações", action: "licitacoes" },
+        { label: "Acesso à Informação (e-SIC)", action: "link_esic" },
+      ],
+    },
 
-  // Mesa Diretora
-  mesa_diretora: {
-    text: "🏛️ **Mesa Diretora:**\n\nConsulte a composição atual da Mesa Diretora na página da [Mesa Diretora](/mesa-diretora).",
-  },
+    // Ouvidoria
+    ouvidoria: {
+      text: `📞 **Ouvidoria da Câmara:**\n\nCanais de atendimento:\n\n${ouvidoriaLines}\n\nO prazo de resposta é de até **20 dias**, prorrogáveis por mais **10**.`,
+      options: [
+        { label: "Fazer denúncia", action: "denuncia" },
+        { label: "Fazer sugestão", action: "sugestao" },
+      ],
+    },
 
-  // Comissões
-  comissoes: {
-    text: "👥 **Comissões:**\n\nConheça as comissões e os seus membros na página de [Comissões](/comissoes).",
-  },
+    // Vereadores
+    vereadores: {
+      text: "👥 **Vereadores:**\n\nConheça os parlamentares da legislatura atual, suas comissões e contatos na página de [Vereadores](/vereadores).",
+      options: [
+        { label: "Mesa Diretora", action: "mesa_diretora" },
+        { label: "Comissões", action: "comissoes" },
+      ],
+    },
 
-  // Diário Oficial
-  diario: {
-    text: "📰 **Diário Oficial:**\n\nAtos, publicações e edições oficiais da Câmara estão disponíveis no [Diário Oficial](/diario-oficial).",
-  },
+    // Sessões
+    sessoes: {
+      text: "📅 **Sessões da Câmara:**\n\nAs sessões são abertas ao público. Você pode consultar as pautas das próximas sessões e as atas das sessões já realizadas.\n\n- [Pautas das sessões](/pautas)\n- [Atas das sessões](/atas)",
+      options: [
+        { label: "Ver pautas", action: "pautas" },
+        { label: "Ver atas", action: "atas" },
+      ],
+    },
 
-  // Perguntas frequentes
-  faq: {
-    text: "❓ **Perguntas Frequentes:**\n\nReunimos as dúvidas mais comuns sobre os serviços da Câmara na página de [Perguntas Frequentes](/perguntas-frequentes).",
-    options: quickOptions,
-  },
+    // Licitações
+    licitacoes: {
+      text: "📄 **Licitações e contratos:**\n\nConsulte os editais, resultados e contratos firmados pela Câmara:\n\n- [Licitações](/licitacoes)\n- [Contratos](/contratos)\n\nMais informações financeiras no [Portal da Transparência](/transparencia).",
+    },
 
-  // Atendente
-  atendente: {
-    text: "👤 **Falar com um atendente:**\n\n- Telefone: (83) 3353-1185 (Ouvidoria) · (83) 3353-1191 (e-SIC)\n- E-mail: contato@camaradesume.pb.gov.br\n- Presencial: Rua Luiz Grande, s/n - Centro, Sumé - PB\n\nHorário: segunda a sexta, das 8h às 14h.",
-  },
+    // Fazer pedido
+    fazer_pedido: {
+      text: "📝 **Como fazer um pedido de informação (LAI):**\n\n- Acesse o [e-SIC](/esic) e abra um **novo pedido**\n- Preencha os seus dados e descreva com clareza a informação desejada\n- Guarde o **número de protocolo** para acompanhar a resposta\n\nVocê receberá a resposta em até **20 dias**. Não é preciso justificar o pedido.",
+      options: [
+        { label: "Acessar o e-SIC", action: "link_esic" },
+        { label: "Prazos da LAI", action: "prazos_lai" },
+      ],
+    },
 
-  // Denúncia
-  denuncia: {
-    text: "🚨 **Denúncias:**\n\nVocê pode registrar denúncias pela [Ouvidoria](/ouvidoria). A sua identidade é preservada conforme a legislação.",
-  },
+    // Acesso ao e-SIC
+    link_esic: {
+      text: `🔗 **Acesso à Informação (e-SIC):**\n\nUse a página de [Acesso à Informação / e-SIC](/esic) para fazer pedidos, consultar protocolos e interpor recursos.${esicContactLine}`,
+      options: [
+        { label: "Como pedir informação", action: "fazer_pedido" },
+        { label: "Prazos da LAI", action: "prazos_lai" },
+      ],
+    },
 
-  // Sugestão
-  sugestao: {
-    text: "💡 **Sugestões:**\n\nSua opinião é importante! Envie sugestões pela [Ouvidoria](/ouvidoria) ou participe da [Pesquisa de Satisfação](/pesquisa-de-satisfacao).",
-  },
+    // Mesa Diretora
+    mesa_diretora: {
+      text: "🏛️ **Mesa Diretora:**\n\nConsulte a composição atual da Mesa Diretora na página da [Mesa Diretora](/mesa-diretora).",
+    },
 
-  // Pautas
-  pautas: {
-    text: "📋 **Pautas das sessões:**\n\nConfira as pautas das próximas sessões em [Pautas](/pautas).",
-  },
+    // Comissões
+    comissoes: {
+      text: "👥 **Comissões:**\n\nConheça as comissões e os seus membros na página de [Comissões](/comissoes).",
+    },
 
-  // Atas
-  atas: {
-    text: "📜 **Atas das sessões:**\n\nTodas as atas estão disponíveis em [Atas](/atas).",
-  },
+    // Diário Oficial
+    diario: {
+      text: "📰 **Diário Oficial:**\n\nAtos, publicações e edições oficiais da Câmara estão disponíveis no [Diário Oficial](/diario-oficial).",
+    },
 
-  // Resposta de baixa confiança (não "chutar" resposta canned)
-  low_confidence: {
-    text: "Não tenho certeza sobre isso. 🤔\n\nVocê pode tentar **reformular a pergunta** ou acessar diretamente:\n\n- [Acesso à Informação / e-SIC](/esic)\n- [Portal da Transparência](/transparencia)\n- [Perguntas Frequentes](/perguntas-frequentes)\n- [Ouvidoria](/ouvidoria)\n\nTambém posso ajudar com os assuntos abaixo:",
-    options: quickOptions,
-  },
-};
+    // Perguntas frequentes
+    faq: {
+      text: "❓ **Perguntas Frequentes:**\n\nReunimos as dúvidas mais comuns sobre os serviços da Câmara na página de [Perguntas Frequentes](/perguntas-frequentes).",
+      options: quickOptions,
+    },
+
+    // Atendente
+    atendente: {
+      text: `👤 **Falar com um atendente:**\n\n${atendenteLines}\n\nHorário: segunda a sexta, das 8h às 14h.`,
+    },
+
+    // Denúncia
+    denuncia: {
+      text: "🚨 **Denúncias:**\n\nVocê pode registrar denúncias pela [Ouvidoria](/ouvidoria). A sua identidade é preservada conforme a legislação.",
+    },
+
+    // Sugestão
+    sugestao: {
+      text: "💡 **Sugestões:**\n\nSua opinião é importante! Envie sugestões pela [Ouvidoria](/ouvidoria) ou participe da [Pesquisa de Satisfação](/pesquisa-de-satisfacao).",
+    },
+
+    // Pautas
+    pautas: {
+      text: "📋 **Pautas das sessões:**\n\nConfira as pautas das próximas sessões em [Pautas](/pautas).",
+    },
+
+    // Atas
+    atas: {
+      text: "📜 **Atas das sessões:**\n\nTodas as atas estão disponíveis em [Atas](/atas).",
+    },
+
+    // Resposta de baixa confiança (não "chutar" resposta canned)
+    low_confidence: {
+      text: "Não tenho certeza sobre isso. 🤔\n\nVocê pode tentar **reformular a pergunta** ou acessar diretamente:\n\n- [Acesso à Informação / e-SIC](/esic)\n- [Portal da Transparência](/transparencia)\n- [Perguntas Frequentes](/perguntas-frequentes)\n- [Ouvidoria](/ouvidoria)\n\nTambém posso ajudar com os assuntos abaixo:",
+      options: quickOptions,
+    },
+  };
+}
 
 /**
  * Palavras-chave ponderadas por intenção.
@@ -411,6 +467,32 @@ export const AssistenteVirtual = () => {
   const nextId = useCallback(() => ++idRef.current, []);
   const closeAssistant = useCallback(() => setIsOpen(false), []);
   const dialogRef = useFocusTrap(isOpen, closeAssistant);
+
+  // Contatos do assistente derivados de settings/camara (sem literal de tenant).
+  const settings = useSiteSettings();
+  const orgName = (usePage().props as { camara?: { nome?: string } }).camara?.nome || "";
+  const responses = useMemo(
+    () =>
+      buildResponses({
+        orgName,
+        generalPhone: (settings.footer_phone || "").trim(),
+        generalEmail: (settings.footer_email || "").trim(),
+        esicPhone: (settings.esic_phone || settings.homepage_esic_phone || "").trim(),
+        esicEmail: (settings.esic_email || settings.homepage_esic_email || "").trim(),
+        address: (settings.footer_address || settings.homepage_esic_address || "").trim(),
+      }),
+    [
+      orgName,
+      settings.footer_phone,
+      settings.footer_email,
+      settings.esic_phone,
+      settings.homepage_esic_phone,
+      settings.esic_email,
+      settings.homepage_esic_email,
+      settings.footer_address,
+      settings.homepage_esic_address,
+    ]
+  );
 
   useEffect(() => {
     if (isOpen && messages.length === 0) {

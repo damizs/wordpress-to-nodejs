@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, router } from "@inertiajs/react";
+import { Link, router, usePage } from "@inertiajs/react";
 import { SeoHead } from "~/components/SeoHead";
 import { TopBar } from "~/components/TopBar";
 import { Header } from "~/components/Header";
@@ -82,6 +82,7 @@ const pageUrl = (page: number, filters: Filters) => {
 };
 
 export default function ContractsIndex({ contracts = [], pagination, filters = {}, years = [], statuses = [], stats }: Props) {
+  const org = (usePage().props as { camara?: { nome?: string } }).camara?.nome || "Câmara Municipal";
   const [searchTerm, setSearchTerm] = useState(filters.search || "");
   const maxYearCount = stats?.byYear.length ? Math.max(...stats.byYear.map((b) => b.count)) : 0;
 
@@ -93,7 +94,7 @@ export default function ContractsIndex({ contracts = [], pagination, filters = {
 
   return (
     <>
-      <SeoHead title="Contratos - Câmara Municipal de Sumé" description="Relação dos contratos da Câmara Municipal de Sumé: contratado, objeto, valor, vigência e fiscal responsável." url="/contratos" />
+      <SeoHead title="Contratos" description={`Relação dos contratos da ${org}: contratado, objeto, valor, vigência e fiscal responsável.`} url="/contratos" />
       <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar /><Header /><Breadcrumb items={[{ label: "Contratos" }]} />
         <PageHero badge="Transparência" title="Contratos" subtitle="Relação dos contratos com contratado, objeto, valor, vigência e fiscal responsável" centered />

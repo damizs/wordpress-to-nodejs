@@ -1,4 +1,5 @@
 import type { ComponentType, ReactNode } from "react";
+import { usePage } from "@inertiajs/react";
 import { SeoHead } from "~/components/SeoHead";
 import { TopBar } from "~/components/TopBar";
 import { Header } from "~/components/Header";
@@ -6,6 +7,7 @@ import { Breadcrumb } from "~/components/Breadcrumb";
 import { PageHero } from "~/components/PageHero";
 import { Footer } from "~/components/Footer";
 import { RichContent } from "~/components/RichContent";
+import { useSiteSettings } from "~/hooks/use_site_settings";
 import {
   CalendarDays,
   Cookie,
@@ -38,7 +40,12 @@ interface Section {
 const PROSE =
   "prose prose-sm md:prose-base dark:prose-invert max-w-none prose-headings:text-foreground prose-p:text-muted-foreground prose-li:text-muted-foreground prose-strong:text-foreground prose-a:text-primary";
 
-const SECTIONS: Section[] = [
+/**
+ * Seções da política montadas a partir da identidade da câmara (config/camara,
+ * via props) e do contato vindo de settings — sem literais chumbados. E-mail e
+ * endereço só aparecem quando configurados (fallback vazio, nunca um literal).
+ */
+const buildSections = (orgNome: string, contatoEmail: string, endereco: string): Section[] => [
   {
     id: "dados-coletados",
     title: "Quais dados coletamos",
@@ -46,7 +53,7 @@ const SECTIONS: Section[] = [
     body: (
       <>
         <p>
-          A Câmara Municipal de Sumé coleta apenas os dados pessoais estritamente necessários à
+          {`A ${orgNome} coleta apenas os dados pessoais estritamente necessários à `}
           prestação dos serviços oferecidos por este portal, sempre fornecidos voluntariamente
           pelo cidadão:
         </p>
@@ -101,8 +108,7 @@ const SECTIONS: Section[] = [
     body: (
       <>
         <p>
-          <strong>A Câmara Municipal de Sumé não vende, aluga nem comercializa dados pessoais
-          em nenhuma hipótese.</strong>
+          <strong>{`A ${orgNome} não vende, aluga nem comercializa dados pessoais em nenhuma hipótese.`}</strong>
         </p>
         <p>O compartilhamento ocorre somente quando:</p>
         <ul>
@@ -175,22 +181,23 @@ const SECTIONS: Section[] = [
     body: (
       <>
         <p>
-          Para exercer seus direitos ou esclarecer dúvidas sobre esta política, entre em
-          contato com o Encarregado pelo Tratamento de Dados Pessoais (DPO) da Câmara
-          Municipal de Sumé:
+          {`Para exercer seus direitos ou esclarecer dúvidas sobre esta política, entre em contato com o Encarregado pelo Tratamento de Dados Pessoais (DPO) da ${orgNome}:`}
         </p>
         <ul>
           <li>
             <strong>Ouvidoria:</strong> <a href="/ouvidoria">formulário eletrônico da Ouvidoria</a>;
           </li>
-          <li>
-            <strong>E-mail:</strong>{" "}
-            <a href="mailto:contato@camaradesume.pb.gov.br">contato@camaradesume.pb.gov.br</a>;
-          </li>
-          <li>
-            <strong>Presencialmente:</strong> Rua Antônio Vieira Lima, S/N, Centro, Sumé - PB,
-            de segunda a sexta, das 8h às 14h.
-          </li>
+          {contatoEmail && (
+            <li>
+              <strong>E-mail:</strong>{" "}
+              <a href={`mailto:${contatoEmail}`}>{contatoEmail}</a>;
+            </li>
+          )}
+          {endereco && (
+            <li>
+              <strong>Presencialmente:</strong> {`${endereco}, de segunda a sexta, das 8h às 14h.`}
+            </li>
+          )}
         </ul>
         <p>
           Caso entenda que seus direitos não foram atendidos, você também pode peticionar à
@@ -244,9 +251,17 @@ function DpoOrdinanceCard({ url }: { url?: string | null }) {
 }
 
 export default function PrivacyPolicyIndex({ content, dpoOrdinanceUrl }: Props) {
+  const camara = (usePage().props as { camara?: { nome: string } }).camara;
+  const settings = useSiteSettings();
+  const orgNome = camara?.nome || "Câmara Municipal";
+  // Contato do DPO: settings próprios → contato do rodapé → vazio (linha escondida).
+  const contatoEmail = settings.privacy_email || settings.footer_email || "";
+  const endereco = settings.privacy_address || settings.footer_address || "";
+  const sections = buildSections(orgNome, contatoEmail, endereco);
+
   return (
     <>
-      <SeoHead title="Política de Privacidade - Câmara Municipal de Sumé" description="Conheça nossa política de privacidade e como tratamos seus dados pessoais, em conformidade com a LGPD." url="/politica-de-privacidade" />
+      <SeoHead title={`Política de Privacidade - ${orgNome}`} description="Conheça nossa política de privacidade e como tratamos seus dados pessoais, em conformidade com a LGPD." url="/politica-de-privacidade" />
       <div className="min-h-screen bg-background overflow-x-clip">
         <TopBar /><Header /><Breadcrumb items={[{ label: "Política de Privacidade" }]} />
         <PageHero badge="LGPD" title="Política de Privacidade" subtitle="Em conformidade com a Lei Geral de Proteção de Dados — Lei nº 13.709/2018" centered />
@@ -271,7 +286,7 @@ export default function PrivacyPolicyIndex({ content, dpoOrdinanceUrl }: Props) 
                         </div>
                         <div>
                           <p className="text-muted-foreground text-sm md:text-[15px] leading-relaxed m-0">
-                            A Câmara Municipal de Sumé está comprometida com a proteção da
+                            {`A ${orgNome} está comprometida com a proteção da `}
                             privacidade e dos dados pessoais de todos os cidadãos que utilizam
                             este portal. Esta política explica, de forma transparente, quais
                             dados coletamos, por que coletamos, com quem podemos compartilhá-los
@@ -297,7 +312,7 @@ export default function PrivacyPolicyIndex({ content, dpoOrdinanceUrl }: Props) 
                           <ScrollText className="w-3.5 h-3.5" /> Nesta página
                         </p>
                         <ul className="space-y-1 text-sm border-l border-border/60">
-                          {SECTIONS.map((s) => (
+                          {sections.map((s) => (
                             <li key={s.id}>
                               <a
                                 href={`#${s.id}`}
@@ -312,7 +327,7 @@ export default function PrivacyPolicyIndex({ content, dpoOrdinanceUrl }: Props) 
 
                       {/* Seções */}
                       <div className="space-y-6">
-                        {SECTIONS.map((s, i) => {
+                        {sections.map((s, i) => {
                           const Icon = s.icon;
                           return (
                             <article key={s.id} id={s.id} className="card-modern !transform-none p-6 md:p-8 scroll-mt-24">

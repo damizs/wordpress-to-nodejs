@@ -95,18 +95,20 @@ export const Footer = ({ logoUrl }: FooterProps) => {
 
   const resolvedLogo = logoUrl ?? settings.logo_url ?? null;
   // Nome institucional: prioriza o setting editável (Aparência); o fallback vem
-  // da identidade compartilhada (config/camara), em MAIÚSCULAS como o chrome usa.
-  // DEFAULT de camara.nome = "Câmara Municipal de Sumé" → "CÂMARA MUNICIPAL DE SUMÉ".
+  // da identidade compartilhada (config/camara via props), em MAIÚSCULAS como o
+  // chrome usa. Sem literal de tenant — se a identidade não vier, fica vazio.
   const camaraNome =
-    (page.props as { camara?: { nome: string } }).camara?.nome || "Câmara Municipal de Sumé";
+    (page.props as { camara?: { nome: string } }).camara?.nome || "";
   const headerTitle = settings.header_title || camaraNome.toUpperCase();
-  const [titleFirstWord, ...titleRest] = headerTitle.split(" ");
+  const [titleFirstWord = "", ...titleRest] = headerTitle.split(" ");
   const description =
     settings.footer_description ||
     "Comprometida com a transparência e o bem-estar da população.";
-  const address = settings.footer_address || "Rua Antônio Vieira Lima, S/N, Centro, Sumé - PB";
-  const phone = settings.footer_phone || "(83) 3353-1175";
-  const email = settings.footer_email || "contato@camaradesume.pb.gov.br";
+  // Contato vem 100% de settings (Aparência → Rodapé & Contato); fallback vazio
+  // esconde cada item abaixo (sem chumbar endereço/telefone/e-mail de tenant).
+  const address = settings.footer_address || "";
+  const phone = settings.footer_phone || "";
+  const email = settings.footer_email || "";
   const hours = settings.footer_hours || "Seg a Sex, 8h às 14h";
 
   const socials = [
