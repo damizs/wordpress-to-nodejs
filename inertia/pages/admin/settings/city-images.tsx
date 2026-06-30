@@ -72,7 +72,7 @@ export default function CityImages({ images }: Props) {
 
       <PageHeader
         title="Fotos da Cidade"
-        description='Adicione fotos de Sumé que aparecerão no carrossel da seção "Conheça Nossa Cidade".'
+        description='Adicione fotos que aparecerão no carrossel da seção "Conheça Nossa Cidade".'
         icon={Image}
         eyebrow="Site"
         actions={

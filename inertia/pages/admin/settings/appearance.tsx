@@ -1,4 +1,4 @@
-import { Head, useForm } from '@inertiajs/react'
+import { Head, router, useForm } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
 import {
   Palette,
@@ -17,6 +17,9 @@ import {
   EyeOff,
   Wrench,
   AlertTriangle,
+  Image as ImageIcon,
+  Trash2,
+  Plus,
   type LucideIcon,
 } from 'lucide-react'
 import { useState, useRef } from 'react'
@@ -68,7 +71,7 @@ function getVal(items: SettingItem[] | undefined, key: string): string {
 export default function Appearance({ settings }: Props) {
   const { appearance, footer, social, esic, election, public_access } = settings
 
-  const { data, setData, post, processing } = useForm<Record<string, any>>({
+  const { data, setData } = useForm<Record<string, any>>({
     theme_preset: getVal(appearance, 'theme_preset') || 'navy',
     admin_palette: getVal(appearance, 'admin_palette') || 'navy',
     campaign_mode: getVal(appearance, 'campaign_mode') || 'auto',
@@ -117,6 +120,11 @@ export default function Appearance({ settings }: Props) {
     dpo_ordinance_pdf_url: null as File | null,
     atricon_logo_url: null as File | null,
     news_background_image: null as File | null,
+    city_region: getVal(appearance, 'city_region'),
+    city_area: getVal(appearance, 'city_area'),
+    city_population: getVal(appearance, 'city_population'),
+    city_altitude: getVal(appearance, 'city_altitude'),
+    city_founded: getVal(appearance, 'city_founded'),
   })
 
   const logoRef = useRef<HTMLInputElement>(null)
@@ -126,6 +134,7 @@ export default function Appearance({ settings }: Props) {
   const dpoOrdinanceRef = useRef<HTMLInputElement>(null)
   const atriconLogoRef = useRef<HTMLInputElement>(null)
   const newsBackgroundRef = useRef<HTMLInputElement>(null)
+  const cityImagesRef = useRef<HTMLInputElement>(null)
   const [logoPreview, setLogoPreview] = useState<string | null>(getVal(appearance, 'logo_url'))
   const [brasaoPreview, setBrasaoPreview] = useState<string | null>(getVal(appearance, 'document_brasao_url'))
   const [faviconPreview, setFaviconPreview] = useState<string | null>(getVal(appearance, 'favicon_url'))
@@ -133,6 +142,10 @@ export default function Appearance({ settings }: Props) {
   const [dpoOrdinancePreview, setDpoOrdinancePreview] = useState<string | null>(getVal(appearance, 'dpo_ordinance_pdf_url'))
   const [atriconLogoPreview, setAtriconLogoPreview] = useState<string | null>(getVal(appearance, 'atricon_logo_url'))
   const [newsBackgroundPreview, setNewsBackgroundPreview] = useState<string | null>(getVal(appearance, 'news_background_image'))
+  const [cityImages, setCityImages] = useState<string[]>(() => parseCityImages(getVal(appearance, 'city_images')))
+  const [cityImageFiles, setCityImageFiles] = useState<File[]>([])
+  const [cityImagePreviews, setCityImagePreviews] = useState<string[]>([])
+  const [submitting, setSubmitting] = useState(false)
 
   function handleFileChange(field: 'logo_url' | 'document_brasao_url' | 'favicon_url' | 'login_logo_url' | 'dpo_ordinance_pdf_url' | 'atricon_logo_url' | 'news_background_image', file: File | null) {
     setData(field, file)
@@ -179,9 +192,47 @@ export default function Appearance({ settings }: Props) {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    post('/painel/aparencia', {
+    const formData = new FormData()
+    for (const [key, value] of Object.entries(data)) {
+      if (value === null || value === undefined) continue
+      if (value instanceof File) {
+        formData.append(key, value)
+      } else {
+        formData.append(key, String(value))
+      }
+    }
+    formData.append('existing_city_images', JSON.stringify(cityImages))
+    cityImageFiles.forEach((file) => formData.append('city_images', file))
+
+    router.post('/painel/aparencia', formData, {
       forceFormData: true,
+      preserveScroll: true,
+      onStart: () => setSubmitting(true),
+      onFinish: () => setSubmitting(false),
     })
+  }
+
+  function handleCityImageSelect(files: FileList | null) {
+    const selected = Array.from(files || [])
+    if (selected.length === 0) return
+    setCityImageFiles((current) => [...current, ...selected])
+    for (const file of selected) {
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        setCityImagePreviews((current) => [...current, event.target?.result as string])
+      }
+      reader.readAsDataURL(file)
+    }
+    if (cityImagesRef.current) cityImagesRef.current.value = ''
+  }
+
+  function removeCityImage(index: number) {
+    setCityImages((current) => current.filter((_, itemIndex) => itemIndex !== index))
+  }
+
+  function removeNewCityImage(index: number) {
+    setCityImageFiles((current) => current.filter((_, itemIndex) => itemIndex !== index))
+    setCityImagePreviews((current) => current.filter((_, itemIndex) => itemIndex !== index))
   }
 
   const TABS: { key: string; label: string; icon: LucideIcon }[] = [
@@ -192,6 +243,7 @@ export default function Appearance({ settings }: Props) {
     { key: 'cores', label: 'Cores', icon: Palette },
     { key: 'identidade', label: 'Identidade', icon: Type },
     { key: 'noticias', label: 'Notícias', icon: Newspaper },
+    { key: 'cidade', label: 'Conheça a Cidade', icon: ImageIcon },
     { key: 'contato', label: 'Rodapé & Contato', icon: MapPin },
   ]
 
@@ -529,6 +581,31 @@ export default function Appearance({ settings }: Props) {
             </Section>
           )}
 
+          {tab === 'cidade' && (
+            <Section
+              icon={ImageIcon}
+              title="Conheça a Cidade"
+              description="Dados e fotos exibidos na seção pública de apresentação do município."
+            >
+              <CityKnowledgeSettings
+                values={{
+                  city_region: data.city_region,
+                  city_area: data.city_area,
+                  city_population: data.city_population,
+                  city_altitude: data.city_altitude,
+                  city_founded: data.city_founded,
+                }}
+                images={cityImages}
+                newPreviews={cityImagePreviews}
+                inputRef={cityImagesRef}
+                onTextChange={(key, value) => setData(key, value)}
+                onSelectImages={handleCityImageSelect}
+                onRemoveImage={removeCityImage}
+                onRemoveNewImage={removeNewCityImage}
+              />
+            </Section>
+          )}
+
           {tab === 'contato' && (
             <>
               <Section icon={MapPin} title="Rodapé">
@@ -565,9 +642,9 @@ export default function Appearance({ settings }: Props) {
 
         {/* Submit (fixo no rodapé do formulário) */}
         <div className="sticky bottom-0 mt-6 flex justify-end gap-3 border-t border-border bg-background/95 backdrop-blur py-3 lg:py-4">
-          <Button type="submit" loading={processing}>
-            {!processing && <Save className="w-4 h-4" />}
-            {processing ? 'Salvando...' : 'Salvar Configurações'}
+          <Button type="submit" loading={submitting}>
+            {!submitting && <Save className="w-4 h-4" />}
+            {submitting ? 'Salvando...' : 'Salvar Configurações'}
           </Button>
         </div>
       </form>
@@ -584,6 +661,177 @@ export default function Appearance({ settings }: Props) {
 }
 
 // ---- Sub-components ----
+
+function parseCityImages(value: string): string[] {
+  try {
+    const parsed = JSON.parse(value || '[]')
+    return Array.isArray(parsed) ? parsed.filter((item) => typeof item === 'string') : []
+  } catch {
+    return []
+  }
+}
+
+function CityKnowledgeSettings({
+  values,
+  images,
+  newPreviews,
+  inputRef,
+  onTextChange,
+  onSelectImages,
+  onRemoveImage,
+  onRemoveNewImage,
+}: {
+  values: {
+    city_region: string
+    city_area: string
+    city_population: string
+    city_altitude: string
+    city_founded: string
+  }
+  images: string[]
+  newPreviews: string[]
+  inputRef: React.RefObject<HTMLInputElement | null>
+  onTextChange: (key: string, value: string) => void
+  onSelectImages: (files: FileList | null) => void
+  onRemoveImage: (index: number) => void
+  onRemoveNewImage: (index: number) => void
+}) {
+  const hasImages = images.length > 0 || newPreviews.length > 0
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4">
+        <TextField
+          label="Região"
+          value={values.city_region}
+          onChange={(value) => onTextChange('city_region', value)}
+          placeholder="Cariri Paraibano"
+        />
+        <TextField
+          label="Área territorial"
+          value={values.city_area}
+          onChange={(value) => onTextChange('city_area', value)}
+          placeholder="1.000 km²"
+        />
+        <TextField
+          label="População"
+          value={values.city_population}
+          onChange={(value) => onTextChange('city_population', value)}
+          placeholder="10.000 habitantes"
+        />
+        <TextField
+          label="Altitude média"
+          value={values.city_altitude}
+          onChange={(value) => onTextChange('city_altitude', value)}
+          placeholder="500 m"
+        />
+        <TextField
+          label="Emancipação"
+          value={values.city_founded}
+          onChange={(value) => onTextChange('city_founded', value)}
+          placeholder="01/01/1959"
+        />
+      </div>
+
+      <Field label="Fotos da cidade">
+        <div className="space-y-4">
+          {!hasImages && (
+            <div className="rounded-lg border border-dashed border-border bg-muted/30 py-10 text-center">
+              <ImageIcon className="w-9 h-9 mx-auto text-muted-foreground/50 mb-2" />
+              <p className="text-sm text-muted-foreground">Nenhuma foto cadastrada.</p>
+            </div>
+          )}
+
+          {images.length > 0 && (
+            <div>
+              <div className="mb-2 text-xs font-semibold uppercase text-muted-foreground">
+                Imagens atuais ({images.length})
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                {images.map((image, index) => (
+                  <ImageTile
+                    key={`${image}-${index}`}
+                    src={image}
+                    label={`Foto ${index + 1}`}
+                    onRemove={() => onRemoveImage(index)}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {newPreviews.length > 0 && (
+            <div>
+              <div className="mb-2 text-xs font-semibold uppercase text-muted-foreground">
+                Novas imagens ({newPreviews.length})
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+                {newPreviews.map((image, index) => (
+                  <ImageTile
+                    key={`${image}-${index}`}
+                    src={image}
+                    label={`Nova foto ${index + 1}`}
+                    onRemove={() => onRemoveNewImage(index)}
+                    accent
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="flex flex-col sm:flex-row gap-3 pt-1">
+            <button
+              type="button"
+              onClick={() => inputRef.current?.click()}
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border px-4 text-sm font-medium text-muted-foreground transition-colors hover:border-navy/40 hover:bg-navy/5 hover:text-foreground"
+            >
+              <Plus className="w-4 h-4" />
+              Adicionar fotos
+            </button>
+            <input
+              ref={inputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              multiple
+              className="hidden"
+              onChange={(event) => onSelectImages(event.target.files)}
+            />
+          </div>
+        </div>
+      </Field>
+    </div>
+  )
+}
+
+function ImageTile({
+  src,
+  label,
+  onRemove,
+  accent = false,
+}: {
+  src: string
+  label: string
+  onRemove: () => void
+  accent?: boolean
+}) {
+  return (
+    <div
+      className={`group relative aspect-[4/3] overflow-hidden rounded-lg border bg-muted ${
+        accent ? 'border-gold' : 'border-border'
+      }`}
+    >
+      <img src={src} alt={label} className="h-full w-full object-cover" />
+      <button
+        type="button"
+        onClick={onRemove}
+        className="absolute right-1.5 top-1.5 inline-flex h-7 w-7 items-center justify-center rounded-full bg-destructive text-destructive-foreground opacity-0 shadow-sm transition-opacity hover:bg-destructive/90 group-hover:opacity-100 focus:opacity-100"
+        aria-label={`Remover ${label}`}
+      >
+        <Trash2 className="h-3.5 w-3.5" />
+      </button>
+    </div>
+  )
+}
 
 function ThemeAndCampaigns({
   themePreset,

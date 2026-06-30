@@ -203,6 +203,36 @@ const APPEARANCE_KEYS: Record<
     type: 'image',
     label: 'Imagem de Fundo - Notícias',
   },
+  city_region: {
+    group: 'appearance',
+    defaultValue: '',
+    type: 'text',
+    label: 'Região da cidade',
+  },
+  city_area: {
+    group: 'appearance',
+    defaultValue: '',
+    type: 'text',
+    label: 'Área territorial',
+  },
+  city_population: {
+    group: 'appearance',
+    defaultValue: '',
+    type: 'text',
+    label: 'População',
+  },
+  city_altitude: {
+    group: 'appearance',
+    defaultValue: '',
+    type: 'text',
+    label: 'Altitude média',
+  },
+  city_founded: {
+    group: 'appearance',
+    defaultValue: '',
+    type: 'text',
+    label: 'Emancipação',
+  },
   city_images: {
     group: 'appearance',
     defaultValue: '[]',
@@ -456,24 +486,33 @@ export default class SettingsController {
         await SiteSetting.setValue('news_background_image', saved.url, 'appearance', 'image')
       }
 
-      // Handle city images upload (multiple files)
+      // Handle city images upload/gallery (multiple files + existing order/removals)
       const cityImageFiles = request.files('city_images', {
         size: '5mb',
         extnames: ['png', 'jpg', 'jpeg', 'webp'],
       })
-      if (cityImageFiles && cityImageFiles.length > 0) {
+      const existingImagesPayload = request.input('existing_city_images') ?? request.input('existing_images')
+      const hasExistingImagesPayload =
+        existingImagesPayload !== null && existingImagesPayload !== undefined
+
+      if ((cityImageFiles && cityImageFiles.length > 0) || hasExistingImagesPayload) {
         const uploadDir = join(app.publicPath(), 'uploads', 'cidade')
         if (!existsSync(uploadDir)) await mkdir(uploadDir, { recursive: true })
 
         let existingImages: string[] = []
         try {
-          const existing = await SiteSetting.getValue('city_images')
-          if (existing) existingImages = JSON.parse(existing)
+          if (hasExistingImagesPayload) {
+            const parsed = JSON.parse(String(existingImagesPayload))
+            if (Array.isArray(parsed)) existingImages = parsed.filter((item) => typeof item === 'string')
+          } else {
+            const existing = await SiteSetting.getValue('city_images')
+            if (existing) existingImages = JSON.parse(existing)
+          }
         } catch {
           /* ignore */
         }
 
-        const keepExisting = request.input('keep_existing_city_images') === 'true'
+        const keepExisting = hasExistingImagesPayload || request.input('keep_existing_city_images') === 'true'
         const newImages: string[] = keepExisting ? existingImages : []
 
         for (const file of cityImageFiles) {

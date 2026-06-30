@@ -411,6 +411,10 @@ Fontes de referência neste servidor:
   esse comando antes de apontar IP em produção; a auditoria local de 30/06/2026
   indicou conteúdo principal migrado, mas resíduos de Sumé ainda presentes nos
   bancos já criados até que o comando seja aplicado.
+- **Conheça a Cidade:** os campos públicos `city_region`, `city_area`,
+  `city_population`, `city_altitude`, `city_founded` e a galeria `city_images`
+  são editados em Painel > Aparência > Conheça a Cidade. `city_images` é salvo
+  como JSON de URLs e o upload reaproveita `/painel/aparencia`.
 - **Tokens sempre** (dark-safe). **UI kit** no painel. **SectionHeading/PageHero**
   no público. Máximo 1–2 efeitos por elemento (a "dieta de efeitos" removeu
   shine/glow/mesh/ken-burns).
