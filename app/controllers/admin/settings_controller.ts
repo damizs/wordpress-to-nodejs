@@ -51,7 +51,8 @@ const APPEARANCE_KEYS: Record<
   },
   campaign_mode: {
     group: 'appearance',
-    defaultValue: 'auto',
+    // Desativada por padrão: a câmara liga manualmente (auto | <chave>) se quiser.
+    defaultValue: 'off',
     type: 'text',
     label: 'Campanha Sazonal (auto | off | chave da campanha)',
   },

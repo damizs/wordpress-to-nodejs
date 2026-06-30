@@ -201,7 +201,8 @@ export function resolveActiveCampaign(
   mode: string | null | undefined,
   month: number
 ): Campaign | null {
-  const value = mode && mode.trim() !== '' ? mode : 'auto'
+  // Sem setting definido → DESATIVADA por padrão (a câmara liga manualmente).
+  const value = mode && mode.trim() !== '' ? mode : 'off'
   if (value === 'off') return null
   if (value === 'auto') return CAMPAIGNS.find((c) => c.months.includes(month)) ?? null
   return getCampaign(value)

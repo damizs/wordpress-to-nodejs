@@ -34,6 +34,9 @@ const shieldConfig = defineConfig({
         'https://www.youtube.com',
         'https://www.instagram.com',
         'https://platform.instagram.com',
+        // Cloudflare Web Analytics: o beacon é injetado pela borda do Cloudflare
+        // quando o domínio está atrás dele. Sem liberar, o CSP bloqueia o script.
+        'https://static.cloudflareinsights.com',
       ],
       scriptSrcElem: [
         "'self'",
@@ -44,6 +47,7 @@ const shieldConfig = defineConfig({
         'https://www.youtube.com',
         'https://www.instagram.com',
         'https://platform.instagram.com',
+        'https://static.cloudflareinsights.com',
       ],
       styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
       fontSrc: ["'self'", 'data:', 'https://fonts.gstatic.com', 'https://cdn.jsdelivr.net'],
