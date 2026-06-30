@@ -228,8 +228,10 @@ em Números, Diário, Instagram, Conheça Sumé, Certificações, Pesquisa) → 
   e `manifest.json`). Scheduled tasks do Coolify: `uploads-r2-horario`
   (`node ace storage:sync`, `25 * * * *`, timeout 7200s) e `backup-r2-diario`
   (`node ace backup:run`, `40 2 * * *`, timeout 10800s). Ambos usam `rclone copy`,
-  sem delete remoto. A raiz do bucket ainda pode conter `_teste/` de validação de
-  conexão; remover manualmente se quiser deixar o bucket totalmente limpo.
+  sem delete remoto. O prefixo `_teste/` usado para validação foi removido; a raiz
+  do bucket deve manter apenas `uploads/` e `backups/`. Lifecycle do R2 ainda
+  depende de token Cloudflare com permissão de gerenciar lifecycle/R2 no bucket:
+  a chave S3 atual copia arquivos, mas retorna `AccessDenied` para lifecycle.
 - **Alertas WhatsApp (Evolution API):** `/painel/seguranca` configura URL da
   Evolution, instancia, API key, numeros destinatarios, mensagem do relatorio e
   gatilhos (login suspeito, bloqueio de firewall e falha/parcial de backup). O
