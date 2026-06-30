@@ -9,6 +9,7 @@ import { existsSync } from 'node:fs'
 import { isOptimizableImage, saveOptimizedImage } from '#helpers/image_upload'
 import { assertSafeUpload } from '#helpers/upload_security'
 import TrashService from '#services/trash_service'
+import ActivityLogService from '#services/activity_log_service'
 
 const UPLOAD_OPTIONS = {
   size: '20mb',
@@ -340,7 +341,8 @@ export default class MediaController {
    *  5. Exige que o alvo seja um arquivo regular (não diretório/symlink).
    * Se houver registro correspondente em media_files, remove também.
    */
-  async destroyByPath({ request, response }: HttpContext) {
+  async destroyByPath(ctx: HttpContext) {
+    const { request, response } = ctx
     const raw = String(request.input('path', '') || '')
     if (!raw) {
       return response.status(422).json({ error: 'Caminho não informado.' })
@@ -390,21 +392,33 @@ export default class MediaController {
       return response.status(400).json({ error: 'Só é possível excluir arquivos.' })
     }
 
+    const publicUrl = `/uploads/${relCheck.split(sep).join('/')}`
+
+    // Se o arquivo está cadastrado em media_files, segue o MESMO caminho do delete
+    // normal: vai para a LIXEIRA (recuperável) e o arquivo físico é preservado.
+    const record = await MediaFile.findBy('url', publicUrl)
+    if (record) {
+      await TrashService.moveToTrash(record, ctx, {
+        displayName: record.filename,
+        resource: 'midia',
+        metadata: { url: record.url, via: 'path' },
+      })
+      return response.json({ success: true, trashed: true })
+    }
+
+    // Arquivo órfão (sem registro): exclusão física, porém registrada na auditoria.
     try {
       await unlink(realTarget)
     } catch (error) {
       console.error('Error deleting file by path:', error)
       return response.status(500).json({ error: 'Falha ao excluir o arquivo do disco.' })
     }
-
-    // Remove o registro correspondente em media_files, se existir.
-    const publicUrl = `/uploads/${relCheck.split(sep).join('/')}`
-    try {
-      const record = await MediaFile.findBy('url', publicUrl)
-      if (record) await record.delete()
-    } catch (error) {
-      console.error('Error deleting media_files record after path delete:', error)
-    }
+    await ActivityLogService.log(ctx, {
+      action: 'delete',
+      resource: 'midia.arquivo',
+      message: `Arquivo órfão excluído do disco: ${publicUrl}`,
+      metadata: { path: publicUrl },
+    }).catch(() => {})
 
     return response.json({ success: true })
   }

@@ -3,7 +3,7 @@ import BackupRun, { type BackupProviderStatus } from '#models/backup_run'
 import { DateTime } from 'luxon'
 import { execFile as execFileCallback, execFileSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
-import { mkdir, readdir, stat, writeFile } from 'node:fs/promises'
+import { mkdir, readdir, rm, stat, writeFile } from 'node:fs/promises'
 import { basename, join } from 'node:path'
 import { promisify } from 'node:util'
 
@@ -172,6 +172,40 @@ async function notifyBackupIssue(run: BackupRun) {
   }
 }
 
+/**
+ * Retenção: remove diretórios de backup locais com mais de N dias
+ * (env BACKUP_RETENTION_DAYS, padrão 30). Rede de segurança para o disco não
+ * encher. As cópias no R2 devem ter retenção via lifecycle do bucket.
+ */
+async function pruneOldBackups(logs: string[]) {
+  const days = Number(process.env.BACKUP_RETENTION_DAYS || 30)
+  if (!Number.isFinite(days) || days <= 0) return
+  const dir = getLocalDir()
+  const cutoff = DateTime.now().minus({ days }).toMillis()
+  let removed = 0
+  try {
+    const entries = await readdir(dir, { withFileTypes: true })
+    for (const entry of entries) {
+      if (!entry.isDirectory()) continue
+      const full = join(dir, entry.name)
+      try {
+        const info = await stat(full)
+        if (info.mtimeMs < cutoff) {
+          await rm(full, { recursive: true, force: true })
+          removed++
+        }
+      } catch {
+        // ignora entrada problemática
+      }
+    }
+    if (removed > 0) {
+      pushLog(logs, `Retenção: ${removed} backup(s) local(is) com mais de ${days} dias removido(s).`)
+    }
+  } catch {
+    // pasta de backups pode não existir ainda
+  }
+}
+
 export default class BackupService {
   static environmentStatus(): BackupEnvironmentStatus {
     const rcloneTargets = getRcloneTargets()
@@ -260,6 +294,7 @@ export default class BackupService {
               : null,
       })
       await run.save()
+      await pruneOldBackups(logs)
       await notifyBackupIssue(run)
       return run
     } catch (error) {

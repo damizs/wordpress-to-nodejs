@@ -347,5 +347,9 @@ function stripHtml(value: string | null | undefined) {
 }
 
 function csvCell(value: string) {
-  return `"${String(value).replace(/"/g, '""')}"`
+  let cell = String(value)
+  // Anti-injeção de fórmula (CSV → Excel/Sheets): valores iniciando com = + - @
+  // (ou TAB/CR) são prefixados com aspa simples para não serem interpretados como fórmula.
+  if (/^[=+\-@\t\r]/.test(cell)) cell = `'${cell}`
+  return `"${cell.replace(/"/g, '""')}"`
 }

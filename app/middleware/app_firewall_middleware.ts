@@ -133,18 +133,26 @@ export default class AppFirewallMiddleware {
     // sempre (independe do modo monitor/block), pois não há uso legítimo delas
     // navegando o portal. Não afeta /health, /assets, /uploads (early-return acima).
     if (userAgent && MIRROR_AGENTS.test(userAgent)) {
+      // Respeita o modo do firewall: em "monitor" apenas observa (não bloqueia),
+      // evitando 403 em monitores externos legítimos que usem wget & cia.
+      const block = settings.mode === 'block'
       await recordEvent({
         level: 'danger',
         type: 'site_mirror_tool',
-        action: 'block',
+        action: block ? 'block' : 'observe',
         ip,
         method,
         path,
         userAgent,
-        message: 'Ferramenta de cópia/espelhamento de site bloqueada.',
+        message: block
+          ? 'Ferramenta de cópia/espelhamento de site bloqueada.'
+          : 'Ferramenta de cópia/espelhamento detectada (modo monitor — não bloqueada).',
         metadata: { tool: userAgent.slice(0, 120) },
       })
-      return response.status(403).send('Acesso automatizado de cópia do portal não é permitido.')
+      if (block) {
+        return response.status(403).send('Acesso automatizado de cópia do portal não é permitido.')
+      }
+      return next()
     }
 
     const pathBlockedByConfig = settings.blockedPaths.some((rule) => path.includes(rule))
