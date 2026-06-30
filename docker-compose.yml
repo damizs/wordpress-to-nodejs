@@ -22,12 +22,12 @@ services:
       - DB_DATABASE=${DB_DATABASE:-camara_sume}
       - TZ=America/Sao_Paulo
       - LOG_LEVEL=info
-    # Porta publicada no host parametrizável por câmara (multi-app no mesmo servidor):
-    # Sumé usa 3333 (default, intocado); cada câmara nova define APP_HOST_PORT único
-    # (ex.: Junco 3334) para não conflitar. O roteamento real é por DOMÍNIO via
-    # Traefik (coolify-proxy) na rede "coolify" — esta publicação no host é redundante.
-    ports:
-      - "${APP_HOST_PORT:-3333}:3333"
+    # NÃO publica porta no host — permite MÚLTIPLAS câmaras no mesmo servidor sem
+    # conflito de porta. O roteamento é por DOMÍNIO via Traefik (coolify-proxy) na
+    # rede "coolify", usando o `ports_exposes` (3333) configurado no Coolify por app.
+    # `expose` só torna a porta visível na rede interna, sem bind no host.
+    expose:
+      - "3333"
     volumes:
       - uploads:/app/public/uploads
     networks:
