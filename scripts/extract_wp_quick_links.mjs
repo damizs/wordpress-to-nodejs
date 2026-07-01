@@ -6,7 +6,8 @@
 // "Acesso a Informacao". O importador usa os dois grupos, mas so grava os
 // links da secao 1 como atalhos da home.
 //
-// Uso: node scripts/extract_wp_quick_links.mjs [caminho/para/database.sql]
+// Uso:
+//   node scripts/extract_wp_quick_links.mjs [caminho/para/database.sql] [saida.json]
 
 import { readFileSync, writeFileSync } from 'node:fs'
 import { join, dirname } from 'node:path'
@@ -14,11 +15,12 @@ import { fileURLToPath } from 'node:url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const sqlPath = process.argv[2] || 'tmp/wp_backup_sume_20260615/database.sql'
+const outPath = process.argv[3] || join(__dirname, '..', 'database', 'wp_quick_links.json')
 const sql = readFileSync(sqlPath, 'utf-8')
 const TICK = String.fromCharCode(96)
 
 function findTable(suffix) {
-  const re = new RegExp('CREATE TABLE ' + TICK + '([a-z0-9_]*' + suffix + ')' + TICK)
+  const re = new RegExp('CREATE TABLE ' + TICK + '([a-z0-9_]*' + suffix + ')' + TICK, 'i')
   const match = sql.match(re)
   return match ? match[1] : null
 }
@@ -193,7 +195,6 @@ const out = {
   records,
 }
 
-const outPath = join(__dirname, '..', 'database', 'wp_quick_links.json')
 writeFileSync(outPath, JSON.stringify(out, null, 2), 'utf-8')
 console.log('OK ->', outPath)
 console.log('links:', records.length, '| secoes:', JSON.stringify(bySection))

@@ -1,4 +1,5 @@
 import { BaseSchema } from '@adonisjs/lucid/schema'
+import { camara } from '#config/camara'
 
 const YEAR = 2026
 const MONTHLY_AMOUNT = 317336.01
@@ -19,6 +20,14 @@ const rows = [
   { month: 12, repasseDate: null, recebido: null },
 ]
 
+function isSumeTenant(): boolean {
+  return camara.cidade
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim() === 'sume'
+}
+
 /**
  * Alimenta o duodecimo de Sume 2026 a partir do documento oficial enviado.
  *
@@ -27,6 +36,8 @@ const rows = [
  */
 export default class extends BaseSchema {
   async up() {
+    if (!isSumeTenant()) return
+
     this.defer(async (db) => {
       const now = new Date()
 

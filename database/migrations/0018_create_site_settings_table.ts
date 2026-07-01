@@ -1,4 +1,15 @@
 import { BaseSchema } from '@adonisjs/lucid/schema'
+import { camara } from '#config/camara'
+
+function normalize(value: string): string {
+  return value
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
+}
+
+const isSume = normalize(camara.cidade) === 'sume'
 
 export default class extends BaseSchema {
   protected tableName = 'site_settings'
@@ -68,7 +79,7 @@ export default class extends BaseSchema {
         {
           group: 'appearance',
           key: 'header_title',
-          value: 'CÂMARA MUNICIPAL DE SUMÉ',
+          value: camara.nome.toUpperCase(),
           type: 'text',
           label: 'Título do Header',
           created_at: new Date(),
@@ -88,7 +99,7 @@ export default class extends BaseSchema {
         {
           group: 'footer',
           key: 'footer_address',
-          value: 'Rua Antônio Vieira Lima, S/N, Centro, Sumé - PB, 58540-000',
+          value: camara.address || null,
           type: 'text',
           label: 'Endereço',
           created_at: new Date(),
@@ -97,7 +108,7 @@ export default class extends BaseSchema {
         {
           group: 'footer',
           key: 'footer_phone',
-          value: '(83) 3353-1175',
+          value: camara.phone || null,
           type: 'text',
           label: 'Telefone',
           created_at: new Date(),
@@ -106,7 +117,7 @@ export default class extends BaseSchema {
         {
           group: 'footer',
           key: 'footer_email',
-          value: 'contato@camaradesume.pb.gov.br',
+          value: camara.email || null,
           type: 'text',
           label: 'Email',
           created_at: new Date(),
@@ -115,7 +126,7 @@ export default class extends BaseSchema {
         {
           group: 'footer',
           key: 'footer_hours',
-          value: 'Seg a Sex, 8h às 14h',
+          value: camara.hours,
           type: 'text',
           label: 'Horário de Funcionamento',
           created_at: new Date(),
@@ -126,7 +137,7 @@ export default class extends BaseSchema {
         {
           group: 'social',
           key: 'social_facebook',
-          value: 'https://facebook.com/camaradesume',
+          value: isSume ? 'https://facebook.com/camaradesume' : null,
           type: 'text',
           label: 'Facebook',
           created_at: new Date(),
@@ -135,7 +146,7 @@ export default class extends BaseSchema {
         {
           group: 'social',
           key: 'social_instagram',
-          value: 'https://instagram.com/camaradesume',
+          value: isSume ? 'https://instagram.com/camaradesume' : null,
           type: 'text',
           label: 'Instagram',
           created_at: new Date(),
@@ -144,7 +155,7 @@ export default class extends BaseSchema {
         {
           group: 'social',
           key: 'social_youtube',
-          value: 'https://youtube.com/@camaradesume',
+          value: isSume ? 'https://youtube.com/@camaradesume' : null,
           type: 'text',
           label: 'YouTube',
           created_at: new Date(),
@@ -173,7 +184,7 @@ export default class extends BaseSchema {
         {
           group: 'esic',
           key: 'esic_phone',
-          value: '(83) 3353-1175',
+          value: camara.phone || null,
           type: 'text',
           label: 'Telefone E-SIC',
           created_at: new Date(),
@@ -182,7 +193,7 @@ export default class extends BaseSchema {
         {
           group: 'esic',
           key: 'esic_email',
-          value: 'esic@camaradesume.pb.gov.br',
+          value: camara.email || null,
           type: 'text',
           label: 'Email E-SIC',
           created_at: new Date(),

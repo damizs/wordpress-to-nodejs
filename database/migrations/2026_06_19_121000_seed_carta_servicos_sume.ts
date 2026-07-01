@@ -1,11 +1,13 @@
 import { BaseSchema } from '@adonisjs/lucid/schema'
+import { camara } from '#config/camara'
 
 const CATEGORY_SLUG = 'carta-servicos'
 const NOW_REFERENCE_DATE = '2026-06-19'
 
-const CONTENT = `
+function content() {
+  return `
 <h2>Carta de Serviços ao Usuário</h2>
-<p>A Carta de Serviços reúne os principais canais de atendimento da Câmara Municipal de Sumé e orienta o cidadão sobre como acessar informações, acompanhar atividades legislativas e solicitar serviços públicos.</p>
+<p>A Carta de Serviços reúne os principais canais de atendimento da ${camara.nome} e orienta o cidadão sobre como acessar informações, acompanhar atividades legislativas e solicitar serviços públicos.</p>
 
 <h3>Serviço de Informação ao Cidadão (e-SIC)</h3>
 <p>Canal para registrar pedidos de acesso à informação com base na Lei nº 12.527/2011. O cidadão pode abrir uma solicitação, acompanhar o protocolo e receber resposta dentro dos prazos legais.</p>
@@ -36,6 +38,7 @@ const CONTENT = `
   <li><strong>Atualização:</strong> conforme a natureza de cada informação e os prazos legais aplicáveis.</li>
 </ul>
 `
+}
 
 export default class extends BaseSchema {
   async up() {
@@ -78,7 +81,7 @@ export default class extends BaseSchema {
         title: 'Carta de Serviços ao Usuário',
         category: CATEGORY_SLUG,
         year: 2026,
-        content: CONTENT.trim(),
+        content: content().trim(),
         reference_date: NOW_REFERENCE_DATE,
         file_url: null,
         is_active: true,

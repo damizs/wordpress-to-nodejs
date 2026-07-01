@@ -9,6 +9,7 @@ import StorageSyncRun from '#models/storage_sync_run'
 import BackupService from '#services/backup_service'
 import StorageSyncService from '#services/storage_sync_service'
 import EvolutionAlertService from '#services/evolution_alert_service'
+import { camara } from '#config/camara'
 
 function parseBooleanInput(value: unknown) {
   return value === true || value === 'true' || value === 'on' || value === '1'
@@ -274,7 +275,7 @@ export default class SecurityController {
 
   async testEvolution({ response, session }: HttpContext) {
     const summary = await EvolutionAlertService.sendToRecipients(
-      `Teste de alerta do Portal da Camara de Sume em ${DateTime.now()
+      `Teste de alerta do Portal da ${camara.nome} em ${DateTime.now()
         .setLocale('pt-BR')
         .toFormat('dd/LL/yyyy HH:mm')}.`,
       'test',

@@ -98,6 +98,36 @@ function cleanFileLabel(nome: string | null): string {
     .trim()
 }
 
+function naturalKey(title: string, category: string, year: number): string {
+  return `${category}\u0000${year}\u0000${title}`
+}
+
+function uniqueRecordTitle(
+  baseTitle: string,
+  category: string,
+  year: number,
+  used: Set<string>,
+  fileLabel?: string | null
+): string {
+  let title = baseTitle
+  let key = naturalKey(title, category, year)
+  if (!used.has(key)) {
+    used.add(key)
+    return title
+  }
+
+  const label = fileLabel ? cleanFileLabel(fileLabel) : 'documento'
+  title = `${baseTitle} — ${label}`
+  key = naturalKey(title, category, year)
+  let suffix = 2
+  while (used.has(key)) {
+    title = `${baseTitle} — ${label} ${suffix++}`
+    key = naturalKey(title, category, year)
+  }
+  used.add(key)
+  return title
+}
+
 /** Caminho local determinístico a partir da URL do anexo (idempotente). */
 function localNameFromUrl(url: string): string {
   try {
@@ -176,6 +206,15 @@ export async function importPntpRecords(
   if (!existsSync(destDir)) await mkdir(destDir, { recursive: true })
 
   const urlCache = new Map<string, string | null>()
+  const usedRecordKeys = new Set<string>()
+  const seenFileKeys = new Set<string>()
+  const fileBackedKeys = new Set<string>()
+  for (const r of records) {
+    const slug = canon(r.secao)
+    const year = r.ano || new Date().getFullYear()
+    const anexos = (r.anexos || []).filter((a) => a.url)
+    if (anexos.length > 0) fileBackedKeys.add(naturalKey(r.titulo, slug, year))
+  }
   let okRecords = 0
   let okFiles = 0
 
@@ -185,14 +224,20 @@ export async function importPntpRecords(
     const anexos = (r.anexos || []).filter((a) => a.url)
 
     if (anexos.length === 0) {
+      if (!r.conteudo && fileBackedKeys.has(naturalKey(r.titulo, slug, year))) continue
       // Registro sem anexo: vira nota informativa (conteúdo/declaração)
-      await upsertRecord(r.titulo, slug, year, r.conteudo, r.dataReferencia, null, r.ordem, r.ativo)
+      const title = uniqueRecordTitle(r.titulo, slug, year, usedRecordKeys)
+      await upsertRecord(title, slug, year, r.conteudo, r.dataReferencia, null, r.ordem, r.ativo)
       okRecords++
       continue
     }
 
     let idx = 0
     for (const a of anexos) {
+      const fileKey = `${slug}\u0000${year}\u0000${a.url}`
+      if (seenFileKeys.has(fileKey)) continue
+      seenFileKeys.add(fileKey)
+
       let fileUrl: string | null
       if (urlCache.has(a.url!)) {
         fileUrl = urlCache.get(a.url!)!
@@ -205,7 +250,8 @@ export async function importPntpRecords(
       }
 
       // Título: único quando há vários anexos no mesmo registro
-      const title = anexos.length > 1 ? `${r.titulo} — ${cleanFileLabel(a.nome)}` : r.titulo
+      const baseTitle = anexos.length > 1 ? `${r.titulo} — ${cleanFileLabel(a.nome)}` : r.titulo
+      const title = uniqueRecordTitle(baseTitle, slug, year, usedRecordKeys, a.nome)
       // Conteúdo só no primeiro item do grupo (evita duplicar HTML extenso)
       const content = idx === 0 ? r.conteudo : null
       await upsertRecord(title, slug, year, content, r.dataReferencia, fileUrl, r.ordem * 10 + idx, r.ativo)

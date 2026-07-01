@@ -1,6 +1,7 @@
 import { BaseSchema } from '@adonisjs/lucid/schema'
+import { camara } from '#config/camara'
 
-/** Garante textos da seção E-SIC da home (Painel → Homepage) com dados de Sumé. */
+/** Garante textos da seção E-SIC da home (Painel → Homepage). */
 export default class extends BaseSchema {
   async up() {
     this.defer(async (db) => {
@@ -23,28 +24,28 @@ export default class extends BaseSchema {
         {
           group: 'homepage_esic',
           key: 'homepage_esic_address',
-          value: 'Rua Luiz Grande, s/n - Centro\nCEP: 58540-000\nSumé - PB',
+          value: camara.address,
           type: 'text',
           label: 'Endereço E-SIC',
         },
         {
           group: 'homepage_esic',
           key: 'homepage_esic_hours',
-          value: 'Segunda à Sexta-feira\ndas 8h às 14h',
+          value: camara.hours,
           type: 'text',
           label: 'Horário E-SIC',
         },
         {
           group: 'homepage_esic',
           key: 'homepage_esic_phone',
-          value: '(83) 3353-1191',
+          value: camara.phone,
           type: 'text',
           label: 'Telefone E-SIC',
         },
         {
           group: 'homepage_esic',
           key: 'homepage_esic_email',
-          value: 'contato@camaradesume.pb.gov.br',
+          value: camara.email,
           type: 'text',
           label: 'Email E-SIC',
         },

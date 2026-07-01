@@ -116,16 +116,17 @@ export const NewsSection = ({ news = [], backgroundImage, bannerImage, layout, l
   const items = limit ? news.slice(0, limit) : news;
   if (items.length === 0) return null;
   const variant = getNewsLayout(layout);
+  const plainMode = plain || variant === "destaque-lista-plana";
 
   return (
-    <section className={`relative overflow-hidden ${plain ? "bg-background" : "bg-gradient-hero"}`}>
+    <section className={`relative overflow-hidden ${plainMode ? "bg-background" : "bg-gradient-hero"}`}>
       {/* Fundo (imagem opcional) */}
-      {!plain && backgroundImage ? (
+      {!plainMode && backgroundImage ? (
         <div className="absolute inset-0 overflow-hidden">
           <img src={backgroundImage} alt="" loading="lazy" className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-navy-dark/85" />
         </div>
-      ) : !plain ? (
+      ) : !plainMode ? (
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute top-1/4 -right-20 w-80 h-80 bg-gold/5 rounded-full blur-3xl" />
           <div className="absolute bottom-1/4 -left-20 w-80 h-80 bg-sky/5 rounded-full blur-3xl" />
@@ -133,7 +134,7 @@ export const NewsSection = ({ news = [], backgroundImage, bannerImage, layout, l
       ) : null}
 
       <div className="relative container py-10 sm:py-14 lg:py-16 min-w-0">
-        {plain && (
+        {plainMode && (
           <SectionHeading
             badge="Notícias"
             title="Últimas notícias"
@@ -142,17 +143,20 @@ export const NewsSection = ({ news = [], backgroundImage, bannerImage, layout, l
         )}
         {variant === "grade" && <GridLayout news={items} />}
         {variant === "lista" && <ListLayout news={items} />}
-        {variant === "destaque" && (plain ? <HighlightListPlainLayout news={items} bannerImage={bannerImage} /> : <HighlightListLayout news={items} />)}
+        {variant === "destaque" && (plainMode ? <HighlightListPlainLayout news={items} bannerImage={bannerImage} /> : <HighlightListLayout news={items} />)}
+        {variant === "destaque-lista-plana" && (
+          <HighlightListPlainLayout news={items} bannerImage={bannerImage} listLimit={3} />
+        )}
         {variant === "mosaico" && <MosaicLayout news={items} />}
       </div>
 
       {/* Barra "ver mais" */}
-      <div className={`relative border-t ${plain ? "border-border bg-card" : "bg-navy-dark/90 backdrop-blur-sm border-white/10"}`}>
+      <div className={`relative border-t ${plainMode ? "border-border bg-card" : "bg-navy-dark/90 backdrop-blur-sm border-white/10"}`}>
         <div className="container py-4 flex justify-center sm:justify-end">
           <Link
             href="/noticias"
             className={`group inline-flex items-center justify-center gap-3 w-full sm:w-auto px-6 py-2.5 rounded-full font-medium no-underline transition-all duration-300 ${
-              plain
+              plainMode
                 ? "bg-navy text-white hover:bg-gold hover:text-navy-dark"
                 : "bg-white/10 hover:bg-gold hover:text-navy-dark text-white"
             }`}
@@ -373,9 +377,16 @@ function HighlightListLayout({ news }: { news: NewsItem[] }) {
   );
 }
 
-function HighlightListPlainLayout({ news }: { news: NewsItem[]; bannerImage?: string | null }) {
+function HighlightListPlainLayout({
+  news,
+  listLimit = 4,
+}: {
+  news: NewsItem[];
+  bannerImage?: string | null;
+  listLimit?: number;
+}) {
   const featured = news.find((n) => n.featured) || news[0];
-  const others = news.filter((n) => n.id !== featured?.id).slice(0, 4);
+  const others = news.filter((n) => n.id !== featured?.id).slice(0, listLimit);
 
   return (
     <div className="grid grid-cols-1 gap-5 lg:grid-cols-[minmax(0,1.1fr)_minmax(320px,0.8fr)] lg:gap-6">

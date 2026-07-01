@@ -6,6 +6,7 @@ import AtriconSnapshot from '#models/atricon_snapshot'
 import SiteSetting from '#models/site_setting'
 import TransparencyLink from '#models/transparency_link'
 import TransparencySection from '#models/transparency_section'
+import { camara } from '#config/camara'
 import {
   ATRICON_CRITERIA,
   ATRICON_DIMENSIONS,
@@ -992,7 +993,7 @@ function buildEvidencePack({
   return {
     generatedAt: DateTime.now().toISO(),
     purpose:
-      'Pacote de evidencias para leitura periodica por IA e conferencias PNTP/ATRICON do portal da Camara Municipal de Sume.',
+      `Pacote de evidencias para leitura periodica por IA e conferencias PNTP/ATRICON do portal da ${camara.nome}.`,
     disclaimer:
       'Ferramenta interna de autodiagnostico e preparacao. NAO e a avaliacao oficial do PNTP/ATRICON nem substitui a autoavaliacao no sistema Avalia, a validacao pelo Tribunal de Contas ou o Radar da Transparencia Publica oficial. Indices e niveis aqui sao estimativas para orientar a equipe.',
     readingFlow: [
@@ -1189,7 +1190,6 @@ async function buildContentMap(): Promise<ContentModule[]> {
     atividades,
     votacoes,
     publicacoes,
-    diario,
     transparenciaLinks,
     transparenciaSecoes,
     infoCategories,
@@ -1219,7 +1219,6 @@ async function buildContentMap(): Promise<ContentModule[]> {
       q.where('is_published', true)
     ),
     tableStats('official_publications', 'publication_date', d90, yearStart),
-    tableStats('official_gazette_entries', 'publication_date', d90, yearStart),
     tableStats('transparency_links', 'coalesce(updated_at, created_at)', d90, yearStart),
     tableCount('transparency_sections', (q) => q.where('is_active', true)),
     loadInfoCategories(),
@@ -1353,14 +1352,6 @@ async function buildContentMap(): Promise<ContentModule[]> {
       publicacoes,
       90,
       `${publicacoes.yearCount} publicadas em ${year}`
-    ),
-    mod(
-      'diario',
-      'Diário Oficial',
-      '/diario-oficial',
-      diario,
-      90,
-      `${diario.recent} edições nos últimos 90 dias`
     ),
     mod(
       'transparencia',

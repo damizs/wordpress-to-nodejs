@@ -2,6 +2,7 @@ import type { HttpContext } from '@adonisjs/core/http'
 import { DateTime } from 'luxon'
 import PlenarySession from '#models/plenary_session'
 import SiteSetting from '#models/site_setting'
+import { camara } from '#config/camara'
 
 const TYPE_LABELS: Record<string, string> = {
   ordinaria: 'Ordinária',
@@ -28,6 +29,15 @@ function formatIcsDateTime(date: string, time?: string | null) {
   const normalizedTime = time || '09:00'
   const dt = DateTime.fromISO(`${date}T${normalizedTime}`, { zone: 'America/Sao_Paulo' })
   return dt.isValid ? dt.toFormat("yyyyMMdd'T'HHmmss") : date.replace(/-/g, '')
+}
+
+function configuredHost() {
+  const value = camara.siteUrl || camara.baseUrl
+  try {
+    return new URL(value).host
+  } catch {
+    return value.replace(/^https?:\/\//, '').replace(/\/.*$/, '') || 'localhost'
+  }
 }
 
 export default class AgendaController {
@@ -98,7 +108,8 @@ export default class AgendaController {
       .whereNull('deleted_at')
       .orderBy('session_date', 'asc')
       .limit(500)
-    const host = request.header('host') || 'camaradesume.pb.gov.br'
+    const host = request.header('host') || configuredHost()
+    const uidHost = host.replace(/:\d+$/, '')
     const proto = request.header('x-forwarded-proto') || 'https'
     const baseUrl = `${proto}://${host}`
     const now = DateTime.now().toUTC().toFormat("yyyyMMdd'T'HHmmss'Z'")
@@ -106,10 +117,10 @@ export default class AgendaController {
     const lines = [
       'BEGIN:VCALENDAR',
       'VERSION:2.0',
-      'PRODID:-//Camara Municipal de Sume//Agenda//PT-BR',
+      `PRODID:-//${escapeIcs(camara.nome)}//Agenda//PT-BR`,
       'CALSCALE:GREGORIAN',
       'METHOD:PUBLISH',
-      'X-WR-CALNAME:Agenda de Sessões - Câmara Municipal de Sumé',
+      `X-WR-CALNAME:Agenda de Sessões - ${escapeIcs(camara.nome)}`,
       'X-WR-TIMEZONE:America/Sao_Paulo',
     ]
 
@@ -131,7 +142,7 @@ export default class AgendaController {
 
       lines.push(
         'BEGIN:VEVENT',
-        `UID:sessao-${session.id}@camaradesume.pb.gov.br`,
+        `UID:sessao-${session.id}@${uidHost}`,
         `DTSTAMP:${now}`,
         `DTSTART;TZID=America/Sao_Paulo:${start}`,
         `DTEND;TZID=America/Sao_Paulo:${end}`,

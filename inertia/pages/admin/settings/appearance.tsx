@@ -1,4 +1,4 @@
-import { Head, router, useForm } from '@inertiajs/react'
+import { Head, router, useForm, usePage } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
 import {
   Palette,
@@ -24,7 +24,14 @@ import {
 } from 'lucide-react'
 import { useState, useRef } from 'react'
 import { Badge, Button, Card, CardHeader, Field, Input, PageHeader, Select, Textarea } from '~/components/admin/ui'
-import { CAMPAIGNS, THEME_PRESETS, getCampaign, resolveActiveCampaign } from '~/lib/campaigns'
+import {
+  CAMPAIGNS,
+  CUSTOM_THEME_PRESET_KEY,
+  THEME_PRESETS,
+  getCampaign,
+  getThemePreset,
+  resolveActiveCampaign,
+} from '~/lib/campaigns'
 import { LAYOUT_STYLES, type LayoutStyle } from '~/lib/layouts'
 import { SITE_TEMPLATES, type SiteTemplate, type SiteTemplateKey } from '~/lib/templates'
 import { NEWS_LAYOUTS } from '~/lib/news-layouts'
@@ -70,11 +77,15 @@ function getVal(items: SettingItem[] | undefined, key: string): string {
 
 export default function Appearance({ settings }: Props) {
   const { appearance, footer, social, esic, election, public_access } = settings
+  const camara = (usePage().props as {
+    camara?: { nome: string }
+  }).camara
+  const defaultOrgName = camara?.nome || getVal(appearance, 'header_title') || 'Câmara Municipal'
 
   const { data, setData } = useForm<Record<string, any>>({
-    theme_preset: getVal(appearance, 'theme_preset') || 'navy',
-    admin_palette: getVal(appearance, 'admin_palette') || 'navy',
-    campaign_mode: getVal(appearance, 'campaign_mode') || 'auto',
+    theme_preset: getVal(appearance, 'theme_preset') || CUSTOM_THEME_PRESET_KEY,
+    admin_palette: getVal(appearance, 'admin_palette') || CUSTOM_THEME_PRESET_KEY,
+    campaign_mode: getVal(appearance, 'campaign_mode') || 'off',
     election_mode_enabled: getVal(election, 'election_mode_enabled') || 'false',
     election_start: getVal(election, 'election_start'),
     election_end: getVal(election, 'election_end'),
@@ -98,7 +109,7 @@ export default function Appearance({ settings }: Props) {
     header_title: getVal(appearance, 'header_title'),
     header_subtitle: getVal(appearance, 'header_subtitle'),
     login_title: getVal(appearance, 'login_title') || 'Painel Administrativo',
-    login_subtitle: getVal(appearance, 'login_subtitle') || 'Camara Municipal de Sume',
+    login_subtitle: getVal(appearance, 'login_subtitle') || defaultOrgName,
     footer_description: getVal(footer, 'footer_description'),
     footer_address: getVal(footer, 'footer_address'),
     footer_phone: getVal(footer, 'footer_phone'),
@@ -381,7 +392,7 @@ export default function Appearance({ settings }: Props) {
                 <ColorField label="Cor Secundária (Sky)" value={data.color_sky} onChange={(v) => setData('color_sky', v)} />
               </div>
               <p className="text-xs text-muted-foreground mt-3">
-                As cores customizadas valem quando o tema é "Navy (padrão)". Outros presets na aba Tema sobrescrevem estas cores.
+                As cores customizadas valem quando o tema é "Cores cadastradas". Outros presets na aba Tema sobrescrevem estas cores.
               </p>
             </Section>
           )}
@@ -858,17 +869,40 @@ function ThemeAndCampaigns({
     : campaignMode === 'auto'
       ? autoCampaign
       : null
+  const customThemeSelected =
+    themePreset === CUSTOM_THEME_PRESET_KEY || themePreset === 'navy' || !getThemePreset(themePreset)
+  const customAdminSelected =
+    adminPalette === CUSTOM_THEME_PRESET_KEY || adminPalette === 'navy' || !getThemePreset(adminPalette)
 
   return (
     <div className="space-y-6">
       {/* Theme presets */}
       <Field
         label="Tema do site"
-        hint="Preset de cores institucional. Em 'Navy (padrão)' valem as cores customizadas abaixo."
+        hint="Use as cores cadastradas como padrão. Escolha um preset somente quando quiser substituir a paleta do portal."
       >
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+          <button
+            type="button"
+            onClick={() => onThemeChange(CUSTOM_THEME_PRESET_KEY)}
+            aria-pressed={customThemeSelected}
+            className={`rounded-lg border p-3 text-left transition-all ${
+              customThemeSelected
+                ? 'border-navy ring-2 ring-navy/25 bg-navy/5'
+                : 'border-border bg-card hover:border-navy/40'
+            }`}
+          >
+            <div className="flex items-center gap-1 mb-2">
+              <span className="w-6 h-6 rounded-md border border-black/10 bg-navy" />
+              <span className="w-6 h-6 rounded-md border border-black/10 bg-gold" />
+              <span className="w-6 h-6 rounded-md border border-black/10 bg-sky" />
+            </div>
+            <span className={`block text-xs font-semibold ${customThemeSelected ? 'text-navy' : 'text-foreground'}`}>
+              Cores cadastradas
+            </span>
+          </button>
           {THEME_PRESETS.map((preset) => {
-            const selected = (themePreset || 'navy') === preset.key
+            const selected = !customThemeSelected && themePreset === preset.key
             return (
               <button
                 key={preset.key}
@@ -901,8 +935,27 @@ function ThemeAndCampaigns({
         hint="Recolore apenas o painel administrativo (barra lateral, destaques e botões). Não afeta o site público."
       >
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+          <button
+            type="button"
+            onClick={() => onAdminPaletteChange(CUSTOM_THEME_PRESET_KEY)}
+            aria-pressed={customAdminSelected}
+            className={`rounded-lg border p-3 text-left transition-all ${
+              customAdminSelected
+                ? 'border-navy ring-2 ring-navy/25 bg-navy/5'
+                : 'border-border bg-card hover:border-navy/40'
+            }`}
+          >
+            <div className="flex items-center gap-1 mb-2">
+              <span className="w-6 h-6 rounded-md border border-black/10 bg-navy" />
+              <span className="w-6 h-6 rounded-md border border-black/10 bg-gold" />
+              <span className="w-6 h-6 rounded-md border border-black/10 bg-sky" />
+            </div>
+            <span className={`block text-xs font-semibold ${customAdminSelected ? 'text-navy' : 'text-foreground'}`}>
+              Cores cadastradas
+            </span>
+          </button>
           {THEME_PRESETS.map((preset) => {
-            const selected = (adminPalette || 'navy') === preset.key
+            const selected = !customAdminSelected && adminPalette === preset.key
             return (
               <button
                 key={preset.key}

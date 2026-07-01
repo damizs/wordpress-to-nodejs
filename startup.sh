@@ -25,8 +25,9 @@ timeout "${SEED_TIMEOUT:-180}" node ace db:seed || true
 # atalhos internos padrão, 1 admin (ADMIN_INITIAL_EMAIL/ADMIN_INITIAL_PASSWORD) e a
 # identidade da câmara (CAMARA_NOME/CAMARA_CIDADE/CAMARA_UF/CAMARA_EMAIL — config/camara).
 # NÃO importa conteúdo de Sumé. Idempotente: pode rodar a cada deploy.
-# Recomendação para câmara nova: CAMARA_INIT=true + SKIP_CONTENT_BOOTSTRAP=true
-# (este último já pula o wp_import.sh abaixo).
+# Recomendação para câmara nova: CAMARA_INIT=true + SKIP_CONTENT_BOOTSTRAP=true.
+# Mesmo se esquecer o SKIP, scripts/wp_import.sh bloqueia conteúdo de tenant novo
+# salvo ALLOW_CONTENT_BOOTSTRAP=true explicitamente após gerar JSONs/uploads próprios.
 if [ "$CAMARA_INIT" = "true" ]; then
   echo "=== Câmara init (estrutura + admin + identidade, sem conteúdo de Sumé) ==="
   timeout "${SEED_TIMEOUT:-180}" node ace camara:init \

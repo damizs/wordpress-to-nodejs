@@ -5,7 +5,8 @@
 // Cada anexo traz a URL COMPLETA do PDF no site ao vivo — o importador
 // (app/services/wp_pntp_importer.ts) baixa esses arquivos para o portal.
 //
-// Uso: node scripts/extract_wp_pntp.mjs [caminho/para/database.sql]
+// Uso:
+//   node scripts/extract_wp_pntp.mjs [caminho/para/database.sql] [saida.json]
 
 import { readFileSync, writeFileSync } from 'node:fs'
 import { join, dirname } from 'node:path'
@@ -13,11 +14,12 @@ import { fileURLToPath } from 'node:url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const sqlPath = process.argv[2] || 'C:/Users/arauj/Downloads/_bkp_sume/database.sql'
+const outPath = process.argv[3] || join(__dirname, '..', 'database', 'wp_pntp.json')
 const sql = readFileSync(sqlPath, 'utf-8')
 const TICK = String.fromCharCode(96)
 
 function findTable(suffix) {
-  const re = new RegExp('CREATE TABLE ' + TICK + '([a-z0-9_]*' + suffix + ')' + TICK)
+  const re = new RegExp('CREATE TABLE ' + TICK + '([a-z0-9_]*' + suffix + ')' + TICK, 'i')
   const m = sql.match(re)
   return m ? m[1] : null
 }
@@ -146,7 +148,6 @@ const out = {
   records,
 }
 
-const outPath = join(__dirname, '..', 'database', 'wp_pntp.json')
 writeFileSync(outPath, JSON.stringify(out, null, 2), 'utf-8')
 console.log('OK →', outPath)
 console.log('registros:', records.length, '| anexos:', anexos.length, '| seções:', Object.keys(secCount).length)

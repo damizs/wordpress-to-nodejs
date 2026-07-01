@@ -1147,6 +1147,50 @@ export default function AtriconIndex({
     }
   }, [matrix, contentMap])
 
+  const feedingModules = useMemo(() => {
+    const byKey = new Map(contentMap.map((module) => [module.key, module]))
+    const items = [
+      {
+        key: 'atividades',
+        title: 'Matérias legislativas',
+        description: 'Projetos, requerimentos, indicações, moções e autoria.',
+        href: '/painel/atividades',
+      },
+      {
+        key: 'publicacoes',
+        title: 'Publicações oficiais',
+        description: 'Portarias, decretos, resoluções e atos institucionais próprios.',
+        href: '/painel/publicacoes',
+      },
+      {
+        key: 'atas',
+        title: 'Atas',
+        description: 'Atas publicadas por data e sessão, com PDF quando houver.',
+        href: '/painel/atas',
+      },
+      {
+        key: 'pautas',
+        title: 'Pautas',
+        description: 'Pautas publicadas por data e sessão, separadas das atas.',
+        href: '/painel/pautas',
+      },
+      {
+        key: 'votacoes',
+        title: 'Votações nominais',
+        description: 'Votos por matéria e vereador, quando houver relatório nominal.',
+        href: '/painel/votacoes',
+      },
+      {
+        key: 'acesso-informacao',
+        title: 'PNTP / LAI',
+        description: 'Registros por categoria e exercício no Acesso à Informação.',
+        href: '/painel/acesso-informacao',
+      },
+    ]
+
+    return items.map((item) => ({ ...item, module: byKey.get(item.key) ?? null }))
+  }, [contentMap])
+
   const [tab, setTab] = useState<TabKey>('visao')
 
   // Alerta proativo de frescor: atas/pautas/votações que venceram a meta quinzenal.
@@ -1437,6 +1481,52 @@ export default function AtriconIndex({
               <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{step.text}</p>
             </div>
           ))}
+        </div>
+
+        <div className="mt-4 rounded-xl border border-border bg-muted/20 p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+            <div>
+              <p className="text-sm font-semibold text-foreground">Alimentação segmentada</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Escolha o acervo exato para atualizar, sem misturar matérias, atos, atas, pautas e PNTP/LAI.
+                O Diário Oficial fica fora desta fila por ser alimentado no portal próprio.
+              </p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
+            {feedingModules.map((item) => {
+              const freshness = item.module?.freshness ?? 'vazio'
+              const meta = FRESHNESS_META[freshness]
+              return (
+                <a
+                  key={item.key}
+                  href={item.href}
+                  className="group rounded-lg border border-border bg-card p-3 no-underline transition-colors hover:border-navy/40 hover:bg-navy/5"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="text-sm font-semibold text-foreground group-hover:text-navy">
+                        {item.title}
+                      </p>
+                      <p className="text-[11px] text-muted-foreground mt-1 leading-relaxed">
+                        {item.description}
+                      </p>
+                    </div>
+                    <Badge tone={meta.tone} className="text-[10px] px-2 py-0.5 shrink-0">
+                      {meta.label}
+                    </Badge>
+                  </div>
+                  <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] text-muted-foreground">
+                    <span className="tabular-nums">{item.module?.total ?? 0} registro(s)</span>
+                    <span>último: {fmtDate(item.module?.latest ?? null)}</span>
+                    <span className="inline-flex items-center gap-0.5 text-navy">
+                      Abrir <ArrowUpRight className="w-3 h-3" />
+                    </span>
+                  </div>
+                </a>
+              )
+            })}
+          </div>
         </div>
 
         <div className="mt-4 flex flex-wrap gap-2">

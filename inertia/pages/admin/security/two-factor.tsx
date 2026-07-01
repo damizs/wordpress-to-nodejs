@@ -1,4 +1,4 @@
-import { Head, useForm, router } from '@inertiajs/react'
+import { Head, useForm, router, usePage } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
 import { ShieldCheck, ShieldAlert, KeyRound, Copy, Check, Download } from 'lucide-react'
 import { useState } from 'react'
@@ -12,7 +12,7 @@ interface TwoFactorProps {
   backupCodeCount: number
 }
 
-function BackupCodesPanel({ codes }: { codes: string[] }) {
+function BackupCodesPanel({ codes, orgName }: { codes: string[]; orgName: string }) {
   const [copied, setCopied] = useState(false)
 
   function copyAll() {
@@ -30,7 +30,7 @@ function BackupCodesPanel({ codes }: { codes: string[] }) {
     const blob = new Blob(
       [
         'Codigos de backup - Verificacao em duas etapas\n',
-        'Camara Municipal de Sume\n\n',
+        `${orgName}\n\n`,
         'Cada codigo pode ser usado UMA vez. Guarde em local seguro.\n\n',
         codes.join('\n'),
         '\n',
@@ -90,6 +90,10 @@ export default function TwoFactor({
   const disableForm = useForm({ password: '', code: '' })
   const regenForm = useForm({ password: '', code: '' })
   const [secretCopied, setSecretCopied] = useState(false)
+  const camara = (usePage().props as {
+    camara?: { nome: string }
+  }).camara
+  const orgName = camara?.nome || 'Câmara Municipal'
 
   function startSetup() {
     router.post('/painel/conta/seguranca/iniciar')
@@ -158,7 +162,7 @@ export default function TwoFactor({
 
         {/* Códigos recém-gerados (uma vez) */}
         {generatedBackupCodes && generatedBackupCodes.length > 0 && (
-          <BackupCodesPanel codes={generatedBackupCodes} />
+          <BackupCodesPanel codes={generatedBackupCodes} orgName={orgName} />
         )}
 
         {/* Estado: INATIVO, sem setup → botão ativar */}

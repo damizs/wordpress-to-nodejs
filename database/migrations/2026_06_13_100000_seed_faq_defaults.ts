@@ -1,4 +1,5 @@
 import { BaseSchema } from '@adonisjs/lucid/schema'
+import { camara } from '#config/camara'
 
 /**
  * Migration de dados: popula a página de Perguntas Frequentes com conteúdo
@@ -43,14 +44,18 @@ export default class extends BaseSchema {
       // 2) Perguntas padrão — apenas se a tabela estiver vazia
       const faqCount = await db.from('faq_items').count('* as total')
       if (Number(faqCount[0]?.total ?? faqCount[0]?.$extras?.total ?? 0) > 0) return
+      const orgName = camara.nome
+      const address = camara.address || `sede da ${orgName}`
+      const hours = camara.hours || 'conforme horário de atendimento publicado no portal'
+      const phone = camara.phone ? ` pelo telefone ${camara.phone}` : ''
+      const email = camara.email ? ` ou pelo e-mail ${camara.email}` : ''
 
       const items: { question: string; answer: string; category: string }[] = [
         // ── Sessões ────────────────────────────────────────────────────────
         {
           category: 'sessoes',
           question: 'Como posso assistir às sessões da Câmara?',
-          answer:
-            'As sessões plenárias da Câmara Municipal de Sumé são públicas e abertas a qualquer cidadão. Você pode acompanhá-las presencialmente, no plenário da Casa (Rua Antônio Vieira Lima, S/N, Centro), nos dias e horários definidos no calendário de sessões ordinárias.\n\nAs pautas são publicadas com antecedência na seção "Pautas" do portal, e as atas com tudo o que foi deliberado ficam disponíveis na seção "Atas". Quando houver transmissão ao vivo, o link é divulgado na página inicial e nas redes sociais oficiais da Câmara.',
+          answer: `As sessões plenárias da ${orgName} são públicas e abertas a qualquer cidadão. Você pode acompanhá-las presencialmente em ${address}, nos dias e horários definidos no calendário de sessões ordinárias.\n\nAs pautas são publicadas com antecedência na seção "Pautas" do portal, e as atas com tudo o que foi deliberado ficam disponíveis na seção "Atas". Quando houver transmissão ao vivo, o link é divulgado na página inicial e nas redes sociais oficiais da Câmara.`,
         },
         {
           category: 'sessoes',
@@ -95,8 +100,7 @@ export default class extends BaseSchema {
         {
           category: 'transparencia',
           question: 'O que é o Portal da Transparência e o que é o PNTP?',
-          answer:
-            'O Portal da Transparência reúne, em um só lugar, as informações sobre a gestão da Câmara: despesas, receitas, folha de pagamento, diárias, licitações, contratos, relatórios fiscais e estrutura administrativa. O acesso é livre e não exige cadastro.\n\nO PNTP (Programa Nacional de Transparência Pública) é uma avaliação nacional, conduzida pelos Tribunais de Contas e pela Atricon, que mede a qualidade da transparência dos órgãos públicos. A Câmara de Sumé organiza seu portal seguindo os critérios do PNTP, buscando os melhores níveis de classificação.',
+          answer: `O Portal da Transparência reúne, em um só lugar, as informações sobre a gestão da Câmara: despesas, receitas, folha de pagamento, diárias, licitações, contratos, relatórios fiscais e estrutura administrativa. O acesso é livre e não exige cadastro.\n\nO PNTP (Programa Nacional de Transparência Pública) é uma avaliação nacional, conduzida pelos Tribunais de Contas e pela Atricon, que mede a qualidade da transparência dos órgãos públicos. A ${orgName} organiza seu portal seguindo os critérios do PNTP, buscando os melhores níveis de classificação.`,
         },
         {
           category: 'transparencia',
@@ -129,8 +133,7 @@ export default class extends BaseSchema {
         {
           category: 'sobre-a-camara',
           question: 'Qual o horário e o local de atendimento da Câmara?',
-          answer:
-            'A Câmara Municipal de Sumé atende ao público de segunda a sexta-feira, das 8h às 14h, na sede localizada na Rua Antônio Vieira Lima, S/N, Centro, Sumé - PB.\n\nVocê também pode entrar em contato pelo telefone (83) 3353-1175 ou pelo e-mail contato@camaradesume.pb.gov.br. Demandas formais podem ser registradas a qualquer momento pela Ouvidoria do portal.',
+          answer: `${orgName} atende ao público em ${address}, ${hours}.\n\nVocê também pode entrar em contato${phone}${email}. Demandas formais podem ser registradas a qualquer momento pela Ouvidoria do portal.`,
         },
       ]
 

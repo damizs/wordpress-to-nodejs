@@ -8,6 +8,7 @@ import { existsSync } from 'node:fs'
 import { saveOptimizedImage } from '#helpers/image_upload'
 import { assertSafeUpload } from '#helpers/upload_security'
 import { normalizeSafeWebUrl } from '#helpers/safe_url'
+import { camara } from '#config/camara'
 import {
   DEFAULT_PUBLIC_UNAVAILABLE_MESSAGE,
   DEFAULT_MAINTENANCE_TITLE,
@@ -39,13 +40,13 @@ const APPEARANCE_KEYS: Record<
   },
   theme_preset: {
     group: 'appearance',
-    defaultValue: 'navy',
+    defaultValue: 'custom',
     type: 'text',
     label: 'Tema (preset de cores)',
   },
   admin_palette: {
     group: 'appearance',
-    defaultValue: 'navy',
+    defaultValue: 'custom',
     type: 'text',
     label: 'Paleta do painel (cores do admin)',
   },
@@ -149,7 +150,7 @@ const APPEARANCE_KEYS: Record<
   },
   header_title: {
     group: 'appearance',
-    defaultValue: 'CÂMARA MUNICIPAL DE SUMÉ',
+    defaultValue: camara.nome.toUpperCase(),
     type: 'text',
     label: 'Título do Header',
   },
@@ -181,7 +182,7 @@ const APPEARANCE_KEYS: Record<
   },
   login_subtitle: {
     group: 'appearance',
-    defaultValue: 'Camara Municipal de Sume',
+    defaultValue: camara.nome,
     type: 'text',
     label: 'Subtitulo da tela de login',
   },
@@ -247,25 +248,25 @@ const APPEARANCE_KEYS: Record<
   },
   footer_address: {
     group: 'footer',
-    defaultValue: 'Rua Antônio Vieira Lima, S/N, Centro, Sumé - PB',
+    defaultValue: camara.address,
     type: 'text',
     label: 'Endereço',
   },
   footer_phone: {
     group: 'footer',
-    defaultValue: '(83) 3353-1175',
+    defaultValue: camara.phone,
     type: 'text',
     label: 'Telefone',
   },
   footer_email: {
     group: 'footer',
-    defaultValue: 'contato@camaradesume.pb.gov.br',
+    defaultValue: camara.email,
     type: 'text',
     label: 'Email',
   },
   footer_hours: {
     group: 'footer',
-    defaultValue: 'Seg a Sex, 8h às 14h',
+    defaultValue: camara.hours,
     type: 'text',
     label: 'Horário',
   },
@@ -274,8 +275,8 @@ const APPEARANCE_KEYS: Record<
   social_youtube: { group: 'social', defaultValue: '', type: 'text', label: 'YouTube' },
   esic_new_url: { group: 'esic', defaultValue: '#', type: 'text', label: 'Link Nova Demanda' },
   esic_consult_url: { group: 'esic', defaultValue: '#', type: 'text', label: 'Link Consultar' },
-  sic_unit: { group: 'esic', defaultValue: 'Serviço de Informação ao Cidadão (SIC) da Câmara Municipal de Sumé', type: 'text', label: 'Unidade responsável pelo SIC' },
-  sic_monitoring_authority: { group: 'esic', defaultValue: 'Presidência da Câmara Municipal de Sumé', type: 'text', label: 'Autoridade de monitoramento' },
+  sic_unit: { group: 'esic', defaultValue: `Serviço de Informação ao Cidadão (SIC) da ${camara.nome}`, type: 'text', label: 'Unidade responsável pelo SIC' },
+  sic_monitoring_authority: { group: 'esic', defaultValue: `Presidência da ${camara.nome}`, type: 'text', label: 'Autoridade de monitoramento' },
   esic_phone: { group: 'esic', defaultValue: '', type: 'text', label: 'Telefone E-SIC' },
   esic_email: { group: 'esic', defaultValue: '', type: 'text', label: 'Email E-SIC' },
 }

@@ -170,17 +170,6 @@ const INTERNAL_ROUTES: Array<{ prefix: string; probe: ModuleProbe }> = [
       thresholdDays: FRESHNESS_DAYS.quarterly,
     },
   },
-  {
-    prefix: '/diario-oficial',
-    probe: {
-      key: 'diario',
-      label: 'Diário Oficial',
-      adminHref: '/diario-oficial',
-      table: 'official_gazette_entries',
-      dateColumn: 'publication_date',
-      thresholdDays: FRESHNESS_DAYS.quarterly,
-    },
-  },
 ]
 
 const moduleCache = new Map<string, ModuleSnapshot>()
@@ -442,6 +431,16 @@ export default class TransparencyAuditService {
         }
 
         // Rota interna sem mapeamento direto (página estática, transparência modal etc.)
+        if (path.startsWith('/diario-oficial')) {
+          return {
+            ...base,
+            health: 'ok',
+            detail:
+              'Diário Oficial é alimentado no portal próprio/GetPublic; não entra na fila de alimentação local',
+            matchedModule: 'Diário Oficial (fonte externa)',
+          }
+        }
+
         if (path.startsWith('/transparencia')) {
           return {
             ...base,

@@ -17,10 +17,20 @@ interface GazetteDate {
   fileUrl: string | null;
 }
 
+interface PublicationEntry {
+  id: number;
+  titulo: string;
+  data?: string;
+  publicationDate?: string;
+  tipo: string;
+  arquivo: string | null;
+  url?: string;
+}
+
 interface DiarioOficialSectionProps {
   latestGazette?: GazetteEntry | null;
-  /** Edições/matérias recentes para o módulo "Últimas Publicações" (busca + filtro + paginação). */
-  entries?: GazetteEntry[];
+  /** Publicações oficiais/MSI recentes. Edições do diário ficam no calendário abaixo. */
+  entries?: PublicationEntry[];
   gazetteDates?: GazetteDate[];
   title?: string;
   subtitle?: string;
@@ -132,17 +142,17 @@ function pageWindow(current: number, last: number): (number | "...")[] {
 
 /**
  * Módulo "Últimas Publicações": header com contador, busca, filtro por tipo
- * (derivado do título) e paginação — tudo client-side sobre as edições já
- * carregadas, espelhando o comportamento do plugin do WordPress.
+ * e paginação client-side sobre publicações oficiais/MSI. As edições do
+ * Diário Oficial ficam no calendário e na chamada de última edição.
  */
-function LatestPublications({ entries }: { entries: GazetteEntry[] }) {
+function LatestPublications({ entries }: { entries: PublicationEntry[] }) {
   const PER_PAGE = 10;
   const [q, setQ] = useState("");
   const [tipo, setTipo] = useState("");
   const [page, setPage] = useState(1);
 
   const withType = useMemo(
-    () => entries.map((e) => ({ ...e, tipo: deriveType(e.description) })),
+    () => entries.map((e) => ({ ...e, tipo: e.tipo || deriveType(e.titulo) })),
     [entries]
   );
 
@@ -156,8 +166,8 @@ function LatestPublications({ entries }: { entries: GazetteEntry[] }) {
     return withType.filter((e) => {
       const okQ =
         !nq ||
-        normalize(e.description || "").includes(nq) ||
-        normalize(e.editionNumber || "").includes(nq);
+        normalize(e.titulo || "").includes(nq) ||
+        normalize(e.tipo || "").includes(nq);
       const okT = !tipo || e.tipo === tipo;
       return okQ && okT;
     });
@@ -171,9 +181,6 @@ function LatestPublications({ entries }: { entries: GazetteEntry[] }) {
   const slice = filtered.slice((current - 1) * PER_PAGE, current * PER_PAGE);
 
   const hasFilters = !!q.trim() || !!tipo;
-  const titulo = (e: GazetteEntry) =>
-    e.description || `Diário Oficial — Edição nº ${e.editionNumber}`;
-
   return (
     <div
       data-reveal="up"
@@ -244,20 +251,21 @@ function LatestPublications({ entries }: { entries: GazetteEntry[] }) {
         <>
           <div className="divide-y divide-border/60">
             {slice.map((entry) => {
-              const dataFmt = formatShortDate(entry.publicationDate);
+              const dataFmt = entry.data || formatShortDate(entry.publicationDate);
+              const targetUrl = entry.arquivo || entry.url || "/publicacoes-oficiais";
               const inner = (
                 <>
                   <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-4 min-w-0 flex-1">
                     <span className="text-sm font-medium text-muted-foreground shrink-0 sm:w-24">{dataFmt}</span>
                     <span className="text-sm text-foreground flex-1 line-clamp-2 sm:truncate group-hover:text-primary transition-colors">
-                      {titulo(entry)}
+                      {entry.titulo}
                     </span>
                   </div>
                   <div className="flex items-center gap-2 shrink-0 self-start sm:self-center">
                   <span className="inline px-2.5 py-0.5 bg-sky/10 text-sky rounded-full text-[11px] font-semibold uppercase tracking-wide">
                     {entry.tipo}
                   </span>
-                  {entry.fileUrl ? (
+                  {entry.arquivo ? (
                     <Download className="w-4 h-4 text-muted-foreground/40 group-hover:text-primary transition-colors" />
                   ) : (
                     <ArrowRight className="w-4 h-4 text-muted-foreground/30" />
@@ -265,10 +273,10 @@ function LatestPublications({ entries }: { entries: GazetteEntry[] }) {
                   </div>
                 </>
               );
-              return entry.fileUrl ? (
+              return entry.arquivo ? (
                 <a
                   key={entry.id}
-                  href={entry.fileUrl}
+                  href={targetUrl}
                   download
                   target="_blank"
                   rel="noopener noreferrer"
@@ -280,7 +288,7 @@ function LatestPublications({ entries }: { entries: GazetteEntry[] }) {
               ) : (
                 <Link
                   key={entry.id}
-                  href="/diario-oficial"
+                  href={targetUrl}
                   className="pub-list-row no-underline hover:bg-muted/60 transition-colors group"
                 >
                   {inner}

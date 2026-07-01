@@ -127,7 +127,7 @@ export default function HolidaysIndex({ holidays }: Props) {
                     <Input
                       value={item.label}
                       onChange={(e) => setItem(i, { label: e.target.value })}
-                      placeholder="Ex.: Emancipação de Sumé"
+                      placeholder="Ex.: Emancipação Municipal"
                     />
                   </Field>
                   <Field label="Tipo" className="sm:w-36 shrink-0">

@@ -1,4 +1,7 @@
 import { defineConfig } from '@adonisjs/shield'
+import { camara } from '#config/camara'
+
+const tenantFrameSources = [camara.siteUrl, camara.baseUrl].filter(Boolean)
 
 const trustedFrameSources = [
   "'self'",
@@ -11,7 +14,7 @@ const trustedFrameSources = [
   'https://getpublic.inf.br',
   'https://portaldatransparencia.publicsoft.com.br',
   'https://transparencia.elmartecnologia.com.br',
-  'https://camaradesume.pb.gov.br',
+  ...tenantFrameSources,
 ]
 
 const shieldConfig = defineConfig({

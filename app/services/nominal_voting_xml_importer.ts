@@ -1,12 +1,17 @@
 import { createHash } from 'node:crypto'
-import { readdir, readFile, stat } from 'node:fs/promises'
+import { execFile } from 'node:child_process'
+import { mkdtemp, readdir, readFile, rm, stat } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
 import { extname, join, resolve } from 'node:path'
+import { promisify } from 'node:util'
 import { DateTime } from 'luxon'
 import Councilor from '#models/councilor'
 import LegislativeActivity from '#models/legislative_activity'
 import NominalVoting, { type VotingResult } from '#models/nominal_voting'
 import NominalVotingEntry, { type VoteValue } from '#models/nominal_voting_entry'
 import PlenarySession from '#models/plenary_session'
+
+const execFileAsync = promisify(execFile)
 
 type LoggerLike = {
   info(message: string): void
@@ -386,16 +391,39 @@ async function listXmlFiles(dir: string): Promise<string[]> {
   return files.sort()
 }
 
+async function extractZipToTemporaryDirectory(file: string): Promise<string> {
+  const tempDir = await mkdtemp(join(tmpdir(), 'votacao-xml-'))
+  await execFileAsync('unzip', ['-qq', resolve(file), '-d', tempDir])
+  return tempDir
+}
+
 async function parseXmlDirectory(dir: string): Promise<{ files: string[]; votings: ParsedXmlVoting[] }> {
-  const files = await listXmlFiles(dir)
-  const votings: ParsedXmlVoting[] = []
+  const source = resolve(dir)
+  const info = await stat(source)
+  const temporaryDirectories: string[] = []
 
-  for (const file of files) {
-    const xml = await readFile(file, 'utf8')
-    votings.push(...parseNominalVotingXml(xml))
+  try {
+    const xmlRoot =
+      info.isFile() && extname(source).toLowerCase() === '.zip'
+        ? await extractZipToTemporaryDirectory(source)
+        : source
+
+    if (xmlRoot !== source) temporaryDirectories.push(xmlRoot)
+
+    const files = await listXmlFiles(xmlRoot)
+    const votings: ParsedXmlVoting[] = []
+
+    for (const file of files) {
+      const xml = await readFile(file, 'utf8')
+      votings.push(...parseNominalVotingXml(xml))
+    }
+
+    return { files, votings }
+  } finally {
+    await Promise.all(
+      temporaryDirectories.map((directory) => rm(directory, { recursive: true, force: true }))
+    )
   }
-
-  return { files, votings }
 }
 
 function uniqueStrings(values: string[]): string[] {

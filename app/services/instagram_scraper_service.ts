@@ -2,13 +2,16 @@
  * Instagram Scraper Service
  *
  * Estrategia:
- * 1. Scraper publico proprio, sem senha/cookie, lendo apenas dados publicos do perfil.
- * 2. RapidAPI como fallback quando o Instagram limitar ou mudar a resposta publica.
+ * 1. Scraper publico proprio, lendo dados publicos do perfil. Se houver sessionid
+ *    configurado, ele e usado apenas como autenticacao opcional do proprio Instagram.
+ * 2. RapidAPI fica como fallback legado/opcional, nunca como dependencia padrao.
  *
  * O feed da home usa cache forte em InstagramFeedService, entao este servico deve ser
  * chamado poucas vezes por dia, nunca a cada pageview.
  */
 
+import { execFile as execFileCallback } from 'node:child_process'
+import { promisify } from 'node:util'
 import InstagramSetting from '#models/instagram_setting'
 
 export interface InstagramPost {
@@ -30,6 +33,11 @@ export interface InstagramProfileInfo {
 
 type ScraperProvider = 'auto' | 'public' | 'rapidapi'
 
+const execFile = promisify(execFileCallback)
+const CURL_BIN = process.env.CURL_BIN || '/usr/bin/curl'
+const DEFAULT_USER_AGENT =
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+
 export default class InstagramScraperService {
   private lastError: string = ''
 
@@ -50,6 +58,7 @@ export default class InstagramScraperService {
     console.log(`Instagram Scraper: Buscando até ${maxPosts} posts de @${username}`)
 
     const provider = await this.getProvider()
+    let publicError: Error | null = null
     if (provider === 'auto' || provider === 'public') {
       try {
         const posts = await this.scrapeWithPublicProfile(username, maxPosts)
@@ -57,7 +66,9 @@ export default class InstagramScraperService {
           console.log(`Instagram Scraper (publico): ${posts.length} posts unicos`)
           return posts
         }
+        publicError = new Error('Perfil publico nao retornou publicacoes recentes.')
       } catch (error: any) {
+        publicError = error
         this.lastError = error.message
         console.error(`Instagram Scraper (publico) falhou: ${error.message}`)
         if (provider === 'public') throw error
@@ -66,6 +77,7 @@ export default class InstagramScraperService {
 
     const rapidapiKey = await InstagramSetting.get('rapidapi_key')
     if (!rapidapiKey) {
+      if (publicError) throw publicError
       throw new Error('RapidAPI Key não configurada. Configure nas configurações.')
     }
 
@@ -106,9 +118,9 @@ export default class InstagramScraperService {
   /**
    * Scraper publico proprio.
    *
-   * Usa o mesmo endpoint publico consumido pelo web client do Instagram. Nao usa
-   * senha, cookie, sessionid, proxy nem tentativa de contornar bloqueio. Quando
-   * esse endpoint falhar, o fluxo "auto" cai para RapidAPI.
+   * Usa o mesmo endpoint publico consumido pelo web client do Instagram. O fetch
+   * nativo do Node frequentemente recebe 429 enquanto curl no mesmo servidor
+   * recebe 200; por isso ha fallback por curl, sem shell e sem expor cookie.
    */
   private async scrapeWithPublicProfile(username: string, max: number): Promise<InstagramPost[]> {
     const data = await this.fetchPublicProfile(username)
@@ -138,38 +150,101 @@ export default class InstagramScraperService {
     const url = `https://www.instagram.com/api/v1/users/web_profile_info/?username=${encodeURIComponent(
       username
     )}`
+    const headers = await this.publicInstagramHeaders(username)
+
+    try {
+      return await this.fetchJsonWithFetch(url, headers, username)
+    } catch (error: any) {
+      this.lastError = error.message
+      return this.fetchJsonWithCurl(url, headers, username)
+    }
+  }
+
+  private async publicInstagramHeaders(username: string): Promise<Record<string, string>> {
+    const userAgent = (await InstagramSetting.get('instagram_useragent'))?.trim()
+    const sessionid = (await InstagramSetting.get('instagram_sessionid'))?.trim()
+    const headers: Record<string, string> = {
+      Accept: 'application/json,text/plain,*/*',
+      'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
+      Referer: `https://www.instagram.com/${username}/`,
+      'User-Agent': userAgent || DEFAULT_USER_AGENT,
+      // App id publico usado pelo web client do Instagram. Nao autentica usuario.
+      'X-IG-App-ID': '936619743392459',
+    }
+    if (sessionid) headers.Cookie = `sessionid=${sessionid}`
+    return headers
+  }
+
+  private async fetchJsonWithFetch(
+    url: string,
+    headers: Record<string, string>,
+    username: string
+  ): Promise<any> {
     const response = await fetch(url, {
-      headers: this.publicInstagramHeaders(username),
+      headers,
       signal: AbortSignal.timeout(12000),
     })
 
-    if (response.status === 404) {
-      throw new Error(`Perfil @${username} nao encontrado ou indisponivel publicamente.`)
-    }
-    if (response.status === 401 || response.status === 403) {
-      throw new Error('Instagram bloqueou a leitura publica deste perfil no momento.')
-    }
-    if (response.status === 429) {
-      throw new Error('Instagram limitou temporariamente as leituras publicas.')
-    }
     if (!response.ok) {
       const text = await response.text()
-      throw new Error(`Instagram publico erro ${response.status}: ${text.substring(0, 120)}`)
+      throw this.instagramHttpError(response.status, text, username)
     }
 
     return response.json()
   }
 
-  private publicInstagramHeaders(username: string): Record<string, string> {
-    return {
-      Accept: 'application/json,text/plain,*/*',
-      'Accept-Language': 'pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7',
-      Referer: `https://www.instagram.com/${username}/`,
-      'User-Agent':
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-      // App id publico usado pelo web client do Instagram. Nao autentica usuario.
-      'X-IG-App-ID': '936619743392459',
+  private async fetchJsonWithCurl(
+    url: string,
+    headers: Record<string, string>,
+    username: string
+  ): Promise<any> {
+    const args = ['-sS', '--compressed', '--max-time', '15', '-L']
+    for (const [key, value] of Object.entries(headers)) {
+      args.push('-H', `${key}: ${value}`)
     }
+    args.push('-w', '\n__HTTP_STATUS__:%{http_code}', url)
+
+    let stdout = ''
+    try {
+      const result = await execFile(CURL_BIN, args, {
+        timeout: 17000,
+        maxBuffer: 10 * 1024 * 1024,
+      })
+      stdout = result.stdout
+    } catch {
+      throw new Error('Falha de rede ao chamar o Instagram pelo scraper proprio.')
+    }
+
+    const marker = '\n__HTTP_STATUS__:'
+    const markerIndex = stdout.lastIndexOf(marker)
+    if (markerIndex === -1) {
+      throw new Error('Resposta inesperada do Instagram pelo scraper proprio.')
+    }
+
+    const body = stdout.slice(0, markerIndex)
+    const status = Number.parseInt(stdout.slice(markerIndex + marker.length).trim(), 10)
+    if (!Number.isFinite(status) || status < 200 || status >= 300) {
+      throw this.instagramHttpError(status || 0, body, username)
+    }
+
+    try {
+      return JSON.parse(body)
+    } catch {
+      throw new Error(`Instagram publico retornou JSON invalido para @${username}.`)
+    }
+  }
+
+  private instagramHttpError(status: number, body: string, username: string): Error {
+    if (status === 404) {
+      return new Error(`Perfil @${username} nao encontrado ou indisponivel publicamente.`)
+    }
+    if (status === 401 || status === 403) {
+      return new Error('Instagram bloqueou a leitura publica deste perfil no momento.')
+    }
+    if (status === 429) {
+      return new Error('Instagram limitou temporariamente as leituras publicas.')
+    }
+    return new Error(`Instagram publico erro ${status}: ${body.substring(0, 120)}`)
   }
 
   private parsePublicProfileItem(item: any): InstagramPost | null {
@@ -476,6 +551,7 @@ export default class InstagramScraperService {
     this.lastError = ''
 
     const provider = await this.getProvider()
+    let publicError: Error | null = null
     if (provider === 'auto' || provider === 'public') {
       try {
         const videos = (await this.scrapeWithPublicProfile(username, limit * 3))
@@ -487,6 +563,7 @@ export default class InstagramScraperService {
         }
         throw new Error('Perfil publico nao retornou videos/reels recentes.')
       } catch (error: any) {
+        publicError = error
         this.lastError = error.message
         console.error(`Instagram Scraper (publico videos) falhou: ${error.message}`)
         if (provider === 'public') throw error
@@ -495,6 +572,7 @@ export default class InstagramScraperService {
 
     const apiKey = await InstagramSetting.get('rapidapi_key')
     if (!apiKey) {
+      if (publicError) throw publicError
       throw new Error('RapidAPI Key não configurada. Configure nas configurações.')
     }
     const host = 'instagram-scraper-stable-api.p.rapidapi.com'
@@ -564,20 +642,33 @@ export default class InstagramScraperService {
   }
 
   /**
-   * Foto de perfil + metadados básicos via RapidAPI (Stable → Bulk).
+   * Foto de perfil + metadados basicos. Tenta primeiro o JSON publico do proprio
+   * Instagram; RapidAPI e apenas fallback explicito/legado.
    */
   async getProfileInfo(profileUrl: string): Promise<InstagramProfileInfo | null> {
     if (!this.validateProfileUrl(profileUrl)) {
       throw new Error('URL do perfil inválida.')
     }
 
-    const apiKey = await InstagramSetting.get('rapidapi_key')
-    if (!apiKey) {
-      throw new Error('RapidAPI Key não configurada. Configure nas configurações.')
-    }
-
     const username = this.extractUsername(profileUrl)
     this.lastError = ''
+    const provider = await this.getProvider()
+
+    if (provider === 'auto' || provider === 'public') {
+      try {
+        const info = this.parseProfileInfoFromPublic(await this.fetchPublicProfile(username), username)
+        if (info) return info
+      } catch (error: any) {
+        this.lastError = error.message
+        console.error(`Instagram Scraper (publico perfil) falhou: ${error.message}`)
+        if (provider === 'public') return null
+      }
+    }
+
+    const apiKey = await InstagramSetting.get('rapidapi_key')
+    if (!apiKey) {
+      return null
+    }
 
     const stableEndpoints = ['get_ig_user_about.php', 'get_ig_user_data.php']
     for (const endpoint of stableEndpoints) {
@@ -599,6 +690,17 @@ export default class InstagramScraperService {
     }
 
     return null
+  }
+
+  private parseProfileInfoFromPublic(data: any, username: string): InstagramProfileInfo | null {
+    const user = data?.data?.user
+    const profilePicUrl = user?.profile_pic_url_hd || user?.profile_pic_url || ''
+    if (!profilePicUrl) return null
+    return {
+      username: String(user?.username || username),
+      fullName: String(user?.full_name || user?.fullName || username),
+      profilePicUrl,
+    }
   }
 
   private async scrapeProfileWithStableApi(
@@ -758,7 +860,7 @@ export default class InstagramScraperService {
   }
 
   private async getProvider(): Promise<ScraperProvider> {
-    const raw = (await InstagramSetting.get('instagram_scraper_provider', 'auto')) || 'auto'
+    const raw = (await InstagramSetting.get('instagram_scraper_provider', 'public')) || 'public'
     return raw === 'public' || raw === 'rapidapi' ? raw : 'auto'
   }
 

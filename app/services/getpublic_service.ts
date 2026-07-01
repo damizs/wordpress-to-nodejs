@@ -17,11 +17,20 @@
  */
 import env from '#start/env'
 import { camara } from '#config/camara'
+import {
+  extractGetPublicContractFields,
+  getpublicSourceTag,
+  getpublicSlug,
+  licitacaoPayload,
+  officialPublicationPayload,
+  routeGetPublicMateria,
+} from '#helpers/getpublic_import'
 
 const BASE = 'https://getpublic.inf.br'
 const API = `${BASE}/api/v1`
 // Código da entidade no GetPublic (Sumé = CMSU). Parametrizado via config/camara
-// (env GETPUBLIC_ENTITY) com DEFAULT = 'CMSU' → comportamento de Sumé inalterado.
+// (env GETPUBLIC_ENTITY). Em câmaras novas, configure explicitamente para evitar
+// sincronizar acervo de outra entidade.
 const ENTITY = camara.getpublicEntity
 
 export interface GetPublicMateria {
@@ -51,6 +60,7 @@ export interface GetPublicDiario {
 }
 
 function apiKey(): string {
+  if (!ENTITY) throw new Error('GETPUBLIC_ENTITY não configurada (Coolify env).')
   const k = env.get('GETPUBLIC_API_KEY')
   if (!k) throw new Error('GETPUBLIC_API_KEY não configurada (Coolify env).')
   return k as string
@@ -161,23 +171,38 @@ export class GetPublicService {
   }
 
   /**
-   * Sincroniza TODAS as matérias do GetPublic para o banco — em DUAS tabelas:
-   *  - `getpublic_materias`: índice para a busca global (sem armazenar PDFs).
-   *  - `official_gazette_entries`: fonte da página pública do Diário Oficial.
-   *    Upsert por `edition_number = codigo`; `file_url` recebe o PDF direto
-   *    (`url_documento`) para embeber no modal; data/título do GetPublic.
-   * Idempotente (upsert) — não apaga registros existentes (ex.: importados do WP).
-   * Reusado pelo comando `getpublic:sync` e pelo agendador diário.
+   * Sincroniza o GetPublic sem misturar os acervos:
+   *  - `getpublic_materias`: índice de busca global;
+   *  - matérias de contratação/licitação/publicação → módulos nativos;
+   *  - `official_gazette_entries`: somente edições diárias do Diário Oficial.
+   *
+   * Idempotente por código/slug GetPublic. Não apaga registros existentes.
    */
-  async syncAll(): Promise<{ total: number; materiasNew: number; gazetteNew: number }> {
+  async syncAll(): Promise<{
+    total: number
+    materiasNew: number
+    licitacoesNew: number
+    contractsNew: number
+    contractsUpdated: number
+    publicationsNew: number
+    diariosNew: number
+    gazetteNew: number
+  }> {
     const { DateTime } = await import('luxon')
     const { default: GetPublicMateria } = await import('#models/getpublic_materia')
     const { default: OfficialGazetteEntry } = await import('#models/official_gazette_entry')
+    const { default: Licitacao } = await import('#models/licitacao')
+    const { default: LicitacaoDocument } = await import('#models/licitacao_document')
+    const { default: Contract } = await import('#models/contract')
+    const { default: OfficialPublication } = await import('#models/official_publication')
 
     const materias = await this.listAllMaterias()
     const now = DateTime.now()
     let materiasNew = 0
-    let gazetteNew = 0
+    let licitacoesNew = 0
+    let contractsNew = 0
+    let contractsUpdated = 0
+    let publicationsNew = 0
 
     for (const m of materias) {
       if (!m.codigo) continue
@@ -201,26 +226,126 @@ export class GetPublicService {
         materiasNew++
       }
 
-      // 2) Diário Oficial público (fonte da página /diario-oficial)
-      const pubDate = m.diarioData || (m.atualizadoEm ? m.atualizadoEm.slice(0, 10) : null)
-      const gaz = await OfficialGazetteEntry.query().where('edition_number', m.codigo).first()
-      // PDF direto (embebível no modal); cai para o visualizador se faltar.
-      const fileUrl = m.urlDocumento || m.urlMateria
-      if (gaz) {
-        gaz.merge({
-          description: m.titulo,
-          fileUrl,
-          ...(pubDate ? { publicationDate: pubDate } : {}),
-        })
-        await gaz.save()
-      } else if (pubDate) {
-        await OfficialGazetteEntry.create({
-          editionNumber: m.codigo,
-          publicationDate: pubDate,
-          description: m.titulo,
-          fileUrl,
-        })
-        gazetteNew++
+      // 2) Módulos nativos: publicações, licitações e contratos/fiscais.
+      // Matérias individuais não entram mais em official_gazette_entries.
+      const route = routeGetPublicMateria(m)
+
+      if (route.target === 'licitacao') {
+        const payload = licitacaoPayload(m, route.modality)
+        let licitacao = await Licitacao.findBy('slug', payload.slug)
+        if (licitacao) {
+          licitacao.merge(payload)
+          await licitacao.save()
+        } else {
+          licitacao = await Licitacao.create(payload)
+          licitacoesNew++
+        }
+
+        const docExists = await LicitacaoDocument.query()
+          .where('licitacao_id', licitacao.id)
+          .where('file_url', route.fileUrl)
+          .first()
+        if (!docExists && route.fileUrl) {
+          await LicitacaoDocument.create({
+            licitacaoId: licitacao.id,
+            documentType: route.modality.toLowerCase().includes('contrato') ? 'contrato' : 'outros',
+            title: m.titulo.slice(0, 255),
+            fileUrl: route.fileUrl,
+            displayOrder: 0,
+          })
+        }
+        continue
+      }
+
+      if (route.target === 'publication') {
+        const payload = officialPublicationPayload(m, route.type)
+        const publication = await OfficialPublication.findBy('slug', payload.slug)
+        if (publication) {
+          publication.merge(payload)
+          await publication.save()
+        } else {
+          await OfficialPublication.create(payload)
+          publicationsNew++
+        }
+        continue
+      }
+
+      if (route.target === 'contract') {
+        let detail: GetPublicMateriaDetail | null = null
+        try {
+          detail = await this.getMateria(m.codigo)
+        } catch {
+          detail = { ...m, texto: null, anexos: [] }
+        }
+
+        const extracted = extractGetPublicContractFields(detail)
+        const number = extracted.number || m.numero || m.codigo
+        if (route.kind === 'fiscal' && !extracted.number) {
+          continue
+        }
+        const year =
+          extracted.year ||
+          Number.parseInt((m.diarioData || m.atualizadoEm || '').slice(0, 4), 10) ||
+          new Date().getFullYear()
+        const tag = getpublicSourceTag(m.codigo)
+        const sourceNote = `${tag} Importado automaticamente do GetPublic. Revisar campos estruturados no painel.`
+
+        const contractBySlug = await Contract.findBy('slug', getpublicSlug('getpublic-contrato', m))
+        const contractByNumber =
+          !contractBySlug && number
+            ? await Contract.query().where('number', number).where('year', year).first()
+            : null
+        const contract = contractBySlug || contractByNumber
+
+        const payload = {
+          number,
+          year,
+          slug: contract?.slug || getpublicSlug('getpublic-contrato', m),
+          object: extracted.object || m.titulo,
+          contractorName: extracted.contractorName,
+          contractorDocument: extracted.contractorDocument,
+          value: extracted.value,
+          modality: extracted.modality,
+          legalBasis: extracted.legalBasis,
+          signDate: extracted.signDate,
+          startDate: extracted.startDate,
+          endDate: extracted.endDate,
+          term: extracted.term,
+          status: route.kind === 'amendment' ? 'vigente' : extracted.status,
+          managerName: extracted.managerName,
+          managerRole: extracted.managerRole,
+          fiscalName: extracted.fiscalName,
+          fiscalRole: extracted.fiscalRole,
+          fiscalAct: extracted.fiscalAct,
+          fileUrl: route.fileUrl,
+          content: extracted.content,
+          notes: sourceNote,
+          isActive: true,
+          displayOrder: 0,
+        }
+
+        if (contract) {
+          contract.merge({
+            ...payload,
+            // Não sobrescreve campos humanos já preenchidos com null do parser.
+            contractorName: payload.contractorName || contract.contractorName,
+            contractorDocument: payload.contractorDocument || contract.contractorDocument,
+            value: payload.value ?? contract.value,
+            managerName: payload.managerName || contract.managerName,
+            managerRole: payload.managerRole || contract.managerRole,
+            fiscalName: payload.fiscalName || contract.fiscalName,
+            fiscalRole: payload.fiscalRole || contract.fiscalRole,
+            fiscalAct: payload.fiscalAct || contract.fiscalAct,
+            notes: contract.notes?.includes(tag)
+              ? contract.notes
+              : [contract.notes, sourceNote].filter(Boolean).join('\n'),
+          })
+          await contract.save()
+          contractsUpdated++
+        } else {
+          await Contract.create(payload)
+          contractsNew++
+        }
       }
     }
 
@@ -258,7 +383,16 @@ export class GetPublicService {
       console.error('[GetPublic] sync de edições diárias falhou:', (err as Error)?.message)
     }
 
-    return { total: materias.length, materiasNew, gazetteNew: gazetteNew + diariosNew }
+    return {
+      total: materias.length,
+      materiasNew,
+      licitacoesNew,
+      contractsNew,
+      contractsUpdated,
+      publicationsNew,
+      diariosNew,
+      gazetteNew: diariosNew,
+    }
   }
 }
 

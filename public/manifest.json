@@ -1,7 +1,7 @@
 {
-  "name": "Câmara Municipal de Sumé",
-  "short_name": "Câmara Sumé",
-  "description": "Portal oficial da Câmara Municipal de Sumé - PB",
+  "name": "Portal da Câmara Municipal",
+  "short_name": "Câmara Municipal",
+  "description": "Portal oficial da Câmara Municipal",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#1a2332",

@@ -20,6 +20,12 @@
 UPLOADS="/app/public/uploads"
 mkdir -p "$UPLOADS"
 
+if [ "$CAMARA_INIT" = "true" ] && [ "$ALLOW_CONTENT_BOOTSTRAP" != "true" ]; then
+  echo "=== Content bootstrap bloqueado para câmara nova ==="
+  echo "Defina ALLOW_CONTENT_BOOTSTRAP=true apenas depois de gerar JSONs/uploads próprios desta câmara."
+  exit 0
+fi
+
 # Acumula etapas que falharam para decidir o marcador agregado no final.
 FAILED_STEPS=""
 mark_failed() {

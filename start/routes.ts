@@ -1,6 +1,7 @@
 import router from '@adonisjs/core/services/router'
 import { middleware } from '#start/kernel'
 import { registerLegacyRedirects } from '#start/legacy_redirects'
+import { camara } from '#config/camara'
 
 // Lazy imports - Public
 const HomeController = () => import('#controllers/home_controller')
@@ -153,10 +154,27 @@ router.get('/dados-abertos', [OpenDataController, 'index'])
 router
   .get('/dados-abertos/:dataset/:format', [OpenDataController, 'dataset'])
   .where('format', /^(json|csv)$/)
-// Leis municipais ficam no portal da prefeitura (mesmo destino do site WordPress antigo)
-router.get('/leis', ({ response }) =>
-  response.redirect('https://www.sume.pb.gov.br/portal-da-transparencia/leis-municipais/')
-)
+function isSumeTenant(): boolean {
+  return camara.cidade
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim() === 'sume'
+}
+
+// Leis municipais podem ficar em portal externo da prefeitura. Nunca usar link
+// de Sumé como fallback para outras câmaras.
+router.get('/leis', async ({ response }) => {
+  const { default: SiteSetting } = await import('#models/site_setting')
+  const configured = (await SiteSetting.getValue('laws_url')) || process.env.CAMARA_LAWS_URL || ''
+  const target = configured.trim()
+  if (/^https?:\/\//i.test(target)) return response.redirect(target)
+  if (target.startsWith('/')) return response.redirect().toPath(target)
+  if (isSumeTenant()) {
+    return response.redirect('https://www.sume.pb.gov.br/portal-da-transparencia/leis-municipais/')
+  }
+  return response.redirect().toPath('/publicacoes-oficiais')
+})
 // Redirects 301 das URLs do WordPress antigo (links da avaliação ATRICON)
 registerLegacyRedirects()
 

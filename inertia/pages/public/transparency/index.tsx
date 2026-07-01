@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, router, usePage } from "@inertiajs/react";
 import { SeoHead } from "~/components/SeoHead";
 import { TopBar } from "~/components/TopBar";
@@ -91,49 +91,6 @@ function normalizeLegacySlug(text: string) {
     .replace(/^-+|-+$/g, "");
 }
 
-function isRevenueLink(link: TransparencyLink) {
-  return normalize(link.title).includes("receita");
-}
-
-function splitRevenueAndExpenseSections(sections: TransparencySection[]) {
-  const output: TransparencySection[] = [];
-
-  for (const section of sections) {
-    const title = normalize(section.title);
-    const shouldSplit = title.includes("despesa") && title.includes("receita");
-
-    if (!shouldSplit) {
-      output.push(section);
-      continue;
-    }
-
-    const revenueLinks = section.links.filter(isRevenueLink);
-    const expenseLinks = section.links.filter((link) => !isRevenueLink(link));
-
-    if (expenseLinks.length > 0) {
-      output.push({
-        ...section,
-        title: "Despesas",
-        slug: `${section.slug}-despesas`,
-        links: expenseLinks,
-      });
-    }
-
-    if (revenueLinks.length > 0) {
-      output.push({
-        ...section,
-        id: section.id * 1000 + 1,
-        title: "Receitas",
-        slug: `${section.slug}-receitas`,
-        icon: "TrendingUp",
-        links: revenueLinks,
-      });
-    }
-  }
-
-  return output;
-}
-
 function CardLink({
   link,
   onOpenLink,
@@ -180,12 +137,13 @@ function CardLink({
 export default function TransparenciaIndex({ sections = [], openLink = null }: Props) {
   const org = (usePage().props as { camara?: { nome?: string } }).camara?.nome || "Câmara Municipal";
   const [query, setQuery] = useState("");
-  const displaySections = useMemo(() => splitRevenueAndExpenseSections(sections), [sections]);
+  const displaySections = useMemo(() => sections, [sections]);
   // openLink inicial = acesso direto a /transparencia/<slug>: modal já aberto no mount
   const [modalLink, setModalLink] = useState<TransparencyLink | null>(openLink);
   const [activeSection, setActiveSection] = useState<string | null>(
     displaySections[0]?.slug ?? null
   );
+  const activeNavItemRef = useRef<HTMLAnchorElement | null>(null);
   const allLinks = useMemo(() => displaySections.flatMap((section) => section.links), [displaySections]);
 
   // Deep-link: a prop openLink (rota /transparencia/<slug>) controla o modal —
@@ -197,6 +155,10 @@ export default function TransparenciaIndex({ sections = [], openLink = null }: P
   useEffect(() => {
     if (!activeSection && displaySections[0]) setActiveSection(displaySections[0].slug);
   }, [activeSection, displaySections]);
+
+  useEffect(() => {
+    activeNavItemRef.current?.scrollIntoView({ block: "nearest" });
+  }, [activeSection]);
 
   /** Abre o modal e leva a URL para /transparencia/<slug> (sem remontar a página) */
   const openModal = useCallback((link: TransparencyLink) => {
@@ -349,17 +311,17 @@ export default function TransparenciaIndex({ sections = [], openLink = null }: P
         <main id="conteudo" tabIndex={-1} className="outline-none">
           <section className="py-10 lg:py-14">
             <div className="container">
-            <div className="lg:flex lg:items-start lg:gap-8 xl:gap-10 2xl:gap-12">
-              {/* Sidebar de navegação (padrão dos portais): card fixo no viewport,
-                  sem ocupar toda a altura da página. */}
+            <div className="lg:flex lg:flex-row-reverse lg:items-start lg:gap-8 xl:gap-10 2xl:gap-12">
+              {/* Sumário lateral: acompanha o conteúdo com rolagem interna. */}
               <aside className="hidden lg:block w-[260px] xl:w-[300px] 2xl:w-[340px] shrink-0 self-start sticky top-20">
-                <nav aria-label="Seções da transparência" className="max-h-[calc(100vh-6rem)] overflow-y-auto overscroll-contain rounded-2xl bg-card/95 border border-border/60 shadow-sm [scrollbar-width:thin]">
+                <nav aria-label="Seções da transparência" className="h-[calc(100vh-6rem)] overflow-y-auto overscroll-contain scroll-smooth rounded-2xl bg-card/95 border border-border/60 shadow-sm [scrollbar-width:thin]">
                   {filtered.map((section) => {
                     const Icon = iconMap[section.icon || ""] || FolderOpen;
                     const isActive = activeSection === section.slug;
                     return (
                       <div key={section.id} className="border-b border-border/60 last:border-b-0">
                         <a
+                          ref={isActive ? activeNavItemRef : null}
                           href={`#secao-${section.slug}`}
                           aria-current={isActive ? "location" : undefined}
                           onClick={(e) => {

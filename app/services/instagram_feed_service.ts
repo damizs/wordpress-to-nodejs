@@ -12,11 +12,13 @@
  */
 
 import { DateTime } from 'luxon'
+import { execFile as execFileCallback } from 'node:child_process'
 import { createWriteStream } from 'node:fs'
 import { mkdir, readdir, unlink } from 'node:fs/promises'
 import { pipeline } from 'node:stream/promises'
 import { Readable } from 'node:stream'
 import path from 'node:path'
+import { promisify } from 'node:util'
 import app from '@adonisjs/core/services/app'
 import InstagramSetting from '#models/instagram_setting'
 import InstagramScraperService from './instagram_scraper_service.js'
@@ -56,6 +58,14 @@ const REELS_CACHE_AT_KEY = 'reels_cached_at'
 const PROFILE_PIC_KEY = 'profile_pic_url'
 const PROFILE_PIC_AT_KEY = 'profile_pic_cached_at'
 const PROFILE_FILE = 'profile.jpg'
+const execFile = promisify(execFileCallback)
+const CURL_BIN = process.env.CURL_BIN || '/usr/bin/curl'
+const IMAGE_HEADERS = {
+  'User-Agent':
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+  Accept: 'image/webp,image/apng,image/*,*/*;q=0.8',
+  Referer: 'https://www.instagram.com/',
+}
 
 export default class InstagramFeedService {
   /**
@@ -299,18 +309,30 @@ export default class InstagramFeedService {
   /** Baixa uma imagem do CDN do Instagram com headers que evitam bloqueio. */
   private static async downloadImage(url: string, destPath: string): Promise<void> {
     if (!url) throw new Error('URL de imagem vazia')
-    const res = await fetch(url, {
-      headers: {
-        'User-Agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'image/webp,image/apng,image/*,*/*;q=0.8',
-        'Referer': 'https://www.instagram.com/',
-      },
-    })
-    if (!res.ok || !res.body) {
-      throw new Error(`Falha ao baixar imagem (${res.status})`)
+    try {
+      const res = await fetch(url, { headers: IMAGE_HEADERS })
+      if (!res.ok || !res.body) {
+        throw new Error(`Falha ao baixar imagem (${res.status})`)
+      }
+      await pipeline(Readable.fromWeb(res.body as any), createWriteStream(destPath))
+      return
+    } catch {
+      await this.downloadImageWithCurl(url, destPath)
     }
-    await pipeline(Readable.fromWeb(res.body as any), createWriteStream(destPath))
+  }
+
+  private static async downloadImageWithCurl(url: string, destPath: string): Promise<void> {
+    const args = ['-fsSL', '--compressed', '--max-time', '30']
+    for (const [key, value] of Object.entries(IMAGE_HEADERS)) {
+      args.push('-H', `${key}: ${value}`)
+    }
+    args.push('-o', destPath, url)
+
+    try {
+      await execFile(CURL_BIN, args, { timeout: 32000, maxBuffer: 1024 * 1024 })
+    } catch {
+      throw new Error('Falha ao baixar imagem do Instagram pelo scraper proprio.')
+    }
   }
 
   /** Remove imagens locais que não fazem mais parte do feed atual. */

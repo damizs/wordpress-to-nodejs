@@ -29,7 +29,7 @@ COPY --from=builder /app/build ./
 
 # Install runtime tools: curl for asset downloads, ImageMagick/jpegoptim/optipng/libwebp for media,
 # postgresql-client for pg_dump backups and rclone for R2/Drive/Dropbox sync.
-RUN apk add --no-cache curl imagemagick jpegoptim optipng libwebp-tools postgresql-client rclone
+RUN apk add --no-cache curl imagemagick jpegoptim optipng libwebp-tools postgresql-client rclone unzip
 
 # Ensure uploads directory exists for volume mount
 RUN mkdir -p /app/public/uploads

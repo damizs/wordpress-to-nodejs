@@ -4,7 +4,11 @@ import { DateTime } from 'luxon'
 import db from '@adonisjs/lucid/services/db'
 import SiteSetting from '#models/site_setting'
 import InformationRecord from '#models/information_record'
+import InstitutionalContent from '#models/institutional_content'
+import Page from '#models/page'
 import { camara } from '#config/camara'
+import { buildInstitutionalEntries } from '#helpers/institutional_defaults'
+import { sanitizeRichHtml, sanitizePlainText } from '#helpers/sanitize_html'
 
 type SettingPayload = {
   key: string
@@ -15,6 +19,121 @@ type SettingPayload = {
 }
 
 type LoggerLike = Pick<BaseCommand['logger'], 'info' | 'success'>
+
+type CityProfile = {
+  region?: string
+  area?: string
+  population?: string
+  founded?: string
+  images?: string[]
+}
+
+const CITY_PROFILES: Record<string, CityProfile> = {
+  assuncao: {
+    population: '4.152 habitantes (IBGE, Censo 2022)',
+    area: '126,4 km² (IBGE)',
+    images: ['/uploads/wp-migration/2026/04/instagram-69d3bec7610ce-1775484615.jpg'],
+  },
+  cabaceiras: {
+    population: '5.335 habitantes (IBGE, Censo 2022)',
+    area: '452,9 km² (IBGE)',
+    images: [
+      '/uploads/wp-migration/2025/09/Festa-Bode-Rei-Cabaceiras-@meudestinoelogoali-1024x576-1.jpg',
+      '/uploads/wp-migration/2022/07/cabaceiras1-1.jpeg',
+      '/uploads/wp-migration/2022/07/cabaceiras2.jpeg',
+      '/uploads/wp-migration/2022/07/cabaceiras3.jpeg',
+    ],
+  },
+  caraubas: {
+    population: '3.944 habitantes (IBGE, Censo 2022)',
+    area: '497,2 km² (IBGE)',
+    images: ['/uploads/wp-migration/2025/02/caraubas.jpg'],
+  },
+  congo: {
+    population: '4.933 habitantes (IBGE, Censo 2022)',
+    area: '333,5 km² (IBGE)',
+    images: ['/uploads/wp-migration/2025/09/Congo3.jpg', '/uploads/wp-migration/2025/02/congo.jpg'],
+  },
+  cuite: {
+    population: '19.719 habitantes (IBGE, Censo 2022)',
+    area: '741,8 km² (IBGE)',
+    images: [
+      '/uploads/wp-migration/2025/09/Mirante-de-Cuite-Registro-ART-Silvia-Guimaraes-.jpeg.webp',
+    ],
+  },
+  'frei-martinho': {
+    population: '2.846 habitantes (IBGE, Censo 2022)',
+    area: '244,3 km² (IBGE)',
+    images: ['/uploads/wp-migration/2026/05/instagram-69fd0baa05141-1778191274.jpg'],
+  },
+  juazeirinho: {
+    population: '17.007 habitantes (IBGE, Censo 2022)',
+    area: '467,5 km² (IBGE)',
+    images: [
+      '/uploads/wp-migration/2025/09/igreja_matriz_de_sao_jose_-_cidade_de_juazeirinho_-_paraiba_-_brasil.jpg',
+    ],
+  },
+  'junco-do-serido': {
+    population: '6.793 habitantes (IBGE, Censo 2022)',
+    area: '170,4 km² (IBGE)',
+    images: ['/uploads/wp-migration/2026/04/instagram-69d791ccc5624-1775735244.jpg'],
+  },
+  massaranduba: {
+    population: '14.139 habitantes (IBGE, Censo 2022)',
+    area: '206,0 km² (IBGE)',
+    images: ['/uploads/wp-migration/2026/03/instagram-69bdab886cefc-1774037896.jpg'],
+  },
+  'nova-floresta': {
+    population: '9.724 habitantes (IBGE, Censo 2022)',
+    area: '47,4 km² (IBGE)',
+    images: ['/uploads/wp-migration/2026/04/instagram-69e15e1443980-1776377364.jpg'],
+  },
+  parari: {
+    population: '1.720 habitantes (IBGE, Censo 2022)',
+    area: '128,5 km² (IBGE)',
+    images: ['/uploads/wp-migration/2026/04/673114784_17974202862032724_3443312247841478957_n.webp'],
+  },
+  salgadinho: {
+    population: '3.355 habitantes (IBGE, Censo 2022)',
+    area: '184,2 km² (IBGE)',
+    images: ['/uploads/wp-migration/2025/02/Salgadinho-1.jpg'],
+  },
+  'santa-luzia': {
+    population: '14.959 habitantes (IBGE, Censo 2022)',
+    area: '455,7 km² (IBGE)',
+    images: ['/uploads/wp-migration/2025/09/Santaluzia0510.jpg'],
+  },
+  'santo-andre': {
+    population: '2.622 habitantes (IBGE, Censo 2022)',
+    area: '225,2 km² (IBGE)',
+    images: ['/uploads/wp-migration/2026/06/santo-andre.jpg', '/uploads/wp-migration/2025/02/santoandre.jpeg'],
+  },
+  'sao-joao-do-cariri': {
+    population: '4.226 habitantes (IBGE, Censo 2022)',
+    area: '653,6 km² (IBGE)',
+    images: ['/uploads/wp-migration/2025/09/Sao_Joao_do_Cariri.jpg'],
+  },
+  'serra-branca': {
+    population: '13.614 habitantes (IBGE, Censo 2022)',
+    area: '686,9 km² (IBGE)',
+    images: ['/uploads/wp-migration/2026/03/instagram-69c6fe2f0edb4-1774648879.jpg'],
+  },
+  soledade: {
+    population: '13.968 habitantes (IBGE, Censo 2022)',
+    area: '560,0 km² (IBGE)',
+    images: ['/uploads/wp-migration/2025/12/instagram-69447e0c60d97-1766096396.jpg'],
+  },
+  sume: {
+    population: '17.166 habitantes (IBGE, Censo 2022)',
+    area: '838,1 km² (IBGE)',
+  },
+  tenorio: {
+    population: '2.966 habitantes (IBGE, Censo 2022)',
+    area: '105,3 km² (IBGE)',
+    founded: '29 de abril de 1994',
+    images: ['/uploads/wp-migration/2025/09/cidade.jpg'],
+  },
+}
 
 const UF_SUBTITLE: Record<string, string> = {
   AC: 'Estado do Acre',
@@ -54,6 +173,12 @@ function normalize(value: string): string {
     .trim()
 }
 
+function slugKey(value: string): string {
+  return normalize(value)
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
 function isSumeTenant(): boolean {
   return normalize(camara.cidade) === 'sume'
 }
@@ -87,6 +212,7 @@ function tenantSettings(): SettingPayload[] {
   const city = camara.cidade
   const name = camara.nome
   const email = camara.email
+  const cityProfile = CITY_PROFILES[slugKey(city)]
 
   const derived: SettingPayload[] = [
     {
@@ -126,6 +252,12 @@ function tenantSettings(): SettingPayload[] {
       label: 'Título Conheça a Cidade',
     },
     {
+      key: 'homepage_conheca_subtitle',
+      value: `Conheça um pouco mais sobre ${city} - ${camara.uf}: sua história, sua cultura e o que torna o município especial.`,
+      group: 'homepage_conheca',
+      label: 'Subtítulo Conheça',
+    },
+    {
       key: 'homepage_seals_subtitle',
       value: `A ${name} é reconhecida por seu compromisso com a transparência e a boa gestão pública.`,
       group: 'homepage_seals',
@@ -133,11 +265,34 @@ function tenantSettings(): SettingPayload[] {
     },
     {
       key: 'section_conheca_visible',
-      value: 'false',
+      value: 'true',
       group: 'homepage_sections',
       type: 'boolean',
       label: 'Mostrar Conheça a Cidade',
     },
+    ...(cityProfile?.region
+      ? [{ key: 'city_region', value: cityProfile.region, group: 'appearance', label: 'Região da cidade' }]
+      : []),
+    ...(cityProfile?.area
+      ? [{ key: 'city_area', value: cityProfile.area, group: 'appearance', label: 'Área territorial' }]
+      : []),
+    ...(cityProfile?.population
+      ? [{ key: 'city_population', value: cityProfile.population, group: 'appearance', label: 'População' }]
+      : []),
+    ...(cityProfile?.founded
+      ? [{ key: 'city_founded', value: cityProfile.founded, group: 'appearance', label: 'Emancipação' }]
+      : []),
+    ...(cityProfile?.images?.length
+      ? [
+          {
+            key: 'city_images',
+            value: JSON.stringify(cityProfile.images),
+            group: 'appearance',
+            type: 'json' as const,
+            label: 'Fotos da Cidade (Carrossel)',
+          },
+        ]
+      : []),
     {
       key: 'sic_unit',
       value: `Serviço de Informação ao Cidadão (SIC) da ${name}`,
@@ -199,7 +354,59 @@ function cartaServicosContent(): string {
 
 function containsSumeResidue(value: string | null | undefined): boolean {
   if (!value) return false
-  return /camaradesume|câmara municipal de sumé|camara municipal de sume|sumé|sume/i.test(value)
+  const normalized = value
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+  return (
+    /camaradesume/.test(normalized) ||
+    /camara\s+(municipal\s+)?de\s+sume/.test(normalized) ||
+    /municipio\s+de\s+sume/.test(normalized) ||
+    /cidade\s+de\s+sume/.test(normalized) ||
+    /sume\s*[-/]\s*pb/.test(normalized) ||
+    /\bsumeense\b/.test(normalized) ||
+    /\bsume\b/.test(normalized)
+  )
+}
+
+function plainText(value: string | null | undefined): string {
+  return sanitizePlainText(String(value ?? '').replace(/<[^>]+>/g, ' '))
+    .replace(/\s+/g, ' ')
+    .trim()
+}
+
+function pageRichContent(page: Page | null): string {
+  if (!page) return ''
+  const fromContent = page.content || ''
+  if (plainText(fromContent).length >= 80) return sanitizeRichHtml(fromContent)
+  const fromBlocks = Array.isArray(page.blocks)
+    ? page.blocks
+        .map((block) => {
+          if ('text' in block && typeof block.text === 'string') return block.text
+          if (block.type === 'accordion') {
+            return block.items.map((item) => `<h3>${item.title}</h3>${item.body}`).join('\n')
+          }
+          return ''
+        })
+        .filter(Boolean)
+        .join('\n')
+    : ''
+  return plainText(fromBlocks).length >= 80 ? sanitizeRichHtml(fromBlocks) : ''
+}
+
+async function findLegacyPage(slugs: string[]): Promise<Page | null> {
+  return Page.query()
+    .whereNull('deleted_at')
+    .whereIn('slug', slugs)
+    .orderBy('is_published', 'desc')
+    .orderBy('updated_at', 'desc')
+    .first()
+}
+
+function isDefaultInstitutionalContent(key: string, content: string, defaults = buildInstitutionalEntries()) {
+  const defaultEntry = defaults.find((item) => item.key === key)
+  if (!defaultEntry) return false
+  return normalize(plainText(content)) === normalize(plainText(defaultEntry.content))
 }
 
 async function sanitizeFaqResidues(): Promise<number> {
@@ -287,9 +494,12 @@ async function sanitizeDuodecimoResidues(): Promise<number> {
     .from('duodecimos')
     .where((query) => {
       query
-        .whereILike('notes', '%SUME%')
-        .orWhereILike('notes', '%Sumé%')
-        .orWhereILike('notes', '%Sume%')
+        .whereILike('notes', '%Câmara Municipal de Sumé%')
+        .orWhereILike('notes', '%Camara Municipal de Sume%')
+        .orWhereILike('notes', '%Município de Sumé%')
+        .orWhereILike('notes', '%Municipio de Sume%')
+        .orWhereILike('notes', '%Sumé - PB%')
+        .orWhereILike('notes', '%Sume - PB%')
     })
     .update({
       notes: null,
@@ -297,6 +507,137 @@ async function sanitizeDuodecimoResidues(): Promise<number> {
     })
 
   return Number(rows)
+}
+
+async function promoteLegacyInstitutionalContent(): Promise<number> {
+  let changed = 0
+  const defaults = buildInstitutionalEntries()
+
+  const candidates: Array<{
+    slugs: string[]
+    key: string
+    title: string
+  }> = [
+    {
+      slugs: ['legado-historia-da-camara', 'historia-da-camara', 'legado-historia', 'historia'],
+      key: 'historia_intro',
+      title: 'História da Câmara',
+    },
+    {
+      slugs: ['legado-sobre', 'sobre', 'legado-a-camara', 'a-camara'],
+      key: 'sobre_intro',
+      title: 'O Poder Legislativo Municipal',
+    },
+  ]
+
+  for (const candidate of candidates) {
+    const page = await findLegacyPage(candidate.slugs)
+    const content = pageRichContent(page)
+    if (!content || containsSumeResidue(content)) continue
+
+    const row = await InstitutionalContent.findBy('key', candidate.key)
+    const shouldPromote =
+      !row ||
+      containsSumeResidue(row.title) ||
+      containsSumeResidue(row.content) ||
+      isDefaultInstitutionalContent(candidate.key, row.content, defaults)
+
+    if (!shouldPromote) continue
+
+    await InstitutionalContent.updateOrCreate(
+      { key: candidate.key },
+      {
+        key: candidate.key,
+        title: candidate.title,
+        content,
+      }
+    )
+    changed++
+  }
+
+  const privacyPage = await findLegacyPage([
+    'legado-politica-de-privacidade',
+    'politica-de-privacidade',
+    'legado-politica-privacidade',
+  ])
+  const privacyContent = pageRichContent(privacyPage)
+  if (privacyContent && !containsSumeResidue(privacyContent)) {
+    if (
+      await upsertSetting({
+        key: 'privacy_policy_content',
+        value: privacyContent,
+        group: 'privacy',
+        type: 'text',
+        label: 'Conteúdo da Política de Privacidade',
+      })
+    ) {
+      changed++
+    }
+  }
+
+  return changed
+}
+
+async function sanitizePageResidues(): Promise<number> {
+  const now = DateTime.now().toSQL()
+  const rows = await db
+    .from('pages')
+    .whereNull('deleted_at')
+    .where((query) => {
+      query
+        .whereILike('slug', '%camaradesume%')
+        .orWhereILike('title', '%camaradesume%')
+        .orWhereILike('content', '%camaradesume%')
+        .orWhereILike('content', '%Câmara Municipal de Sumé%')
+        .orWhereILike('content', '%Camara Municipal de Sume%')
+        .orWhereILike('content', '%Município de Sumé%')
+        .orWhereILike('content', '%Municipio de Sume%')
+        .orWhereILike('content', '%Sumé - PB%')
+        .orWhereILike('content', '%Sume - PB%')
+        .orWhereILike('meta_description', '%Câmara Municipal de Sumé%')
+        .orWhereILike('meta_description', '%Camara Municipal de Sume%')
+        .orWhereILike('hero_subtitle', '%Câmara Municipal de Sumé%')
+        .orWhereILike('hero_subtitle', '%Camara Municipal de Sume%')
+    })
+    .update({
+      is_published: false,
+      deleted_at: now,
+      published_at: null,
+      updated_at: now,
+    })
+
+  return Number(rows)
+}
+
+async function sanitizeInstitutionalContent(): Promise<number> {
+  let changed = 0
+  const defaults = buildInstitutionalEntries()
+
+  for (const item of defaults) {
+    const row = await InstitutionalContent.findBy('key', item.key)
+    if (!row) {
+      await InstitutionalContent.create({
+        key: item.key,
+        title: item.title,
+        content: item.content,
+      })
+      changed++
+      continue
+    }
+
+    if (containsSumeResidue(row.content) || containsSumeResidue(row.title)) {
+      row.merge({
+        title: item.title,
+        content: item.content,
+      })
+      await row.save()
+      changed++
+    }
+  }
+
+  changed += await promoteLegacyInstitutionalContent()
+
+  return changed
 }
 
 export async function runCamaraDesume(logger?: LoggerLike): Promise<number> {
@@ -312,12 +653,14 @@ export async function runCamaraDesume(logger?: LoggerLike): Promise<number> {
   const faqChanged = await sanitizeFaqResidues()
   const infoChanged = await sanitizeInformationRecords()
   const duodecimosChanged = await sanitizeDuodecimoResidues()
-  changed += faqChanged + infoChanged + duodecimosChanged
+  const pagesChanged = await sanitizePageResidues()
+  const institutionalChanged = await sanitizeInstitutionalContent()
+  changed += faqChanged + infoChanged + duodecimosChanged + pagesChanged + institutionalChanged
 
   SiteSetting.clearCache()
   logger?.success(
     `camara:desume ajustou ${changed} item(ns) para "${camara.nome}" ` +
-      `(settings/conteúdo: FAQ ${faqChanged}, PNTP ${infoChanged}, duodécimos ${duodecimosChanged}).`
+      `(settings/conteúdo: FAQ ${faqChanged}, PNTP ${infoChanged}, páginas ${pagesChanged}, institucional/LGPD ${institutionalChanged}, duodécimos ${duodecimosChanged}).`
   )
   return changed
 }

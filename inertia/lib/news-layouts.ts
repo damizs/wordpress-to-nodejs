@@ -30,6 +30,11 @@ export const NEWS_LAYOUTS: NewsLayoutOption[] = [
     label: 'Destaque + lista',
     description: '1 destaque grande à esquerda e uma lista compacta ao lado.',
   },
+  {
+    key: 'destaque-lista-plana',
+    label: 'Destaque + 3 em lista',
+    description: '1 destaque grande e 3 notícias em lista, sem fundo escuro.',
+  },
 ]
 
 export const DEFAULT_NEWS_LAYOUT = 'mosaico'

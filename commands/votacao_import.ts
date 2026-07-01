@@ -4,10 +4,10 @@ import { importNominalVotingsFromXml } from '#services/nominal_voting_xml_import
 
 export default class VotacaoImport extends BaseCommand {
   static commandName = 'votacao:import'
-  static description = 'Importa votações nominais a partir de XMLs de sessão'
+  static description = 'Importa votações nominais a partir de XMLs ou ZIP com XMLs de sessão'
   static options: CommandOptions = { startApp: true }
 
-  @args.string({ description: 'Diretório ou arquivo XML com relatórios de sessão' })
+  @args.string({ description: 'Diretório, arquivo XML ou ZIP com relatórios de sessão' })
   declare source: string
 
   @flags.boolean({ description: 'Analisa os XMLs e mostra estatísticas sem gravar no banco' })

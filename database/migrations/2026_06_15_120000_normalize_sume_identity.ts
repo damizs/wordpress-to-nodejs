@@ -1,4 +1,13 @@
 import { BaseSchema } from '@adonisjs/lucid/schema'
+import { camara } from '#config/camara'
+
+function isSumeTenant(): boolean {
+  return camara.cidade
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim() === 'sume'
+}
 
 /**
  * Normalização de identidade institucional → Câmara Municipal de Sumé.
@@ -18,6 +27,8 @@ import { BaseSchema } from '@adonisjs/lucid/schema'
  */
 export default class extends BaseSchema {
   async up() {
+    if (!isSumeTenant()) return
+
     this.defer(async (db) => {
       const hasCuite = (v: unknown) => /cuit[eé]|manoel felipe/i.test(String(v ?? ''))
 

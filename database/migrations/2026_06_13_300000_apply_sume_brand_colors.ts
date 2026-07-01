@@ -1,4 +1,13 @@
 import { BaseSchema } from '@adonisjs/lucid/schema'
+import { camara } from '#config/camara'
+
+function isSumeTenant(): boolean {
+  return camara.cidade
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim() === 'sume'
+}
 
 /**
  * Cores institucionais de Sumé: #141b47 (principal) e #272971 (secundária).
@@ -13,6 +22,8 @@ export default class extends BaseSchema {
   ]
 
   async up() {
+    if (!isSumeTenant()) return
+
     this.defer(async (db) => {
       for (const u of this.updates) {
         const row = await db.from('site_settings').where('key', u.key).first()

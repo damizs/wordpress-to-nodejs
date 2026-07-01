@@ -2,6 +2,7 @@ import { Film, Instagram } from "lucide-react";
 import { PageLayout } from "~/components/PageLayout";
 import { ReelsGallery, type ReelItem } from "~/components/ReelsGallery";
 import { ElectionModeNotice } from "~/components/ElectionModeNotice";
+import { usePage } from "@inertiajs/react";
 
 interface Props {
   reels?: ReelItem[];
@@ -10,14 +11,17 @@ interface Props {
 }
 
 export default function VideosIndex({ reels = [], instagramUrl = null, electionMode = null }: Props) {
-  const profileUrl = instagramUrl || "https://www.instagram.com/camaradesume";
+  const camara = (usePage().props as {
+    camara?: { nome: string };
+  }).camara;
+  const orgName = camara?.nome || "Câmara Municipal";
+  const profileUrl = instagramUrl;
 
   return (
     <PageLayout
       seo={{
         title: "Galeria de Vídeos",
-        description:
-          "Assista aos reels e vídeos publicados pela Câmara Municipal de Sumé no Instagram.",
+        description: `Assista aos reels e vídeos publicados pela ${orgName}.`,
       }}
       breadcrumb={[{ label: "Início", href: "/" }, { label: "Galeria de Vídeos" }]}
       hero={{
@@ -37,14 +41,16 @@ export default function VideosIndex({ reels = [], instagramUrl = null, electionM
           <p className="text-muted-foreground">
             Nenhum vídeo disponível no momento.
           </p>
-          <a
-            href={profileUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-primary no-underline hover:underline"
-          >
-            <Instagram className="h-4 w-4" /> Acompanhe no Instagram
-          </a>
+          {profileUrl && (
+            <a
+              href={profileUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-primary no-underline hover:underline"
+            >
+              <Instagram className="h-4 w-4" /> Acompanhe no Instagram
+            </a>
+          )}
         </div>
       )}
     </PageLayout>

@@ -147,7 +147,9 @@ function hasAny(userPermissions: string[], required?: string[]) {
 }
 
 export default function AdminLayout({ children, title }: AdminLayoutProps) {
-  const { auth, errors, siteSettings } = usePage().props as any
+  const { auth, errors, siteSettings, camara } = usePage().props as any
+  const adminBrandName =
+    siteSettings?.header_title || camara?.nomeCurto || camara?.nome || 'Câmara Municipal'
   // Paleta do painel (independente do site público): recolore os tokens só no
   // escopo do painel via CSS vars no container. Definida em Aparência → Painel.
   const adminPreset = getThemePreset(siteSettings?.admin_palette)
@@ -419,7 +421,7 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
           {siteSettings?.logo_url ? (
             <img
               src={siteSettings.logo_url}
-              alt="Câmara de Sumé"
+              alt={adminBrandName}
               className={`object-contain flex-shrink-0 ${collapsed ? 'h-9 w-11' : 'h-9 max-w-[160px]'}`}
             />
           ) : (
@@ -429,7 +431,7 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
           )}
           {!collapsed && (
             <div className="min-w-0">
-              <p className="text-sm font-bold truncate leading-tight">Câmara de Sumé</p>
+              <p className="text-sm font-bold truncate leading-tight">{adminBrandName}</p>
               <p className="text-[10px] text-white/40 tracking-wide uppercase">Painel administrativo</p>
             </div>
           )}

@@ -4,7 +4,8 @@
 // Tabela: <prefix>dos_materias. As credenciais do GET Public ficam em
 // wp_options (dos_*), mas NAO sao exportadas por este script.
 //
-// Uso: node scripts/extract_wp_diario.mjs [caminho/para/database.sql]
+// Uso:
+//   node scripts/extract_wp_diario.mjs [caminho/para/database.sql] [saida.json] [entidade_getpublic]
 
 import { readFileSync, writeFileSync } from 'node:fs'
 import { join, dirname } from 'node:path'
@@ -12,6 +13,7 @@ import { fileURLToPath } from 'node:url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const sqlPath = process.argv[2] || 'tmp/wp_backup_sume_20260615/database.sql'
+const outPath = process.argv[3] || join(__dirname, '..', 'database', 'wp_diario_oficial.json')
 const sql = readFileSync(sqlPath, 'utf-8')
 const TICK = String.fromCharCode(96)
 
@@ -21,7 +23,7 @@ const TICK = String.fromCharCode(96)
 const ENTITY = process.argv[4] || process.env.GETPUBLIC_ENTITY || 'CMSU'
 
 function findTable(suffix) {
-  const re = new RegExp('CREATE TABLE ' + TICK + '([a-z0-9_]*' + suffix + ')' + TICK)
+  const re = new RegExp('CREATE TABLE ' + TICK + '([a-z0-9_]*' + suffix + ')' + TICK, 'i')
   const match = sql.match(re)
   return match ? match[1] : null
 }
@@ -255,7 +257,6 @@ const out = {
   records,
 }
 
-const outPath = join(__dirname, '..', 'database', 'wp_diario_oficial.json')
 writeFileSync(outPath, JSON.stringify(out, null, 2), 'utf-8')
 console.log('OK ->', outPath)
 console.log('registros:', records.length)

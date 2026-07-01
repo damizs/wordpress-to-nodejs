@@ -6,10 +6,12 @@ import InstagramScraperService, { InstagramPost } from './instagram_scraper_serv
 import AIProcessorService from './ai_processor_service.js'
 import app from '@adonisjs/core/services/app'
 import { cuid } from '@adonisjs/core/helpers'
+import { execFile as execFileCallback } from 'node:child_process'
 import { createWriteStream } from 'node:fs'
 import { mkdir } from 'node:fs/promises'
 import { pipeline } from 'node:stream/promises'
 import path from 'node:path'
+import { promisify } from 'node:util'
 
 export interface ImportResult {
   imported: number
@@ -20,6 +22,15 @@ export interface ImportResult {
     newsId?: number
     error?: string
   }>
+}
+
+const execFile = promisify(execFileCallback)
+const CURL_BIN = process.env.CURL_BIN || '/usr/bin/curl'
+const IMAGE_HEADERS = {
+  'User-Agent':
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+  Accept: 'image/webp,image/apng,image/*,*/*;q=0.8',
+  Referer: 'https://www.instagram.com/',
 }
 
 export default class InstagramAutoImporterService {
@@ -269,16 +280,34 @@ export default class InstagramAutoImporterService {
     const filename = `ig-${cuid()}.${ext}`
     const filepath = path.join(uploadsDir, filename)
 
-    const response = await fetch(url)
-    if (!response.ok || !response.body) {
-      throw new Error(`Failed to download image: ${response.status}`)
+    try {
+      const response = await fetch(url, { headers: IMAGE_HEADERS })
+      if (!response.ok || !response.body) {
+        throw new Error(`Failed to download image: ${response.status}`)
+      }
+
+      const writeStream = createWriteStream(filepath)
+      // @ts-ignore - Node.js types issue
+      await pipeline(response.body, writeStream)
+    } catch {
+      await this.downloadImageWithCurl(url, filepath)
     }
 
-    const writeStream = createWriteStream(filepath)
-    // @ts-ignore - Node.js types issue
-    await pipeline(response.body, writeStream)
-
     return `/uploads/instagram/${filename}`
+  }
+
+  private async downloadImageWithCurl(url: string, filepath: string): Promise<void> {
+    const args = ['-fsSL', '--compressed', '--max-time', '30']
+    for (const [key, value] of Object.entries(IMAGE_HEADERS)) {
+      args.push('-H', `${key}: ${value}`)
+    }
+    args.push('-o', filepath, url)
+
+    try {
+      await execFile(CURL_BIN, args, { timeout: 32000, maxBuffer: 1024 * 1024 })
+    } catch {
+      throw new Error('Falha ao baixar imagem do Instagram pelo scraper proprio.')
+    }
   }
 
   /**

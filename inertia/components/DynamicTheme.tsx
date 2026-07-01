@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { usePage } from '@inertiajs/react'
 import {
+  CUSTOM_THEME_PRESET_KEY,
   getThemePreset,
   resolveActiveCampaign,
   type Campaign,
@@ -75,7 +76,7 @@ function clearCampaignVars(root: HTMLElement) {
  * Tema institucional (preset/custom) — injetado em uma <style> (e não como style
  * inline no <html>) para que os tokens do modo escuro / alto contraste
  * (html.dark / html.high-contrast, em app.css) consigam sobrescrevê-los:
- *  1. Preset de tema (theme_preset != 'navy')
+ *  1. Preset de tema (theme_preset diferente de "custom")
  *  2. Cores customizadas do painel (color_navy / color_gold / color_sky)
  *
  * Campanha sazonal ativa — NÃO recolore o site inteiro: sobrescreve apenas
@@ -143,10 +144,12 @@ export function DynamicTheme() {
 
     /* ---- Tema institucional (preset/custom), independente da campanha ---- */
     if (siteSettings) {
-      // Preset só entra quando difere do padrão (navy) — senão valem as cores custom
+      // "custom" usa as cores cadastradas. "navy" é legado de bancos antigos e
+      // também preserva as cores cadastradas para não trocar a paleta no deploy.
       const preset = (() => {
-        const p = getThemePreset(siteSettings.theme_preset)
-        return p && p.key !== 'navy' ? p : null
+        const key = siteSettings.theme_preset?.trim()
+        if (!key || key === CUSTOM_THEME_PRESET_KEY || key === 'navy') return null
+        return getThemePreset(key)
       })()
 
       const navyHex = preset?.navy ?? siteSettings.color_navy

@@ -9,6 +9,7 @@ import PlenarySession from '#models/plenary_session'
 import Duodecimo from '#models/duodecimo'
 import FiscalReport from '#models/fiscal_report'
 import RuntimeCache from '#services/runtime_cache'
+import { camara } from '#config/camara'
 
 type Row = Record<string, string | number | boolean | null>
 
@@ -326,7 +327,7 @@ export default class OpenDataController {
     response.header('Content-Disposition', `attachment; filename="${dataset}.json"`)
     return response.json({
       conjunto: dataset,
-      fonte: 'Câmara Municipal de Sumé - PB',
+      fonte: `${camara.nome} - ${camara.uf}`,
       gerado_em: new Date().toISOString(),
       total: rows.length,
       dados: rows,

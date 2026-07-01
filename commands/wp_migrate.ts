@@ -30,8 +30,15 @@ import { seedAtasPautasFromSessions } from '#services/seed_atas_pautas_service'
 import { camara } from '#config/camara'
 
 // Autor padrão das notícias importadas: o usuário admin semeado.
-// Parametrizável p/ outras câmaras via env; default = admin de Sumé (sem mudança).
-const IMPORT_ADMIN_EMAIL = process.env.WP_IMPORT_ADMIN_EMAIL || 'admin@camaradesume.pb.gov.br'
+// Parametrizável por env; fallback vem da identidade do tenant.
+const IMPORT_ADMIN_EMAIL = process.env.WP_IMPORT_ADMIN_EMAIL || camara.email
+
+type TransparencyTarget = {
+  url: string
+  isExternal: boolean
+  openMode: 'modal' | 'nova_aba'
+  hideChrome: boolean
+}
 
 export default class WpMigrate extends BaseCommand {
   static commandName = 'wp:migrate'
@@ -116,7 +123,9 @@ export default class WpMigrate extends BaseCommand {
         this.logger.success(`  Atas: ${atas}, Pautas: ${pautas}`)
       }
     })
-    await this.runSection('Transparência', () => this.importTransparencia(extra.transparencia))
+    await this.runSection('Transparência', () =>
+      this.importTransparencia(extra.transparencia, quickLinks)
+    )
     // Registros PNTP (Acesso à Informação): a fonte autoritativa agora é o
     // comando `wp:pntp` (lê database/wp_pntp.json — 98 registros, dados atuais,
     // categoria por SLUG e download dos PDFs). O import antigo gravava a
@@ -264,6 +273,7 @@ export default class WpMigrate extends BaseCommand {
     let upd = 0
     for (const [i, v] of vereadoresData.entries()) {
       const photoUrl = v.new_photo ? `${this.wpDir}/${v.new_photo}` : null
+      const existing = await Councilor.findBy('slug', v.slug)
       const fields = {
         name: v.name,
         fullName: v.name,
@@ -278,9 +288,9 @@ export default class WpMigrate extends BaseCommand {
         legislatureId: legislature.id,
         displayOrder: i + 1,
         role: 'Vereador(a)',
+        ...(v.bio ? { bio: this.cleanContent(v.bio) } : {}),
       }
 
-      const existing = await Councilor.findBy('slug', v.slug)
       if (existing) {
         existing.merge(fields)
         await existing.save()
@@ -723,14 +733,248 @@ export default class WpMigrate extends BaseCommand {
   // ═══════════════════════════════════════
   // 11. TRANSPARÊNCIA (47 → sections + links)
   // ═══════════════════════════════════════
-  async importTransparencia(items: any[]) {
-    this.logger.info(`\n━━━ Transparência: ${items.length} items ━━━`)
+  private transparencyMatchKey(value: string): string {
+    return String(value || '')
+      .normalize('NFKD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+  }
+
+  private extractFirstUrl(value: string | null | undefined): string | null {
+    const text = String(value || '')
+      .replace(/\\\//g, '/')
+      .replace(/&amp;/g, '&')
+    return text.match(/href=["']([^"']+)["']/i)?.[1] || text.match(/https?:\/\/[^\s"'<>]+/i)?.[0] || null
+  }
+
+  private transparencyFallbackUrl(title: string): string {
+    const key = this.transparencyMatchKey(title)
+
+    if (/\be\s*sic\b|\besic\b|\bsic\b/.test(key)) return '/esic'
+    if (key.includes('ouvidoria')) return '/ouvidoria'
+    if (key.includes('diario oficial')) return '/diario-oficial'
+    if (key.includes('votacao')) return '/votacoes'
+    if (key.includes('diaria') || key.includes('passagem')) return '/diarias'
+    if (key.includes('duodec')) return '/duodecimo'
+    if (key.includes('empenho')) return '/empenhos-detalhados'
+    if (key.includes('receita') || key.includes('transferencia recebida'))
+      return '/transferencias-recebidas'
+    if (key.includes('transferencia realizada')) return '/transferencias-realizadas'
+    if (key.includes('rreo')) return '/relatorios-fiscais?tipo=RREO'
+    if (key.includes('rgf')) return '/relatorios-fiscais?tipo=RGF'
+    if (
+      key.includes('verba') ||
+      key.includes('folha') ||
+      key.includes('servidor') ||
+      key.includes('remuner') ||
+      key.includes('pessoal') ||
+      key.includes('comissiona') ||
+      key.includes('cedido') ||
+      key.includes('lotacao')
+    )
+      return '/verbas'
+    if (key.includes('despesa') || key.includes('pagamento') || key.includes('extra orcament'))
+      return '/despesas-mensais'
+    if (key.includes('estagi')) return '/estagiarios'
+    if (key.includes('terceir')) return '/terceirizados'
+    if (key.includes('licitante sancionado')) return '/licitantes-sancionados'
+    if (key.includes('licit') || key.includes('pregao')) return '/licitacoes'
+    if (key.includes('aditivo')) return '/aditivos'
+    if (key.includes('fiscal') && key.includes('contrato')) return '/fiscal-contrato'
+    if (key.includes('contrato')) return '/contratos'
+    if (key.includes('convenio') || key.includes('acordo') || key.includes('transferencia voluntaria'))
+      return '/acordos'
+    if (key.includes('obra')) return '/obras'
+    if (key.includes('concurso') || key.includes('selecao publica')) return '/concursos'
+    if (key.includes('estrutura')) return '/estrutura-organizacional'
+    if (key.includes('carta')) return '/carta-servicos'
+    if (key.includes('pca') || key.includes('plano de contratacao')) return '/pca'
+    if (key.includes('plano estrategico')) return '/plano-estrategico'
+    if (key.includes('prestacao')) return '/prestacao-contas'
+    if (key.includes('parecer')) return '/parecer-contas'
+    if (key.includes('apreciacao')) return '/apreciacao'
+    if (key.includes('cronologica') || key === 'ocp') return '/ocp'
+    if (key.includes('adesao') && key.includes('ata')) return '/adesao-ata-srp'
+    if (key.includes('lai') || key.includes('acesso a informacao')) return '/acesso-a-informacao/lai'
+    if (key.includes('lei') || key.includes('regimento') || key.includes('ldo') || key.includes('loa') || key.includes('ppa'))
+      return '/publicacoes-oficiais'
+
+    return '/acesso-a-informacao'
+  }
+
+  private canonicalizeTransparencyPath(path: string, title: string): string {
+    const cleanPath = `/${String(path || '').replace(/^\/+/, '')}`
+    const [pathname, suffix = ''] = cleanPath.split(/(?=[?#])/)
+    const slug = this.slugify(pathname.split('/').filter(Boolean)[0] || '')
+
+    if (!slug || slug === 'transparencia') return this.transparencyFallbackUrl(title)
+
+    const aliases: Record<string, string> = {
+      relatoriogestao: '/relatorio-gestao',
+      'relatorio-gestao': '/relatorio-gestao',
+      'prestacao-de-contas': '/prestacao-contas',
+      'prestacao-contas': '/prestacao-contas',
+      transfrealizada: '/transferencias-realizadas',
+      transfvoluntaria: '/transferencias-recebidas',
+      'transferencia-voluntaria': '/transferencias-recebidas',
+      convenio: '/acordos',
+      convenios: '/acordos',
+      'transferencias-recebidas': '/transferencias-recebidas',
+      'transferencias-realizadas': '/transferencias-realizadas',
+      estrutura: '/estrutura-organizacional',
+      'estrutura-organiza': '/estrutura-organizacional',
+      'estrutura-organizacional': '/estrutura-organizacional',
+      'carta-de-servicos': '/carta-servicos',
+      'carta-servicos': '/carta-servicos',
+      'plano-contratacao': '/pca',
+      'plano-contratacoes': '/pca',
+      'plano-estrategico': '/plano-estrategico',
+      'verbas-indenizatorias': '/verbas',
+      'verbas-idenizatorias': '/verbas',
+      'verbas-indenizatoria': '/verbas',
+      duodecimos: '/duodecimo',
+      duodecimo: '/duodecimo',
+      'despesas-mensais': '/despesas-mensais',
+      'empenhos-detalhados': '/empenhos-detalhados',
+      'adesao-ata': '/adesao-ata-srp',
+      'adesao-de-atas': '/adesao-ata-srp',
+      'adesao-ata-srp': '/adesao-ata-srp',
+      'votacoes-nominais': '/votacoes',
+      votacoes: '/votacoes',
+      'licitantes-sancionados': '/licitantes-sancionados',
+      'fiscal-contrato': '/fiscal-contrato',
+      'parecer-contas': '/parecer-contas',
+      'apreciacao-contas': '/apreciacao',
+      apreciacao: '/apreciacao',
+      concursos: '/concursos',
+      diarias: '/diarias',
+      rgf: '/relatorios-fiscais?tipo=RGF',
+      rreo: '/relatorios-fiscais?tipo=RREO',
+      ocp: '/ocp',
+      pca: '/pca',
+      acordos: '/acordos',
+      contratos: '/contratos',
+      licitacoes: '/licitacoes',
+      licitacao: '/licitacoes',
+      esic: '/esic',
+      'e-sic': '/esic',
+      ouvidoria: '/ouvidoria',
+    }
+
+    const canonical = aliases[slug] || `/${slug}`
+    return canonical.includes('?') ? canonical : `${canonical}${suffix}`
+  }
+
+  private normalizeTransparencyTarget(title: string, rawUrl: string | null): TransparencyTarget {
+    const fallback = this.transparencyFallbackUrl(title)
+    let url = String(rawUrl || fallback)
+      .trim()
+      .replace(/\\\//g, '/')
+      .replace(/&amp;/g, '&')
+
+    if (!url || url === '#') url = fallback
+
+    if (url.startsWith('/')) {
+      const internal = this.canonicalizeTransparencyPath(url, title)
+      return { url: internal, isExternal: false, openMode: 'modal', hideChrome: true }
+    }
+
+    try {
+      const parsed = new URL(url)
+      const sourceHost = camara.wpSourceDomain.replace(/^www\./, '')
+      const urlHost = parsed.hostname.replace(/^www\./, '')
+      if (urlHost === sourceHost) {
+        const internal = this.canonicalizeTransparencyPath(
+          `${parsed.pathname}${parsed.search}${parsed.hash}`,
+          title
+        )
+        return { url: internal, isExternal: false, openMode: 'modal', hideChrome: true }
+      }
+      return { url, isExternal: true, openMode: 'nova_aba', hideChrome: true }
+    } catch {
+      const internal = this.canonicalizeTransparencyPath(url, title)
+      return { url: internal, isExternal: false, openMode: 'modal', hideChrome: true }
+    }
+  }
+
+  private findTransparencyQuickLink(title: string, links: any[]): any | null {
+    const titleKey = this.transparencyMatchKey(title)
+    const candidates = links.filter(
+      (link) => String(link.secao_id) === '2' && link.active !== false && link.title && link.url
+    )
+    return (
+      candidates.find((link) => {
+        const linkKey = this.transparencyMatchKey(link.title)
+        if (!linkKey) return false
+        if (titleKey === linkKey || titleKey.includes(linkKey)) return true
+        const titleWords = titleKey.split(' ').filter(Boolean).length
+        const linkWords = linkKey.split(' ').filter(Boolean).length
+        if (titleWords > 1 && linkWords <= 2 && linkKey.includes(titleKey)) return true
+        if (titleKey.includes('diaria') && linkKey.includes('diaria')) return true
+        if (titleKey.includes('duodec') && linkKey.includes('duodec')) return true
+        if (titleKey.includes('empenho') && linkKey.includes('empenho')) return true
+        if (titleKey.includes('despesa') && linkKey.includes('despesa')) return true
+        if (titleKey.includes('receita') && linkKey.includes('receita')) return true
+        if (titleKey.includes('verba') && linkKey.includes('verba')) return true
+        if (titleKey.includes('votacao') && linkKey.includes('votacao')) return true
+        return false
+      }) || null
+    )
+  }
+
+  private transparencyTargetFor(item: any, quickLinks: any[]): TransparencyTarget {
+    const title = item.title || ''
+    const titleUrl = this.transparencyFallbackUrl(title)
+    if (titleUrl === '/esic' || titleUrl === '/ouvidoria') {
+      return this.normalizeTransparencyTarget(title, titleUrl)
+    }
+
+    const quickLink = this.findTransparencyQuickLink(title, quickLinks)
+    const rawUrl =
+      quickLink?.url ||
+      item.url ||
+      this.extractFirstUrl(item.content) ||
+      this.extractFirstUrl(item.description) ||
+      titleUrl
+
+    return this.normalizeTransparencyTarget(title, rawUrl)
+  }
+
+  private async uniqueTransparencySlug(base: string, ignoreId?: number): Promise<string> {
+    const root = this.slugify(base) || 'link'
+    let slug = root
+    let suffix = 2
+    while (true) {
+      const query = TransparencyLink.query().where('slug', slug)
+      if (ignoreId) query.whereNot('id', ignoreId)
+      const existing = await query.first()
+      if (!existing) return slug
+      slug = `${root}-${suffix++}`
+    }
+  }
+
+  async importTransparencia(items: any[], quickLinks: any[] = []) {
+    const sourceItems =
+      items.length > 0
+        ? items
+        : quickLinks
+            .filter((link) => String(link.secao_id) === '2' && link.active !== false && link.title)
+            .map((link) => ({
+              title: link.title,
+              slug: this.slugify(link.title),
+              url: link.url,
+            }))
+
+    this.logger.info(`\n━━━ Transparência: ${sourceItems.length} items ━━━`)
     if (this.force) {
       await TransparencyLink.query().delete()
       await TransparencySection.query().delete()
     }
 
-    const sections: Record<string, string[]> = {
+    const sections: Record<string, any[]> = {
       'Despesas e Receitas': [],
       'Pessoal e Servidores': [],
       'Licitações e Contratos': [],
@@ -781,9 +1025,9 @@ export default class WpMigrate extends BaseCommand {
         return 'Legislação e Normas'
       return 'Outros'
     }
-    for (const t of items) {
+    for (const t of sourceItems) {
       if (t.title === 'Transparência') continue
-      sections[sectionMap(t.title)].push(t.title)
+      sections[sectionMap(t.title)].push(t)
     }
     const icons: Record<string, string> = {
       'Despesas e Receitas': 'DollarSign',
@@ -797,10 +1041,11 @@ export default class WpMigrate extends BaseCommand {
     let secOk = 0
     let secSkip = 0
     let linkOk = 0
+    let linkUpdated = 0
     let linkSkip = 0
     let order = 1
-    for (const [secName, titles] of Object.entries(sections)) {
-      if (titles.length === 0) continue
+    for (const [secName, sectionItems] of Object.entries(sections)) {
+      if (sectionItems.length === 0) continue
       const secSlug = this.slugify(secName)
       let section = await TransparencySection.findBy('slug', secSlug)
       if (section) {
@@ -816,22 +1061,48 @@ export default class WpMigrate extends BaseCommand {
         secOk++
       }
       order++
-      for (const [i, title] of titles.entries()) {
+      for (const [i, item] of sectionItems.entries()) {
+        const title = item.title
+        const target = this.transparencyTargetFor(item, quickLinks)
         const existingLink = await TransparencyLink.query()
           .where('sectionId', section.id)
           .where('title', title)
           .first()
         if (existingLink) {
-          linkSkip++
+          const needsRepair =
+            !existingLink.slug ||
+            existingLink.url.startsWith('/transparencia/') ||
+            existingLink.url !== target.url ||
+            existingLink.openMode !== target.openMode ||
+            existingLink.isExternal !== target.isExternal
+
+          if (!needsRepair) {
+            linkSkip++
+            continue
+          }
+
+          existingLink.merge({
+            slug: existingLink.slug || (await this.uniqueTransparencySlug(item.slug || title, existingLink.id)),
+            url: target.url,
+            displayOrder: i + 1,
+            isExternal: target.isExternal,
+            openMode: target.openMode,
+            hideChrome: target.hideChrome,
+          })
+          await existingLink.save()
+          linkUpdated++
           continue
         }
         try {
           await TransparencyLink.create({
             sectionId: section.id,
             title: title,
-            url: `/transparencia/${this.slugify(title)}`,
+            slug: await this.uniqueTransparencySlug(item.slug || title),
+            url: target.url,
             displayOrder: i + 1,
-            isExternal: false,
+            isExternal: target.isExternal,
+            openMode: target.openMode,
+            hideChrome: target.hideChrome,
           })
           linkOk++
         } catch {
@@ -840,7 +1111,7 @@ export default class WpMigrate extends BaseCommand {
       }
     }
     this.logger.success(
-      `  Sections: ${secOk} created, ${secSkip} skipped | Links: ${linkOk} created, ${linkSkip} skipped`
+      `  Sections: ${secOk} created, ${secSkip} skipped | Links: ${linkOk} created, ${linkUpdated} updated, ${linkSkip} skipped`
     )
   }
 

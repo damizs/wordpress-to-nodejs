@@ -11,8 +11,8 @@ import { generateSlug } from '#helpers/slug'
 import { camara } from '#config/camara'
 
 // Autor padrão das notícias/legado importados: o usuário admin semeado.
-// Parametrizável p/ outras câmaras via env; default = admin de Sumé (sem mudança).
-const IMPORT_ADMIN_EMAIL = process.env.WP_IMPORT_ADMIN_EMAIL || 'admin@camaradesume.pb.gov.br'
+// Parametrizável por env; fallback vem da identidade do tenant.
+const IMPORT_ADMIN_EMAIL = process.env.WP_IMPORT_ADMIN_EMAIL || camara.email
 
 interface WpCategory {
   name: string

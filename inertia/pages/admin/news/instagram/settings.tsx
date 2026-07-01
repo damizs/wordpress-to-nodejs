@@ -93,7 +93,7 @@ export default function InstagramSettings({ settings, categories, aiProviders, a
 
   const { data, setData, post, processing } = useForm({
     instagram_profile_url: settings.instagram_profile_url || '',
-    instagram_scraper_provider: settings.instagram_scraper_provider || 'auto',
+    instagram_scraper_provider: settings.instagram_scraper_provider || 'public',
     instagram_sessionid: settings.instagram_sessionid || '',
     instagram_useragent: settings.instagram_useragent || '',
     rapidapi_key: settings.rapidapi_key || '',
@@ -158,10 +158,10 @@ export default function InstagramSettings({ settings, categories, aiProviders, a
               <Field label="URL do Perfil">
                 <Input type="url" value={data.instagram_profile_url} onChange={e => setData('instagram_profile_url', e.target.value)} placeholder="https://www.instagram.com/seu_perfil" />
               </Field>
-              <Field label="Modo de captura" hint="Use automatico para tentar o scraper publico proprio primeiro e usar RapidAPI so se precisar.">
+              <Field label="Modo de captura" hint="O padrão usa o scraper próprio do portal, sem depender da RapidAPI. Use fallback externo só se escolher manualmente.">
                 <Select value={data.instagram_scraper_provider} onChange={e => setData('instagram_scraper_provider', e.target.value)}>
-                  <option value="auto">Automatico: scraper publico + fallback RapidAPI</option>
-                  <option value="public">Somente scraper publico proprio</option>
+                  <option value="public">Scraper próprio do portal</option>
+                  <option value="auto">Scraper próprio + fallback RapidAPI</option>
                   <option value="rapidapi">Somente RapidAPI</option>
                 </Select>
               </Field>
@@ -172,8 +172,8 @@ export default function InstagramSettings({ settings, categories, aiProviders, a
           <Card>
             <CardHeader
               icon={Key}
-              title="RapidAPI (fallback)"
-              description="Método mais confiável para buscar posts. Funciona mesmo com IP bloqueado."
+              title="RapidAPI (opcional)"
+              description="Alternativa externa/legada. O portal não depende dela quando o modo de captura está em scraper próprio."
             />
             <details className="mb-4 p-4 bg-muted rounded-lg border border-border">
               <summary className="flex items-center gap-1.5 cursor-pointer font-medium text-navy">

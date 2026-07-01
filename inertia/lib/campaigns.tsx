@@ -19,6 +19,8 @@ export interface ThemePreset {
   sky: string
 }
 
+export const CUSTOM_THEME_PRESET_KEY = 'custom'
+
 export const THEME_PRESETS: ThemePreset[] = [
   { key: 'navy', label: 'Navy (padrão)', navy: '#0a3d62', gold: '#d4a017', sky: '#2e86de' },
   { key: 'verde', label: 'Verde Bandeira', navy: '#0b5e34', gold: '#f4c20d', sky: '#2f9e44' },
@@ -28,7 +30,7 @@ export const THEME_PRESETS: ThemePreset[] = [
 ]
 
 export function getThemePreset(key: string | null | undefined): ThemePreset | null {
-  if (!key) return null
+  if (!key || key === CUSTOM_THEME_PRESET_KEY) return null
   return THEME_PRESETS.find((p) => p.key === key) ?? null
 }
 

@@ -222,6 +222,7 @@ const posts = new Map() // id -> {type,status,title,name,date,content,excerpt,pa
 const thumbId = new Map() // postId -> attachmentId
 const attachedFile = new Map() // attachmentId/postId -> uploads path
 const vereadorMeta = new Map() // postId -> {foto,nome_parlamentar,...}
+const postMeta = new Map() // postId -> {meta_key: meta_value}
 const terms = new Map() // term_id -> {name,slug}
 const taxonomies = new Map() // term_taxonomy_id -> {termId,taxonomy}
 const termRelationships = [] // [object_id, term_taxonomy_id]
@@ -276,6 +277,7 @@ for await (const line of rl) {
         type === 'post' ||
         type === 'publicacoes' ||
         type === 'atas' ||
+        type === 'transparencia' ||
         type === 'page' ||
         type === 'perguntas-frequentes' ||
         type === 'faq'
@@ -308,6 +310,8 @@ for await (const line of rl) {
         if (!vereadorMeta.has(postId)) vereadorMeta.set(postId, {})
         vereadorMeta.get(postId)[VEREADOR_META[key]] = value
       }
+      if (!postMeta.has(postId)) postMeta.set(postId, {})
+      postMeta.get(postId)[String(key || '')] = value
     }
     continue
   }
@@ -603,11 +607,54 @@ const atas = [...posts.entries()]
     }
   })
 
+function firstUrlFromText(value) {
+  const text = sqlUnescape(value || '')
+    .replace(/&amp;/g, '&')
+    .replace(/\\\//g, '/')
+  const href = text.match(/href=["']([^"']+)["']/i)?.[1]
+  if (href) return href
+  return text.match(/https?:\/\/[^\s"'<>]+/i)?.[0] || null
+}
+
+function transparencyUrlFromMeta(id, post) {
+  const meta = postMeta.get(id) || {}
+  const preferredKeys = [
+    'url',
+    '_url',
+    'link',
+    '_link',
+    'destino',
+    '_destino',
+    'arquivo',
+    '_arquivo',
+    'pdf',
+    '_pdf',
+    'download',
+    '_download',
+  ]
+  for (const key of preferredKeys) {
+    const url = firstUrlFromText(meta[key])
+    if (url) return url
+  }
+  for (const [key, value] of Object.entries(meta)) {
+    if (!/(url|link|destino|arquivo|pdf|download)/i.test(key)) continue
+    const url = firstUrlFromText(value)
+    if (url) return url
+  }
+  return firstUrlFromText(post.content) || firstUrlFromText(post.excerpt)
+}
+
 // transparencia (CPT transparencia publicado)
 const transparencia = [...posts.entries()]
   .filter(([, p]) => p.type === 'transparencia' && p.status === 'publish')
   .sort((a, b) => Number(a[0]) - Number(b[0]))
-  .map(([id, p]) => ({ wp_id: id, title: p.title }))
+  .map(([id, p]) => ({
+    wp_id: id,
+    title: p.title,
+    slug: p.name || slugify(p.title || id),
+    content: p.content || '',
+    url: transparencyUrlFromMeta(id, p),
+  }))
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SAÍDA

@@ -1,4 +1,5 @@
 import { BaseSchema } from '@adonisjs/lucid/schema'
+import { camara } from '#config/camara'
 
 /**
  * Correção one-off dos dados de aparência/rodapé em produção:
@@ -53,16 +54,16 @@ export default class extends BaseSchema {
       )
       await restore(
         'footer_address',
-        'Rua Antônio Vieira Lima, S/N, Centro, Sumé - PB',
+        camara.address,
         'footer',
         'text',
         'Endereço'
       )
-      await restore('footer_phone', '(83) 3353-1175', 'footer', 'text', 'Telefone')
-      await restore('footer_email', 'contato@camaradesume.pb.gov.br', 'footer', 'text', 'Email')
+      await restore('footer_phone', camara.phone, 'footer', 'text', 'Telefone')
+      await restore('footer_email', camara.email, 'footer', 'text', 'Email')
       await restore(
         'footer_hours',
-        'Seg a Sex, 8h às 14h',
+        camara.hours,
         'footer',
         'text',
         'Horário de Funcionamento'

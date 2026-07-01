@@ -119,7 +119,7 @@ export default function HomepageEditor({ settings }: Props) {
     // Diário
     homepage_diario_title: get(settings, 'homepage_diario', 'homepage_diario_title'),
     homepage_diario_subtitle: get(settings, 'homepage_diario', 'homepage_diario_subtitle'),
-    // Conheça Sumé
+    // Conheça a Cidade
     homepage_conheca_title: get(settings, 'homepage_conheca', 'homepage_conheca_title'),
     homepage_conheca_subtitle: get(settings, 'homepage_conheca', 'homepage_conheca_subtitle'),
     // Seals

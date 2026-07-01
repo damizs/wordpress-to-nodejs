@@ -401,16 +401,33 @@ Fontes de referência neste servidor:
   apagava edições a cada deploy — corrigido para semear só se vazio). Migrations de
   dados: aplicar só se ausente/igual ao default.
 - **Multi-câmara / de-Sumé:** câmara nova deve usar `CAMARA_INIT=true` +
-  `SKIP_CONTENT_BOOTSTRAP=true`. O comando `node ace camara:desume` roda no fim de
-  `camara:init` e também no `startup.sh` dentro do bloco `CAMARA_INIT=true`; ele é
-  no-op para Sumé e, para outras câmaras, normaliza `site_settings` com
-  `config/camara`, limpa links/contatos específicos de Sumé, desativa FAQs
-  residuais de Sumé, reescreve a Carta de Serviços padrão para a câmara atual,
-  oculta registros PNTP que ainda apontem para `camaradesume` e remove notas de
-  duodécimos com `SUME`. Após deploy nas bases Junco/Frei/Serra, rodar/revalidar
-  esse comando antes de apontar IP em produção; a auditoria local de 30/06/2026
-  indicou conteúdo principal migrado, mas resíduos de Sumé ainda presentes nos
-  bancos já criados até que o comando seja aplicado.
+  `SKIP_CONTENT_BOOTSTRAP=true`. Mesmo se o `SKIP` for esquecido, `wp_import.sh`
+  bloqueia importação de conteúdo quando `CAMARA_INIT=true`, salvo
+  `ALLOW_CONTENT_BOOTSTRAP=true` explícito após gerar JSONs/uploads próprios da
+  câmara. O comando `node ace camara:desume` roda no fim de `camara:init` e
+  também no `startup.sh` dentro do bloco `CAMARA_INIT=true`; ele é no-op para
+  Sumé e, para outras câmaras, normaliza `site_settings` com `config/camara`,
+  limpa links/contatos específicos de Sumé, desativa FAQs residuais, reescreve a
+  Carta de Serviços padrão, saneia `institutional_content`, oculta registros PNTP
+  que ainda apontem para `camaradesume`, remove notas de duodécimos com referência
+  explícita a Sumé e despublica páginas legadas contaminadas. Também preenche
+  "Conheça a Cidade" com população/área IBGE e galeria do backup WP quando houver
+  imagem local mapeada. Após deploy em qualquer tenant não-Sumé, rodar/revalidar
+  esse comando antes de apontar IP em produção.
+- **Primeiro paint multi-câmara:** o Edge raiz recebe `earlyThemeStyle`,
+  `earlyThemeColor`, `earlyLayoutStyle` e `earlySiteTemplate` pelo
+  `share_view_data_middleware`. Isso evita flash de paleta/layout de Sumé em
+  navegadores que visitaram outro tenant. Não usar `safe()` no Edge; o CSS inicial
+  vem de hex validado e deve ser renderizado com interpolação Edge normal.
+- **LGPD/DPO por câmara:** a página pública `/politica-de-privacidade` exibe a
+  portaria do encarregado somente se `site_settings.dpo_ordinance_pdf_url` estiver
+  preenchido. Auditoria de 01/07/2026: Soledade tem
+  `uploads/wp-content/uploads/2026/05/1-PORTARIA-DPO-LGPD-SOLEDADE-1.pdf` no
+  backup; Junco não tem PDF/attachment equivalente no backup nem no banco atual
+  (`dpo_ordinance_pdf_url` nulo). Não copiar portaria entre câmaras. Quando o
+  backup WP tiver página de Política de Privacidade limpa do próprio tenant, o
+  `camara:desume` pode promovê-la para `site_settings.privacy_policy_content`;
+  se houver resíduo de Sumé, manter a política nativa parametrizada.
 - **Conheça a Cidade:** os campos públicos `city_region`, `city_area`,
   `city_population`, `city_altitude`, `city_founded` e a galeria `city_images`
   são editados em Painel > Aparência > Conheça a Cidade. `city_images` é salvo
@@ -441,6 +458,11 @@ Fontes de referência neste servidor:
  também classifica `origin` (`executivo`, `legislativo`, `nao_informado`) por
  autoria/texto para separar Projetos de Lei do Executivo e do Legislativo no site e
  no painel. O branch legislativo do `importMaterias` foi desativado para não duplicar.
+- **Migração WP — vereadores/biografia:** `scripts/generate_migration_data.mjs`
+ lê `_historia`/`_descricao` do CPT `vereador` e grava `bio`. O `wp:migrate`
+ salva essa biografia no cadastro do vereador; não perder esse campo em ajustes de
+ vereadores, pois ele sustenta o critério PNTP/ATRICON de composição da Casa com
+ biografia parlamentar.
 - **Votação nominal XML:** para relatórios de sessão do sistema de votação, usar
   `node ace votacao:import <dir-ou-arquivo-xml>`; `--dry-run` só audita. O comando
   grava com `source='api'`, gera `voting_system_id` determinístico a partir da
@@ -477,6 +499,15 @@ não são exportadas). O comando `node ace wp:diario` importa para
  (não embeda). A migração `2026_06_23_000000_fix_getpublic_materia_urls` reescreve
  as URLs antigas já gravadas sem apagar registros. O `startup.sh` roda esse import
  uma vez por marcador `.diario-imported-v1` (ou `FORCE_DIARIO_IMPORT=true`).
+- **GET Public online (`getpublic:sync`):** as edições diárias do Diário Oficial
+  entram somente em `official_gazette_entries` a partir do endpoint `/diarios`.
+  Matérias individuais não devem inflar "Últimas Publicações" do Diário nem o
+  Radar de alimentação local: elas são roteadas para Licitações, Contratos ou
+  Publicações Oficiais conforme o tipo/texto. Portarias de fiscal/gestor só
+  atualizam contrato quando o detalhe da matéria informa vínculo claro com contrato;
+  sem número de contrato no corpo, não criar contrato usando o número da portaria.
+  O Radar ATRICON/PNTP não deve cobrar Diário Oficial como fila local porque o
+  Diário é alimentado no portal próprio/GetPublic.
 - **Migração WP — Links Rápidos:** o plugin `links-rapidos` mantém
 `<prefix>lr_links`/`<prefix>lr_secoes`. Para backup novo, rodar
 `node scripts/extract_wp_quick_links.mjs <database.sql>` → gera
@@ -500,4 +531,4 @@ já roda esse importador depois dos módulos específicos.
 
 ---
 
-_Última atualização: jun/2026. Atualize este arquivo a cada novo módulo._
+_Última atualização: jul/2026. Atualize este arquivo a cada novo módulo._

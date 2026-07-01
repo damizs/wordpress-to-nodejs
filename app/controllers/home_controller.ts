@@ -131,8 +131,16 @@ export default class HomeController {
       OfficialGazetteEntry.query().orderBy('publication_date', 'desc').first(),
       OfficialPublication.query()
         .whereNull('deleted_at')
+        .whereRaw("lower(coalesce(type, '')) not like ?", ['%diário%'])
+        .whereRaw("lower(coalesce(type, '')) not like ?", ['%diario%'])
+        .whereRaw("lower(coalesce(type, '')) not like ?", ['%edição%'])
+        .whereRaw("lower(coalesce(type, '')) not like ?", ['%edicao%'])
+        .whereRaw("lower(coalesce(title, '')) not like ?", ['%diário oficial%'])
+        .whereRaw("lower(coalesce(title, '')) not like ?", ['%diario oficial%'])
+        .whereRaw("lower(coalesce(title, '')) not like ?", ['edição%'])
+        .whereRaw("lower(coalesce(title, '')) not like ?", ['edicao%'])
         .orderBy('publication_date', 'desc')
-        .limit(6),
+        .limit(200),
       Legislature.query().where('is_current', true).first(),
       SystemCategory.byType('information_record'),
       RuntimeCache.getOrSet('home:legislative-activities:v1', 60_000, () =>
@@ -260,8 +268,26 @@ export default class HomeController {
       id: p.id,
       titulo: p.title,
       data: formatDate(p.publicationDate),
+      publicationDate: toIsoDate(p.publicationDate),
       tipo: p.type,
       arquivo: p.fileUrl,
+      url: p.slug ? `/publicacoes-oficiais/${p.slug}` : '/publicacoes-oficiais',
+    }))
+
+    // Compatibilidade com builds já publicados: versões antigas da home
+    // alimentavam "Últimas Publicações" com a prop gazetteEntries. Mantemos o
+    // calendário em gazetteDates e reaproveitamos gazetteEntries para atos/MSI.
+    const publicationEntriesForLegacyHome = publicacoes.map((p) => ({
+      id: p.id,
+      editionNumber: p.tipo || '',
+      publicationDate: p.publicationDate,
+      description: p.titulo,
+      fileUrl: p.arquivo || p.url,
+      titulo: p.titulo,
+      data: p.data,
+      tipo: p.tipo,
+      arquivo: p.arquivo,
+      url: p.url,
     }))
 
     // Preferir o feed ao vivo (scraper). Se vazio, cai para posts que viraram notícia.
@@ -409,15 +435,9 @@ export default class HomeController {
             fileUrl: fixGetpublicUrl(latestGazette.fileUrl),
           }
         : null,
-      // Lista para o módulo "Últimas Publicações" da home (preview com busca/
-      // filtro/paginação client-side). Limita o payload; o restante fica em /diario-oficial.
-      gazetteEntries: gazetteRecent.slice(0, 200).map((g) => ({
-        id: g.id,
-        editionNumber: g.editionNumber,
-        publicationDate: toIsoDate(g.publicationDate),
-        description: g.description,
-        fileUrl: fixGetpublicUrl(g.fileUrl),
-      })),
+      // Builds antigos ainda usam essa prop em "Últimas Publicações"; por isso
+      // ela recebe atos/publicações/MSI, não edições completas do Diário.
+      gazetteEntries: publicationEntriesForLegacyHome,
       gazetteDates: gazetteRecent.map((g) => ({
         date: toIsoDate(g.publicationDate),
         editionNumber: g.editionNumber,

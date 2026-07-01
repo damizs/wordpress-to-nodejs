@@ -1,17 +1,18 @@
 import { BaseSchema } from '@adonisjs/lucid/schema'
+import { camara } from '#config/camara'
 
 const rows = [
   {
     group: 'esic',
     key: 'sic_unit',
-    value: 'Serviço de Informação ao Cidadão (SIC) da Câmara Municipal de Sumé',
+    value: `Serviço de Informação ao Cidadão (SIC) da ${camara.nome}`,
     type: 'text',
     label: 'Unidade responsável pelo SIC',
   },
   {
     group: 'esic',
     key: 'sic_monitoring_authority',
-    value: 'Presidência da Câmara Municipal de Sumé',
+    value: `Presidência da ${camara.nome}`,
     type: 'text',
     label: 'Autoridade de monitoramento',
   },

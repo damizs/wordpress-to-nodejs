@@ -2,15 +2,15 @@ import { BaseCommand, flags } from '@adonisjs/core/ace'
 import { CommandOptions } from '@adonisjs/core/types/ace'
 
 /**
- * Sincroniza as matérias do GetPublic para o banco em DUAS tabelas:
+ * Sincroniza o GetPublic sem misturar acervos:
  *  - `getpublic_materias` (índice de busca, sem armazenar PDFs);
- *  - `official_gazette_entries` (fonte da página pública do Diário Oficial).
- * Idempotente: upsert por `codigo`/`edition_number`. Agendável (diário) — também
- * roda no agendador em processo (`InstagramSchedulerService`).
+ *  - matérias → Publicações Oficiais, Licitações ou Contratos quando aplicável;
+ *  - Diário Oficial recebe somente edições diárias do endpoint de diários.
+ * Idempotente por código/slug. Agendável — também roda no agendador em processo.
  */
 export default class GetPublicSync extends BaseCommand {
   static commandName = 'getpublic:sync'
-  static description = 'Sincroniza matérias do GetPublic (busca + Diário Oficial)'
+  static description = 'Sincroniza GetPublic (busca + módulos nativos + edições do Diário)'
   static options: CommandOptions = { startApp: true }
 
   @flags.boolean({ description: 'Simula sem gravar no banco' })
@@ -31,10 +31,10 @@ export default class GetPublicSync extends BaseCommand {
       return
     }
 
-    this.logger.info('Sincronizando matérias do GetPublic (busca + Diário Oficial)…')
+    this.logger.info('Sincronizando GetPublic (busca + módulos nativos + edições do Diário)…')
     const r = await svc.syncAll()
     this.logger.success(
-      `OK: total ${r.total} matérias · índice: ${r.materiasNew} nova(s) · diário: ${r.gazetteNew} nova(s).`
+      `OK: ${r.total} matérias · índice +${r.materiasNew} · publicações +${r.publicationsNew} · licitações +${r.licitacoesNew} · contratos +${r.contractsNew}/${r.contractsUpdated} atualizados · diário +${r.diariosNew}.`
     )
   }
 }

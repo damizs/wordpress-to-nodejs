@@ -68,14 +68,32 @@ const pageRedirects: Record<string, string> = {
   'fale-conosco': '/ouvidoria',
   // 'mapa-do-site' removido: agora é página real (/mapa-do-site)
   'convenios-e-transferencias': '/acordos',
-  // Páginas de transparência fiscal (conteúdo consolidado em /transparencia)
-  'licitantes-sancionados': '/transparencia',
-  'adesao-ata': '/transparencia',
+  convenio: '/acordos',
+  convenios: '/acordos',
+  relatoriogestao: '/relatorio-gestao',
+  'prestacao-de-contas': '/prestacao-contas',
+  transfrealizada: '/transferencias-realizadas',
+  transfvoluntaria: '/transferencias-recebidas',
+  'transferencia-voluntaria': '/transferencias-recebidas',
+  estrutura: '/estrutura-organizacional',
+  'estrutura-organiza': '/estrutura-organizacional',
+  'carta-de-servicos': '/carta-servicos',
+  'plano-contratacao': '/pca',
+  'plano-contratacoes': '/pca',
+  'verbas-indenizatorias': '/verbas',
+  'verbas-idenizatorias': '/verbas',
+  'adesao-ata': '/adesao-ata-srp',
+  'adesao-de-atas': '/adesao-ata-srp',
+  'votacoes-nominais': '/votacoes',
+  // Páginas PNTP com conteúdo próprio agora caem no catch-all dinâmico `/:slug`
+  // (information_records). Não redirecionar para /transparencia, pois isso
+  // quebra os cards/modal da transparência importados do WordPress.
   // 'ocp' removido: agora e pagina dinamica real de Acesso a Informacao (/ocp).
-  'fiscal-contrato': '/transparencia',
-  'aditivos': '/transparencia',
-  'despesas-mensais': '/transparencia',
-  'empenhos-detalhados': '/transparencia',
+  // 'licitantes-sancionados' removido: pagina dinamica real.
+  // 'fiscal-contrato' removido: pagina dinamica real.
+  // 'aditivos' removido: pagina dinamica real.
+  // 'despesas-mensais' removido: pagina dinamica real.
+  // 'empenhos-detalhados' removido: pagina dinamica real.
   // 'duodecimos' removido: GET /duodecimos agora é rota real (módulo nativo).
   // Mantê-lo aqui causaria "Duplicate route" / sobreporia a página nova.
   // Páginas utilitárias do WP (plugins de ticket/login) sem equivalente

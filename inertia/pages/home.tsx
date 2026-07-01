@@ -54,8 +54,10 @@ interface Publicacao {
   id: number;
   titulo: string;
   data: string;
+  publicationDate?: string;
   tipo: string;
   arquivo: string | null;
+  url?: string;
 }
 
 interface Seal {
@@ -134,6 +136,7 @@ export default function Home({
   vereadores = [],
   legislativo = null,
   mesaDiretora = { members: [], biennium: null },
+  publicacoes = [],
   instagramPosts = [],
   instagramReels = [],
   instagramProfileUrl = null,
@@ -204,7 +207,9 @@ export default function Home({
   const bannerImage = setting('banner_image');
   const bannerLink = normalizePublicLink(setting('banner_link'));
 
-  const hasGazetteContent = Boolean(latestGazette || gazetteEntries.length || gazetteDates.length);
+  const hasDiarioSectionContent = Boolean(
+    latestGazette || publicacoes.length || gazetteEntries.length || gazetteDates.length
+  );
 
   // Módulos da homepage: ativar/desativar pelo painel (Homepage > Visibilidade das Seções).
   // Sem configuração explícita ('false'), a seção fica visível. O Diário Oficial é
@@ -214,7 +219,7 @@ export default function Home({
     if (section === 'banner') {
       return Boolean(bannerImage) && siteSettings?.section_banner_visible === 'true';
     }
-    if (section === 'diario' && hasGazetteContent) return true;
+    if (section === 'diario' && hasDiarioSectionContent) return true;
     return siteSettings?.[`section_${section}_visible`] !== 'false';
   };
 
@@ -319,7 +324,7 @@ export default function Home({
               diario: shell(
                 <DiarioOficialSection
                   latestGazette={latestGazette}
-                  entries={gazetteEntries}
+                  entries={publicacoes}
                   gazetteDates={gazetteDates}
                   title={setting('homepage_diario_title')}
                   subtitle={setting('homepage_diario_subtitle')}

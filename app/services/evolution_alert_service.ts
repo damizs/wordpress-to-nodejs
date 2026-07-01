@@ -3,6 +3,7 @@ import SiteSetting from '#models/site_setting'
 import SecurityEvent from '#models/security_event'
 import BackupRun from '#models/backup_run'
 import NotificationLog from '#models/notification_log'
+import { camara } from '#config/camara'
 
 type AlertType = 'login' | 'firewall' | 'backup' | 'health'
 
@@ -29,7 +30,7 @@ interface SendSummary {
   message: string
 }
 
-const DEFAULT_REPORT_MESSAGE = `Relatorio quinzenal do Portal da Camara de Sume - {data}
+const DEFAULT_REPORT_MESSAGE = `Relatorio quinzenal do Portal da ${camara.nome} - {data}
 
 Periodo: {periodo}
 Eventos de seguranca: {eventos_seguranca}

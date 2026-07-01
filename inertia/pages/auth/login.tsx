@@ -1,4 +1,4 @@
-import { Head, useForm } from '@inertiajs/react'
+import { Head, useForm, usePage } from '@inertiajs/react'
 import { FlashMessages } from '~/components/FlashMessages'
 import { DynamicFavicon } from '~/components/DynamicFavicon'
 import { DynamicTheme } from '~/components/DynamicTheme'
@@ -10,6 +10,9 @@ interface LoginProps {
 }
 
 export default function Login({ siteSettings = {} }: LoginProps) {
+  const camara = (usePage().props as {
+    camara?: { nome: string };
+  }).camara
   const [showPassword, setShowPassword] = useState(false)
   const { data, setData, post, processing, errors } = useForm({
     email: '',
@@ -18,7 +21,7 @@ export default function Login({ siteSettings = {} }: LoginProps) {
 
   const loginTitle = siteSettings.login_title || 'Painel Administrativo'
   const loginSubtitle =
-    siteSettings.login_subtitle || siteSettings.header_title || 'Camara Municipal de Sume'
+    siteSettings.login_subtitle || siteSettings.header_title || camara?.nome || 'Câmara Municipal'
   const loginLogo = siteSettings.login_logo_url || siteSettings.logo_url || ''
 
   function handleSubmit(e: React.FormEvent) {

@@ -2,7 +2,7 @@ import { camara } from '#config/camara'
 
 /**
  * Identificador da entidade no GetPublic (Sumé = CMSU). Parametrizado via
- * config/camara (env GETPUBLIC_ENTITY) com DEFAULT = 'CMSU'. Declarado ANTES do
+ * config/camara (env GETPUBLIC_ENTITY). Declarado ANTES do
  * regex abaixo porque este o usa (evita temporal dead zone do `const`).
  */
 export const GETPUBLIC_ENTITY = camara.getpublicEntity
@@ -23,7 +23,8 @@ const PDF_HREF_RE = /href=["']([^"']+\.pdf(?:[^"']*)?)["']/i
  * é uma página HTML (abrir em nova aba, não embedar em iframe).
  */
 export function getpublicMateriaUrl(documentId: string): string {
-  return `https://getpublic.inf.br/system/visualizar-materia?materia=${documentId}&link=${GETPUBLIC_ENTITY}`
+  const link = GETPUBLIC_ENTITY ? `&link=${GETPUBLIC_ENTITY}` : ''
+  return `https://getpublic.inf.br/system/visualizar-materia?materia=${documentId}${link}`
 }
 
 /** Converte uma URL antiga /api/document/<id>/pdf para o visualizador correto. */

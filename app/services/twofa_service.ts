@@ -1,6 +1,7 @@
 import { authenticator } from 'otplib'
 import QRCode from 'qrcode'
 import hash from '@adonisjs/core/services/hash'
+import { camara } from '#config/camara'
 
 /**
  * Serviço de Autenticação de 2 Fatores (TOTP, RFC 6238).
@@ -17,7 +18,7 @@ import hash from '@adonisjs/core/services/hash'
 // Janela TOTP padrão: ±1 passo de 30s.
 authenticator.options = { window: 1 }
 
-const ISSUER = 'Camara Municipal de Sume'
+const ISSUER = camara.nomeCurto || camara.nome || 'Câmara Municipal'
 const BACKUP_CODE_COUNT = 10
 
 const TwofaService = {

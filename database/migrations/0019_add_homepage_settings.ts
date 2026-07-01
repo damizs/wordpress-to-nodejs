@@ -1,4 +1,5 @@
 import { BaseSchema } from '@adonisjs/lucid/schema'
+import { camara } from '#config/camara'
 
 export default class extends BaseSchema {
   protected tableName = 'site_settings'
@@ -18,14 +19,14 @@ export default class extends BaseSchema {
       {
         group: 'homepage_hero',
         key: 'homepage_hero_title',
-        value: 'Câmara Municipal de Sumé',
+        value: camara.nome,
         type: 'text',
         label: 'Título do Hero',
       },
       {
         group: 'homepage_hero',
         key: 'homepage_hero_subtitle',
-        value: 'Legislatura 2025-2028 | Transparência e compromisso com o povo sumeense',
+        value: `Legislatura 2025-2028 | Transparência e compromisso com o povo de ${camara.cidade}`,
         type: 'text',
         label: 'Subtítulo do Hero',
       },
@@ -72,28 +73,28 @@ export default class extends BaseSchema {
       {
         group: 'homepage_esic',
         key: 'homepage_esic_address',
-        value: 'Rua Luiz Grande, s/n - Centro\nCEP: 58540-000\nSumé - PB',
+        value: camara.address,
         type: 'text',
         label: 'Endereço E-SIC',
       },
       {
         group: 'homepage_esic',
         key: 'homepage_esic_hours',
-        value: 'Segunda à Sexta-feira\ndas 8h às 14h',
+        value: camara.hours,
         type: 'text',
         label: 'Horário E-SIC',
       },
       {
         group: 'homepage_esic',
         key: 'homepage_esic_phone',
-        value: '(83) 3353-1191',
+        value: camara.phone,
         type: 'text',
         label: 'Telefone E-SIC',
       },
       {
         group: 'homepage_esic',
         key: 'homepage_esic_email',
-        value: 'contato@camaradesume.pb.gov.br',
+        value: camara.email,
         type: 'text',
         label: 'Email E-SIC',
       },
@@ -153,13 +154,13 @@ export default class extends BaseSchema {
         label: 'Subtítulo Diário',
       },
 
-      // Conheça Sumé section
+      // Conheça a Cidade section
       {
         group: 'homepage_conheca',
         key: 'homepage_conheca_title',
-        value: 'Conheça Sumé',
+        value: `Conheça ${camara.cidade}`,
         type: 'text',
-        label: 'Título Conheça Sumé',
+        label: 'Título Conheça a Cidade',
       },
       {
         group: 'homepage_conheca',
@@ -180,8 +181,7 @@ export default class extends BaseSchema {
       {
         group: 'homepage_seals',
         key: 'homepage_seals_subtitle',
-        value:
-          'A Câmara Municipal de Sumé é reconhecida por seu compromisso com a transparência pública e combate à corrupção.',
+        value: `${camara.nome} é reconhecida por seu compromisso com a transparência pública e a boa gestão.`,
         type: 'text',
         label: 'Subtítulo Selos',
       },
@@ -241,7 +241,7 @@ export default class extends BaseSchema {
         key: 'section_conheca_visible',
         value: 'true',
         type: 'boolean',
-        label: 'Mostrar Conheça Sumé',
+        label: 'Mostrar Conheça a Cidade',
       },
       {
         group: 'homepage_sections',
