@@ -24,6 +24,7 @@ export interface TemplateCustomConfig {
 export type TemplateConfigStore = Partial<Record<SiteTemplateKey, TemplateCustomConfig>>
 
 export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
+  banner: 'Banner de Destaque',
   news: 'Notícias',
   quickaccess: 'Acesso Rápido',
   esic: 'E-SIC',
@@ -49,6 +50,7 @@ export const SECTION_BG_TONES: { key: SectionBgTone; label: string }[] = [
 ]
 
 const ALL_KEYS: HomeSectionKey[] = [
+  'banner',
   'news',
   'quickaccess',
   'esic',

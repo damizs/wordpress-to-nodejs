@@ -15,6 +15,7 @@
 export type SiteTemplateKey = 'institucional' | 'classico' | 'moderno' | 'compacto'
 
 export type HomeSectionKey =
+  | 'banner'
   | 'news'
   | 'quickaccess'
   | 'esic'
@@ -30,6 +31,7 @@ export type HomeSectionKey =
   | 'survey'
 
 export const DEFAULT_HOME_ORDER: HomeSectionKey[] = [
+  'banner',
   'news',
   'quickaccess',
   'esic',
@@ -76,6 +78,7 @@ export const SITE_TEMPLATES: SiteTemplate[] = [
       'Cabeçalho gov.br (identidade clara + menu navy). Mesmas seções do institucional, priorizando serviços ao cidadão.',
     homeHero: false,
     homeOrder: [
+      'banner',
       'quickaccess',
       'esic',
       'transparency',
@@ -98,6 +101,7 @@ export const SITE_TEMPLATES: SiteTemplate[] = [
       'Cabeçalho compacto sticky (logo menor). Abertura nobre (atalhos + indicadores do Legislativo); notícias logo abaixo.',
     homeHero: true,
     homeOrder: [
+      'banner',
       'news',
       'vereadores',
       'mesa',
@@ -126,6 +130,7 @@ export const SITE_TEMPLATES: SiteTemplate[] = [
     newsLayout: 'lista',
     newsCount: 6,
     homeOrder: [
+      'banner',
       'news',
       'diario',
       'instagram',

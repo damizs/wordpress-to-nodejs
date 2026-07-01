@@ -415,6 +415,10 @@ Fontes de referência neste servidor:
   `city_population`, `city_altitude`, `city_founded` e a galeria `city_images`
   são editados em Painel > Aparência > Conheça a Cidade. `city_images` é salvo
   como JSON de URLs e o upload reaproveita `/painel/aparencia`.
+- **Banner 4:5 da home:** seção opcional `banner` controlada por
+  `section_banner_visible` (invisível por padrão), `banner_image` e `banner_link`
+  em Painel > Homepage. O banner é renderizado no topo da ordem da home e é
+  ocultado pelo modo eleitoral junto com conteúdo promocional.
 - **Tokens sempre** (dark-safe). **UI kit** no painel. **SectionHeading/PageHero**
   no público. Máximo 1–2 efeitos por elemento (a "dieta de efeitos" removeu
   shine/glow/mesh/ken-burns).

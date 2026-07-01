@@ -176,7 +176,9 @@ export default function Home({
     if (!saved) return base;
     const ordered = saved.filter((k) => (base as readonly string[]).includes(k));
     const rest = base.filter((k) => !ordered.includes(k));
-    return [...ordered, ...rest] as typeof base;
+    const bannerFirst = rest.filter((key) => key === 'banner');
+    const remaining = rest.filter((key) => key !== 'banner');
+    return [...bannerFirst, ...ordered, ...remaining] as typeof base;
   })();
   const newsLimit = Math.min(
     12,
@@ -186,7 +188,21 @@ export default function Home({
   const newsForHome = news.slice(0, newsLimit);
   const electionActive = electionMode?.active ?? false;
   const electionNotice = electionMode?.message ?? null;
-  const electionHiddenSections = new Set(["news", "instagram", "reels", "conheca", "seals", "survey"]);
+  const setting = (key: string) => {
+    const value = siteSettings?.[key];
+    return value && value.trim() !== '' ? value : undefined;
+  };
+  const electionHiddenSections = new Set([
+    "banner",
+    "news",
+    "instagram",
+    "reels",
+    "conheca",
+    "seals",
+    "survey",
+  ]);
+  const bannerImage = setting('banner_image');
+  const bannerLink = normalizePublicLink(setting('banner_link'));
 
   const hasGazetteContent = Boolean(latestGazette || gazetteEntries.length || gazetteDates.length);
 
@@ -195,12 +211,11 @@ export default function Home({
   // alimentado por importador próprio e deve voltar à home sempre que houver publicações.
   const visible = (section: string) => {
     if (electionActive && electionHiddenSections.has(section)) return false;
+    if (section === 'banner') {
+      return Boolean(bannerImage) && siteSettings?.section_banner_visible === 'true';
+    }
     if (section === 'diario' && hasGazetteContent) return true;
     return siteSettings?.[`section_${section}_visible`] !== 'false';
-  };
-  const setting = (key: string) => {
-    const value = siteSettings?.[key];
-    return value && value.trim() !== '' ? value : undefined;
   };
 
   return (
@@ -245,6 +260,9 @@ export default function Home({
             );
 
             const node = {
+              banner: bannerImage
+                ? shell(<HomeBannerSection imageUrl={bannerImage} linkUrl={bannerLink} />)
+                : null,
               news: shell(
                 <NewsSection
                   news={newsForHome}
@@ -345,5 +363,50 @@ export default function Home({
         <AssistenteVirtual />
       </div>
     </>
+  );
+}
+
+function normalizePublicLink(value?: string): string | undefined {
+  if (!value) return undefined;
+  if (value.startsWith('/')) return value;
+  try {
+    const parsed = new URL(value);
+    return ['http:', 'https:'].includes(parsed.protocol) ? value : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function HomeBannerSection({ imageUrl, linkUrl }: { imageUrl: string; linkUrl?: string }) {
+  const image = (
+    <img
+      src={imageUrl}
+      alt="Banner institucional"
+      className="h-full w-full object-cover"
+      loading="lazy"
+    />
+  );
+
+  return (
+    <section className="py-8 sm:py-10">
+      <div className="container">
+        <div className="mx-auto w-full max-w-md overflow-hidden rounded-lg bg-muted">
+          <div className="aspect-[4/5]">
+            {linkUrl ? (
+              <a
+                href={linkUrl}
+                className="block h-full w-full"
+                target={linkUrl.startsWith('/') ? undefined : '_blank'}
+                rel={linkUrl.startsWith('/') ? undefined : 'noopener noreferrer'}
+              >
+                {image}
+              </a>
+            ) : (
+              image
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }

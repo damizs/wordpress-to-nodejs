@@ -13,6 +13,7 @@ export default class HomepageController {
       'homepage_diario',
       'homepage_instagram',
       'homepage_conheca',
+      'homepage_banner',
       'homepage_seals',
       'homepage_survey',
       'homepage_sections',
@@ -33,10 +34,12 @@ export default class HomepageController {
     // Filter only known setting keys and upsert them
     // (upsert garante que chaves novas, como section_legislativo_visible, sejam criadas)
     for (const [key, value] of Object.entries(fields)) {
-      if (key.startsWith('homepage_') || key.startsWith('section_')) {
+      if (key.startsWith('homepage_') || key.startsWith('section_') || key.startsWith('banner_')) {
         const group = key.startsWith('section_')
           ? 'homepage_sections'
-          : `homepage_${key.split('_')[1]}`
+          : key.startsWith('banner_')
+            ? 'homepage_banner'
+            : `homepage_${key.split('_')[1]}`
         await SiteSetting.setValue(
           key,
           typeof value === 'string' || value === null ? value : JSON.stringify(value),

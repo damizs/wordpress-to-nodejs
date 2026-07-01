@@ -1,6 +1,6 @@
 import { Head, useForm } from '@inertiajs/react'
 import AdminLayout from '~/layouts/AdminLayout'
-import { Save, Monitor, Shield, Users, FileText, Globe, Award, Eye, GripVertical, type LucideIcon } from 'lucide-react'
+import { Save, Monitor, Shield, Users, FileText, Globe, Award, Eye, GripVertical, Image as ImageIcon, type LucideIcon } from 'lucide-react'
 import { Button, Card, CardHeader, Field, Input, PageHeader, Textarea } from '~/components/admin/ui'
 import {
   DndContext,
@@ -30,6 +30,7 @@ function get(settings: Props['settings'], group: string, key: string): string {
 
 // Seções da home (chave curta usada em section_order + visibilidade section_<key>_visible)
 const SECTIONS: { key: string; label: string }[] = [
+  { key: 'banner', label: 'Banner de Destaque' },
   { key: 'news', label: 'Notícias' },
   { key: 'quickaccess', label: 'Acesso Rápido' },
   { key: 'esic', label: 'E-SIC' },
@@ -40,7 +41,7 @@ const SECTIONS: { key: string; label: string }[] = [
   { key: 'diario', label: 'Diário Oficial' },
   { key: 'instagram', label: 'Instagram Feed' },
   { key: 'reels', label: 'Galeria de Vídeos (Reels)' },
-  { key: 'conheca', label: 'Conheça Sumé' },
+  { key: 'conheca', label: 'Conheça a Cidade' },
   { key: 'seals', label: 'Selos' },
   { key: 'survey', label: 'Pesquisa de Satisfação' },
 ]
@@ -94,6 +95,9 @@ export default function HomepageEditor({ settings }: Props) {
     // Hero
     homepage_hero_title: get(settings, 'homepage_hero', 'homepage_hero_title'),
     homepage_hero_subtitle: get(settings, 'homepage_hero', 'homepage_hero_subtitle'),
+    // Banner
+    banner_image: get(settings, 'homepage_banner', 'banner_image'),
+    banner_link: get(settings, 'homepage_banner', 'banner_link'),
     // Quick Access
     homepage_quickaccess_title: get(settings, 'homepage_quickaccess', 'homepage_quickaccess_title'),
     homepage_quickaccess_subtitle: get(settings, 'homepage_quickaccess', 'homepage_quickaccess_subtitle'),
@@ -122,6 +126,7 @@ export default function HomepageEditor({ settings }: Props) {
     homepage_seals_title: get(settings, 'homepage_seals', 'homepage_seals_title'),
     homepage_seals_subtitle: get(settings, 'homepage_seals', 'homepage_seals_subtitle'),
     // Visibility
+    section_banner_visible: get(settings, 'homepage_sections', 'section_banner_visible'),
     section_news_visible: get(settings, 'homepage_sections', 'section_news_visible'),
     section_quickaccess_visible: get(settings, 'homepage_sections', 'section_quickaccess_visible'),
     section_esic_visible: get(settings, 'homepage_sections', 'section_esic_visible'),
@@ -214,6 +219,23 @@ export default function HomepageEditor({ settings }: Props) {
           </DndContext>
         </Section>
 
+        {/* Banner */}
+        <Section
+          icon={ImageIcon}
+          title="Seção: Banner de Destaque"
+          description="Imagem vertical 4:5 exibida no topo da página inicial quando a seção estiver ativa."
+        >
+          <TextField label="URL da imagem" value={data.banner_image} onChange={(v) => setData('banner_image', v)} placeholder="/uploads/banner-frei.jpg" />
+          <TextField label="Link ao clicar (opcional)" value={data.banner_link} onChange={(v) => setData('banner_link', v)} placeholder="https://..." />
+          {data.banner_image && (
+            <div className="w-48 max-w-full overflow-hidden rounded-lg bg-muted">
+              <div className="aspect-[4/5]">
+                <img src={data.banner_image} alt="Prévia do banner" className="h-full w-full object-cover" />
+              </div>
+            </div>
+          )}
+        </Section>
+
         {/* Hero */}
         <Section icon={Monitor} title="Banner Principal (Hero)">
           <TextField label="Título" value={data.homepage_hero_title} onChange={(v) => setData('homepage_hero_title', v)} />
@@ -266,8 +288,8 @@ export default function HomepageEditor({ settings }: Props) {
           <TextField label="Subtítulo" value={data.homepage_diario_subtitle} onChange={(v) => setData('homepage_diario_subtitle', v)} />
         </Section>
 
-        {/* Conheça Sumé */}
-        <Section icon={Globe} title="Seção: Conheça Sumé">
+        {/* Conheça a Cidade */}
+        <Section icon={Globe} title="Seção: Conheça a Cidade">
           <TextField label="Título" value={data.homepage_conheca_title} onChange={(v) => setData('homepage_conheca_title', v)} />
           <TextField label="Subtítulo" value={data.homepage_conheca_subtitle} onChange={(v) => setData('homepage_conheca_subtitle', v)} />
         </Section>
