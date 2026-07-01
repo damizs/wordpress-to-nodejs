@@ -18,6 +18,10 @@ timeout "${MIGRATION_TIMEOUT:-300}" node ace migration:run --force \
 echo "=== Running database seeds ==="
 timeout "${SEED_TIMEOUT:-180}" node ace db:seed || true
 
+echo "=== Syncing atas/pautas from plenary sessions ==="
+timeout "${SEED_TIMEOUT:-180}" node ace seed:atas-pautas \
+  || echo "seed:atas-pautas warnings/timeout (non-fatal)"
+
 # ── Câmara NOVA (base reutilizável): bootstrap ESTRUTURAL sem o acervo de Sumé ──
 # Liga com CAMARA_INIT=true no Coolify. O portal de SUMÉ NÃO define essa flag, então
 # este passo é NO-OP para Sumé (o boot atual de Sumé permanece intocado).

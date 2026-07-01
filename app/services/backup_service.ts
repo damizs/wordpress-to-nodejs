@@ -1,5 +1,6 @@
 import app from '@adonisjs/core/services/app'
 import BackupRun, { type BackupProviderStatus } from '#models/backup_run'
+import { camara } from '#config/camara'
 import { DateTime } from 'luxon'
 import { execFile as execFileCallback, execFileSync } from 'node:child_process'
 import { existsSync } from 'node:fs'
@@ -258,7 +259,7 @@ export default class BackupService {
         JSON.stringify(
           {
             generatedAt: startedAt.toISO(),
-            app: 'camara-sume',
+            app: camara.nome,
             databasePath: databasePath ? basename(databasePath) : null,
             sitePath: uploadsPath ? basename(uploadsPath) : null,
             cloudTargets: getRcloneTargets(),

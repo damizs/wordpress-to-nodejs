@@ -369,6 +369,36 @@ function containsSumeResidue(value: string | null | undefined): boolean {
   )
 }
 
+function replaceSumeResidues(value: string | null | undefined): string {
+  const text = String(value ?? '')
+  const orgName = camara.nome
+  const city = camara.cidade
+  const cityUf = `${camara.cidade} - ${camara.uf}`
+  const publicHost = camara.siteUrl || camara.baseUrl
+
+  return text
+    .replace(/A\s+Câmara\s+Municipal\s+de\s+Sumé/gi, `A ${orgName}`)
+    .replace(/A\s+Camara\s+Municipal\s+de\s+Sume/gi, `A ${orgName}`)
+    .replace(/A\s+Câmara\s+de\s+Sumé/gi, `A ${orgName}`)
+    .replace(/A\s+Camara\s+de\s+Sume/gi, `A ${orgName}`)
+    .replace(/Câmara\s+Municipal\s+de\s+Sumé/gi, orgName)
+    .replace(/Camara\s+Municipal\s+de\s+Sume/gi, orgName)
+    .replace(/Câmara\s+de\s+Sumé/gi, orgName)
+    .replace(/Camara\s+de\s+Sume/gi, orgName)
+    .replace(/Município\s+de\s+Sumé/gi, `Município de ${city}`)
+    .replace(/Municipio\s+de\s+Sume/gi, `Município de ${city}`)
+    .replace(/cidade\s+de\s+Sumé/gi, `cidade de ${city}`)
+    .replace(/cidade\s+de\s+Sume/gi, `cidade de ${city}`)
+    .replace(/Centro\s+de\s+Sumé/gi, `Centro de ${city}`)
+    .replace(/Centro\s+de\s+Sume/gi, `Centro de ${city}`)
+    .replace(/Sumé\s*-\s*PB/gi, cityUf)
+    .replace(/Sume\s*-\s*PB/gi, cityUf)
+    .replace(/camaradesume\.pb\.gov\.br/gi, publicHost.replace(/^https?:\/\//, '').replace(/\/.*$/, ''))
+    .replace(/camaradesume/gi, slugKey(camara.nome))
+    .replace(/\bSumé\b/g, city)
+    .replace(/\bSume\b/g, city)
+}
+
 function plainText(value: string | null | undefined): string {
   return sanitizePlainText(String(value ?? '').replace(/<[^>]+>/g, ' '))
     .replace(/\s+/g, ' ')
@@ -410,28 +440,53 @@ function isDefaultInstitutionalContent(key: string, content: string, defaults = 
 }
 
 async function sanitizeFaqResidues(): Promise<number> {
-  const now = DateTime.now()
+  const now = DateTime.now().toSQL()
   const rows = await db
     .from('faq_items')
+    .select('id', 'question', 'answer')
+    .where('is_active', true)
     .whereNull('deleted_at')
     .where((query) => {
       query
         .whereILike('question', '%camaradesume%')
         .orWhereILike('answer', '%camaradesume%')
+        .orWhereILike('question', '%Câmara de Sumé%')
+        .orWhereILike('answer', '%Câmara de Sumé%')
+        .orWhereILike('question', '%Camara de Sume%')
+        .orWhereILike('answer', '%Camara de Sume%')
         .orWhereILike('question', '%Câmara Municipal de Sumé%')
         .orWhereILike('answer', '%Câmara Municipal de Sumé%')
         .orWhereILike('question', '%Camara Municipal de Sume%')
         .orWhereILike('answer', '%Camara Municipal de Sume%')
+        .orWhereILike('question', '%Sumé%')
+        .orWhereILike('answer', '%Sumé%')
+        .orWhereILike('question', '%Sume%')
+        .orWhereILike('answer', '%Sume%')
         .orWhereILike('answer', '%Centro de Sumé%')
         .orWhereILike('answer', '%Centro de Sume%')
     })
-    .update({
-      is_active: false,
-      deleted_at: now.toSQL(),
-      updated_at: now.toSQL(),
-    })
 
-  return Number(rows)
+  let changed = 0
+  for (const row of rows) {
+    const question = replaceSumeResidues(row.question)
+    const answer = replaceSumeResidues(row.answer)
+    const payload = containsSumeResidue(`${question}\n${answer}`)
+      ? {
+          is_active: false,
+          deleted_at: now,
+          updated_at: now,
+        }
+      : {
+          question,
+          answer,
+          updated_at: now,
+        }
+
+    await db.from('faq_items').where('id', row.id).update(payload)
+    changed++
+  }
+
+  return changed
 }
 
 async function sanitizeInformationRecords(): Promise<number> {

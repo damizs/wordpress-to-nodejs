@@ -419,6 +419,14 @@ Fontes de referência neste servidor:
   `share_view_data_middleware`. Isso evita flash de paleta/layout de Sumé em
   navegadores que visitaram outro tenant. Não usar `safe()` no Edge; o CSS inicial
   vem de hex validado e deve ser renderizado com interpolação Edge normal.
+- **Auditoria multi-câmara de 01/07/2026:** os 9 bancos ativos (`camara_sume`,
+  `camara_junco`, `camara_frei`, `camara_serra`, `camara_massaranduba`,
+  `camara_assuncao`, `camara_soledade`, `camara_parari`, `camara_nova_floresta`)
+  foram rechecados após deploy. Nos tenants não-Sumé: `faq_sume_hits=0`,
+  `page_sume_hits=0`, `info_sume_hits=0` e `missing_atas=0` contra
+  `plenary_sessions`. Não-Sumé também tem `privacy_policy_content` próprio/limpo.
+  `camara:desume` saneia FAQ com “Câmara de Sumé” substituindo pelo nome/cidade
+  do tenant; se sobrar resíduo depois da substituição, o item é desativado.
 - **LGPD/DPO por câmara:** a página pública `/politica-de-privacidade` exibe a
   portaria do encarregado somente se `site_settings.dpo_ordinance_pdf_url` estiver
   preenchido. Auditoria de 01/07/2026: Soledade tem
@@ -469,10 +477,13 @@ Fontes de referência neste servidor:
   data/proposição/votos e atualiza somente a votação correspondente, recriando
   apenas as entries dela. Não apagar em lote `nominal_votings WHERE source='api'`.
 - **Migração WP — Atas/Pautas:** Atas foram consolidadas como módulo nativo
-`atas`; o backup recente em `/root/backup-hoje/database.sql` e os ajustes manuais
-em `/root/backup-hoje/update_atas.sql` adicionaram/atualizaram as atas de 2026 com
-conteúdo e arquivo. O WordPress de Sumé não possui pautas reais cadastradas
-(`post_type=pauta` é template/listagem), então `pautas=0` no banco novo é esperado
+`atas`. O serviço `seedAtasPautasFromSessions` é incremental e idempotente:
+completa `atas` a partir de todos os `plenary_sessions` com slug, sem sobrescrever
+cadastros manuais; completa `pautas` somente quando a sessão tem `agenda`. Ele
+aceita datas vindas do PostgreSQL como `Date`, ISO ou SQL. O `startup.sh` roda
+`node ace seed:atas-pautas` após `db:seed`, então bancos antigos e novos são
+corrigidos em deploys futuros. O WordPress de Sumé não possui pautas reais
+cadastradas (`post_type=pauta` é template/listagem), então `pautas=0` é esperado
 até a Câmara começar a cadastrar esse acervo no painel.
 - **Migração WP — registros PNTP + arquivos:** o plugin `portal-transparencia`
  mantém 4 tabelas (`pntp_registros`, `pntp_anexos`, `pntp_declaracoes`, `pntp_secoes`).
@@ -493,11 +504,12 @@ e rodar `node scripts/extract_wp_diario.mjs <database.sql>` → gera
 não são exportadas). O comando `node ace wp:diario` importa para
  `official_gazette_entries` por `edition_number = materia_codigo`, usando o
  **visualizador público da matéria** como `file_url`:
- `https://getpublic.inf.br/system/visualizar-materia?materia=<codigo>&link=CMSU`
+ `https://getpublic.inf.br/system/visualizar-materia?materia=<codigo>&link=<GETPUBLIC_ENTITY>`
  (helper `getpublicMateriaUrl`). É o link que o site oficial usa — **não** o
  `/api/document/<id>/pdf` (endpoint errado). Página HTML → abre em **nova aba**
  (não embeda). A migração `2026_06_23_000000_fix_getpublic_materia_urls` reescreve
- as URLs antigas já gravadas sem apagar registros. O `startup.sh` roda esse import
+ as URLs antigas já gravadas sem apagar registros e usa `camara.getpublicEntity`,
+ evitando `CMSU` em tenants não-Sumé. O `startup.sh` roda esse import
  uma vez por marcador `.diario-imported-v1` (ou `FORCE_DIARIO_IMPORT=true`).
 - **GET Public online (`getpublic:sync`):** as edições diárias do Diário Oficial
   entram somente em `official_gazette_entries` a partir do endpoint `/diarios`.

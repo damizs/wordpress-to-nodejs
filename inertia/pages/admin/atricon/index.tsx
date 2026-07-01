@@ -54,6 +54,7 @@ interface CriterionGap {
 type Classification = 'essencial' | 'obrigatoria' | 'recomendada'
 type Freshness = 'em_dia' | 'desatualizado' | 'vazio'
 type TabKey = 'visao' | 'falta' | 'matriz' | 'auditoria' | 'ia'
+type FeedingScope = 'principal' | 'todos'
 
 interface Criterion {
   code: string
@@ -1120,6 +1121,9 @@ export default function AtriconIndex({
   // Barras: piores dimensões primeiro (evidencia as lacunas)
   const dimsByGap = [...scores.dimensions].sort((a, b) => a.pct - b.pct)
 
+  const [tab, setTab] = useState<TabKey>('visao')
+  const [feedingScope, setFeedingScope] = useState<FeedingScope>('principal')
+
   const aiFlow = useMemo(() => {
     const ownInfoPages = matrix.filter((c) => c.autoCheck?.startsWith('info:'))
     const externalSystems = matrix.filter((c) => c.external || c.status === 'externo')
@@ -1188,10 +1192,13 @@ export default function AtriconIndex({
       },
     ]
 
-    return items.map((item) => ({ ...item, module: byKey.get(item.key) ?? null }))
-  }, [contentMap])
+    const visible =
+      feedingScope === 'principal'
+        ? items.filter((item) => ['atividades', 'publicacoes'].includes(item.key))
+        : items
 
-  const [tab, setTab] = useState<TabKey>('visao')
+    return visible.map((item) => ({ ...item, module: byKey.get(item.key) ?? null }))
+  }, [contentMap, feedingScope])
 
   // Alerta proativo de frescor: atas/pautas/votações que venceram a meta quinzenal.
   const overdueBiweekly = useMemo(
@@ -1491,6 +1498,30 @@ export default function AtriconIndex({
                 Escolha o acervo exato para atualizar, sem misturar matérias, atos, atas, pautas e PNTP/LAI.
                 O Diário Oficial fica fora desta fila por ser alimentado no portal próprio.
               </p>
+            </div>
+            <div className="inline-flex rounded-lg border border-border bg-card p-1">
+              <button
+                type="button"
+                onClick={() => setFeedingScope('principal')}
+                className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${
+                  feedingScope === 'principal'
+                    ? 'bg-navy text-white'
+                    : 'text-muted-foreground hover:text-navy hover:bg-navy/5'
+                }`}
+              >
+                Matérias e publicações
+              </button>
+              <button
+                type="button"
+                onClick={() => setFeedingScope('todos')}
+                className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${
+                  feedingScope === 'todos'
+                    ? 'bg-navy text-white'
+                    : 'text-muted-foreground hover:text-navy hover:bg-navy/5'
+                }`}
+              >
+                Todos
+              </button>
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
