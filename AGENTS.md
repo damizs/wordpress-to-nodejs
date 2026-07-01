@@ -437,6 +437,11 @@ Fontes de referência neste servidor:
  também classifica `origin` (`executivo`, `legislativo`, `nao_informado`) por
  autoria/texto para separar Projetos de Lei do Executivo e do Legislativo no site e
  no painel. O branch legislativo do `importMaterias` foi desativado para não duplicar.
+- **Votação nominal XML:** para relatórios de sessão do sistema de votação, usar
+  `node ace votacao:import <dir-ou-arquivo-xml>`; `--dry-run` só audita. O comando
+  grava com `source='api'`, gera `voting_system_id` determinístico a partir da
+  data/proposição/votos e atualiza somente a votação correspondente, recriando
+  apenas as entries dela. Não apagar em lote `nominal_votings WHERE source='api'`.
 - **Migração WP — Atas/Pautas:** Atas foram consolidadas como módulo nativo
 `atas`; o backup recente em `/root/backup-hoje/database.sql` e os ajustes manuais
 em `/root/backup-hoje/update_atas.sql` adicionaram/atualizaram as atas de 2026 com
